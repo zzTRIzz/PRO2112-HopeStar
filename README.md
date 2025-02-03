@@ -23,6 +23,15 @@ Website được xây dựng với các công nghệ sau:
 - **Cổng Thanh Toán**:
   - Tích hợp với dịch vụ thanh toán (VNPAY) để xử lý giao dịch.
 
+## Cấu trúc thư mục
+
+```bash
+PRO2112-HopeStar/
+├───be/  # Mã nguồn backend (Spring Boot, API, Logic)
+├───db/  # Cấu trúc và dữ liệu mẫu trong cơ sở dữ liệu (SQL schema)
+└───fe/  # Mã nguồn frontend (React, UI components)
+```
+
 ## Cài Đặt
 
 Để bắt đầu với chạy dự án, làm theo các bước sau:
@@ -31,3 +40,4 @@ Website được xây dựng với các công nghệ sau:
 
    ```bash
    git clone https://github.com/zzTRIzz/PRO2112-HopeStar
+   ```
