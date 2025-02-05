@@ -228,7 +228,7 @@ CREATE TABLE `account` (
 	`code` VARCHAR(255) UNIQUE,
 	`email` VARCHAR(255) UNIQUE,
 	`password` VARCHAR(256),
-	`phone` VARCHAR(255),
+	`phone` VARCHAR(255) UNIQUE,
 	`address` VARCHAR(255),
 	`google_id` VARCHAR(1000),
 	`image_avatar` VARCHAR(255),

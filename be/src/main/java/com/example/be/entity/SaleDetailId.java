@@ -3,18 +3,20 @@ package com.example.be.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Embeddable
 public class SaleDetailId implements Serializable {
-    private static final long serialVersionUID = -5063759099984907930L;
+    private static final long serialVersionUID = 6504237464017068603L;
     @NotNull
     @Column(name = "sale_id", nullable = false)
     private Integer saleId;
