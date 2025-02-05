@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.base.AudiEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @ToString
 @Entity
 @Table(name = "sale_detail")
-public class SaleDetail {
+public class SaleDetail extends AudiEntity {
     @EmbeddedId
     private SaleDetailId id;
 
