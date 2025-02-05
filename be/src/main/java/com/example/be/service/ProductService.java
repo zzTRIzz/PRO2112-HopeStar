@@ -1,2 +1,4 @@
-package com.example.be.service;public interface ProductService {
+package com.example.be.service;
+
+public interface ProductService {
 }

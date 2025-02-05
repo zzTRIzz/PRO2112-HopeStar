@@ -1,12 +1,7 @@
-package com.example.be.service;
+package com.example.be.service.generic;
 
 import com.example.be.entity.Brand;
 
-import java.util.List;
 
-public interface BrandService {
-    List<Brand> getAllBrand();
-    Brand createBrand(Brand brand);
-    Brand updateBrand(Integer idBrand,Brand brandNew);
-    Brand getBrandById(Integer idBrand);
+public interface BrandService extends GenericService<Brand, Integer>{
 }

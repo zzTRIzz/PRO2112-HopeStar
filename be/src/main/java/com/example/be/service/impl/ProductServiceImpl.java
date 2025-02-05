@@ -1,2 +1,4 @@
-package com.example.be.service.impl;public class ProductServiceImpl {
+package com.example.be.service.impl;
+
+public class ProductServiceImpl {
 }
