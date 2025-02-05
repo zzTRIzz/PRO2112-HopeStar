@@ -13,6 +13,7 @@ import lombok.*;
 @Table(name = "shopping_cart")
 public class ShoppingCart {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

@@ -12,6 +12,7 @@ import lombok.*;
 @Table(name = "rear_camera_product")
 public class RearCameraProduct {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

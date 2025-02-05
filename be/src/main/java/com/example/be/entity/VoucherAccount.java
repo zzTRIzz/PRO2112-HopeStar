@@ -12,6 +12,7 @@ import lombok.*;
 @Table(name = "voucher_account")
 public class VoucherAccount {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
