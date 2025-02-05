@@ -1,6 +1,6 @@
 package com.example.be.entity;
 
-import com.example.be.entity.base.AudiEntity;
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @ToString
 @Entity
 @Table(name = "product_detail")
-public class ProductDetail extends AudiEntity {
+public class ProductDetail extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

@@ -1,6 +1,6 @@
 package com.example.be.entity;
 
-import com.example.be.entity.base.AudiEntity;
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,7 +13,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "screen")
-public class Screen extends AudiEntity {
+public class Screen extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
