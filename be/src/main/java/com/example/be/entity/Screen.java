@@ -37,4 +37,7 @@ public class Screen {
     @Column(name = "status")
     private Byte status;
 
+    @Column(name = "refresh_rate")
+    private Integer refreshRate;
+
 }
