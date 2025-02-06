@@ -1,4 +1,4 @@
-package com.example.be.domain;
+package com.example.be.entity.status;
 
 public enum ProductStatus {
     ACTIVE,

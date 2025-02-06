@@ -24,6 +24,6 @@ public class Resolution extends AuditEntity {
     private Integer height;
 
     @Column(name = "resolution_type")
-    private Byte resolutionType;
+    private String resolutionType;
 
 }
