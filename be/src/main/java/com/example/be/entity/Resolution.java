@@ -1,6 +1,6 @@
 package com.example.be.entity;
 
-import com.example.be.entity.base.AudiEntity;
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "resolution")
-public class Resolution extends AudiEntity {
+public class Resolution extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -24,6 +24,6 @@ public class Resolution extends AudiEntity {
     private Integer height;
 
     @Column(name = "resolution_type")
-    private Byte resolutionType;
+    private String resolutionType;
 
 }
