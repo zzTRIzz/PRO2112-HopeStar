@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "sim")
-public class Sim {
+public class Sim extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -24,9 +25,6 @@ public class Sim {
     @Size(max = 255)
     @Column(name = "type")
     private String type;
-
-    @Column(name = "sim_multiple")
-    private Byte simMultiple;
 
     @Column(name = "status")
     private Byte status;

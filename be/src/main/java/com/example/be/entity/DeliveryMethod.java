@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "delivery_method")
-public class DeliveryMethod {
+public class DeliveryMethod extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

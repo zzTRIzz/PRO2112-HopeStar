@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.time.Instant;
 @ToString
 @Entity
 @Table(name = "voucher")
-public class Voucher {
+public class Voucher extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

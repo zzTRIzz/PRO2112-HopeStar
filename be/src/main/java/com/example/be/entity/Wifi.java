@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,7 +13,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "wifi")
-public class Wifi {
+public class Wifi extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
