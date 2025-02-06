@@ -26,7 +26,7 @@ public class Battery extends AuditEntity {
     private Integer capacity;
 
     @Column(name = "type")
-    private Byte type;
+    private String type;
 
     @Column(name = "status")
     private Byte status;

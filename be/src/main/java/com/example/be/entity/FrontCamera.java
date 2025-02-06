@@ -23,7 +23,7 @@ public class FrontCamera extends AuditEntity {
     private String code;
 
     @Column(name = "type")
-    private Byte type;
+    private String type;
 
     @Column(name = "resolution")
     private Integer resolution;
