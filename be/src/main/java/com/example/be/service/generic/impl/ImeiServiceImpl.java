@@ -2,9 +2,10 @@ package com.example.be.service.generic.impl;
 
 import com.example.be.entity.Imei;
 import com.example.be.service.generic.ImeiService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class ImeiServiceImpl implements ImeiService {
     @Override
     public List<Imei> getAll() {
@@ -17,8 +18,7 @@ public class ImeiServiceImpl implements ImeiService {
     }
 
     @Override
-    public Imei update(Integer integer, Imei entity) {
-        return null;
+    public void update(Integer integer, Imei entity) {
     }
 
     @Override

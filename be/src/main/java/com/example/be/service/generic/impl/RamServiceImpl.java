@@ -2,9 +2,10 @@ package com.example.be.service.generic.impl;
 
 import com.example.be.entity.Ram;
 import com.example.be.service.generic.RamService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class RamServiceImpl implements RamService {
     @Override
     public List<Ram> getAll() {
@@ -17,8 +18,7 @@ public class RamServiceImpl implements RamService {
     }
 
     @Override
-    public Ram update(Integer integer, Ram entity) {
-        return null;
+    public void update(Integer integer, Ram entity) {
     }
 
     @Override

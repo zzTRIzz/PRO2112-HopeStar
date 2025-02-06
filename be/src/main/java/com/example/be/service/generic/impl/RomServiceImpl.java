@@ -2,9 +2,10 @@ package com.example.be.service.generic.impl;
 
 import com.example.be.entity.Rom;
 import com.example.be.service.generic.RomService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class RomServiceImpl implements RomService {
     @Override
     public List<Rom> getAll() {
@@ -17,8 +18,7 @@ public class RomServiceImpl implements RomService {
     }
 
     @Override
-    public Rom update(Integer integer, Rom entity) {
-        return null;
+    public void update(Integer integer, Rom entity) {
     }
 
     @Override
