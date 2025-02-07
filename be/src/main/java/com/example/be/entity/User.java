@@ -1,6 +1,6 @@
 package com.example.be.entity;
 
-import com.example.be.entity.base.AudiEntity;
+import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "users") // Tránh trùng từ khóa `user` trong SQL
-public class User extends AudiEntity {
+public class User extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
