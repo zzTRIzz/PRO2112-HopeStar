@@ -527,3 +527,10 @@ ADD COLUMN refresh_rate INT;
 ALTER TABLE `bill`
 ADD FOREIGN KEY(`id_cart`) REFERENCES `shopping_cart`(`id`)
 ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+ALTER TABLE bill
+ADD COLUMN id_nhan_vien INT;
+
+ALTER TABLE `bill`
+ADD FOREIGN KEY(`id_nhan_vien`) REFERENCES `account`(`id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
