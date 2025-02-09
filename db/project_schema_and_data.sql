@@ -1,6 +1,6 @@
 -- Quy ước tên database [tên_dự_án hoặc thương hiệu]_[chức_năng hoặc môi_trường: dev,prod]
-CREATE DATABASE hopestar_store_dev;
-use hopestar_store_dev;
+CREATE DATABASE hopestar_store_devs;
+use hopestar_store_devs;
 CREATE TABLE `product` (
 	`id` INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
 	`code` VARCHAR(255) NOT NULL UNIQUE,
@@ -526,4 +526,11 @@ ADD COLUMN refresh_rate INT;
 
 ALTER TABLE `bill`
 ADD FOREIGN KEY(`id_cart`) REFERENCES `shopping_cart`(`id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+ALTER TABLE bill
+ADD COLUMN id_nhan_vien INT;
+
+ALTER TABLE `bill`
+ADD FOREIGN KEY(`id_nhan_vien`) REFERENCES `account`(`id`)
 ON UPDATE NO ACTION ON DELETE NO ACTION;
