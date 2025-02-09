@@ -30,6 +30,10 @@ public class Bill extends AuditEntity {
     private Account idAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_nhan_vien")
+    private Account idNhanVien;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_voucher")
     private Voucher idVoucher;
 
