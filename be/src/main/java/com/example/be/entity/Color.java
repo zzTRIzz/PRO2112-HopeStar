@@ -19,12 +19,20 @@ public class Color extends AuditEntity {
     private Integer id;
 
     @Size(max = 255)
+    @Column(name = "code")
+    private String code;
+
+    @Size(max = 255)
     @Column(name = "name")
     private String name;
 
     @Size(max = 1000)
     @Column(name = "description", length = 1000)
     private String description;
+
+    @Size(max = 255)
+    @Column(name = "hex")
+    private String hex;
 
     @Column(name = "status")
     private Byte status;

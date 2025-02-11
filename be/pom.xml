@@ -124,6 +124,21 @@
             <version>0.11.2</version>
             <scope>runtime</scope>
         </dependency>
+
+<!--        Sử dụng MapStruct để tạo Mapper tự động-->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.3.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.3.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
 <!--        <dependencies>-->

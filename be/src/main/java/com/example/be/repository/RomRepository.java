@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Rom;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RomRepository extends JpaRepository<Rom, Integer> {
+@Repository
+public interface RomRepository extends BaseRepository<Rom, Integer> {
   }

@@ -1,7 +1,8 @@
 package com.example.be.controller.admin.attribute;
 
 import com.example.be.response.ApiResponse;
-import com.example.be.service.generic.GenericService;
+
+import com.example.be.service.base.GenericService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FormatController<E,S extends GenericService<E, Integer>> {
 
-    private final S s;
+    protected final S s;
 
     @GetMapping()
     public ResponseEntity<List<E>> getAll(){
