@@ -26,9 +26,6 @@ public class Sim extends AuditEntity {
     @Column(name = "type")
     private String type;
 
-    @Column(name = "sim_multiple")
-    private Byte simMultiple;
-
     @Column(name = "status")
     private Byte status;
 

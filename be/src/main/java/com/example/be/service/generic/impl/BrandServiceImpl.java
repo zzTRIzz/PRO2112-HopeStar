@@ -24,7 +24,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Brand create(Brand brand) {
         Brand newBrand = new Brand();
-        newBrand.setCode("cc");
+        newBrand.setCode(brand.getCode());
         newBrand.setName(brand.getName());
         newBrand.setImageUrl(brand.getImageUrl());
         newBrand.setStatus((byte) 1);
@@ -32,13 +32,17 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand update(Integer integer, Brand entity) {
-        return null;
+    public void update(Integer id, Brand entity) throws Exception {
+        Brand brand = getById(id);
+        if (brand != null){
+            brandRepository.save(entity);
+        }
     }
 
     @Override
-    public Brand getById(Integer integer) {
-        return null;
+    public Brand getById(Integer id) throws Exception {
+        return brandRepository.findById(id).orElseThrow(()->
+                new Exception("brand not found with id: " + id));
     }
 }
 
