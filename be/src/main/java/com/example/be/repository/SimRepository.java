@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Sim;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface SimRepository extends JpaRepository<Sim, Integer> {
+@Repository
+public interface SimRepository extends BaseRepository<Sim, Integer> {
   }

@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Card;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CardRepository extends JpaRepository<Card, Integer> {
+@Repository
+public interface CardRepository extends BaseRepository<Card, Integer> {
   }

@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Os;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface OsRepository extends JpaRepository<Os, Integer> {
+@Repository
+public interface OsRepository extends BaseRepository<Os, Integer> {
   }

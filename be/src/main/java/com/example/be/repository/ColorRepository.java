@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Color;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ColorRepository extends JpaRepository<Color, Integer> {
+@Repository
+public interface ColorRepository extends BaseRepository<Color, Integer> {
   }

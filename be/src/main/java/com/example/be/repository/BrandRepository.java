@@ -1,9 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Brand;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BrandRepository extends JpaRepository<Brand, Integer> {
+public interface BrandRepository extends BaseRepository<Brand, Integer> {
   }

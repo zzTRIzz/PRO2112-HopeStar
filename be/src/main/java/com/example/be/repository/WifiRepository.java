@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Wifi;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface WifiRepository extends JpaRepository<Wifi, Integer> {
+@Repository
+public interface WifiRepository extends BaseRepository<Wifi, Integer> {
   }

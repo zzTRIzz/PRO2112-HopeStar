@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,9 +45,9 @@ public class ProductDetail extends AuditEntity {
     @JoinColumn(name = "rom_id")
     private Rom rom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "imei_id")
-    private Imei imei;
+    private Set<Imei> imeis;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
