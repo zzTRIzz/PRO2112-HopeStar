@@ -27,7 +27,7 @@ public class ArticleCategory extends AuditEntity {
     private String description;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
 }

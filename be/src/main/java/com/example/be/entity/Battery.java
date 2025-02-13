@@ -29,7 +29,7 @@ public class Battery extends AuditEntity {
     private String type;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
 }

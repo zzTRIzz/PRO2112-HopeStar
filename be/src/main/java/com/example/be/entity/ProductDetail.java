@@ -35,7 +35,7 @@ public class ProductDetail extends AuditEntity {
     private Integer inventoryQuantity;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
