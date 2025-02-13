@@ -35,7 +35,8 @@ public class Sale extends AuditEntity {
     private Instant dateEnd;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @Size(max = 1000)
     @Column(name = "description", length = 1000)
