@@ -29,6 +29,7 @@ public class CartDetail extends AuditEntity {
     private ShoppingCart idShoppingCart;
 
     @Column(name = "status")
-    private Byte status;
+    //@Enumerated(EnumType.STRING)
+    private String status;
 
 }

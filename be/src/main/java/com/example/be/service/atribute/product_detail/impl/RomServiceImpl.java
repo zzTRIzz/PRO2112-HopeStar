@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product_detail.impl;
 
 import com.example.be.entity.Rom;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.RomRepository;
 import com.example.be.service.atribute.product_detail.RomService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class RomServiceImpl implements RomService {
         newRom.setCode("RoMS"+romRepository.getNewCode());
         newRom.setCapacity(rom.getCapacity());
         newRom.setDescription(rom.getDescription());
-        newRom.setStatus((byte) 1);
+        newRom.setStatus(StatusCommon.ACTIVE);
         return romRepository.save(newRom);
     }
 

@@ -58,6 +58,7 @@ public class Account extends AuditEntity {
     private Boolean gender;
 
     @Column(name = "status")
-    private Byte status;
+    //@Enumerated(EnumType.STRING)
+    private String status;
 
 }

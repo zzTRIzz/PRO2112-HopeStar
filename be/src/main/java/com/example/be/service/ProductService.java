@@ -1,7 +1,7 @@
 package com.example.be.service;
 
 
-import com.example.be.request.ProductRequest;
+import com.example.be.request.product.ProductRequest;
 import com.example.be.response.ProductResponse;
 
 import java.util.List;

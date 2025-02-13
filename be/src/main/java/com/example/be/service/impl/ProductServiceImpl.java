@@ -2,9 +2,10 @@ package com.example.be.service.impl;
 
 import com.example.be.dto.ProductDTO;
 import com.example.be.entity.*;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.mapper.ProductMapper;
 import com.example.be.repository.*;
-import com.example.be.request.ProductRequest;
+import com.example.be.request.product.ProductRequest;
 import com.example.be.response.ProductResponse;
 import com.example.be.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -86,8 +87,8 @@ public class ProductServiceImpl implements ProductService {
         product.setBluetooth(bluetooth);
         product.setNfc(productDTO.getNfc());
         product.setBattery(battery);
-        product.setChargerType((byte) productDTO.getChargerType());
-        product.setStatus((byte) 1);
+        product.setChargerType(productDTO.getChargerType());
+        product.setStatus(StatusCommon.ACTIVE);
         product.setContent(productDTO.getContent());
 
         productRepository.save(product);
@@ -149,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
             productCategory.setProduct(product);
             Category category =null;
             try {
-                category = categoryRepository.findById(item).orElseThrow(()->
+                category = categoryRepository.findById(Integer.parseInt(item)).orElseThrow(()->
                         new Exception("category not found:"+item));
             } catch (Exception e) {
                 e.printStackTrace();

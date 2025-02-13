@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product_detail.impl;
 
 import com.example.be.entity.Color;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ColorRepository;
 import com.example.be.service.atribute.product_detail.ColorService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ColorServiceImpl implements ColorService {
         newColor.setName(color.getName());
         newColor.setDescription(color.getDescription());
         newColor.setHex(color.getHex());
-        newColor.setStatus((byte) 1);
+        newColor.setStatus(StatusCommon.ACTIVE);
         return colorRepository.save(newColor);
     }
 

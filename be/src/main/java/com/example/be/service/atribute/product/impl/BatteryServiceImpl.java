@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Battery;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BatteryRepository;
 import com.example.be.service.atribute.product.BatteryService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class BatteryServiceImpl implements BatteryService {
         newBattery.setCode("BATE_"+batteryRepository.getNewCode());
         newBattery.setCapacity(battery.getCapacity());
         newBattery.setType(battery.getType());
-        newBattery.setStatus((byte) 1);
+        newBattery.setStatus(StatusCommon.ACTIVE);
         return batteryRepository.save(newBattery);
     }
 

@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product_detail.impl;
 
 import com.example.be.entity.Ram;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.RamRepository;
 import com.example.be.service.atribute.product_detail.RamService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class RamServiceImpl implements RamService {
         newRam.setCode("RAMS_"+ramRepository.getNewCode());
         newRam.setCapacity(ram.getCapacity());
         newRam.setDescription(ram.getDescription());
-        newRam.setStatus((byte) 1);
+        newRam.setStatus(StatusCommon.ACTIVE);
         return ramRepository.save(newRam);
     }
 

@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Category;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CategoryRepository;
 import com.example.be.service.atribute.product.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category newCategory = new Category();
         newCategory.setCode("CATE_"+categoryRepository.getNewCode());
         newCategory.setName(category.getName());
-        newCategory.setStatus((byte) 1);
+        newCategory.setStatus(StatusCommon.ACTIVE);
         return categoryRepository.save(newCategory);
     }
 

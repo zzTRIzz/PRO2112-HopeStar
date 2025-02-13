@@ -81,7 +81,8 @@ public class Bill extends AuditEntity {
     private Byte billType;
 
     @Column(name = "status")
-    private Byte status;
+    //@Enumerated(EnumType.STRING)
+    private String status;
 
     @Size(max = 255)
     @Column(name = "address")

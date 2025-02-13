@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Card;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CardRepository;
 import com.example.be.service.atribute.product.CardService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class CardServiceImpl implements CardService {
         newCard.setCode("CARD_"+cardRepository.getNewCode());
         newCard.setCapacity(card.getCapacity());
         newCard.setType(card.getType());
-        newCard.setStatus((byte) 1);
+        newCard.setStatus(StatusCommon.ACTIVE);
         return cardRepository.save(newCard);
     }
 

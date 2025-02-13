@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Sim;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.SimRepository;
 import com.example.be.service.atribute.product.SimService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class SimServiceImpl implements SimService {
         Sim newSim = new Sim();
         newSim.setCode("SIMS_"+simRepository.getNewCode());
         newSim.setType(sim.getType());
-        newSim.setStatus((byte) 1);
+        newSim.setStatus(StatusCommon.ACTIVE);
         return simRepository.save(newSim);
     }
 

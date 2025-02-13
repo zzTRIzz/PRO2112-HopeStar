@@ -3,12 +3,12 @@ package com.example.be.mapper;
 import com.example.be.dto.ProductDTO;
 import com.example.be.entity.*;
 import com.example.be.repository.*;
-import com.example.be.request.ProductRequest;
+import com.example.be.request.product.ProductRequest;
 import com.example.be.response.ProductResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ProductMapper {
@@ -36,6 +36,15 @@ public class ProductMapper {
 
     @Autowired
     private BatteryRepository batteryRepository;
+
+    @Autowired
+    private FrontCameraProductRepository frontCameraProductRepository;
+
+    @Autowired
+    private RearCameraProductRepository rearCameraProductRepository;
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
 
     // Chuyển đổi từ ProductRequest -> ProductDTO
     public ProductDTO requestToDTO(ProductRequest request) {
@@ -86,6 +95,7 @@ public class ProductMapper {
     public ProductDTO entityToDTO(Product entity) {
         ProductDTO dto = new ProductDTO();
         dto.setId(entity.getId());
+        dto.setCode(entity.getCode());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setWeight(entity.getWeight());
@@ -101,13 +111,23 @@ public class ProductMapper {
         dto.setChargerType(entity.getChargerType());
         dto.setStatus(entity.getStatus());
         dto.setContent(entity.getContent());
+        dto.setFrontCamera(frontCameraProductRepository.findByProductId(entity.getId())
+                .stream()
+                .map(f -> f.getFrontCamera().getResolution() +" "+f.getFrontCamera().getType() + (f.getCameraMain() ? " (main)" : ""))
+                .collect(Collectors.toList()));
+        dto.setRearCamera(rearCameraProductRepository.findByProductId(entity.getId())
+                .stream()
+                .map(f -> f.getRearCamera().getResolution() +" "+f.getRearCamera().getType() + (f.getCameraMain() ? " (main)" : ""))
+                .collect(Collectors.toList()));
+        dto.setCategory(productCategoryRepository.findByProductId(entity.getId()).stream().map(c->c.getCategory().getName()).collect(Collectors.toList()));
         return dto;
     }
 
     // Chuyển đổi từ ProductDTO -> ProductResponse
     public ProductResponse dtoToResponse(ProductDTO dto) {
         ProductResponse response = new ProductResponse();
-        response.setId(String.valueOf(dto.getId()));
+        response.setId(dto.getId());
+        response.setCode(dto.getCode());
         response.setName(dto.getName());
         response.setDescription(dto.getDescription());
         response.setWeight(dto.getWeight());
@@ -123,6 +143,9 @@ public class ProductMapper {
         response.setChargerType(dto.getChargerType());
         response.setStatus(dto.getStatus());
         response.setContent(dto.getContent());
+        response.setFrontCamera(dto.getFrontCamera());
+        response.setRearCamera(dto.getRearCamera());
+        response.setCategory(dto.getCategory());
         return response;
     }
 }
