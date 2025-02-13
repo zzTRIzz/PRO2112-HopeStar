@@ -52,7 +52,7 @@ public class Voucher extends AuditEntity {
     private LocalDateTime endTime;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
 }

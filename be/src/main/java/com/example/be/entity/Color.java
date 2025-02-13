@@ -35,7 +35,7 @@ public class Color extends AuditEntity {
     private String hex;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
 }

@@ -29,7 +29,7 @@ public class Imei extends AuditEntity {
     private String description;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
