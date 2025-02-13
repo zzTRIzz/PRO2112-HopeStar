@@ -1,9 +1,6 @@
 package com.example.be.controller.admin.product;
 
-import com.example.be.dto.ProductDTO;
-import com.example.be.entity.Product;
-import com.example.be.mapper.ProductMapper;
-import com.example.be.request.ProductRequest;
+import com.example.be.request.product.ProductRequest;
 import com.example.be.response.ProductResponse;
 import com.example.be.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Brand;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BrandRepository;
 import com.example.be.service.atribute.product.BrandService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class BrandServiceImpl implements BrandService {
         newBrand.setCode("BRAN_"+brandRepository.getNewCode());
         newBrand.setName(brand.getName());
         newBrand.setImageUrl(brand.getImageUrl());
-        newBrand.setStatus((byte) 1);
+        newBrand.setStatus(StatusCommon.ACTIVE);
         return brandRepository.save(newBrand);
     }
 
@@ -49,11 +50,10 @@ public class BrandServiceImpl implements BrandService {
     public void remove(Integer id) throws Exception {
         Brand brand = getById(id);
         if (brand != null){
-            Byte status = brand.getStatus() != null ? brand.getStatus() : 0;
-            if (status == 1) {
-                brand.setStatus((byte) 0);
+            if (brand.getStatus().equals(StatusCommon.ACTIVE)) {
+                brand.setStatus(StatusCommon.IN_ACTIVE);
             } else {
-                brand.setStatus((byte) 1);
+                brand.setStatus(StatusCommon.ACTIVE);
             }
         }
         brandRepository.save(brand);

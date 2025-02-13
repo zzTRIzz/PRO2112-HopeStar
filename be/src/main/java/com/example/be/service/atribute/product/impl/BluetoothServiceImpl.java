@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Bluetooth;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BluetoothRepository;
 import com.example.be.service.atribute.product.BluetoothService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class BluetoothServiceImpl implements BluetoothService {
         Bluetooth newBluetooth = new Bluetooth();
         newBluetooth.setCode("BLTO_"+bluetoothRepository.getNewCode());
         newBluetooth.setName(bluetooth.getName());
-        newBluetooth.setStatus((byte) 1);
+        newBluetooth.setStatus(StatusCommon.ACTIVE);
         return bluetoothRepository.save(newBluetooth);
     }
 

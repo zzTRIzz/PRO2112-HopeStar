@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Wifi;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.WifiRepository;
 import com.example.be.service.atribute.product.WifiService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class WifiServiceImpl implements WifiService {
         Wifi newWifi = new Wifi();
         newWifi.setCode("WIFI_"+wifiRepository.getNewCode());
         newWifi.setName(wifi.getName());
-        newWifi.setStatus((byte) 1);
+        newWifi.setStatus(StatusCommon.ACTIVE);
         return wifiRepository.save(newWifi);
     }
 

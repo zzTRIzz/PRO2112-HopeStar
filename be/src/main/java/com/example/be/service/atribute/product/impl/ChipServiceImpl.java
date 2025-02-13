@@ -1,6 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Chip;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ChipRepository;
 import com.example.be.service.atribute.product.ChipService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ChipServiceImpl implements ChipService {
         Chip newChip = new Chip();
         newChip.setCode("CHIP_"+chipRepository.getNewCode());
         newChip.setName(chip.getName());
-        newChip.setStatus((byte) 1);
+        newChip.setStatus(StatusCommon.ACTIVE);
         return chipRepository.save(newChip);
     }
 

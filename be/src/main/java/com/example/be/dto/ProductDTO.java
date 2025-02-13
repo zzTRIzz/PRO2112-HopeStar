@@ -1,5 +1,6 @@
 package com.example.be.dto;
 
+import com.example.be.entity.FrontCamera;
 import com.example.be.entity.status.StatusCommon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductDTO {
     private Integer id;
+    private String code;
     private String name;
     private String description;
     private Integer weight;
@@ -26,11 +28,11 @@ public class ProductDTO {
     private Integer idBluetooth;
     private Boolean nfc;
     private Integer idBattery;
-    private Byte chargerType;
+    private String chargerType;
     private StatusCommon status;
     private String content;
     private List<String> frontCamera;
     private List<String> rearCamera;
-    private List<Integer> category;
+    private List<String> category;
 }
 

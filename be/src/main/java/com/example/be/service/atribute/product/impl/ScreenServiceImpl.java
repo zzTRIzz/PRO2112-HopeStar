@@ -2,6 +2,7 @@ package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Screen;
 import com.example.be.entity.Screen;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ScreenRepository;
 import com.example.be.repository.ScreenRepository;
 import com.example.be.service.atribute.product.ScreenService;
@@ -28,7 +29,7 @@ public class ScreenServiceImpl implements ScreenService {
         newScreen.setResolution(screen.getResolution());
         newScreen.setRefreshRate(screen.getRefreshRate());
         newScreen.setType(screen.getType());
-        newScreen.setStatus((byte) 1);
+        newScreen.setStatus(StatusCommon.ACTIVE);
         return screenRepository.save(newScreen);
     }
 
