@@ -1,9 +1,11 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -70,6 +72,8 @@ public class Bill extends AuditEntity {
     @Column(name = "receipt_date")
     private Instant receiptDate;
 
+//    @JsonFormat(pattern = "yyyy-MM-dd")  // Định dạng ngày tháng trong JSON
+//    @CreationTimestamp // khi thêm bản ghi mới ngày tạo sẽ tự thêm mới ngày đấy
     @Column(name = "payment_date")
     private Instant paymentDate;
 

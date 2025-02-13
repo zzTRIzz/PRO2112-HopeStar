@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -47,15 +49,16 @@ public class BillServiceImpl implements BillService {
     public void createHoaDon(Bill bill){
         try {
             Bill newBill = new Bill();
-
+            Instant now = Instant.now();
             newBill.setIdNhanVien(bill.getIdAccount());
             newBill.setBillType((byte) 0);
-//            tao them 1 ngay tao de lam hoa don tai quay
+            newBill.setPaymentDate(now);
             billRepository.save(newBill);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
+
      @Override
     public void updateHuyHoaDon(Integer idBill){
         try {
