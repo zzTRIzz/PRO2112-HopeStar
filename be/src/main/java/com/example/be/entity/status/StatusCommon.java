@@ -1,6 +1,6 @@
 package com.example.be.entity.status;
 
-public enum ProductStatus {
+public enum StatusCommon {
     ACTIVE,
-    STOP_SELLING
+    IN_ACTIVE
 }

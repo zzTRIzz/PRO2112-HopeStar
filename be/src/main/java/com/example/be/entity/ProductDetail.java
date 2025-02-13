@@ -21,8 +21,12 @@ public class ProductDetail extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "price", precision = 24, scale = 2)
-    private BigDecimal price;
+    @Size(max = 255)
+    @Column(name = "code")
+    private String code;
+
+//    @Column(name = "price", precision = 24, scale = 2)
+//    private BigDecimal price;
 
     @Column(name = "price_sell", precision = 24, scale = 2)
     private BigDecimal priceSell;
@@ -44,10 +48,6 @@ public class ProductDetail extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rom_id")
     private Rom rom;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "imei_id")
-    private Set<Imei> imeis;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

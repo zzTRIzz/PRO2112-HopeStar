@@ -1,5 +1,6 @@
 package com.example.be.response;
 
+import com.example.be.entity.status.StatusCommon;
 import lombok.Data;
 
 @Data
@@ -18,6 +19,6 @@ public class ProductResponse {
     private Boolean nfc;
     private String typeBattery;
     private Byte chargerType;
-    private Byte status;
+    private StatusCommon status;
     private String content;
 }

@@ -1,5 +1,6 @@
 package com.example.be.dto;
 
+import com.example.be.entity.status.StatusCommon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,7 @@ public class ProductDTO {
     private Boolean nfc;
     private Integer idBattery;
     private Byte chargerType;
-    private Byte status;
+    private StatusCommon status;
     private String content;
     private List<String> frontCamera;
     private List<String> rearCamera;

@@ -2,6 +2,7 @@ package com.example.be.service.impl;
 
 import com.example.be.dto.ProductDTO;
 import com.example.be.entity.*;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.mapper.ProductMapper;
 import com.example.be.repository.*;
 import com.example.be.request.ProductRequest;
@@ -87,7 +88,7 @@ public class ProductServiceImpl implements ProductService {
         product.setNfc(productDTO.getNfc());
         product.setBattery(battery);
         product.setChargerType((byte) productDTO.getChargerType());
-        product.setStatus((byte) 1);
+        product.setStatus(StatusCommon.ACTIVE);
         product.setContent(productDTO.getContent());
 
         productRepository.save(product);
