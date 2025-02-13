@@ -72,10 +72,12 @@ public class Product extends AuditEntity {
     private Battery battery;
 
     @Column(name = "charger_type")
-    private Byte chargerType;
+    @Enumerated(EnumType.STRING)
+    private String chargerType;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @Lob
     @Column(name = "content")

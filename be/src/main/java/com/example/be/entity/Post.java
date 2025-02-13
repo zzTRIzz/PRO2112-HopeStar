@@ -38,7 +38,8 @@ public class Post extends AuditEntity {
     private Integer views;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")

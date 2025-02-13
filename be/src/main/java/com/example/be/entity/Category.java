@@ -27,6 +27,7 @@ public class Category extends AuditEntity {
     private String name;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
 }

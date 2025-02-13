@@ -32,6 +32,7 @@ public class Ram extends AuditEntity {
     private String description;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
 }

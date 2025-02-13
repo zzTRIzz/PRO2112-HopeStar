@@ -27,6 +27,7 @@ public class Sim extends AuditEntity {
     private String type;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
 }

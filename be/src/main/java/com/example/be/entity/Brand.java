@@ -30,7 +30,8 @@ public class Brand extends AuditEntity {
     private String name;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @Size(max = 255)
     @Column(name = "image_url")

@@ -31,7 +31,8 @@ public class ProductDetail extends AuditEntity {
     private Integer inventoryQuantity;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id")

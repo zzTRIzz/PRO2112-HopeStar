@@ -36,7 +36,8 @@ public class Screen extends AuditEntity {
     private Resolution resolution;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @Column(name = "refresh_rate")
     private Integer refreshRate;

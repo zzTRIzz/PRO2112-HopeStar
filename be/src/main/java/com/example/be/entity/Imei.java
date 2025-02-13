@@ -29,7 +29,8 @@ public class Imei extends AuditEntity {
     private String description;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_product_detail")
