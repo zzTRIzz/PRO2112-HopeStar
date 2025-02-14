@@ -1,6 +1,7 @@
 package com.example.be.controller.admin.BanHang;
 
 import com.example.be.entity.Bill;
+import com.example.be.entity.BillDetail;
 import com.example.be.service.ProductDetailService;
 import com.example.be.service.ProductService;
 import com.example.be.service.atribute.product.BillDetailService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -33,13 +35,29 @@ public class BanHangTaiQuay {
     @Autowired
     ProductDetailService productDetailService;
 
+    @GetMapping
+    public List<Bill> getListHoaDon(){
+        return billService.listTaiQuay();
+    }
+
 //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
     public String addHoaDon(Bill bill){
          billService.createHoaDon(bill);
          return "Tạo hóa đơn thành công ";
     }
-    
+
+    @PostMapping("/addHDCT")
+    public String addHDCT(BillDetail billDetail){
+        BigDecimal price = billDetail.getIdProductDetail().getPriceSell();
+        billDetail.setPrice(price);
+        BigDecimal total_price = price.multiply(BigDecimal.valueOf(billDetail.getQuantity()));
+        billDetail.setTotalPrice(total_price);
+        
+        return "Thêm hóa đơn chi tiết thành công  thành công ";
+
+    }
+
 
 
 }
