@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Chip;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ChipRepository extends JpaRepository<Chip, Integer> {
+@Repository
+public interface ChipRepository extends BaseRepository<Chip, Integer> {
   }

@@ -20,9 +20,10 @@ public class Bill extends AuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-
-    @Column(name = "id_cart")
-    private Integer idCart;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cart")
+    private ShoppingCart idCart;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
@@ -72,7 +73,8 @@ public class Bill extends AuditEntity {
     private Byte billType;
 
     @Column(name = "status")
-    private Byte status;
+    //@Enumerated(EnumType.STRING)
+    private String status;
 
     @Size(max = 255)
     @Column(name = "address")

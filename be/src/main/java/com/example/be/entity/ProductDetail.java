@@ -1,11 +1,13 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.ProductDetailStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,8 +22,12 @@ public class ProductDetail extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "price", precision = 24, scale = 2)
-    private BigDecimal price;
+    @Size(max = 255)
+    @Column(name = "code")
+    private String code;
+
+//    @Column(name = "price", precision = 24, scale = 2)
+//    private BigDecimal price;
 
     @Column(name = "price_sell", precision = 24, scale = 2)
     private BigDecimal priceSell;
@@ -30,7 +36,8 @@ public class ProductDetail extends AuditEntity {
     private Integer inventoryQuantity;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private ProductDetailStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id")
@@ -43,10 +50,6 @@ public class ProductDetail extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rom_id")
     private Rom rom;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "imei_id")
-    private Imei imei;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

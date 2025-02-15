@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusCommon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -72,10 +73,12 @@ public class Product extends AuditEntity {
     private Battery battery;
 
     @Column(name = "charger_type")
-    private Byte chargerType;
+//    @Enumerated(EnumType.STRING)
+    private String chargerType;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private StatusCommon status;
 
     @Lob
     @Column(name = "content")

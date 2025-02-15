@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+@Repository
+public interface ProductRepository extends BaseRepository<Product, Integer> {
   }

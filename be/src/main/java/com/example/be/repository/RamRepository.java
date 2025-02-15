@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Ram;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RamRepository extends JpaRepository<Ram, Integer> {
+@Repository
+public interface RamRepository extends BaseRepository<Ram, Integer> {
   }
