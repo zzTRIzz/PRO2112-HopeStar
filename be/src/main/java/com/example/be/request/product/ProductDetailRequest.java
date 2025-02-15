@@ -1,5 +1,6 @@
 package com.example.be.request.product;
 
+import com.example.be.entity.status.ProductDetailStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,5 +17,6 @@ public class ProductDetailRequest {
     private Integer idColors;
     private List<ProductImeiRequest> productImeiRequests;
     private String imageUrl;
+    private ProductDetailStatus productDetailStatus;
 
 }
