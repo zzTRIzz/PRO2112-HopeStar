@@ -1,6 +1,5 @@
 package com.example.be.dto;
 
-import com.example.be.entity.FrontCamera;
 import com.example.be.entity.status.StatusCommon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

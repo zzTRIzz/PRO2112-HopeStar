@@ -71,20 +71,29 @@ public class ProductMapper {
     }
 
     // Chuyển đổi từ ProductDTO -> Product Entity
-    public Product dtoToEntity(ProductDTO dto) {
+    public Product dtoToEntity(ProductDTO dto) throws Exception {
         Product product = new Product();
+        product.setCode(dto.getCode());
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setWeight(dto.getWeight());
-        product.setChip(chipRepository.findById(dto.getIdChip()).orElse(null));
-        product.setBrand(brandRepository.findById(dto.getIdBrand()).orElse(null));
-        product.setScreen(screenRepository.findById(dto.getIdScreen()).orElse(null));
-        product.setCard(cardRepository.findById(dto.getIdCard()).orElse(null));
-        product.setOs(osRepository.findById(dto.getIdOs()).orElse(null));
-        product.setWifi(wifiRepository.findById(dto.getIdWifi()).orElse(null));
-        product.setBluetooth(bluetoothRepository.findById(dto.getIdBluetooth()).orElse(null));
+        product.setChip(chipRepository.findById(dto.getIdChip()).orElseThrow(()->
+                new Exception("chip not found:"+dto.getIdChip())));
+        product.setBrand(brandRepository.findById(dto.getIdBrand()).orElseThrow(()->
+                new Exception("brand not found:"+dto.getIdBrand())));
+        product.setScreen(screenRepository.findById(dto.getIdScreen()).orElseThrow(()->
+                new Exception("screen not found:"+dto.getIdScreen())));
+        product.setCard(cardRepository.findById(dto.getIdCard()).orElseThrow(()->
+                new Exception("card not found:"+dto.getIdCard())));
+        product.setOs(osRepository.findById(dto.getIdOs()).orElseThrow(()->
+                new Exception("os not found:"+dto.getIdOs())));
+        product.setWifi(wifiRepository.findById(dto.getIdWifi()).orElseThrow(()->
+                new Exception("wifi not found:"+dto.getIdWifi())));
+        product.setBluetooth(bluetoothRepository.findById(dto.getIdBluetooth()).orElseThrow(()->
+                new Exception("Bluetooth not found:"+dto.getIdBluetooth())));
         product.setNfc(dto.getNfc());
-        product.setBattery(batteryRepository.findById(dto.getIdBattery()).orElse(null));
+        product.setBattery(batteryRepository.findById(dto.getIdBattery()).orElseThrow(()->
+                new Exception("Battery not found:"+dto.getIdBattery())));
         product.setChargerType(dto.getChargerType());
         product.setStatus(dto.getStatus());
         product.setContent(dto.getContent());
