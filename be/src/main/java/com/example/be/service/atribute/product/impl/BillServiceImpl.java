@@ -50,7 +50,7 @@ public class BillServiceImpl implements BillService {
     public List<BillDto> listTaiQuay(){
         List<Bill> listHoaDonCTT = new ArrayList<>();
         for (Bill bill: billRepository.findAll()) {
-            if (bill.getBillType() == 0){
+            if (bill.getStatus().equals("")){
                 listHoaDonCTT.add(bill);
             }
         }
@@ -66,23 +66,24 @@ public class BillServiceImpl implements BillService {
 
             BillDto newBill = new BillDto();
             Instant now = Instant.now();
-            newBill.setBillType((byte) 0);
-            newBill.setPaymentDate(now);
+//            billDto.setBillType((byte) 0);
+//            billDto.getStatus()
+            billDto.setPaymentDate(now);
             Bill bill = billMapper.entityBillMapper(billDto, null, null,account,null,null,null);
             Bill saveBill= billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         }catch (Exception e){
             e.printStackTrace();
-//            return null;
         }
         return null;
     }
 
     @Override
-    public Bill getByIdHoaDon(Integer id){
-        return billRepository.findById(id).orElseThrow(()->
+    public BillDto getByIdHoaDon(Integer id){
+       Bill bill = billRepository.findById(id).orElseThrow(()->
             new RuntimeException("Khong tim thay id "+id)
         );
+       return billMapper.dtoBillMapper(bill);
     }
 
      @Override

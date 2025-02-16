@@ -49,13 +49,12 @@ public class BanHangTaiQuay {
 
     @PostMapping("/addHDCT")
     public String addHDCT(BillDetail billDetail){
-//        BigDecimal price = billDetail.getIdProductDetail().getPriceSell();
-//        billDetail.setPrice(price);
-//        BigDecimal total_price = price.multiply(BigDecimal.valueOf(billDetail.getQuantity()));
-//        billDetail.setTotalPrice(total_price);
-        return "Thêm hóa đơn chi tiết thành công  thành công ";
+        BigDecimal price = billDetail.getIdProductDetail().getPriceSell();
+        billDetail.setPrice(price);
+        BigDecimal total_price = price.multiply(BigDecimal.valueOf(billDetail.getQuantity()));
+        billDetail.setTotalPrice(total_price);
+        return "Thêm hóa đơn chi tiết thành công  thành công";
     }
-
 
 
 }

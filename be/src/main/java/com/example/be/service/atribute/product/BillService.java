@@ -14,7 +14,7 @@ public interface BillService {
 
     BillDto createHoaDon(BillDto billDto);
 
-    Bill getByIdHoaDon(Integer id);
+    BillDto getByIdHoaDon(Integer id);
 
     void updateHuyHoaDon(Integer idBill);
 }

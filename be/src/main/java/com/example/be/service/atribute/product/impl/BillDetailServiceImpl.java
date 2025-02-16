@@ -59,20 +59,30 @@ public class BillDetailServiceImpl implements BillDetailService {
         }
         return null;
     }
+
     @Override
-    public List<BillDetail> getByIdBill(Integer idBill){
-        List<BillDetail> newBillDetails = new ArrayList<>();
+    public List<BillDetailDto> getByIdBill(Integer idBill){
+        List<BillDetailDto> newBillDetails = new ArrayList<>();
         for (BillDetail billDetail: billDetailRepository.findAll()) {
-            if (billDetail.getIdBill().getId() == idBill){
-                newBillDetails.add(billDetail);
+            if (billDetail.getIdBill().getId().equals(idBill)){
+                BillDetailDto billDetailDto = billDetailMapper.dtoBillDetailMapper(billDetail);
+                newBillDetails.add(billDetailDto);
             }
         }
         return newBillDetails;
     }
 
-//    @Override
-//    public BigDecimal totalPrice(){
-//
-//    }
+    @Override
+    public BigDecimal tongTienBill(Integer idBill) {
+        BigDecimal tongTien = BigDecimal.ZERO; // Khởi tạo đúng cách là zero
+        for (BillDetail billDetail : billDetailRepository.findAll()) {
+            if (billDetail.getIdBill().getId().equals(idBill)) {
+                tongTien = tongTien.add(
+                        billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity()))
+                );
+            }
+        }
+        return tongTien;
+    }
 
 }

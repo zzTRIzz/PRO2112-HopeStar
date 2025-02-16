@@ -10,38 +10,39 @@ import org.springframework.stereotype.Repository;
 public class BillMapper {
 
 
-    public BillDto dtoBillMapper(Bill bill){
-      return new BillDto(
-        bill.getId(),
-        bill.getIdCart().getId(),
-        bill.getIdAccount().getId(),
-        bill.getIdNhanVien().getId(),
-        bill.getIdVoucher().getId(),
-        bill.getTotalPrice(),
-        bill.getCustomerPayment(),
-        bill.getAmountChange(),
-        bill.getDeliveryFee(),
-        bill.getTotalDue(),
-        bill.getCustomerRefund(),
-        bill.getDiscountedTotal(),
-        bill.getDeliveryDate(),
-        bill.getCustomerPreferredDate(),
-        bill.getCustomerAppointmentDate(),
-        bill.getReceiptDate(),
-        bill.getPaymentDate(),
-        bill.getBillType(),
-        bill.getStatus(),
-        bill.getAddress(),
-        bill.getEmail(),
-        bill.getNote(),
-        bill.getPhone(),
-        bill.getName(),
-        bill.getCreatedBy(),
-        bill.getUpdatedBy(),
-        bill.getPayment().getId(),
-        bill.getDelivery().getId()
-      );
+    public BillDto dtoBillMapper(Bill bill) {
+        return new BillDto(
+                bill.getId(),
+                (bill.getIdCart() != null) ? bill.getIdCart().getId() : null,
+                (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
+                (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
+                (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
+                bill.getTotalPrice(),
+                bill.getCustomerPayment(),
+                bill.getAmountChange(),
+                bill.getDeliveryFee(),
+                bill.getTotalDue(),
+                bill.getCustomerRefund(),
+                bill.getDiscountedTotal(),
+                bill.getDeliveryDate(),
+                bill.getCustomerPreferredDate(),
+                bill.getCustomerAppointmentDate(),
+                bill.getReceiptDate(),
+                bill.getPaymentDate(),
+                bill.getBillType(),
+                bill.getStatus(),
+                bill.getAddress(),
+                bill.getEmail(),
+                bill.getNote(),
+                bill.getPhone(),
+                bill.getName(),
+                bill.getCreatedBy(),
+                bill.getUpdatedBy(),
+                (bill.getPayment() != null) ? bill.getPayment().getId() : null,
+                (bill.getDelivery() != null) ? bill.getDelivery().getId() : null
+        );
     }
+
     public Bill entityBillMapper(BillDto billDto, ShoppingCart shoppingCart,
                                  Account accountKhachHang,Account accountNhanVien,
                                  Voucher voucher, PaymentMethod paymentMethod,
