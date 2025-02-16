@@ -21,7 +21,7 @@ public class RomServiceImpl implements RomService {
     @Override
     public Rom create(Rom rom) {
         Rom newRom = new Rom();
-        newRom.setCode("RoMS"+romRepository.getNewCode());
+        newRom.setCode("RMSO_"+romRepository.getNewCode());
         newRom.setCapacity(rom.getCapacity());
         newRom.setDescription(rom.getDescription());
         newRom.setStatus(StatusCommon.ACTIVE);

@@ -27,13 +27,6 @@ public class ProductController {
         return ResponseEntity.ok(responses);
 
     }
-    @PostMapping
-    public ResponseEntity<ProductResponse> add(@RequestBody ProductRequest productRequest) throws Exception {
-
-        ProductResponse response = productService.add(productRequest);
-        return ResponseEntity.ok(response);
-
-    }
     @PostMapping("/create-product")
     public ResponseEntity<ProductConfigResponse> add(@RequestBody ProductConfigRequest productConfigRequest) throws Exception {
         ProductConfigResponse productConfigResponse = productConfigService.create(productConfigRequest);

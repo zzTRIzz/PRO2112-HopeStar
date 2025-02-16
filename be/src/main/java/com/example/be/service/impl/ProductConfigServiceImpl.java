@@ -130,7 +130,9 @@ public class ProductConfigServiceImpl implements ProductConfigService {
                 ProductDetailDTO productDetailDTO = productDetailMapper.requestToDTO(item);
                 productDetailDTO.setCode("PRDE_"+productDetailRepository.getNewCode());
                 productDetailDTO.setStatus(ProductDetailStatus.ACTIVE);
+
                 ProductDetail productDetail = productDetailMapper.dtoToEntity(productDetailDTO);
+                productDetail.setProduct(createProduct);
                 ProductDetail createProductDetail = productDetailRepository.save(productDetail);
 
                 List<ProductImeiResponse> productImeiResponses = new ArrayList<>();
