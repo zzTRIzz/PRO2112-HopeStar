@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusBill;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -81,8 +82,8 @@ public class Bill extends AuditEntity {
     private Byte billType;
 
     @Column(name = "status")
-    //@Enumerated(EnumType.STRING)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusBill status;
 
     @Size(max = 255)
     @Column(name = "address")

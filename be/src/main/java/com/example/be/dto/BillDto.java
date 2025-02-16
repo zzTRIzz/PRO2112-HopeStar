@@ -1,6 +1,7 @@
 package com.example.be.dto;
 
 import com.example.be.entity.*;
+import com.example.be.entity.status.StatusBill;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,7 +51,7 @@ public class BillDto {
 
     private Byte billType;
 
-    private String status;
+    private StatusBill status;
 
     private String address;
 

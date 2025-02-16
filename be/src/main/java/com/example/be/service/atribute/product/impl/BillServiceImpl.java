@@ -3,6 +3,7 @@ package com.example.be.service.atribute.product.impl;
 import com.example.be.dto.BillDto;
 import com.example.be.entity.Account;
 import com.example.be.entity.Bill;
+import com.example.be.entity.status.StatusBill;
 import com.example.be.mapper.BillMapper;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.BillRepository;
@@ -20,14 +21,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BillServiceImpl implements BillService {
     
-//trang thai hóa đơn
-//    0 chờ thanh toán
-//    1 chờ xác nhận
-//    2 đã lấy hàng
-//    3 đã giao
-//    4 đã thanh toán
-//    5 hoàn thành
-//    6 đã hủy
+//loại trạng thái bán hàng
+//    0 là bán hàng tại quầy
+//    1 là bán hàng trên web
 
 
     @Autowired
@@ -64,10 +60,10 @@ public class BillServiceImpl implements BillService {
             Account account = accountRepository.findById(billDto.getIdNhanVien())
                     .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
 
-            BillDto newBill = new BillDto();
+//            BillDto newBill = new BillDto();
             Instant now = Instant.now();
-//            billDto.setBillType((byte) 0);
-//            billDto.getStatus()
+            billDto.setBillType((byte) 0);
+            billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
             Bill bill = billMapper.entityBillMapper(billDto, null, null,account,null,null,null);
             Bill saveBill= billRepository.save(bill);
