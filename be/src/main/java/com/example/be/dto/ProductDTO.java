@@ -33,5 +33,7 @@ public class ProductDTO {
     private List<String> frontCamera;
     private List<String> rearCamera;
     private List<String> category;
+    private Integer totalNumber;
+    private Integer totalVersion;
 }
 

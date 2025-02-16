@@ -155,6 +155,8 @@ public class ProductMapper {
         response.setFrontCamera(dto.getFrontCamera());
         response.setRearCamera(dto.getRearCamera());
         response.setCategory(dto.getCategory());
+        response.setTotalNumber(dto.getTotalNumber());
+        response.setTotalVersion(dto.getTotalVersion());
         return response;
     }
 }

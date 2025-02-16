@@ -19,8 +19,7 @@ public class ImeiMapper {
         }
 
         ProductImeiDTO dto = new ProductImeiDTO();
-        dto.setImeiCod(request.getImeiCode());
-        dto.setBarCode(request.getBarCode());
+        dto.setImeiCode(request.getImeiCode());
         dto.setStatusImei(request.getStatusImei());
 
         return dto;
@@ -43,7 +42,7 @@ public class ImeiMapper {
 
         Imei entity = new Imei();
         entity.setId(dto.getId());
-        entity.setImeiCode(dto.getImeiCod());
+        entity.setImeiCode(dto.getImeiCode());
         entity.setBarCode(dto.getBarCode());
         entity.setStatus(dto.getStatusImei());
 
@@ -67,7 +66,7 @@ public class ImeiMapper {
 
         ProductImeiDTO dto = new ProductImeiDTO();
         dto.setId(entity.getId());
-        dto.setImeiCod(entity.getImeiCode());
+        dto.setImeiCode(entity.getImeiCode());
         dto.setBarCode(entity.getBarCode());
         dto.setStatusImei(entity.getStatus());
 
@@ -82,7 +81,7 @@ public class ImeiMapper {
 
         ProductImeiResponse response = new ProductImeiResponse();
         response.setId(dto.getId());
-        response.setImeiCod(dto.getImeiCod());
+        response.setImeiCode(dto.getImeiCode());
         response.setBarCode(dto.getBarCode());
         response.setStatusImei(dto.getStatusImei());
 

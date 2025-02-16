@@ -13,7 +13,7 @@ import lombok.Setter;
 public class ProductImeiDTO {
 
     private Integer id;
-    private String imeiCod;
+    private String imeiCode;
     private String barCode;
     private StatusImei statusImei;
 

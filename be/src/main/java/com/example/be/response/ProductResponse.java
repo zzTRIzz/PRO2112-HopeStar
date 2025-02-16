@@ -28,4 +28,6 @@ public class ProductResponse {
     private String chargerType;
     private StatusCommon status;
     private String content;
+    private Integer totalNumber;
+    private Integer totalVersion;
 }
