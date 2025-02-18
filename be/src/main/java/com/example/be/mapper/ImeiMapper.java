@@ -1,9 +1,9 @@
 package com.example.be.mapper;
 
-import com.example.be.dto.ProductImeiDTO;
+import com.example.be.dto.model.products.ProductImeiDTO;
 import com.example.be.entity.Imei;
-import com.example.be.request.product.ProductImeiRequest;
-import com.example.be.response.ProductImeiResponse;
+import com.example.be.dto.request.products.ProductImeiRequest;
+import com.example.be.dto.response.products.ProductImeiResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

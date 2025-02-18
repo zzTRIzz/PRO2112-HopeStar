@@ -1,4 +1,4 @@
-package com.example.be.dto;
+package com.example.be.dto.model.products;
 
 import com.example.be.entity.status.StatusImei;
 import lombok.AllArgsConstructor;

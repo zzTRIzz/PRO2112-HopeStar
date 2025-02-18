@@ -1,14 +1,12 @@
-package com.example.be.response;
+package com.example.be.dto.request.products;
 
 import com.example.be.entity.status.StatusImei;
 import lombok.Data;
 
 @Data
-public class ProductImeiResponse {
+public class ProductImeiRequest {
 
-    private Integer id;
     private String imeiCode;
-    private String barCode;
     private StatusImei statusImei;
 
 }

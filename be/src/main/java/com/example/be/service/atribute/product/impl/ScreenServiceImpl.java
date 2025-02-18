@@ -1,9 +1,7 @@
 package com.example.be.service.atribute.product.impl;
 
 import com.example.be.entity.Screen;
-import com.example.be.entity.Screen;
 import com.example.be.entity.status.StatusCommon;
-import com.example.be.repository.ScreenRepository;
 import com.example.be.repository.ScreenRepository;
 import com.example.be.service.atribute.product.ScreenService;
 import lombok.RequiredArgsConstructor;

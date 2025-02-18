@@ -1,10 +1,10 @@
 package com.example.be.mapper;
 
-import com.example.be.dto.ProductDTO;
+import com.example.be.dto.model.products.ProductDTO;
 import com.example.be.entity.*;
+import com.example.be.dto.request.products.ProductRequest;
+import com.example.be.dto.response.products.ProductResponse;
 import com.example.be.repository.*;
-import com.example.be.request.product.ProductRequest;
-import com.example.be.response.ProductResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,7 +62,7 @@ public class ProductMapper {
         dto.setNfc(request.getNfc());
         dto.setIdBattery(request.getIdBattery());
         dto.setChargerType(request.getChargerType());
-        dto.setStatus(request.getStatus());
+//        dto.setStatus(request.getStatus());
         dto.setContent(request.getContent());
         dto.setFrontCamera(request.getFrontCamera());
         dto.setRearCamera(request.getRearCamera());

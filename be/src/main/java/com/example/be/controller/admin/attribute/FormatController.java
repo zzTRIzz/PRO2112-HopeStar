@@ -1,6 +1,6 @@
 package com.example.be.controller.admin.attribute;
 
-import com.example.be.response.ApiResponse;
+import com.example.be.dto.response.products.ApiResponse;
 
 import com.example.be.service.base.GenericService;
 import lombok.RequiredArgsConstructor;
