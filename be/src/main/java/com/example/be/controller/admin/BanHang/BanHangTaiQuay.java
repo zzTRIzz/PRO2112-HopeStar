@@ -5,12 +5,13 @@ import com.example.be.dto.BillDto;
 import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
 import com.example.be.entity.ProductDetail;
+import com.example.be.entity.status.StatusBill;
+import com.example.be.mapper.BillMapper;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.ProductDetailRepository;
-import com.example.be.service.ProductDetailService;
 import com.example.be.service.ProductService;
-import com.example.be.service.atribute.product.BillDetailService;
-import com.example.be.service.atribute.product.BillService;
+import com.example.be.service.BillDetailService;
+import com.example.be.service.BillService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class BanHangTaiQuay {
     BillService billService;
 
     @Autowired
+    BillMapper billMapper;
+
+    @Autowired
     BillRepository billRepository;
 
     @Autowired
@@ -54,28 +58,81 @@ public class BanHangTaiQuay {
           List<BillDto> billDtos=  billService.getAllBill();
         return ResponseEntity.ok(billDtos);
     }
+    @GetMapping("/{idBill}")
+    public ResponseEntity<List<BillDetailDto>> getByHDCT(@PathVariable("idBill") Integer idBill){
+          List<BillDetailDto> billDetailDtos=  billDetailService.getByIdBill(idBill);
+        return ResponseEntity.ok(billDetailDtos);
+    }
 
 //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
     public ResponseEntity<BillDto> addHoaDon(@RequestBody BillDto billDto){
-          BillDto billDto1= billService.createHoaDon(billDto);
+          BillDto billDto1= billService.createHoaDonTaiQuay(billDto);
          return ResponseEntity.ok(billDto1);
     }
+
+//    Chỉ cần có id Khach hang  để gán vào bill là được
+    @PutMapping
+    public ResponseEntity<BillDto> addKhachHang(@RequestBody BillDto billDto){
+          BillDto billDto1= billService.updateHoaDonTaiQuay(billDto);
+         return ResponseEntity.ok(billDto1);
+    }
+
+//Đang sai vì phải select voucher ra để trừ tiền voucher ra và tính lại tổng tiền
+    @PutMapping("/thanh-toan")
+    public ResponseEntity<BillDto> thanhToan(@RequestBody BillDto billDto){
+        BigDecimal tienThua = billDto.getCustomerPayment().subtract(billDto.getTotalDue());
+        billDto.setAmountChange(tienThua);
+        billDto.setStatus(StatusBill.DA_THANH_TOAN);
+          BillDto saveBillDto= billService.updateHoaDonTaiQuay(billDto);
+         return ResponseEntity.ok(saveBillDto);
+    }
+
 
     @PostMapping("/addHDCT")
     public ResponseEntity<BillDetailDto> addHDCT(@RequestBody BillDetailDto billDetailDto){
         ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
                 .orElseThrow(()->new RuntimeException("Không tim thấy sản phẩm chi tiết "));
-        Bill bill =billRepository.findById(billDetailDto.getIdBill())
-                .orElseThrow(()->new RuntimeException("Không tim thấy hóa đơn  "));
+
         BigDecimal price = productDetail.getPriceSell();
+
         billDetailDto.setPrice(price);
+
         BigDecimal total_price = price.multiply(BigDecimal.valueOf(billDetailDto.getQuantity()));
         billDetailDto.setTotalPrice(total_price);
-        BillDetailDto savebillDetailDto =  billDetailService.createBillDetail(billDetailDto);
+
+
+        Bill bill =billRepository.findById(billDetailDto.getIdBill())
+                .orElseThrow(()->new RuntimeException("Không tim thấy hóa đơn  "));
+
+        BigDecimal tongTienBill=billDetailService.tongTienBill(bill.getId());
+        System.out.println(tongTienBill);
+
+        BillDto billDto = billMapper.dtoBillMapper(bill);
+
+        billDto.setTotalPrice(tongTienBill);
+
+//        boolean found = false;
+//
+//        BillDetailDto savebillDetailDto;
+//
+//        for (BillDetail bd:billDetailService.getALlThuong()) {
+//            if (bd.getIdBill().equals(billDetailDto.getIdBill())
+//            && bd.getIdProductDetail().equals(billDetailDto.getIdProductDetail())){
+//                billDetailService.thayDoiSoLuongKhiCungSPVaHD(billDetailDto.getIdBill(),billDetailDto.getIdProductDetail(),billDetailDto.getQuantity());
+//                found = true;
+//                break;
+//            }
+//        }
+//        if (!found){
+        BillDetailDto savebillDetailDto=billDetailService.createBillDetail(billDetailDto);
+//        }
+        billService.updateTongTienHoaDon(billDto);
 
         return ResponseEntity.ok(savebillDetailDto);
     }
+
+
 
 
 }

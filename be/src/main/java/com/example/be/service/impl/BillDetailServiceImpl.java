@@ -1,4 +1,4 @@
-package com.example.be.service.atribute.product.impl;
+package com.example.be.service.impl;
 
 import com.example.be.dto.BillDetailDto;
 import com.example.be.entity.Bill;
@@ -8,18 +8,16 @@ import com.example.be.mapper.BillDetailMapper;
 import com.example.be.repository.BillDetailRepository;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.ProductDetailRepository;
-import com.example.be.service.atribute.product.BillDetailService;
+import com.example.be.service.BillDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BillDetailServiceImpl implements BillDetailService {
 
     @Autowired
@@ -42,6 +40,12 @@ public class BillDetailServiceImpl implements BillDetailService {
         return billDetails.stream().map(billDetailMapper ::dtoBillDetailMapper)
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<BillDetail> getALlThuong(){
+
+
+        return billDetailRepository.findAll();
+    }
 
     @Override
     public BillDetailDto createBillDetail(BillDetailDto billDetailDto){
@@ -59,18 +63,34 @@ public class BillDetailServiceImpl implements BillDetailService {
         }
         return null;
     }
-
     @Override
-    public List<BillDetailDto> getByIdBill(Integer idBill){
-        List<BillDetailDto> newBillDetails = new ArrayList<>();
-        for (BillDetail billDetail: billDetailRepository.findAll()) {
-            if (billDetail.getIdBill().getId().equals(idBill)){
-                BillDetailDto billDetailDto = billDetailMapper.dtoBillDetailMapper(billDetail);
-                newBillDetails.add(billDetailDto);
+    public void thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong){
+        for (int i = 0; i < billDetailRepository.findAll().size(); i++) {
+            if (billDetailRepository.findAll().get(i).getIdBill().equals(idBill) &&
+            billDetailRepository.findAll().get(i).getIdProductDetail().equals(idProductDetail)){
+                BillDetail billDetail = billDetailRepository.findAll().get(i);
+                Integer tongSoLuong =SoLuong +billDetail.getQuantity();
+                billDetail.setQuantity(tongSoLuong);
+                billDetailRepository.save(billDetail);
+                return;
             }
         }
-        return newBillDetails;
     }
+
+
+    @Override
+    public List<BillDetailDto> getByIdBill(Integer idBill) {
+        List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
+
+        if (billDetails.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy chi tiết hóa đơn nào cho hóa đơn ID: " + idBill);
+        }
+        return billDetails.stream()
+                .map(billDetailMapper::dtoBillDetailMapper)
+                .collect(Collectors.toList());
+    }
+
+
 
     @Override
     public BigDecimal tongTienBill(Integer idBill) {
