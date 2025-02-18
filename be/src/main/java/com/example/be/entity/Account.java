@@ -1,6 +1,8 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;

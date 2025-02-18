@@ -25,5 +25,4 @@ public class Role extends AuditEntity {
     @Size(max = 255)
     @Column(name = "name")
     private String name;
-
 }

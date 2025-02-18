@@ -5,7 +5,6 @@ import com.example.be.entity.ShoppingCart;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.ShoppingCartRepository;
 import com.example.be.service.ShoppingCartService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +24,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<ShoppingCart> getAllGioHang(){
         return shoppingCartRepository.findAll();
     }
+
     @Override
     public List<ShoppingCart> getByIDShoppingCart(Integer idAccount){
         return shoppingCartRepository.findByIdShoppingCart(idAccount);

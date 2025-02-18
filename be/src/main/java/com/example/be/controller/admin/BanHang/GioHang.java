@@ -33,6 +33,13 @@ public class GioHang {
     AccountRepository accountRepository;
 
 
+    @GetMapping("/shoppingCart")
+    public List<ShoppingCart> hienThi(){
+        return shoppingCartService.getAllGioHang();
+    }
+
+
+
     @GetMapping("/shoppingCart/{idAccount}")
     public List<ShoppingCart> hienThi(@PathVariable("idAccount")Integer idAccount){
         return shoppingCartService.getByIDShoppingCart(idAccount);

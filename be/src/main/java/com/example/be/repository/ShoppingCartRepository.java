@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Integer> {
+
   @Query(value = """
     SELECT COALESCE(MAX(CAST(SUBSTRING(code, 6) AS UNSIGNED)), 0) + 1 
     FROM rear_camera
