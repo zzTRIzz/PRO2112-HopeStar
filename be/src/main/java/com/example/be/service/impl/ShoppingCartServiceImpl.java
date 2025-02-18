@@ -25,10 +25,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<ShoppingCart> getAllGioHang(){
         return shoppingCartRepository.findAll();
     }
-//    @Override
-//    public List<ShoppingCart> getByIDShoppingCart(Integer idAccount){
-//        return shoppingCartRepository.findByIdShoppingCart(idAccount);
-//    }
+    @Override
+    public List<ShoppingCart> getByIDShoppingCart(Integer idAccount){
+        return shoppingCartRepository.findByIdShoppingCart(idAccount);
+    }
 
      @Override
     public ShoppingCart CreateGioHang(ShoppingCart shoppingCart){

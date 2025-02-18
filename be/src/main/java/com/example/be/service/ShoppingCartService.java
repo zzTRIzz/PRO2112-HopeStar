@@ -9,5 +9,7 @@ public interface ShoppingCartService {
 
 //    List<ShoppingCart> getByIDShoppingCart(Integer idAccount);
 
+    List<ShoppingCart> getByIDShoppingCart(Integer idAccount);
+
     ShoppingCart CreateGioHang(ShoppingCart shoppingCart);
 }

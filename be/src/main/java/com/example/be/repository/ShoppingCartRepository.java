@@ -18,6 +18,6 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
 
 
 
-//  @Query("SELECT sc FROM ShoppingCart sc WHERE sc.idAccount.id= :idAccount")
-//  List<ShoppingCart> findByIdShoppingCart(@Param("idAccount") Integer idAccount);
+  @Query("SELECT sc FROM ShoppingCart sc WHERE sc.idAccount.id= :idAccount")
+  List<ShoppingCart> findByIdShoppingCart(@Param("idAccount") Integer idAccount);
   }
