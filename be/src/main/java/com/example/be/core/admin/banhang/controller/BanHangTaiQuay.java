@@ -1,18 +1,17 @@
-package com.example.be.controller.admin.BanHang;
+package com.example.be.core.admin.banhang.controller;
 
 import com.example.be.core.admin.products_management.service.ProductService;
 import com.example.be.dto.BillDetailDto;
 import com.example.be.dto.BillDto;
 import com.example.be.entity.Bill;
-import com.example.be.entity.BillDetail;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.mapper.BillMapper;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.ProductDetailRepository;
-
 import com.example.be.service.BillDetailService;
 import com.example.be.service.BillService;
+
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
