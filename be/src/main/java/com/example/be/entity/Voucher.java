@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusVoucher;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -52,7 +53,7 @@ public class Voucher extends AuditEntity {
     private LocalDateTime endTime;
 
     @Column(name = "status")
-    //@Enumerated(EnumType.STRING)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusVoucher status;
 
 }
