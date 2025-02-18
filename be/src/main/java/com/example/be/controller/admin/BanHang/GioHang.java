@@ -38,8 +38,6 @@ public class GioHang {
         return shoppingCartService.getAllGioHang();
     }
 
-
-
     @GetMapping("/shoppingCart/{idAccount}")
     public List<ShoppingCart> hienThi(@PathVariable("idAccount")Integer idAccount){
         return shoppingCartService.getByIDShoppingCart(idAccount);
