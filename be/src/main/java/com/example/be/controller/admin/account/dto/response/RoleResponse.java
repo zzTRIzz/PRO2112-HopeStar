@@ -1,0 +1,21 @@
+package com.example.be.controller.admin.account.dto.response;
+
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+/**
+ * DTO for {@link com.example.be.entity.Role}
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleResponse {
+    Integer id;
+    @Size(max = 255)
+    String code;
+    @Size(max = 255)
+    String name;
+}
