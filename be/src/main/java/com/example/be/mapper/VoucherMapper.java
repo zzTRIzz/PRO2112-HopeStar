@@ -1,11 +1,10 @@
 package com.example.be.mapper;
 
 import com.example.be.dto.VoucherDTO;
+import com.example.be.dto.request.products.VoucherRequest;
+import com.example.be.dto.response.products.VoucherResponse;
 import com.example.be.entity.Voucher;
-import com.example.be.entity.status.StatusVoucher;
 import com.example.be.repository.VoucherRepository;
-import com.example.be.request.product.VoucherRequest;
-import com.example.be.response.VoucherResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +30,7 @@ public class VoucherMapper {
         return dto;
     }
 
-    public Voucher toEntity(Integer id,VoucherRequest request) {
+    public Voucher toEntity(Integer id, VoucherRequest request) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(
                 ()-> new RuntimeException("ID not found")
         );

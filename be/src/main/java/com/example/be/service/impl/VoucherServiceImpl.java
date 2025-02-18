@@ -1,10 +1,10 @@
 package com.example.be.service.impl;
 
+import com.example.be.dto.request.products.VoucherRequest;
+import com.example.be.dto.response.products.VoucherResponse;
 import com.example.be.entity.Voucher;
 import com.example.be.mapper.VoucherMapper;
 import com.example.be.repository.VoucherRepository;
-import com.example.be.request.product.VoucherRequest;
-import com.example.be.response.VoucherResponse;
 import com.example.be.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,8 @@
 package com.example.be.controller.admin;
 
-import com.example.be.request.product.VoucherRequest;
-import com.example.be.response.VoucherResponse;
+
+import com.example.be.dto.request.products.VoucherRequest;
+import com.example.be.dto.response.products.VoucherResponse;
 import com.example.be.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

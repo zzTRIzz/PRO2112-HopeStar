@@ -1,4 +1,4 @@
-package com.example.be.response;
+package com.example.be.dto.response.products;
 
 import com.example.be.entity.status.StatusVoucher;
 import lombok.Data;
