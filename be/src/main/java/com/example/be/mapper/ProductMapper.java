@@ -26,6 +26,7 @@ public class ProductMapper {
     private CardRepository cardRepository;
 
     @Autowired
+
     private OsRepository osRepository;
 
     @Autowired
