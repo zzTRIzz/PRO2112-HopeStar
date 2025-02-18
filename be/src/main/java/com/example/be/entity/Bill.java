@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +20,7 @@ public class Bill extends AuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cart")
     private ShoppingCart idCart;
@@ -55,25 +55,24 @@ public class Bill extends AuditEntity {
     private BigDecimal discountedTotal;
 
     @Column(name = "delivery_date")
-    private Instant deliveryDate;
+    private LocalDateTime deliveryDate;
 
     @Column(name = "customer_preferred_date")
-    private Instant customerPreferredDate;
+    private LocalDateTime customerPreferredDate;
 
     @Column(name = "customer_appointment_date")
-    private Instant customerAppointmentDate;
+    private LocalDateTime customerAppointmentDate;
 
     @Column(name = "receipt_date")
-    private Instant receiptDate;
+    private LocalDateTime receiptDate;
 
     @Column(name = "payment_date")
-    private Instant paymentDate;
+    private LocalDateTime paymentDate;  // Thay đổi thành LocalDateTime
 
     @Column(name = "bill_type")
     private Byte billType;
 
     @Column(name = "status")
-    //@Enumerated(EnumType.STRING)
     private String status;
 
     @Size(max = 255)
@@ -111,5 +110,4 @@ public class Bill extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private DeliveryMethod delivery;
-
 }

@@ -47,6 +47,7 @@ public class ProductMapper {
     private ProductCategoryRepository productCategoryRepository;
 
     // Chuyển đổi từ ProductRequest -> ProductDTO
+    //Chuyển đổi dữ liệu từ API request (ProductRequest) sang DTO (ProductDTO).
     public ProductDTO requestToDTO(ProductRequest request) {
         ProductDTO dto = new ProductDTO();
         dto.setName(request.getName());
@@ -71,6 +72,7 @@ public class ProductMapper {
     }
 
     // Chuyển đổi từ ProductDTO -> Product Entity
+    //Chuyển đổi DTO thành Entity để lưu vào database.
     public Product dtoToEntity(ProductDTO dto) {
         Product product = new Product();
         product.setName(dto.getName());
@@ -92,6 +94,7 @@ public class ProductMapper {
     }
 
     // Chuyển đổi từ Product Entity -> ProductDTO
+    // Chuyển đổi Entity sang DTO để trả về cho client hoặc xử lý nghiệp vụ.
     public ProductDTO entityToDTO(Product entity) {
         ProductDTO dto = new ProductDTO();
         dto.setId(entity.getId());
@@ -124,6 +127,7 @@ public class ProductMapper {
     }
 
     // Chuyển đổi từ ProductDTO -> ProductResponse
+    //Chuyển đổi DTO sang Response để trả về cho client.
     public ProductResponse dtoToResponse(ProductDTO dto) {
         ProductResponse response = new ProductResponse();
         response.setId(dto.getId());
