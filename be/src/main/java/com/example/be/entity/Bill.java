@@ -1,12 +1,15 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusBill;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +23,7 @@ public class Bill extends AuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cart")
     private ShoppingCart idCart;
@@ -28,6 +31,10 @@ public class Bill extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
     private Account idAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_nhan_vien")
+    private Account idNhanVien;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_voucher")
@@ -55,25 +62,28 @@ public class Bill extends AuditEntity {
     private BigDecimal discountedTotal;
 
     @Column(name = "delivery_date")
-    private LocalDateTime deliveryDate;
+    private Instant deliveryDate;
 
     @Column(name = "customer_preferred_date")
-    private LocalDateTime customerPreferredDate;
+    private Instant customerPreferredDate;
 
     @Column(name = "customer_appointment_date")
-    private LocalDateTime customerAppointmentDate;
+    private Instant customerAppointmentDate;
 
     @Column(name = "receipt_date")
-    private LocalDateTime receiptDate;
+    private Instant receiptDate;
 
+//    @JsonFormat(pattern = "yyyy-MM-dd")  // Định dạng ngày tháng trong JSON
+//    @CreationTimestamp // khi thêm bản ghi mới ngày tạo sẽ tự thêm mới ngày đấy
     @Column(name = "payment_date")
-    private LocalDateTime paymentDate;  // Thay đổi thành LocalDateTime
+    private Instant paymentDate;
 
     @Column(name = "bill_type")
     private Byte billType;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusBill status;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -110,4 +120,5 @@ public class Bill extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private DeliveryMethod delivery;
+
 }
