@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusImei;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,18 +20,18 @@ public class Imei extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Size(max = 20)
+    @Size(max = 10)
     @NotNull
-    @Column(name = "imei_code", nullable = false, length = 20)
+    @Column(name = "imei_code", nullable = false, length = 10)
     private String imeiCode;
 
-    @Size(max = 1000)
-    @Column(name = "description", length = 1000)
-    private String description;
+
+    @Column(name = "bar_code")
+    private String barCode;
 
     @Column(name = "status")
-    //@Enumerated(EnumType.STRING)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusImei status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_product_detail")

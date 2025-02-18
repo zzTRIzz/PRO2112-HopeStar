@@ -2,6 +2,7 @@ package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
 import com.example.be.entity.status.ProductDetailStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -28,6 +29,10 @@ public class ProductDetail extends AuditEntity {
 
 //    @Column(name = "price", precision = 24, scale = 2)
 //    private BigDecimal price;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "productDetail")
+    private Set<Imei> imeis;
 
     @Column(name = "price_sell", precision = 24, scale = 2)
     private BigDecimal priceSell;

@@ -2,10 +2,14 @@ package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
 import com.example.be.entity.status.StatusCommon;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -83,5 +87,9 @@ public class Product extends AuditEntity {
     @Lob
     @Column(name = "content")
     private String content;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product")
+    private List<ProductDetail> productDetails= new ArrayList<>();
 
 }

@@ -1,6 +1,5 @@
-package com.example.be.response;
+package com.example.be.dto.response.products;
 
-import com.example.be.entity.FrontCamera;
 import com.example.be.entity.status.StatusCommon;
 import lombok.Data;
 
@@ -28,4 +27,6 @@ public class ProductResponse {
     private String chargerType;
     private StatusCommon status;
     private String content;
+    private Integer totalNumber;
+    private Integer totalVersion;
 }
