@@ -1,9 +1,9 @@
 package com.example.be.repository;
 
+import com.example.be.core.admin.products_management.model.request.SearchProductRequest;
 import com.example.be.entity.Product;
 import com.example.be.repository.base.BaseRepository;
 
-import com.example.be.dto.request.products.SearchProductRequest;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

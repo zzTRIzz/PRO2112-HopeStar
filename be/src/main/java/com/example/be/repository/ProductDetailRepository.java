@@ -1,7 +1,7 @@
 package com.example.be.repository;
 
+import com.example.be.core.admin.products_management.model.request.SearchProductDetailRequest;
 import com.example.be.entity.ProductDetail;
-import com.example.be.dto.request.products.SearchProductDetailRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +27,6 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
           "AND (:#{#searchRequest.idRam} IS NULL OR r.id = :#{#searchRequest.idRam}) " +
           "AND (:#{#searchRequest.idRom} IS NULL OR rm.id = :#{#searchRequest.idRom}) " +
           "AND (:#{#searchRequest.idColors} IS NULL OR c.id = :#{#searchRequest.idColors})")
-  List<ProductDetail> findAllMatching(@Param("searchRequest")SearchProductDetailRequest searchRequest,
+  List<ProductDetail> findAllMatching(@Param("searchRequest") SearchProductDetailRequest searchRequest,
                                       @Param("idProduct") Integer idProduct);
   }
