@@ -3,13 +3,12 @@ package com.example.be.entity;
 import com.example.be.entity.base.AuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-@Entity
 @Table(name = "cart_detail")
 public class CartDetail extends AuditEntity {
     @Id

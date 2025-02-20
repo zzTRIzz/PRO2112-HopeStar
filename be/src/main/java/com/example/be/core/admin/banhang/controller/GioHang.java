@@ -1,5 +1,7 @@
 package com.example.be.core.admin.banhang.controller;
 
+import com.example.be.core.admin.banhang.dto.CartDetailDto;
+import com.example.be.core.admin.banhang.dto.ShoppingCartDto;
 import com.example.be.core.admin.banhang.service.CartDetailService;
 import com.example.be.core.admin.banhang.service.ShoppingCartService;
 import com.example.be.entity.CartDetail;
@@ -39,32 +41,32 @@ public class GioHang {
     }
 
     @GetMapping("/shoppingCart/{idAccount}")
-    public List<ShoppingCart> hienThi(@PathVariable("idAccount")Integer idAccount){
+    public List<ShoppingCartDto> hienThi(@PathVariable("idAccount")Integer idAccount){
         return shoppingCartService.getByIDShoppingCart(idAccount);
     }
 
     @GetMapping("/cartDetail/{idGH}")
-    public List<CartDetail> chiTietGioHang(@PathVariable("idGH")Integer idGH){
+    public List<CartDetailDto> chiTietGioHang(@PathVariable("idGH")Integer idGH){
         return cartDetailService.getByIdGH(idGH);
     }
 
 
     @PostMapping
-    public ResponseEntity<ShoppingCart> createShoppingCart(ShoppingCart shoppingCart){
-        ShoppingCart shoppingCart1 = shoppingCartService.CreateGioHang(shoppingCart);
+    public ResponseEntity<ShoppingCartDto> createShoppingCart(ShoppingCartDto shoppingCartDto){
+        ShoppingCartDto shoppingCart1 = shoppingCartService.CreateGioHang(shoppingCartDto);
         return ResponseEntity.ok(shoppingCart1);
     }
 
     @PostMapping("/addCartDetail")
-    public ResponseEntity<CartDetail> creatCartDetail(CartDetail cartDetail){
-        CartDetail saveCartDetail = cartDetailService.createGHCT(cartDetail);
-        return ResponseEntity.ok(saveCartDetail);
+    public ResponseEntity<CartDetailDto> creatCartDetail(CartDetailDto cartDetailDto){
+        CartDetailDto saveCartDetailDto = cartDetailService.createGHCT(cartDetailDto);
+        return ResponseEntity.ok(saveCartDetailDto);
     }
 
     @PostMapping("/updateCartDetail")
-    public ResponseEntity<CartDetail> updateCartDetail(CartDetail cartDetail){
-        CartDetail saveCartDetail = cartDetailService.createGHCT(cartDetail);
-        return ResponseEntity.ok(saveCartDetail);
+    public ResponseEntity<CartDetailDto> updateCartDetail(CartDetailDto cartDetailDto){
+        CartDetailDto saveCartDetailDto = cartDetailService.createGHCT(cartDetailDto);
+        return ResponseEntity.ok(saveCartDetailDto);
     }
 
 }

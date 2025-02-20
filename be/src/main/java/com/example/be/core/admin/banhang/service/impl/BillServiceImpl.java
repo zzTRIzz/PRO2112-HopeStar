@@ -94,19 +94,17 @@ public class BillServiceImpl implements BillService {
 //            if (billDto.getIdVoucher() == null){
 //                voucher = null;
 //            }else {
-
 //                 voucher  =voucherRepository.findById(billDto.getIdVoucher()).orElse(null);
             List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId());
             voucher = voucherList.isEmpty() ? null : voucherList.get(0);
 //            }
-
             BigDecimal tongSauKhiGiam;
 
             if (voucher == null){
                 tongSauKhiGiam = billDto.getTotalPrice();
                 voucher = null;
-            }else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
-                tongSauKhiGiam= billDto.getTotalPrice().subtract(voucher.getDiscountValue());
+//            }else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
+//                tongSauKhiGiam= billDto.getTotalPrice().subtract(voucher.getDiscountValue());
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
             }
