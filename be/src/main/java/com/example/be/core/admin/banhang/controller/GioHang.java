@@ -50,21 +50,21 @@ public class GioHang {
         return cartDetailService.getByIdGH(idGH);
     }
 
-
-    @PostMapping
-    public ResponseEntity<ShoppingCartDto> createShoppingCart(ShoppingCartDto shoppingCartDto){
+    @PostMapping("/addCart")
+    public ResponseEntity<ShoppingCartDto> createShoppingCart(@RequestBody ShoppingCartDto shoppingCartDto){
+        System.out.println(shoppingCartDto.getIdAccount());
         ShoppingCartDto shoppingCart1 = shoppingCartService.CreateGioHang(shoppingCartDto);
         return ResponseEntity.ok(shoppingCart1);
     }
 
     @PostMapping("/addCartDetail")
-    public ResponseEntity<CartDetailDto> creatCartDetail(CartDetailDto cartDetailDto){
+    public ResponseEntity<CartDetailDto> creatCartDetail(@RequestBody CartDetailDto cartDetailDto){
         CartDetailDto saveCartDetailDto = cartDetailService.createGHCT(cartDetailDto);
         return ResponseEntity.ok(saveCartDetailDto);
     }
 
     @PostMapping("/updateCartDetail")
-    public ResponseEntity<CartDetailDto> updateCartDetail(CartDetailDto cartDetailDto){
+    public ResponseEntity<CartDetailDto> updateCartDetail(@RequestBody CartDetailDto cartDetailDto){
         CartDetailDto saveCartDetailDto = cartDetailService.createGHCT(cartDetailDto);
         return ResponseEntity.ok(saveCartDetailDto);
     }

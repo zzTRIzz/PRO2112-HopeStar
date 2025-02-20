@@ -26,6 +26,7 @@ public class ShoppingCartMapper {
 
 
     public ShoppingCart entityShoppingCart(ShoppingCartDto shoppingCartDto) {
+//        System.out.println(shoppingCartDto.getIdAccount());
         Account account = accountRepository.findById(shoppingCartDto.getIdAccount())
                 .orElseThrow(()->new RuntimeException("Không tìm thấy khách hàng "));
         return new ShoppingCart(

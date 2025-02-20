@@ -49,10 +49,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto CreateGioHang(ShoppingCartDto shoppingCartDto) {
-        ShoppingCart shoppingCart = shoppingCartMapper.entityShoppingCart(shoppingCartDto);
-        shoppingCart.setCode("GH0" + shoppingCartRepository.getNewCode());
-        shoppingCart.setStatus("CHO_THANH_TOAN");
-        ShoppingCart saveShoppingCart = shoppingCartRepository.save(shoppingCart);
-        return shoppingCartMapper.mapperShoppingCartDto(saveShoppingCart);
+        try {
+            System.out.println(shoppingCartDto.getIdAccount());
+            ShoppingCart shoppingCart = shoppingCartMapper.entityShoppingCart(shoppingCartDto);
+            shoppingCart.setCode("GH0" + shoppingCartRepository.getNewCode());
+            shoppingCart.setStatus("CHO_THANH_TOAN");
+            ShoppingCart saveShoppingCart = shoppingCartRepository.save(shoppingCart);
+            return shoppingCartMapper.mapperShoppingCartDto(saveShoppingCart);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+     return null;
     }
 }
