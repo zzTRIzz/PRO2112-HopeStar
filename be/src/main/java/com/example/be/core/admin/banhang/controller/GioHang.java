@@ -4,10 +4,10 @@ import com.example.be.core.admin.banhang.dto.CartDetailDto;
 import com.example.be.core.admin.banhang.dto.ShoppingCartDto;
 import com.example.be.core.admin.banhang.service.CartDetailService;
 import com.example.be.core.admin.banhang.service.ShoppingCartService;
-import com.example.be.entity.CartDetail;
 import com.example.be.entity.ShoppingCart;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.ProductDetailRepository;
+import com.example.be.repository.ShoppingCartRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,9 @@ public class GioHang {
     ShoppingCartService shoppingCartService;
 
     @Autowired
+    ShoppingCartRepository shoppingCartRepository;
+
+    @Autowired
     CartDetailService cartDetailService;
 
     @Autowired
@@ -35,9 +38,9 @@ public class GioHang {
     AccountRepository accountRepository;
 
 
-    @GetMapping("/shoppingCart")
-    public List<ShoppingCart> hienThi(){
-        return shoppingCartService.getAllGioHang();
+    @GetMapping
+    public List<ShoppingCartDto> hienThiShoppingCart(){
+        return shoppingCartService.getAllGHShoppingCart();
     }
 
     @GetMapping("/shoppingCart/{idAccount}")

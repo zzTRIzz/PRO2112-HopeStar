@@ -10,6 +10,8 @@ public interface ShoppingCartService {
 
 //    List<ShoppingCart> getByIDShoppingCart(Integer idAccount);
 
+    List<ShoppingCartDto> getAllGHShoppingCart();
+
     List<ShoppingCartDto> getAllGioHangEntity();
 
 

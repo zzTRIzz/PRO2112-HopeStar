@@ -32,6 +32,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public List<ShoppingCartDto> getAllGHShoppingCart() {
+        List<ShoppingCart> shoppingCarts= shoppingCartRepository.findAll();
+        return shoppingCarts.stream().map(shoppingCartMapper ::mapperShoppingCartDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ShoppingCartDto> getAllGioHangEntity() {
         List<ShoppingCart> shoppingCarts = shoppingCartRepository.findAll();
         return shoppingCarts.stream().map(shoppingCartMapper ::mapperShoppingCartDto)
