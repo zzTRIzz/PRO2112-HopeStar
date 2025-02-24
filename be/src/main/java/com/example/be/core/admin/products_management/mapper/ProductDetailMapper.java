@@ -1,13 +1,13 @@
 package com.example.be.core.admin.products_management.mapper;
 
-import com.example.be.core.admin.products_management.dto.ProductDetailDTO;
+import com.example.be.core.admin.products_management.dto.model.ProductDetailDTO;
+import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.entity.ProductDetail;
 import com.example.be.repository.ColorRepository;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.RamRepository;
 import com.example.be.repository.RomRepository;
-import com.example.be.core.admin.products_management.model.request.ProductDetailRequest;
-import com.example.be.core.admin.products_management.model.response.ProductDetailResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

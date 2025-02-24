@@ -1,4 +1,4 @@
-package com.example.be.core.admin.products_management.dto;
+package com.example.be.core.admin.products_management.dto.model;
 
 import com.example.be.entity.status.ProductDetailStatus;
 import lombok.AllArgsConstructor;
