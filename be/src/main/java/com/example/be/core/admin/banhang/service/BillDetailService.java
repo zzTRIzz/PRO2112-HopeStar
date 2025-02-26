@@ -13,9 +13,11 @@ public interface BillDetailService {
 
     BillDetailDto createBillDetail(BillDetailDto billDetailDto);
 
-    void thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
+    BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
 
     List<BillDetailDto> getByIdBill(Integer idBill);
 
     BigDecimal tongTienBill(Integer idBill);
+
+    void deleteBillDetail(Integer idBillDetail);
 }

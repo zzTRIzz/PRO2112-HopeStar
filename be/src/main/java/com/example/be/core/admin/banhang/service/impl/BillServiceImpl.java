@@ -2,6 +2,7 @@ package com.example.be.core.admin.banhang.service.impl;
 
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
@@ -27,6 +28,9 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillRepository billRepository;
+
+    @Autowired
+    BillDetailRepository billDetailRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -64,6 +68,18 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    public void deleteBill(Integer idBill){
+        List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
+
+        if (billDetail == null){
+            billRepository.deleteById(idBill);
+        }else {
+            billDetailRepository.deleteByIDBill(idBill);
+            billRepository.deleteById(idBill);
+        }
+    }
+
+    @Override
     public BillDto createHoaDonTaiQuay(BillDto billDto){
         try {
             Account account = accountRepository.findById(billDto.getIdNhanVien())
@@ -74,7 +90,7 @@ public class BillServiceImpl implements BillService {
             billDto.setBillType((byte) 0);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
-            Bill bill = billMapper.entityBillMapper(billDto, null, null,account,null,null,null);
+            Bill bill = billMapper.entityBillMapper(billDto,  null,account,null,null,null);
             Bill saveBill= billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         }catch (Exception e){
@@ -82,6 +98,7 @@ public class BillServiceImpl implements BillService {
         }
         return null;
     }
+
     @Override
     public BillDto updateHoaDonTaiQuay(BillDto billDto){
         try {
@@ -103,8 +120,8 @@ public class BillServiceImpl implements BillService {
             if (voucher == null){
                 tongSauKhiGiam = billDto.getTotalPrice();
                 voucher = null;
-//            }else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
-//                tongSauKhiGiam= billDto.getTotalPrice().subtract(voucher.getDiscountValue());
+            }else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
+                tongSauKhiGiam= billDto.getTotalPrice().subtract(voucher.getDiscountValue());
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
             }
@@ -127,7 +144,7 @@ public class BillServiceImpl implements BillService {
             }
 
 
-            Bill bill = billMapper.entityBillMapper(billDto, null, accountKhachHang,accountNhanVien,voucher,paymentMethod,deliveryMethod);
+            Bill bill = billMapper.entityBillMapper(billDto,  accountKhachHang,accountNhanVien,voucher,paymentMethod,deliveryMethod);
             Bill saveBill= billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         }catch (Exception e){
@@ -143,7 +160,7 @@ public class BillServiceImpl implements BillService {
             Account accountNhanVien = accountRepository.findById(billDto.getIdNhanVien())
                     .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
 
-            Bill bill = billMapper.entityBillMapper(billDto, null, null,accountNhanVien,null,null,null);
+            Bill bill = billMapper.entityBillMapper(billDto,  null,accountNhanVien,null,null,null);
 
             Bill saveBill= billRepository.save(bill);
 
@@ -189,7 +206,48 @@ public class BillServiceImpl implements BillService {
             billDto.setBillType((byte) 1);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
-            Bill bill = billMapper.entityBillMapper(billDto, null, null,account,null,null,null);
+            Bill bill = billMapper.entityBillMapper(billDto,  null,account,null,null,null);
+            Bill saveBill= billRepository.save(bill);
+            return billMapper.dtoBillMapper(saveBill);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    @Override
+    public void apDungVoucherChoOnline(Bill bill){
+        try {
+            Account accountKhachHang = accountRepository.findById(bill.getIdAccount().getId()).orElse(null);
+            System.out.println("id khahcs hang "+bill.getIdAccount().getId());
+            Voucher voucher;
+            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId());
+            voucher = voucherList.isEmpty() ? null : voucherList.get(0);
+            BigDecimal tongSauKhiGiam;
+            if (voucher == null){
+                tongSauKhiGiam = bill.getTotalPrice();
+                voucher = null;
+            }else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
+                tongSauKhiGiam= bill.getTotalPrice().subtract(voucher.getDiscountValue());
+            } else {
+                tongSauKhiGiam = BigDecimal.ZERO;
+            }
+            System.out.println("voucher da tim duoc la :"+voucher);
+            bill.setIdVoucher(voucher);
+            bill.setTotalDue(tongSauKhiGiam);
+            billRepository.save(bill);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public BillDto createDatHangOnline(BillDto billDto){
+        try {
+//            Account account = accountRepository.findById(billDto.getIdNhanVien())
+//                    .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
+           billDto.setStatus(StatusBill.CHO_XAC_NHAN);
+            Bill bill = billMapper.entityBillMapper(billDto,  null,null,null,null,null);
             Bill saveBill= billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         }catch (Exception e){

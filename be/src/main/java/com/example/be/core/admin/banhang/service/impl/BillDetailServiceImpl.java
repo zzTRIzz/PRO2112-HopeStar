@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,48 +37,50 @@ public class BillDetailServiceImpl implements BillDetailService {
 
 
     @Override
-    public List<BillDetailDto> getAllBillDetail(){
-
-        List<BillDetail> billDetails= billDetailRepository.findAll();
-        return billDetails.stream().map(billDetailMapper ::dtoBillDetailMapper)
+    public List<BillDetailDto> getAllBillDetail() {
+        List<BillDetail> billDetails = billDetailRepository.findAll();
+        return billDetails.stream().map(billDetailMapper::dtoBillDetailMapper)
                 .collect(Collectors.toList());
     }
+
     @Override
-    public List<BillDetail> getALlThuong(){
-
-
+    public List<BillDetail> getALlThuong() {
         return billDetailRepository.findAll();
     }
 
     @Override
-    public BillDetailDto createBillDetail(BillDetailDto billDetailDto){
+    public BillDetailDto createBillDetail(BillDetailDto billDetailDto) {
         try {
             ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
-                    .orElseThrow(()->new RuntimeException("Khong tim thay chi tiết sản phẩm "+billDetailDto.getIdProductDetail()));
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay chi tiết sản phẩm " + billDetailDto.getIdProductDetail()));
             Bill bill = billRepository.findById(billDetailDto.getIdBill())
-                    .orElseThrow(()->new RuntimeException("Khong tim thay hóa đơn "+billDetailDto.getIdBill()));
-            BillDetail billDetail = billDetailMapper.entityBillDetailMapper(billDetailDto,productDetail,bill);
-           BillDetail saveBillDetail= billDetailRepository.save(billDetail);
-           return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
-        }catch (Exception e){
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay hóa đơn " + billDetailDto.getIdBill()));
+            BillDetail billDetail = billDetailMapper.entityBillDetailMapper(billDetailDto, productDetail, bill);
+            BillDetail saveBillDetail = billDetailRepository.save(billDetail);
+            return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e);
         }
         return null;
     }
+
     @Override
-    public void thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong){
-        for (int i = 0; i < billDetailRepository.findAll().size(); i++) {
-            if (billDetailRepository.findAll().get(i).getIdBill().equals(idBill) &&
-            billDetailRepository.findAll().get(i).getIdProductDetail().equals(idProductDetail)){
-                BillDetail billDetail = billDetailRepository.findAll().get(i);
-                Integer tongSoLuong =SoLuong +billDetail.getQuantity();
-                billDetail.setQuantity(tongSoLuong);
-                billDetailRepository.save(billDetail);
-                return;
-            }
+    public BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong) {
+        Optional<BillDetail> optionalBillDetail = billDetailRepository.
+                findFirstByIdBillAndIdProductDetail(idBill, idProductDetail);
+
+        if (optionalBillDetail.isPresent()) {
+            BillDetail billDetail = optionalBillDetail.get();
+            billDetail.setQuantity(billDetail.getQuantity() + SoLuong);
+            BillDetail saveBillDetail = billDetailRepository.save(billDetail);
+            return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
         }
+        return new BillDetailDto(); // Trả về DTO rỗng thay vì null
     }
+
+
+
 
 
     @Override
@@ -93,7 +96,6 @@ public class BillDetailServiceImpl implements BillDetailService {
     }
 
 
-
     @Override
     public BigDecimal tongTienBill(Integer idBill) {
         BigDecimal tongTien = BigDecimal.ZERO; // Khởi tạo đúng cách là zero
@@ -105,6 +107,17 @@ public class BillDetailServiceImpl implements BillDetailService {
             }
         }
         return tongTien;
+    }
+
+
+    @Override
+    public void deleteBillDetail(Integer idBillDetail) {
+        if (idBillDetail == null) {
+            throw new RuntimeException("Vui long nhap id");
+        }
+        billDetailRepository.findById(idBillDetail)
+                .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
+        billDetailRepository.deleteById(idBillDetail);
     }
 
 }

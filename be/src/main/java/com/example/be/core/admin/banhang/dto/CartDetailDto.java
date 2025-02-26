@@ -2,6 +2,7 @@ package com.example.be.core.admin.banhang.dto;
 
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.ShoppingCart;
+import com.example.be.entity.status.StatusCartDetail;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,5 +19,5 @@ public class CartDetailDto {
 
     private Integer idShoppingCart;
 
-    private String status;
+    private StatusCartDetail status;
 }

@@ -3,7 +3,6 @@ package com.example.be.core.admin.banhang.service.impl;
 import com.example.be.core.admin.banhang.dto.ShoppingCartDto;
 import com.example.be.core.admin.banhang.mapper.ShoppingCartMapper;
 import com.example.be.core.admin.banhang.service.ShoppingCartService;
-import com.example.be.entity.Account;
 import com.example.be.entity.ShoppingCart;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.ShoppingCartRepository;
@@ -67,5 +66,25 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             e.printStackTrace();
         }
      return null;
+    }
+
+
+
+
+//    --------------------------------không cần dùng tài khoản -------------------------------
+
+    @Override
+    public ShoppingCart addGioHangKhongTk() {
+        try {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            shoppingCart.setIdAccount(null);
+            shoppingCart.setCode("GH_KTK_0" + shoppingCartRepository.getNewCode());
+            shoppingCart.setStatus("CHO_THANH_TOAN");
+//            ShoppingCart saveShoppingCart =
+            return shoppingCartRepository.save(shoppingCart);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

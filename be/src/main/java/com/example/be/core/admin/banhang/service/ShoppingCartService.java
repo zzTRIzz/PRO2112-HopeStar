@@ -18,4 +18,6 @@ public interface ShoppingCartService {
     List<ShoppingCartDto> getByIDShoppingCart(Integer idAccount);
 
     ShoppingCartDto CreateGioHang(ShoppingCartDto shoppingCartDto);
+
+    ShoppingCart addGioHangKhongTk();
 }

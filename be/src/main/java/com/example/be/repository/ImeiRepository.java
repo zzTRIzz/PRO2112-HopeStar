@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ImeiRepository extends JpaRepository<Imei, Integer> {
   List<Imei> findByProductDetailId(Integer id);
+
+  List<Imei> findByIdIn(List<Integer> idImei);
   }

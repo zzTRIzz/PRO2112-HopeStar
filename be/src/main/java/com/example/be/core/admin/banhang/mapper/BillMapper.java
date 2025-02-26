@@ -13,7 +13,6 @@ public class BillMapper {
     public BillDto dtoBillMapper(Bill bill) {
         return new BillDto(
                 bill.getId(),
-                (bill.getIdCart() != null) ? bill.getIdCart().getId() : null,
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
                 (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
@@ -43,13 +42,12 @@ public class BillMapper {
         );
     }
 
-    public Bill entityBillMapper(BillDto billDto, ShoppingCart shoppingCart,
+    public Bill entityBillMapper(BillDto billDto,
                                  Account accountKhachHang,Account accountNhanVien,
                                  Voucher voucher, PaymentMethod paymentMethod,
                                  DeliveryMethod deliveryMethod){
       return new Bill(
               billDto.getId(),
-              shoppingCart,
               accountKhachHang,
               accountNhanVien,
               voucher,

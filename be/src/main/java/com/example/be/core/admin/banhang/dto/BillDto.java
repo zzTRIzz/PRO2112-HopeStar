@@ -16,8 +16,6 @@ import java.time.Instant;
 public class BillDto {
     private Integer id;
 
-    private Integer idCart;
-
     private Integer idAccount;
 
     private Integer idNhanVien;

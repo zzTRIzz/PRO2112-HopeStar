@@ -24,10 +24,6 @@ public class Bill extends AuditEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cart")
-    private ShoppingCart idCart;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
     private Account idAccount;
 
