@@ -1,4 +1,4 @@
-package com.example.be.core.admin.products_management.model.request;
+package com.example.be.core.admin.products_management.dto.request;
 
 import com.example.be.entity.status.StatusImei;
 import lombok.Data;

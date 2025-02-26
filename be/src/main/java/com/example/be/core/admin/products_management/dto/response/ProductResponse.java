@@ -1,4 +1,4 @@
-package com.example.be.core.admin.products_management.model.response;
+package com.example.be.core.admin.products_management.dto.response;
 
 import com.example.be.entity.status.StatusCommon;
 import lombok.Data;

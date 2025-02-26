@@ -1,9 +1,10 @@
 package com.example.be.core.admin.products_management.mapper;
 
-import com.example.be.core.admin.products_management.dto.ProductImeiDTO;
+
+import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
+import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
+import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.entity.Imei;
-import com.example.be.core.admin.products_management.model.request.ProductImeiRequest;
-import com.example.be.core.admin.products_management.model.response.ProductImeiResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

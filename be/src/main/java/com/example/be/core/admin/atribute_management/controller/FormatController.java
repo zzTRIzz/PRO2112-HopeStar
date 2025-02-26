@@ -1,7 +1,7 @@
 package com.example.be.core.admin.atribute_management.controller;
 
 import com.example.be.core.admin.atribute_management.service.GenericService;
-import com.example.be.core.admin.products_management.model.response.ApiResponse;
+import com.example.be.core.admin.products_management.dto.response.ApiResponse;
 
 
 import lombok.RequiredArgsConstructor;

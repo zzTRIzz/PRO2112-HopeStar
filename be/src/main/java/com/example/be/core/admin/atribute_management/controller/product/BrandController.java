@@ -2,7 +2,7 @@ package com.example.be.core.admin.atribute_management.controller.product;
 
 import com.example.be.core.admin.atribute_management.controller.FormatController;
 import com.example.be.entity.Brand;
-import com.example.be.core.admin.products_management.model.response.ApiResponse;
+import com.example.be.core.admin.products_management.dto.response.ApiResponse;
 import com.example.be.core.admin.atribute_management.service.product.BrandService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

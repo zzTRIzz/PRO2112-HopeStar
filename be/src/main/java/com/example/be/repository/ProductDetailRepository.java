@@ -1,6 +1,6 @@
 package com.example.be.repository;
 
-import com.example.be.core.admin.products_management.model.request.SearchProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.entity.ProductDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

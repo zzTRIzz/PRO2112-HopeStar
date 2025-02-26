@@ -1,18 +1,22 @@
 package com.example.be.core.admin.products_management.controller;
 
+import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.admin.account.dto.response.ResponseError;
 import com.example.be.core.admin.products_management.mapper.ProductMapper;
-import com.example.be.core.admin.products_management.model.request.ProductConfigRequest;
-import com.example.be.core.admin.products_management.model.request.ProductRequest;
-import com.example.be.core.admin.products_management.model.request.SearchProductDetailRequest;
-import com.example.be.core.admin.products_management.model.request.SearchProductRequest;
-import com.example.be.core.admin.products_management.model.response.ApiResponse;
-import com.example.be.core.admin.products_management.model.response.ProductConfigResponse;
-import com.example.be.core.admin.products_management.model.response.ProductDetailResponse;
-import com.example.be.core.admin.products_management.model.response.ProductResponse;
+import com.example.be.core.admin.products_management.dto.request.ProductConfigRequest;
+import com.example.be.core.admin.products_management.dto.request.ProductRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
+import com.example.be.core.admin.products_management.dto.response.ApiResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductConfigResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.core.admin.products_management.service.ProductConfigService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,32 +49,36 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer id) throws Exception {
-        ProductResponse productResponse = productMapper.dtoToResponse(productMapper.entityToDTO(productService.getProductById(id)));
-        return ResponseEntity.ok(productResponse);
+    public ResponseData<ProductResponse> getProductById(@PathVariable Integer id) {
+        try {
+            ProductResponse productResponse = productMapper.dtoToResponse(productMapper.entityToDTO(productService.getProductById(id)));
+            return new ResponseData<>(HttpStatus.OK,"display successful",productResponse);
+        }catch (Exception e){
+            return new ResponseError(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
     // product vs product-detail
     @PostMapping("/create-product")
-    public ResponseEntity<ProductConfigResponse> add(@RequestBody ProductConfigRequest productConfigRequest) throws Exception {
+    public ResponseData<ProductConfigResponse> add(@RequestBody ProductConfigRequest productConfigRequest) throws Exception {
         ProductConfigResponse productConfigResponse = productConfigService.create(productConfigRequest);
-        return ResponseEntity.ok(productConfigResponse);
+        return new ResponseData<>(HttpStatus.CREATED,"create product successfully",productConfigResponse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> update(@PathVariable Integer id,
+    public ResponseData<?> update(@PathVariable Integer id,
                                               @RequestBody ProductRequest productRequest) throws Exception {
         productService.update(productRequest,id);
-        ApiResponse response = new ApiResponse();
-        response.setMessage("update product successfully");
-        return ResponseEntity.ok(response);
+        return new ResponseData<>(HttpStatus.ACCEPTED,"update product successfully");
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateStatus(@PathVariable Integer id) throws Exception {
-        productService.updateStatus(id);
-        ApiResponse response = new ApiResponse();
-        response.setMessage("update status product successfully");
-        return ResponseEntity.ok(response);
+    public ResponseData<?> updateStatus(@PathVariable Integer id) {
+        try {
+            productService.updateStatus(id);
+            return new ResponseData<>(HttpStatus.ACCEPTED,"update status product successfully");
+        }catch (Exception e){
+            return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/product-detail")

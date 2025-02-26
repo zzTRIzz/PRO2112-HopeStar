@@ -1,4 +1,4 @@
-package com.example.be.core.admin.products_management.model.request;
+package com.example.be.core.admin.products_management.dto.request;
 
 import lombok.Data;
 
