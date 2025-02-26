@@ -44,6 +44,11 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/',
           icon: IconLayoutDashboard,
+        },
+        {
+          title: 'Tài khoản',
+          url: '/taikhoan',
+          icon: IconLayoutDashboard,
         }
         ,
         {

@@ -13,8 +13,10 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as HomeImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
+import { Route as TrangchuTrangchuImport } from './routes/trangchu/trangchu'
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
@@ -53,11 +55,17 @@ const AuthenticatedUsersIndexLazyImport = createFileRoute(
 const AuthenticatedTasksIndexLazyImport = createFileRoute(
   '/_authenticated/tasks/',
 )()
+const AuthenticatedTaikhoanIndexLazyImport = createFileRoute(
+  '/_authenticated/taikhoan/',
+)()
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
 )()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
+)()
+const AuthenticatedHomeIndexLazyImport = createFileRoute(
+  '/_authenticated/home/',
 )()
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
   '/_authenticated/help-center/',
@@ -82,6 +90,12 @@ const AuthenticatedSettingsAccountLazyImport = createFileRoute(
 )()
 
 // Create/Update Routes
+
+const HomeRoute = HomeImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -169,6 +183,12 @@ const AuthenticatedSettingsRouteLazyRoute =
     import('./routes/_authenticated/settings/route.lazy').then((d) => d.Route),
   )
 
+const TrangchuTrangchuRoute = TrangchuTrangchuImport.update({
+  id: '/trangchu/trangchu',
+  path: '/trangchu/trangchu',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const authSignInRoute = authSignInImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
@@ -205,6 +225,15 @@ const AuthenticatedTasksIndexLazyRoute =
     import('./routes/_authenticated/tasks/index.lazy').then((d) => d.Route),
   )
 
+const AuthenticatedTaikhoanIndexLazyRoute =
+  AuthenticatedTaikhoanIndexLazyImport.update({
+    id: '/taikhoan/',
+    path: '/taikhoan/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/taikhoan/index.lazy').then((d) => d.Route),
+  )
+
 const AuthenticatedSettingsIndexLazyRoute =
   AuthenticatedSettingsIndexLazyImport.update({
     id: '/',
@@ -222,6 +251,16 @@ const AuthenticatedProductIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/product/index.lazy').then((d) => d.Route),
   )
+
+const AuthenticatedHomeIndexLazyRoute = AuthenticatedHomeIndexLazyImport.update(
+  {
+    id: '/home/',
+    path: '/home/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_authenticated/home/index.lazy').then((d) => d.Route),
+)
 
 const AuthenticatedHelpCenterIndexLazyRoute =
   AuthenticatedHelpCenterIndexLazyImport.update({
@@ -391,6 +430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRoute
     }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeImport
+      parentRoute: typeof rootRoute
+    }
     '/(auth)/500': {
       id: '/(auth)/500'
       path: '/500'
@@ -410,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInImport
+      parentRoute: typeof rootRoute
+    }
+    '/trangchu/trangchu': {
+      id: '/trangchu/trangchu'
+      path: '/trangchu/trangchu'
+      fullPath: '/trangchu/trangchu'
+      preLoaderRoute: typeof TrangchuTrangchuImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/settings': {
@@ -622,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/home/': {
+      id: '/_authenticated/home/'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/': {
       id: '/_authenticated/product/'
       path: '/product'
@@ -635,6 +695,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
+    }
+    '/_authenticated/taikhoan/': {
+      id: '/_authenticated/taikhoan/'
+      path: '/taikhoan'
+      fullPath: '/taikhoan'
+      preLoaderRoute: typeof AuthenticatedTaikhoanIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/tasks/': {
       id: '/_authenticated/tasks/'
@@ -700,7 +767,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
+  AuthenticatedHomeIndexLazyRoute: typeof AuthenticatedHomeIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
+  AuthenticatedTaikhoanIndexLazyRoute: typeof AuthenticatedTaikhoanIndexLazyRoute
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
 }
@@ -725,7 +794,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
+  AuthenticatedHomeIndexLazyRoute: AuthenticatedHomeIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
+  AuthenticatedTaikhoanIndexLazyRoute: AuthenticatedTaikhoanIndexLazyRoute,
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
 }
@@ -735,9 +806,11 @@ const AuthenticatedRouteRouteWithChildren =
 
 export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/home': typeof AuthenticatedHomeIndexLazyRoute
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
+  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
   '/sign-in-2': typeof authSignIn2LazyRoute
@@ -769,14 +842,17 @@ export interface FileRoutesByFullPath {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
+  '/taikhoan': typeof AuthenticatedTaikhoanIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
+  '/home': typeof AuthenticatedHomeIndexLazyRoute
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
+  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/forgot-password': typeof authForgotPasswordLazyRoute
   '/sign-in-2': typeof authSignIn2LazyRoute
   '/sign-up': typeof authSignUpLazyRoute
@@ -807,6 +883,7 @@ export interface FileRoutesByTo {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
+  '/taikhoan': typeof AuthenticatedTaikhoanIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
 }
@@ -814,9 +891,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/home': typeof HomeRoute
   '/(auth)/500': typeof auth500Route
   '/(auth)/otp': typeof authOtpRoute
   '/(auth)/sign-in': typeof authSignInRoute
+  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
   '/(auth)/sign-in-2': typeof authSignIn2LazyRoute
@@ -847,8 +926,10 @@ export interface FileRoutesById {
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/_authenticated/home/': typeof AuthenticatedHomeIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
+  '/_authenticated/taikhoan/': typeof AuthenticatedTaikhoanIndexLazyRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
 }
@@ -857,9 +938,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
+    | '/home'
     | '/500'
     | '/otp'
     | '/sign-in'
+    | '/trangchu/trangchu'
     | '/settings'
     | '/forgot-password'
     | '/sign-in-2'
@@ -891,13 +974,16 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/product'
     | '/settings/'
+    | '/taikhoan'
     | '/tasks'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/home'
     | '/500'
     | '/otp'
     | '/sign-in'
+    | '/trangchu/trangchu'
     | '/forgot-password'
     | '/sign-in-2'
     | '/sign-up'
@@ -928,14 +1014,17 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/product'
     | '/settings'
+    | '/taikhoan'
     | '/tasks'
     | '/users'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/home'
     | '/(auth)/500'
     | '/(auth)/otp'
     | '/(auth)/sign-in'
+    | '/trangchu/trangchu'
     | '/_authenticated/settings'
     | '/(auth)/forgot-password'
     | '/(auth)/sign-in-2'
@@ -966,8 +1055,10 @@ export interface FileRouteTypes {
     | '/_authenticated/apps/'
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/home/'
     | '/_authenticated/product/'
     | '/_authenticated/settings/'
+    | '/_authenticated/taikhoan/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
@@ -975,9 +1066,11 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  HomeRoute: typeof HomeRoute
   auth500Route: typeof auth500Route
   authOtpRoute: typeof authOtpRoute
   authSignInRoute: typeof authSignInRoute
+  TrangchuTrangchuRoute: typeof TrangchuTrangchuRoute
   authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
   authSignIn2LazyRoute: typeof authSignIn2LazyRoute
   authSignUpLazyRoute: typeof authSignUpLazyRoute
@@ -990,9 +1083,11 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  HomeRoute: HomeRoute,
   auth500Route: auth500Route,
   authOtpRoute: authOtpRoute,
   authSignInRoute: authSignInRoute,
+  TrangchuTrangchuRoute: TrangchuTrangchuRoute,
   authForgotPasswordLazyRoute: authForgotPasswordLazyRoute,
   authSignIn2LazyRoute: authSignIn2LazyRoute,
   authSignUpLazyRoute: authSignUpLazyRoute,
@@ -1014,9 +1109,11 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_authenticated",
+        "/home",
         "/(auth)/500",
         "/(auth)/otp",
         "/(auth)/sign-in",
+        "/trangchu/trangchu",
         "/(auth)/forgot-password",
         "/(auth)/sign-in-2",
         "/(auth)/sign-up",
@@ -1048,10 +1145,15 @@ export const routeTree = rootRoute
         "/_authenticated/apps/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
+        "/_authenticated/home/",
         "/_authenticated/product/",
+        "/_authenticated/taikhoan/",
         "/_authenticated/tasks/",
         "/_authenticated/users/"
       ]
+    },
+    "/home": {
+      "filePath": "home.tsx"
     },
     "/(auth)/500": {
       "filePath": "(auth)/500.tsx"
@@ -1061,6 +1163,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/sign-in": {
       "filePath": "(auth)/sign-in.tsx"
+    },
+    "/trangchu/trangchu": {
+      "filePath": "trangchu/trangchu.tsx"
     },
     "/_authenticated/settings": {
       "filePath": "_authenticated/settings/route.lazy.tsx",
@@ -1181,6 +1286,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/help-center/index.lazy.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/home/": {
+      "filePath": "_authenticated/home/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/": {
       "filePath": "_authenticated/product/index.lazy.tsx",
       "parent": "/_authenticated"
@@ -1188,6 +1297,10 @@ export const routeTree = rootRoute
     "/_authenticated/settings/": {
       "filePath": "_authenticated/settings/index.lazy.tsx",
       "parent": "/_authenticated/settings"
+    },
+    "/_authenticated/taikhoan/": {
+      "filePath": "_authenticated/taikhoan/index.lazy.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/tasks/": {
       "filePath": "_authenticated/tasks/index.lazy.tsx",
