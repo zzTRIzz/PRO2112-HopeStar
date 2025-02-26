@@ -24,6 +24,7 @@ import { Route as AuthenticatedProductScreenImport } from './routes/_authenticat
 import { Route as AuthenticatedProductRomImport } from './routes/_authenticated/product/rom'
 import { Route as AuthenticatedProductRamImport } from './routes/_authenticated/product/ram'
 import { Route as AuthenticatedProductImeiImport } from './routes/_authenticated/product/imei'
+import { Route as AuthenticatedProductCreateProductImport } from './routes/_authenticated/product/create-product'
 import { Route as AuthenticatedProductColorImport } from './routes/_authenticated/product/color'
 import { Route as AuthenticatedProductChipImport } from './routes/_authenticated/product/chip'
 import { Route as AuthenticatedProductCategoryImport } from './routes/_authenticated/product/category'
@@ -335,6 +336,13 @@ const AuthenticatedProductImeiRoute = AuthenticatedProductImeiImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
+const AuthenticatedProductCreateProductRoute =
+  AuthenticatedProductCreateProductImport.update({
+    id: '/product/create-product',
+    path: '/product/create-product',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const AuthenticatedProductColorRoute = AuthenticatedProductColorImport.update({
   id: '/product/color',
   path: '/product/color',
@@ -531,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductColorImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/create-product': {
+      id: '/_authenticated/product/create-product'
+      path: '/product/create-product'
+      fullPath: '/product/create-product'
+      preLoaderRoute: typeof AuthenticatedProductCreateProductImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/imei': {
       id: '/_authenticated/product/imei'
       path: '/product/imei'
@@ -691,6 +706,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductCategoryRoute: typeof AuthenticatedProductCategoryRoute
   AuthenticatedProductChipRoute: typeof AuthenticatedProductChipRoute
   AuthenticatedProductColorRoute: typeof AuthenticatedProductColorRoute
+  AuthenticatedProductCreateProductRoute: typeof AuthenticatedProductCreateProductRoute
   AuthenticatedProductImeiRoute: typeof AuthenticatedProductImeiRoute
   AuthenticatedProductRamRoute: typeof AuthenticatedProductRamRoute
   AuthenticatedProductRomRoute: typeof AuthenticatedProductRomRoute
@@ -716,6 +732,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductCategoryRoute: AuthenticatedProductCategoryRoute,
   AuthenticatedProductChipRoute: AuthenticatedProductChipRoute,
   AuthenticatedProductColorRoute: AuthenticatedProductColorRoute,
+  AuthenticatedProductCreateProductRoute:
+    AuthenticatedProductCreateProductRoute,
   AuthenticatedProductImeiRoute: AuthenticatedProductImeiRoute,
   AuthenticatedProductRamRoute: AuthenticatedProductRamRoute,
   AuthenticatedProductRomRoute: AuthenticatedProductRomRoute,
@@ -754,6 +772,7 @@ export interface FileRoutesByFullPath {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
@@ -792,6 +811,7 @@ export interface FileRoutesByTo {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
@@ -834,6 +854,7 @@ export interface FileRoutesById {
   '/_authenticated/product/category': typeof AuthenticatedProductCategoryRoute
   '/_authenticated/product/chip': typeof AuthenticatedProductChipRoute
   '/_authenticated/product/color': typeof AuthenticatedProductColorRoute
+  '/_authenticated/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/_authenticated/product/imei': typeof AuthenticatedProductImeiRoute
   '/_authenticated/product/ram': typeof AuthenticatedProductRamRoute
   '/_authenticated/product/rom': typeof AuthenticatedProductRomRoute
@@ -876,6 +897,7 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
     | '/product/imei'
     | '/product/ram'
     | '/product/rom'
@@ -913,6 +935,7 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
     | '/product/imei'
     | '/product/ram'
     | '/product/rom'
@@ -953,6 +976,7 @@ export interface FileRouteTypes {
     | '/_authenticated/product/category'
     | '/_authenticated/product/chip'
     | '/_authenticated/product/color'
+    | '/_authenticated/product/create-product'
     | '/_authenticated/product/imei'
     | '/_authenticated/product/ram'
     | '/_authenticated/product/rom'
@@ -1039,6 +1063,7 @@ export const routeTree = rootRoute
         "/_authenticated/product/category",
         "/_authenticated/product/chip",
         "/_authenticated/product/color",
+        "/_authenticated/product/create-product",
         "/_authenticated/product/imei",
         "/_authenticated/product/ram",
         "/_authenticated/product/rom",
@@ -1127,6 +1152,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/color": {
       "filePath": "_authenticated/product/color.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/create-product": {
+      "filePath": "_authenticated/product/create-product.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/imei": {
