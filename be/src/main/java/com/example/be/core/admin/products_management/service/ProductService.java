@@ -1,9 +1,10 @@
 package com.example.be.core.admin.products_management.service;
 
 
-import com.example.be.core.admin.products_management.model.request.ProductRequest;
-import com.example.be.core.admin.products_management.model.request.SearchProductRequest;
-import com.example.be.core.admin.products_management.model.response.ProductResponse;
+
+import com.example.be.core.admin.products_management.dto.request.ProductRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
+import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.entity.Product;
 import org.springframework.data.domain.Page;
 
