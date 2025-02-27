@@ -1,4 +1,4 @@
-package com.example.be.core.admin.account.exception;
+package com.example.be.exception;
 
 import jakarta.validation.ConstraintDeclarationException;
 import org.springframework.http.HttpStatus;
@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
             message = message.substring(message.indexOf(":") + 1);
             errorResponse.setError("Parameter invalid");
         }
+        errorResponse.setMessage(message);
 
         System.out.println("=========================> handleException: " + e.getMessage());
         return errorResponse;
