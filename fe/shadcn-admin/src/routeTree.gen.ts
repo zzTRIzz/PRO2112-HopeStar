@@ -18,6 +18,7 @@ import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as AuthenticatedVoucherCreateImport } from './routes/_authenticated/voucher/create'
 import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated/product/wifi'
 import { Route as AuthenticatedProductSimImport } from './routes/_authenticated/product/sim'
 import { Route as AuthenticatedProductScreenImport } from './routes/_authenticated/product/screen'
@@ -46,6 +47,9 @@ const authForgotPasswordLazyImport = createFileRoute(
 )()
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
+)()
+const AuthenticatedVoucherIndexLazyImport = createFileRoute(
+  '/_authenticated/voucher/',
 )()
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
   '/_authenticated/users/',
@@ -187,6 +191,15 @@ const auth500Route = auth500Import.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthenticatedVoucherIndexLazyRoute =
+  AuthenticatedVoucherIndexLazyImport.update({
+    id: '/voucher/',
+    path: '/voucher/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/voucher/index.lazy').then((d) => d.Route),
+  )
+
 const AuthenticatedUsersIndexLazyRoute =
   AuthenticatedUsersIndexLazyImport.update({
     id: '/users/',
@@ -296,6 +309,14 @@ const AuthenticatedSettingsAccountLazyRoute =
       (d) => d.Route,
     ),
   )
+
+const AuthenticatedVoucherCreateRoute = AuthenticatedVoucherCreateImport.update(
+  {
+    id: '/voucher/create',
+    path: '/voucher/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+)
 
 const AuthenticatedProductWifiRoute = AuthenticatedProductWifiImport.update({
   id: '/product/wifi',
@@ -573,6 +594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductWifiImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/voucher/create': {
+      id: '/_authenticated/voucher/create'
+      path: '/voucher/create'
+      fullPath: '/voucher/create'
+      preLoaderRoute: typeof AuthenticatedVoucherCreateImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/settings/account': {
       id: '/_authenticated/settings/account'
       path: '/account'
@@ -650,6 +678,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/voucher/': {
+      id: '/_authenticated/voucher/'
+      path: '/voucher'
+      fullPath: '/voucher'
+      preLoaderRoute: typeof AuthenticatedVoucherIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -697,12 +732,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductScreenRoute: typeof AuthenticatedProductScreenRoute
   AuthenticatedProductSimRoute: typeof AuthenticatedProductSimRoute
   AuthenticatedProductWifiRoute: typeof AuthenticatedProductWifiRoute
+  AuthenticatedVoucherCreateRoute: typeof AuthenticatedVoucherCreateRoute
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
+  AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -722,12 +759,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductScreenRoute: AuthenticatedProductScreenRoute,
   AuthenticatedProductSimRoute: AuthenticatedProductSimRoute,
   AuthenticatedProductWifiRoute: AuthenticatedProductWifiRoute,
+  AuthenticatedVoucherCreateRoute: AuthenticatedVoucherCreateRoute,
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -760,6 +799,7 @@ export interface FileRoutesByFullPath {
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -771,6 +811,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -798,6 +839,7 @@ export interface FileRoutesByTo {
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -809,6 +851,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -840,6 +883,7 @@ export interface FileRoutesById {
   '/_authenticated/product/screen': typeof AuthenticatedProductScreenRoute
   '/_authenticated/product/sim': typeof AuthenticatedProductSimRoute
   '/_authenticated/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/_authenticated/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -851,6 +895,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
+  '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -882,6 +927,7 @@ export interface FileRouteTypes {
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -893,6 +939,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks'
     | '/users'
+    | '/voucher'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -919,6 +966,7 @@ export interface FileRouteTypes {
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -930,6 +978,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/voucher'
   id:
     | '__root__'
     | '/_authenticated'
@@ -959,6 +1008,7 @@ export interface FileRouteTypes {
     | '/_authenticated/product/screen'
     | '/_authenticated/product/sim'
     | '/_authenticated/product/wifi'
+    | '/_authenticated/voucher/create'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -970,6 +1020,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/voucher/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1045,12 +1096,14 @@ export const routeTree = rootRoute
         "/_authenticated/product/screen",
         "/_authenticated/product/sim",
         "/_authenticated/product/wifi",
+        "/_authenticated/voucher/create",
         "/_authenticated/apps/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
         "/_authenticated/product/",
         "/_authenticated/tasks/",
-        "/_authenticated/users/"
+        "/_authenticated/users/",
+        "/_authenticated/voucher/"
       ]
     },
     "/(auth)/500": {
@@ -1153,6 +1206,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/wifi.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/voucher/create": {
+      "filePath": "_authenticated/voucher/create.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/settings/account": {
       "filePath": "_authenticated/settings/account.lazy.tsx",
       "parent": "/_authenticated/settings"
@@ -1195,6 +1252,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/voucher/": {
+      "filePath": "_authenticated/voucher/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }
