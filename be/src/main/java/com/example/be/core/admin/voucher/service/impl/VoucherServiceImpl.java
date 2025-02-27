@@ -39,4 +39,15 @@ public class VoucherServiceImpl implements VoucherService {
         voucher = voucherRepository.save(voucher);
         return voucherMapper.toResponse(voucher);
     }
+
+    @Override
+    public void updateSoLuongVoucher(Integer idVoucher){
+        Voucher voucher = voucherRepository.findById(idVoucher)
+                .orElseThrow(()->new RuntimeException("Khong tim thay voucher"));
+
+        Integer soLuongConLai = voucher.getQuantity() - 1;
+        voucher.setQuantity(soLuongConLai);
+        voucherRepository.save(voucher);
+    }
+    
 }

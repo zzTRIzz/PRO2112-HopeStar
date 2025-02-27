@@ -7,6 +7,7 @@ import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
+import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
 import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
@@ -44,6 +45,9 @@ public class BanHangTaiQuay {
 
     @Autowired
     BillService billService;
+
+    @Autowired
+    ProductDetailService productDetailService;
 
     @Autowired
     ImeiSoldService imeiSoldService;
@@ -114,22 +118,17 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(saveBillDto);
     }
 
-
     @PostMapping("/addHDCT")
     public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {
         ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm chi tiết"));
-
+        billDetailDto.setQuantity(0);
         BigDecimal price = productDetail.getPriceSell();
         billDetailDto.setPrice(price);
         billDetailDto.setTotalPrice(price.multiply(BigDecimal.valueOf(billDetailDto.getQuantity())));
 
         Bill bill = billRepository.findById(billDetailDto.getIdBill())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-
-        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
-        BillDto billDto = billMapper.dtoBillMapper(bill);
-        billDto.setTotalPrice(tongTienBill);
 
         Optional<BillDetail> existingBillDetail = billDetailRepository.findFirstByIdBillAndIdProductDetail(
                 billDetailDto.getIdBill(), billDetailDto.getIdProductDetail());
@@ -142,19 +141,24 @@ public class BanHangTaiQuay {
         } else {
             savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
         }
-
+        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
+        BillDto billDto = billMapper.dtoBillMapper(bill);
+        billDto.setTotalPrice(tongTienBill);
         billService.updateTongTienHoaDon(billDto);
-
+        productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
+        productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
         return ResponseEntity.ok(savebillDetailDto);
     }
 
     @PostMapping("/create_imei_sold")
-    public ResponseEntity<?> createImeiSold(@RequestBody ImeiSoldDto imeiSoldDto){
-            BillDetailDto billDetailDto = imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
-                    imeiSoldDto.getId_Imei());
-            return ResponseEntity.ok(billDetailDto);
+    public ResponseEntity<?> createImeiSold(@RequestBody ImeiSoldDto imeiSoldDto) {
+        BillDetailDto billDetailDto = imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
+                imeiSoldDto.getId_Imei());
+        Integer quantyti = imeiSoldDto.getId_Imei().size() ;
+        productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(),quantyti);
+        productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
+        return ResponseEntity.ok(billDetailDto);
     }
-
 
 
 //    @PostMapping("/addHDCT")

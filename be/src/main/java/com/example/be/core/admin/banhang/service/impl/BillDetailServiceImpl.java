@@ -72,7 +72,11 @@ public class BillDetailServiceImpl implements BillDetailService {
 
         if (optionalBillDetail.isPresent()) {
             BillDetail billDetail = optionalBillDetail.get();
-            billDetail.setQuantity(billDetail.getQuantity() + SoLuong);
+            Integer soLuongTong = billDetail.getQuantity() + SoLuong;
+            billDetail.setQuantity(soLuongTong);
+            BigDecimal tongTien = billDetail.getPrice()
+                    .multiply(BigDecimal.valueOf(soLuongTong));
+            billDetail.setTotalPrice(tongTien);
             BillDetail saveBillDetail = billDetailRepository.save(billDetail);
             return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
         }

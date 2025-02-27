@@ -6,6 +6,7 @@ import com.example.be.core.admin.products_management.dto.response.ProductDetailR
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.entity.Imei;
 import com.example.be.entity.ProductDetail;
+import com.example.be.entity.Voucher;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.ProductDetailRepository;
@@ -74,4 +75,34 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .collect(Collectors.toList());
         return new PageImpl<>(detailResponseList, PageRequest.of(page,size),total);
     }
+
+    @Override
+    public void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity){
+       ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+               .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+        Integer soLuongConLai = productDetail.getInventoryQuantity() - quantity;
+        productDetail.setInventoryQuantity(soLuongConLai);
+        productDetailRepository.save(productDetail);
+    }
+
+    @Override
+    public void updateStatusProduct(Integer idProductDetail){
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+        if (productDetail.getInventoryQuantity().equals(0)){
+            productDetail.setStatus(ProductDetailStatus.DESIST);
+            productDetailRepository.save(productDetail);
+        }
+    }
+
+//    @Override
+//    public void updateStatusProductTrue(Integer idProductDetail){
+//        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+//                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+//        if (!productDetail.getInventoryQuantity().equals(0)){
+//            productDetail.setStatus(ProductDetailStatus.);
+//            productDetailRepository.save(productDetail);
+//        }
+//    }
+
 }

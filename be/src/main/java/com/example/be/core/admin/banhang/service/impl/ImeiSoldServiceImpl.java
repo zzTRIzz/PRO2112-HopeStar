@@ -59,7 +59,7 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
             imeiSold.setId_Imei(imei);
             imeiSold.setIdBillDetail(billDetail);
             imeiSoldList.add(imeiSold);
-            imei.setStatus(StatusImei.SOLD);
+            imei.setStatus(StatusImei.NOT_SOLD);
         }
         imeiSoldRepository.saveAll(imeiSoldList);
         imeiRepository.saveAll(imeis);

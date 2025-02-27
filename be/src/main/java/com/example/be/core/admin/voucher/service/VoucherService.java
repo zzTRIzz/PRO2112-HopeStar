@@ -12,4 +12,5 @@ public interface VoucherService {
     VoucherResponse add(VoucherRequest request);
     VoucherResponse update(Integer id, VoucherRequest request);
 
+    void updateSoLuongVoucher(Integer idVoucher);
 }

@@ -7,4 +7,8 @@ import org.springframework.data.domain.Page;
 public interface ProductDetailService {
     void updateStatus(Integer id) throws Exception;
     Page<ProductDetailResponse> searchProductDetails(SearchProductDetailRequest searchProductDetailRequest, int page, int size, Integer id);
+
+    void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity);
+
+    void updateStatusProduct(Integer idProductDetail);
 }

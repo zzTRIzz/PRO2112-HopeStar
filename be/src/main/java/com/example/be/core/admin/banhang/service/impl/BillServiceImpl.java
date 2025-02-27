@@ -4,8 +4,10 @@ import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
+import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
+import com.example.be.entity.status.StatusVoucher;
 import com.example.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,9 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillMapper billMapper;
+
+    @Autowired
+    VoucherService voucherService;
 
     @Autowired
     VoucherRepository voucherRepository;
@@ -108,11 +113,12 @@ public class BillServiceImpl implements BillService {
             Account accountKhachHang = accountRepository.findById(billDto.getIdAccount()).orElse(null);
 
             Voucher voucher;
-//            if (billDto.getIdVoucher() == null){
-//                voucher = null;
-//            }else {
+//            if (accountKhachHang.getId() == null){
+//                throw new RuntimeException("Khach hang khon duoc null");
+//            }
+//            else {
 //                 voucher  =voucherRepository.findById(billDto.getIdVoucher()).orElse(null);
-            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId());
+            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE);
             voucher = voucherList.isEmpty() ? null : voucherList.get(0);
 //            }
             BigDecimal tongSauKhiGiam;
@@ -125,10 +131,10 @@ public class BillServiceImpl implements BillService {
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
             }
-
+            if (voucher != null){
+                voucherService.updateSoLuongVoucher(voucher.getId());
+            }
             billDto.setTotalDue(tongSauKhiGiam);
-
-
             PaymentMethod paymentMethod;
             if (billDto.getIdPayment() == null){
                 paymentMethod = null;
@@ -220,9 +226,9 @@ public class BillServiceImpl implements BillService {
     public void apDungVoucherChoOnline(Bill bill){
         try {
             Account accountKhachHang = accountRepository.findById(bill.getIdAccount().getId()).orElse(null);
-            System.out.println("id khahcs hang "+bill.getIdAccount().getId());
+//            System.out.println("id khahcs hang "+bill.getIdAccount().getId());
             Voucher voucher;
-            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId());
+            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(),StatusVoucher.ACTIVE);
             voucher = voucherList.isEmpty() ? null : voucherList.get(0);
             BigDecimal tongSauKhiGiam;
             if (voucher == null){
@@ -230,8 +236,10 @@ public class BillServiceImpl implements BillService {
                 voucher = null;
             }else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
                 tongSauKhiGiam= bill.getTotalPrice().subtract(voucher.getDiscountValue());
+                voucherService.updateSoLuongVoucher(voucher.getId());
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
+                voucherService.updateSoLuongVoucher(voucher.getId());
             }
             System.out.println("voucher da tim duoc la :"+voucher);
             bill.setIdVoucher(voucher);
