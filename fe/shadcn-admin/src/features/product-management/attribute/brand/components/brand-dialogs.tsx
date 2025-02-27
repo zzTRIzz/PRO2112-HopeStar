@@ -1,7 +1,7 @@
 import { toast } from '@/hooks/use-toast'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { useTasks } from '../context/tasks-context'
-import { TasksMutateDrawer } from './tasks-mutate-drawer'
+import { useTasks } from '../context/brands-context'
+import { TasksMutateDrawer } from './brand-mutate-drawer'
 
 export function TasksDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useTasks()
@@ -10,18 +10,19 @@ export function TasksDialogs() {
       <TasksMutateDrawer
         key='brand-create'
         open={open === 'create'}
-        onOpenChange={() => setOpen('create')}
+        onOpenChange={(value) => {
+          setOpen(value ? 'create' : null)
+          if (!value) setCurrentRow(null)
+        }}
       />
       {currentRow && (
         <>
           <TasksMutateDrawer
             key={`brand-update-${currentRow.id}`}
             open={open === 'update'}
-            onOpenChange={() => {
-              setOpen('update')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
+            onOpenChange={(value) => {
+              setOpen(value ? 'update' : null)
+              if (!value) setCurrentRow(null)
             }}
             currentRow={currentRow}
           />

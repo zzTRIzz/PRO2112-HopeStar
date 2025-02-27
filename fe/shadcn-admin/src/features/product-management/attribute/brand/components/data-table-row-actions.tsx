@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useTasks } from '../context/tasks-context'
+import { useTasks } from '../context/brands-context'
 import { brandSchema } from '../data/schema'
 
 interface DataTableRowActionsProps<TData> {

@@ -1,4 +1,4 @@
-package com.example.be.core.admin.account.exception;
+package com.example.be.exception;
 
 import lombok.Data;
 

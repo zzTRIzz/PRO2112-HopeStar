@@ -20,7 +20,7 @@ public class FormatController<E,S extends GenericService<E, Integer>> {
         return ResponseEntity.ok(list);
     }
     @PostMapping("")
-    public ResponseEntity<E> create(@RequestBody E e){
+    public ResponseEntity<E> create(@RequestBody E e) throws Exception {
         E newE = s.create(e);
         return ResponseEntity.ok(newE);
     }
