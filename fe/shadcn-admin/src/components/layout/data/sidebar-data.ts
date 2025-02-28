@@ -19,6 +19,7 @@ import {
   IconUserOff,
   IconUsers,
   IconSubtask,
+  IconDiscount,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -131,6 +132,11 @@ export const sidebarData: SidebarData = {
           url: '/users',
           icon: IconUsers,
         },
+        {
+          title: 'Voucher',
+          url: '/voucher',
+          icon: IconDiscount
+        }
       ],
     },
     {

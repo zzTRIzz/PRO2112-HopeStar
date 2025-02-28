@@ -24,12 +24,15 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand create(Brand brand) {
+    public Brand create(Brand brand) throws Exception {
         Brand newBrand = new Brand();
         newBrand.setCode("BRAN_"+brandRepository.getNewCode());
+        if (brandRepository.existsByNameTrimmedIgnoreCase(brand.getName())){
+            throw new Exception("brand name already exists");
+        }
         newBrand.setName(brand.getName());
-        newBrand.setImageUrl(brand.getImageUrl());
-        newBrand.setStatus(StatusCommon.ACTIVE);
+//        newBrand.setImageUrl(brand.getImageUrl());
+        newBrand.setStatus(brand.getStatus());
         return brandRepository.save(newBrand);
     }
 
@@ -37,7 +40,13 @@ public class BrandServiceImpl implements BrandService {
     public void update(Integer id, Brand entity) throws Exception {
         Brand brand = getById(id);
         if (brand != null){
-            brandRepository.save(entity);
+            if (!brandRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),brand.getId())){
+                brand.setName(entity.getName());
+                brand.setStatus(entity.getStatus());
+                brandRepository.save(brand);
+            }else {
+                throw new Exception("brand name already exists");
+            }
         }
     }
 

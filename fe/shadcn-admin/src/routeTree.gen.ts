@@ -18,12 +18,14 @@ import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as AuthenticatedVoucherCreateImport } from './routes/_authenticated/voucher/create'
 import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated/product/wifi'
 import { Route as AuthenticatedProductSimImport } from './routes/_authenticated/product/sim'
 import { Route as AuthenticatedProductScreenImport } from './routes/_authenticated/product/screen'
 import { Route as AuthenticatedProductRomImport } from './routes/_authenticated/product/rom'
 import { Route as AuthenticatedProductRamImport } from './routes/_authenticated/product/ram'
 import { Route as AuthenticatedProductImeiImport } from './routes/_authenticated/product/imei'
+import { Route as AuthenticatedProductCreateProductImport } from './routes/_authenticated/product/create-product'
 import { Route as AuthenticatedProductColorImport } from './routes/_authenticated/product/color'
 import { Route as AuthenticatedProductChipImport } from './routes/_authenticated/product/chip'
 import { Route as AuthenticatedProductCategoryImport } from './routes/_authenticated/product/category'
@@ -46,6 +48,9 @@ const authForgotPasswordLazyImport = createFileRoute(
 )()
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
+)()
+const AuthenticatedVoucherIndexLazyImport = createFileRoute(
+  '/_authenticated/voucher/',
 )()
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
   '/_authenticated/users/',
@@ -187,6 +192,15 @@ const auth500Route = auth500Import.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthenticatedVoucherIndexLazyRoute =
+  AuthenticatedVoucherIndexLazyImport.update({
+    id: '/voucher/',
+    path: '/voucher/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/voucher/index.lazy').then((d) => d.Route),
+  )
+
 const AuthenticatedUsersIndexLazyRoute =
   AuthenticatedUsersIndexLazyImport.update({
     id: '/users/',
@@ -297,6 +311,14 @@ const AuthenticatedSettingsAccountLazyRoute =
     ),
   )
 
+const AuthenticatedVoucherCreateRoute = AuthenticatedVoucherCreateImport.update(
+  {
+    id: '/voucher/create',
+    path: '/voucher/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+)
+
 const AuthenticatedProductWifiRoute = AuthenticatedProductWifiImport.update({
   id: '/product/wifi',
   path: '/product/wifi',
@@ -334,6 +356,13 @@ const AuthenticatedProductImeiRoute = AuthenticatedProductImeiImport.update({
   path: '/product/imei',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+
+const AuthenticatedProductCreateProductRoute =
+  AuthenticatedProductCreateProductImport.update({
+    id: '/product/create-product',
+    path: '/product/create-product',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 const AuthenticatedProductColorRoute = AuthenticatedProductColorImport.update({
   id: '/product/color',
@@ -531,6 +560,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductColorImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/create-product': {
+      id: '/_authenticated/product/create-product'
+      path: '/product/create-product'
+      fullPath: '/product/create-product'
+      preLoaderRoute: typeof AuthenticatedProductCreateProductImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/imei': {
       id: '/_authenticated/product/imei'
       path: '/product/imei'
@@ -571,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/product/wifi'
       fullPath: '/product/wifi'
       preLoaderRoute: typeof AuthenticatedProductWifiImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/voucher/create': {
+      id: '/_authenticated/voucher/create'
+      path: '/voucher/create'
+      fullPath: '/voucher/create'
+      preLoaderRoute: typeof AuthenticatedVoucherCreateImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/settings/account': {
@@ -650,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/voucher/': {
+      id: '/_authenticated/voucher/'
+      path: '/voucher'
+      fullPath: '/voucher'
+      preLoaderRoute: typeof AuthenticatedVoucherIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -691,18 +741,21 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductCategoryRoute: typeof AuthenticatedProductCategoryRoute
   AuthenticatedProductChipRoute: typeof AuthenticatedProductChipRoute
   AuthenticatedProductColorRoute: typeof AuthenticatedProductColorRoute
+  AuthenticatedProductCreateProductRoute: typeof AuthenticatedProductCreateProductRoute
   AuthenticatedProductImeiRoute: typeof AuthenticatedProductImeiRoute
   AuthenticatedProductRamRoute: typeof AuthenticatedProductRamRoute
   AuthenticatedProductRomRoute: typeof AuthenticatedProductRomRoute
   AuthenticatedProductScreenRoute: typeof AuthenticatedProductScreenRoute
   AuthenticatedProductSimRoute: typeof AuthenticatedProductSimRoute
   AuthenticatedProductWifiRoute: typeof AuthenticatedProductWifiRoute
+  AuthenticatedVoucherCreateRoute: typeof AuthenticatedVoucherCreateRoute
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
+  AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -716,18 +769,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductCategoryRoute: AuthenticatedProductCategoryRoute,
   AuthenticatedProductChipRoute: AuthenticatedProductChipRoute,
   AuthenticatedProductColorRoute: AuthenticatedProductColorRoute,
+  AuthenticatedProductCreateProductRoute:
+    AuthenticatedProductCreateProductRoute,
   AuthenticatedProductImeiRoute: AuthenticatedProductImeiRoute,
   AuthenticatedProductRamRoute: AuthenticatedProductRamRoute,
   AuthenticatedProductRomRoute: AuthenticatedProductRomRoute,
   AuthenticatedProductScreenRoute: AuthenticatedProductScreenRoute,
   AuthenticatedProductSimRoute: AuthenticatedProductSimRoute,
   AuthenticatedProductWifiRoute: AuthenticatedProductWifiRoute,
+  AuthenticatedVoucherCreateRoute: AuthenticatedVoucherCreateRoute,
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -754,12 +811,14 @@ export interface FileRoutesByFullPath {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -771,6 +830,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -792,12 +852,14 @@ export interface FileRoutesByTo {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -809,6 +871,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -834,12 +897,14 @@ export interface FileRoutesById {
   '/_authenticated/product/category': typeof AuthenticatedProductCategoryRoute
   '/_authenticated/product/chip': typeof AuthenticatedProductChipRoute
   '/_authenticated/product/color': typeof AuthenticatedProductColorRoute
+  '/_authenticated/product/create-product': typeof AuthenticatedProductCreateProductRoute
   '/_authenticated/product/imei': typeof AuthenticatedProductImeiRoute
   '/_authenticated/product/ram': typeof AuthenticatedProductRamRoute
   '/_authenticated/product/rom': typeof AuthenticatedProductRomRoute
   '/_authenticated/product/screen': typeof AuthenticatedProductScreenRoute
   '/_authenticated/product/sim': typeof AuthenticatedProductSimRoute
   '/_authenticated/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/_authenticated/voucher/create': typeof AuthenticatedVoucherCreateRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -851,6 +916,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
+  '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -876,12 +942,14 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
     | '/product/imei'
     | '/product/ram'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -893,6 +961,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks'
     | '/users'
+    | '/voucher'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -913,12 +982,14 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
     | '/product/imei'
     | '/product/ram'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -930,6 +1001,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/voucher'
   id:
     | '__root__'
     | '/_authenticated'
@@ -953,12 +1025,14 @@ export interface FileRouteTypes {
     | '/_authenticated/product/category'
     | '/_authenticated/product/chip'
     | '/_authenticated/product/color'
+    | '/_authenticated/product/create-product'
     | '/_authenticated/product/imei'
     | '/_authenticated/product/ram'
     | '/_authenticated/product/rom'
     | '/_authenticated/product/screen'
     | '/_authenticated/product/sim'
     | '/_authenticated/product/wifi'
+    | '/_authenticated/voucher/create'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -970,6 +1044,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/voucher/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1039,18 +1114,21 @@ export const routeTree = rootRoute
         "/_authenticated/product/category",
         "/_authenticated/product/chip",
         "/_authenticated/product/color",
+        "/_authenticated/product/create-product",
         "/_authenticated/product/imei",
         "/_authenticated/product/ram",
         "/_authenticated/product/rom",
         "/_authenticated/product/screen",
         "/_authenticated/product/sim",
         "/_authenticated/product/wifi",
+        "/_authenticated/voucher/create",
         "/_authenticated/apps/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
         "/_authenticated/product/",
         "/_authenticated/tasks/",
-        "/_authenticated/users/"
+        "/_authenticated/users/",
+        "/_authenticated/voucher/"
       ]
     },
     "/(auth)/500": {
@@ -1129,6 +1207,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/color.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/product/create-product": {
+      "filePath": "_authenticated/product/create-product.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/imei": {
       "filePath": "_authenticated/product/imei.tsx",
       "parent": "/_authenticated"
@@ -1151,6 +1233,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/wifi": {
       "filePath": "_authenticated/product/wifi.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/voucher/create": {
+      "filePath": "_authenticated/voucher/create.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/settings/account": {
@@ -1195,6 +1281,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/voucher/": {
+      "filePath": "_authenticated/voucher/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }

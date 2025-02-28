@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,7 +24,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { Brand } from '../data/schema'
+import { Brand, brandSchema } from '../data/schema'
+import { useBrandMutation } from '../hooks/use-brand-mutation'
 
 interface Props {
   open: boolean
@@ -30,37 +33,54 @@ interface Props {
   currentRow?: Brand
 }
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Name is required.'),
-  status: z.string().min(1, 'Please select a status.'),
-  code: z.string().min(1, 'Code is required.'),
-})
-
-type BrandForm = z.infer<typeof formSchema>
-
 export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+  const queryClient = useQueryClient()
   const isUpdate = !!currentRow
+  const { mutate, isPending } = useBrandMutation(isUpdate)
 
-  const form = useForm<BrandForm>({
-    resolver: zodResolver(formSchema),
-    defaultValues: currentRow ?? {
+  const form = useForm<Brand>({
+    resolver: zodResolver(brandSchema.omit({ id: true })),
+    defaultValues: currentRow || {
       name: '',
       status: '',
-      code: '',
     },
   })
 
-  const onSubmit = (data: BrandForm) => {
-    // do something with the form data
-    onOpenChange(false)
-    form.reset()
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  // Reset form khi currentRow thay đổi
+  useEffect(() => {
+    if (currentRow) {
+      form.reset({
+        name: currentRow.name,
+        status: currentRow.status,
+      })
+    }
+  }, [currentRow, form.reset]) // Chỉ theo dõi currentRow và form.reset
+
+  const onSubmit = (data: Omit<Brand, 'id'>) => {
+    const submitData = isUpdate ? { ...data, id: currentRow?.id } : data
+
+    mutate(submitData, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ['brands'] })
+        onOpenChange(false)
+        form.reset()
+        toast({
+          title: 'Success',
+          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
+          duration: 2000,
+        })
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description:
+            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+          variant: 'destructive',
+          className: 'fixed top-4 right-4 md:max-w-[300px]',
+          duration: 2000,
+        })
+      },
     })
   }
 
@@ -68,15 +88,17 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     <Sheet
       open={open}
       onOpenChange={(v) => {
+        if (!v) {
+          form.reset()
+        }
         onOpenChange(v)
-        form.reset()
       }}
     >
       <SheetContent className='flex w-full max-w-3xl flex-col'>
         <SheetHeader className='text-left'>
-          <SheetTitle>{isUpdate ? 'Update' : 'Create'} Brand</SheetTitle>
+          <SheetTitle>{currentRow ? 'Update' : 'Create'} Brand</SheetTitle>
           <SheetDescription>
-            {isUpdate
+            {currentRow
               ? 'Update the brand by providing necessary info.'
               : 'Add a new brand by providing necessary info.'}
             Click save when you&apos;re done.
@@ -112,35 +134,24 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     onValueChange={field.onChange}
                     placeholder='Select dropdown'
                     items={[
-                      { label: 'Active', value: 'active' },
-                      { label: 'Inactive', value: 'inactive' },
+                      { label: 'Active', value: 'ACTIVE' },
+                      { label: 'Inactive', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name='code'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Code</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder='Enter a code' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </form>
         </Form>
-        <SheetFooter className='gap-2'>
+        <SheetFooter className='mb-52 gap-2'>
           <SheetClose asChild>
             <Button variant='outline'>Close</Button>
           </SheetClose>
-          <Button form='brand-form' type='submit'>
-            Save changes
+          <Button form='brand-form' type='submit' disabled={isPending}>
+            {isPending
+              ? 'Saving...'
+              : `${isUpdate ? 'Update' : 'Save'} changes`}
           </Button>
         </SheetFooter>
       </SheetContent>
