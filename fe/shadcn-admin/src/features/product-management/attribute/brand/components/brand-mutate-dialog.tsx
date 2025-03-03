@@ -1,10 +1,17 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -14,15 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { SelectDropdown } from '@/components/select-dropdown'
 import { Brand, brandSchema } from '../data/schema'
 import { useBrandMutation } from '../hooks/use-brand-mutation'
@@ -33,7 +31,7 @@ interface Props {
   currentRow?: Brand
 }
 
-export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
   const queryClient = useQueryClient()
   const isUpdate = !!currentRow
   const { mutate, isPending } = useBrandMutation(isUpdate)
@@ -46,7 +44,6 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     },
   })
 
-  // Reset form khi currentRow thay đổi
   useEffect(() => {
     if (currentRow) {
       form.reset({
@@ -54,7 +51,7 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         status: currentRow.status,
       })
     }
-  }, [currentRow, form.reset]) // Chỉ theo dõi currentRow và form.reset
+  }, [currentRow, form.reset])
 
   const onSubmit = (data: Omit<Brand, 'id'>) => {
     const submitData = isUpdate ? { ...data, id: currentRow?.id } : data
@@ -85,36 +82,29 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) {
-          form.reset()
-        }
-        onOpenChange(v)
-      }}
-    >
-      <SheetContent className='flex w-full max-w-3xl flex-col'>
-        <SheetHeader className='text-left'>
-          <SheetTitle>{currentRow ? 'Update' : 'Create'} Brand</SheetTitle>
-          <SheetDescription>
-            {currentRow
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='sm:max-w-[425px]'>
+        <DialogHeader>
+          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Brand</DialogTitle>
+          <DialogDescription>
+            {isUpdate
               ? 'Update the brand by providing necessary info.'
               : 'Add a new brand by providing necessary info.'}
-            Click save when you&apos;re done.
-          </SheetDescription>
-        </SheetHeader>
+            Click save when you're done.
+          </DialogDescription>
+        </DialogHeader>
+
         <Form {...form}>
           <form
             id='brand-form'
             onSubmit={form.handleSubmit(onSubmit)}
-            className='flex-1 space-y-5'
+            className='space-y-4'
           >
             <FormField
               control={form.control}
               name='name'
               render={({ field }) => (
-                <FormItem className='space-y-1'>
+                <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder='Enter a name' />
@@ -123,16 +113,17 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='status'
               render={({ field }) => (
-                <FormItem className='space-y-1'>
+                <FormItem>
                   <FormLabel>Status</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select dropdown'
+                    placeholder='Select status'
                     items={[
                       { label: 'Active', value: 'ACTIVE' },
                       { label: 'Inactive', value: 'IN_ACTIVE' },
@@ -144,17 +135,16 @@ export function TasksMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             />
           </form>
         </Form>
-        <SheetFooter className='mb-52 gap-2'>
-          <SheetClose asChild>
-            <Button variant='outline'>Close</Button>
-          </SheetClose>
-          <Button form='brand-form' type='submit' disabled={isPending}>
-            {isPending
-              ? 'Saving...'
-              : `${isUpdate ? 'Update' : 'Save'} changes`}
+
+        <DialogFooter>
+          <Button variant='outline' onClick={() => onOpenChange(false)}>
+            Cancel
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          <Button form='brand-form' type='submit' disabled={isPending}>
+            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

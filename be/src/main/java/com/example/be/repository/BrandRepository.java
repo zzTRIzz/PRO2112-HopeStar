@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BrandRepository extends BaseRepository<Brand, Integer> {
-    @Query("SELECT COUNT(b) > 0 FROM #{#entityName} b WHERE LOWER(TRIM(b.name)) = LOWER(TRIM(:name))") // trim ko hoat dong
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM #{#entityName} b WHERE LOWER(TRIM(b.name)) = LOWER(TRIM(:name))") // trim ko hoat dong
     boolean existsByNameTrimmedIgnoreCase(@Param("name") String name);
 
-    @Query("SELECT COUNT(b) > 0 FROM #{#entityName} b WHERE LOWER(TRIM(b.name)) = LOWER(TRIM(:name)) AND b.id <> :id")
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM #{#entityName} b WHERE LOWER(TRIM(b.name)) = LOWER(TRIM(:name)) AND b.id <> :id")
     boolean existsByNameTrimmedIgnoreCaseAndNotId(@Param("name") String name, @Param("id") Integer id);
 }

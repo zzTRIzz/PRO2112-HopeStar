@@ -8,6 +8,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { TasksDialogs } from './components/brand-dialogs'
 import { TasksPrimaryButtons } from './components/brand-primary-buttons'
 import { DataTable } from './components/data-table'
+import { StatusSwitch } from './components/status-switch'
 import TasksProvider from './context/brands-context'
 import type { Brand } from './data/schema'
 
@@ -20,10 +21,10 @@ const columns: ColumnDef<Brand>[] = [
       return <div>{row.index + 1}</div>
     },
   },
-  {
-    accessorKey: 'code',
-    header: 'Code',
-  },
+  // {
+  //   accessorKey: 'code',
+  //   header: 'Code',
+  // },
   {
     accessorKey: 'name',
     header: 'Name',
@@ -31,6 +32,10 @@ const columns: ColumnDef<Brand>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
+    cell: ({ row }) => {
+      const brand = row.original as Brand
+      return <StatusSwitch brand={brand} />
+    },
   },
 ]
 

@@ -2,7 +2,6 @@ package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.core.admin.atribute_management.service.product.CategoryService;
 import com.example.be.entity.Category;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,11 +21,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category create(Category category) {
+    public Category create(Category category) throws Exception {
         Category newCategory = new Category();
         newCategory.setCode("CATE_"+categoryRepository.getNewCode());
+        if (categoryRepository.existsByNameTrimmedIgnoreCase(category.getName())){
+            throw new Exception("category name already exists");
+        }
         newCategory.setName(category.getName());
-        newCategory.setStatus(StatusCommon.ACTIVE);
+        newCategory.setStatus(category.getStatus());
         return categoryRepository.save(newCategory);
     }
 
@@ -34,7 +36,13 @@ public class CategoryServiceImpl implements CategoryService {
     public void update(Integer id, Category entity) throws Exception {
         Category category = getById(id);
         if (category != null){
-            categoryRepository.save(entity);
+            if (!categoryRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),category.getId())){
+                category.setName(entity.getName());
+                category.setStatus(entity.getStatus());
+                categoryRepository.save(category);
+            }else {
+                throw new Exception("category name already exists");
+            }
         }
     }
 
