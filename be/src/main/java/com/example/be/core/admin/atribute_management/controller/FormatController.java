@@ -1,7 +1,7 @@
 package com.example.be.core.admin.atribute_management.controller;
 
 import com.example.be.core.admin.atribute_management.service.GenericService;
-import com.example.be.core.admin.products_management.model.response.ApiResponse;
+import com.example.be.core.admin.products_management.dto.response.ApiResponse;
 
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class FormatController<E,S extends GenericService<E, Integer>> {
         return ResponseEntity.ok(list);
     }
     @PostMapping("")
-    public ResponseEntity<E> create(@RequestBody E e){
+    public ResponseEntity<E> create(@RequestBody E e) throws Exception {
         E newE = s.create(e);
         return ResponseEntity.ok(newE);
     }

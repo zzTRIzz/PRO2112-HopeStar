@@ -1,8 +1,9 @@
 package com.example.be.core.admin.products_management.service.impl;
 
-import com.example.be.core.admin.products_management.dto.ProductDTO;
-import com.example.be.core.admin.products_management.dto.ProductDetailDTO;
-import com.example.be.core.admin.products_management.dto.ProductImeiDTO;
+import com.example.be.core.admin.products_management.dto.model.ProductDTO;
+import com.example.be.core.admin.products_management.dto.model.ProductDetailDTO;
+import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
+import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
 import com.example.be.entity.*;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusCommon;
@@ -11,13 +12,12 @@ import com.example.be.core.admin.products_management.mapper.ImeiMapper;
 import com.example.be.core.admin.products_management.mapper.ProductDetailMapper;
 import com.example.be.core.admin.products_management.mapper.ProductMapper;
 import com.example.be.repository.*;
-import com.example.be.core.admin.products_management.model.request.ProductConfigRequest;
-import com.example.be.core.admin.products_management.model.request.ProductDetailRequest;
-import com.example.be.core.admin.products_management.model.request.ProductImeiRequest;
-import com.example.be.core.admin.products_management.model.response.ProductConfigResponse;
-import com.example.be.core.admin.products_management.model.response.ProductDetailResponse;
-import com.example.be.core.admin.products_management.model.response.ProductImeiResponse;
-import com.example.be.core.admin.products_management.model.response.ProductResponse;
+import com.example.be.core.admin.products_management.dto.request.ProductConfigRequest;
+import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
+import com.example.be.core.admin.products_management.dto.response.ProductConfigResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.core.admin.products_management.service.ProductConfigService;
 import com.example.be.utils.BarcodeGenerator;
 import com.google.zxing.BarcodeFormat;
@@ -123,7 +123,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
         ProductResponse productResponse = productMapper.dtoToResponse(productMapper.entityToDTO(createProduct));
 
-        List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
+        List<ProductDetailResponse> productDetailRespons1s = new ArrayList<>();
         if (productConfigRequest.getProductDetailRequests() !=null){
             for (ProductDetailRequest item:productConfigRequest.getProductDetailRequests()) {
 
@@ -135,7 +135,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
                 productDetail.setProduct(createProduct);
                 ProductDetail createProductDetail = productDetailRepository.save(productDetail);
 
-                List<ProductImeiResponse> productImeiResponses = new ArrayList<>();
+                List<ProductImeiResponse> productImeiRespons1s = new ArrayList<>();
                 if (item.getProductImeiRequests() !=null){
                     for (ProductImeiRequest imeiRequest : item.getProductImeiRequests()){
                         ProductImeiDTO productImeiDTO = imeiMapper.requestToDTO(imeiRequest);
@@ -145,12 +145,12 @@ public class ProductConfigServiceImpl implements ProductConfigService {
                         Imei imei = imeiMapper.dtoToEntity(productImeiDTO);
                         imei.setProductDetail(createProductDetail);
                         Imei createImei = imeiRepository.save(imei);
-                        productImeiResponses.add(imeiMapper.dtoToResponse(imeiMapper.entityToDTO(createImei)));
+                        productImeiRespons1s.add(imeiMapper.dtoToResponse(imeiMapper.entityToDTO(createImei)));
                     }
                 }
                 ProductDetailResponse productDetailResponse = productDetailMapper.dtoToResponse(productDetailMapper.entityToDTO(createProductDetail));
-                productDetailResponse.setProductImeiResponses(productImeiResponses);
-                productDetailResponses.add(productDetailResponse);
+                productDetailResponse.setProductImeiResponses(productImeiRespons1s);
+                productDetailRespons1s.add(productDetailResponse);
 
 
             }
@@ -158,7 +158,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
         ProductConfigResponse productConfigResponse = new ProductConfigResponse();
         productConfigResponse.setProductResponse(productResponse);
-        productConfigResponse.setProductDetailResponses(productDetailResponses);
+        productConfigResponse.setProductDetailRespons1s(productDetailRespons1s);
 
         return productConfigResponse;
     }

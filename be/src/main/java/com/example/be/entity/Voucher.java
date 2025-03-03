@@ -38,7 +38,7 @@ public class Voucher extends AuditEntity {
     private BigDecimal conditionPriceMax;
 
     @Column(name = "discount_value")
-    private Integer discountValue;
+    private BigDecimal discountValue;
 
     @Column(name = "voucher_type")
     private Boolean voucherType;

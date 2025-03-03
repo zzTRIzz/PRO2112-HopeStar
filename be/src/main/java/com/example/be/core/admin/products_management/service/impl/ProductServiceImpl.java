@@ -1,15 +1,17 @@
 package com.example.be.core.admin.products_management.service.impl;
 
-import com.example.be.core.admin.products_management.dto.ProductDTO;
-import com.example.be.core.admin.products_management.model.request.ProductRequest;
-import com.example.be.core.admin.products_management.model.request.SearchProductRequest;
+
+import com.example.be.core.admin.products_management.dto.model.ProductDTO;
+import com.example.be.core.admin.products_management.dto.request.ProductRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.*;
 import com.example.be.core.admin.products_management.mapper.ProductMapper;
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.*;
 
-import com.example.be.core.admin.products_management.model.response.ProductResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.core.admin.products_management.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(Integer id) throws Exception {
 
         Product product = productRepository.findById(id).orElseThrow(()->
-                new Exception("product not found "+id));
+                new Exception("product not found with id: "+id));
         return product;
     }
 
@@ -69,8 +71,31 @@ public class ProductServiceImpl implements ProductService {
             if (product.getStatus().equals(StatusCommon.ACTIVE)){
                 product.setStatus(StatusCommon.IN_ACTIVE);
 
+                for (ProductDetail productDetail:product.getProductDetails()) {
+                    if (productDetail.getStatus().equals(ProductDetailStatus.ACTIVE)){
+                        productDetail.setStatus(ProductDetailStatus.IN_ACTIVE);
+                        for (Imei imei: productDetail.getImeis()) {
+                            if (imei.getStatus().equals(StatusImei.NOT_SOLD)){
+                                imei.setStatus(StatusImei.IN_ACTIVE);
+                            }
+                        }
+                    }
+                }
+
             }else {
                 product.setStatus(StatusCommon.ACTIVE);
+
+                for (ProductDetail productDetail:product.getProductDetails()) {
+                    if (productDetail.getStatus().equals(ProductDetailStatus.IN_ACTIVE)){
+                        productDetail.setStatus(ProductDetailStatus.ACTIVE);
+                        for (Imei imei: productDetail.getImeis()) {
+                            if (imei.getStatus().equals(StatusImei.IN_ACTIVE)){
+                                imei.setStatus(StatusImei.NOT_SOLD);
+                            }
+                        }
+                    }
+                }
+
             }
 
             productRepository.save(product);

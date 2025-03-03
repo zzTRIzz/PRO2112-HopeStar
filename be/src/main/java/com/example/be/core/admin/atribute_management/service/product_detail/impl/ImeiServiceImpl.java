@@ -1,7 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.core.admin.products_management.mapper.ImeiMapper;
-import com.example.be.core.admin.products_management.model.response.ProductImeiResponse;
+import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.entity.Imei;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.repository.ImeiRepository;
@@ -40,10 +40,10 @@ public class ImeiServiceImpl implements ImeiService {
     @Override
     public List<ProductImeiResponse> getImeiByProductDetail(Integer id) {
         List<Imei> imeiList = imeiRepository.findByProductDetailId(id);
-        List<ProductImeiResponse> productImeiResponses = imeiList.stream()
+        List<ProductImeiResponse> productImeiRespons1s = imeiList.stream()
                 .map(imei -> imeiMapper.dtoToResponse(imeiMapper.entityToDTO(imei)))
                 .collect(Collectors.toList());
 
-        return productImeiResponses;
+        return productImeiRespons1s;
     }
 }

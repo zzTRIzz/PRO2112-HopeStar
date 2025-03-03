@@ -1,6 +1,6 @@
 package com.example.be.repository;
 
-import com.example.be.core.admin.products_management.model.request.SearchProductRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.Product;
 import com.example.be.repository.base.BaseRepository;
 
