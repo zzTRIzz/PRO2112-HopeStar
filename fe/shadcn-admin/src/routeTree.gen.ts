@@ -70,6 +70,9 @@ const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
 const AuthenticatedChatsIndexLazyImport = createFileRoute(
   '/_authenticated/chats/',
 )()
+const AuthenticatedBanhangIndexLazyImport = createFileRoute(
+  '/_authenticated/banhang/',
+)()
 const AuthenticatedAppsIndexLazyImport = createFileRoute(
   '/_authenticated/apps/',
 )()
@@ -255,6 +258,15 @@ const AuthenticatedChatsIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/chats/index.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedBanhangIndexLazyRoute =
+  AuthenticatedBanhangIndexLazyImport.update({
+    id: '/banhang/',
+    path: '/banhang/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/banhang/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
@@ -651,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/banhang/': {
+      id: '/_authenticated/banhang/'
+      path: '/banhang'
+      fullPath: '/banhang'
+      preLoaderRoute: typeof AuthenticatedBanhangIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/chats/': {
       id: '/_authenticated/chats/'
       path: '/chats'
@@ -750,6 +769,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductWifiRoute: typeof AuthenticatedProductWifiRoute
   AuthenticatedVoucherCreateRoute: typeof AuthenticatedVoucherCreateRoute
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
+  AuthenticatedBanhangIndexLazyRoute: typeof AuthenticatedBanhangIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
@@ -779,6 +799,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductWifiRoute: AuthenticatedProductWifiRoute,
   AuthenticatedVoucherCreateRoute: AuthenticatedVoucherCreateRoute,
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
+  AuthenticatedBanhangIndexLazyRoute: AuthenticatedBanhangIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
@@ -824,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
@@ -865,6 +887,7 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
@@ -910,6 +933,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
+  '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
@@ -955,6 +979,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/banhang'
     | '/chats'
     | '/help-center'
     | '/product'
@@ -995,6 +1020,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/banhang'
     | '/chats'
     | '/help-center'
     | '/product'
@@ -1038,6 +1064,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/apps/'
+    | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
     | '/_authenticated/product/'
@@ -1123,6 +1150,7 @@ export const routeTree = rootRoute
         "/_authenticated/product/wifi",
         "/_authenticated/voucher/create",
         "/_authenticated/apps/",
+        "/_authenticated/banhang/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
         "/_authenticated/product/",
@@ -1257,6 +1285,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/apps/": {
       "filePath": "_authenticated/apps/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/banhang/": {
+      "filePath": "_authenticated/banhang/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/chats/": {

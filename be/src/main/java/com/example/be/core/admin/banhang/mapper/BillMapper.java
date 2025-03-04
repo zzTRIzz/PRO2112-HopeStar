@@ -13,6 +13,7 @@ public class BillMapper {
     public BillDto dtoBillMapper(Bill bill) {
         return new BillDto(
                 bill.getId(),
+                bill.getNameBill(),
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
                 (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
@@ -48,6 +49,7 @@ public class BillMapper {
                                  DeliveryMethod deliveryMethod){
       return new Bill(
               billDto.getId(),
+              billDto.getNameBill(),
               accountKhachHang,
               accountNhanVien,
               voucher,

@@ -47,6 +47,12 @@ export const sidebarData: SidebarData = {
           icon: IconLayoutDashboard,
         }
         ,
+         {
+          title: 'Bán Hàng',
+          url: '/banhang',
+          icon: IconShoppingCart,
+        }
+        ,
         {
           title: 'Product Management',
           icon: IconDeviceMobile,

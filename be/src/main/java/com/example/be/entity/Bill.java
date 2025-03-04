@@ -23,6 +23,9 @@ public class Bill extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "name_bill")
+    private String nameBill;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
     private Account idAccount;

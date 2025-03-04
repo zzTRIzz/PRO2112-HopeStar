@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.controller;
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.ImeiSoldDto;
+import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
@@ -35,14 +36,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/banhang")
 public class BanHangTaiQuay {
-
-//    Làm lại lưu tổng tiền bên hóa đơn
-//    khi add thì nên lưu bên hóa tổng tiền bill bên hóa đơn luôn
-//    làm tim kiếm theo id hóa đợn để xem sản phẩm ct ở hóa dơnd ct
-//      tim cách áp dụng voucher
-//    số lượng thêm bao nhiêu là tùy thuộc vào bao nhiêu imei rồi mới có số lươngj
-
-
     @Autowired
     BillService billService;
 
@@ -78,7 +71,7 @@ public class BanHangTaiQuay {
 
     @GetMapping("/{idBill}")
     public ResponseEntity<List<?>> getByHDCT(@PathVariable("idBill") Integer idBill) {
-        List<BillDetailDto> billDetailDtos = billDetailService.getByIdBill(idBill);
+        List<SearchBillDetailDto> billDetailDtos = billDetailService.getByIdBill(idBill);
         return ResponseEntity.ok(billDetailDtos);
     }
 

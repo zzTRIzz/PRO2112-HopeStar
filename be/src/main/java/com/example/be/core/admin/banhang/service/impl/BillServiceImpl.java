@@ -85,24 +85,39 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto createHoaDonTaiQuay(BillDto billDto){
+    public BillDto createHoaDonTaiQuay(BillDto billDto) {
         try {
+            // Kiểm tra nhân viên có tồn tại không
             Account account = accountRepository.findById(billDto.getIdNhanVien())
-                    .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên " + billDto.getIdNhanVien()));
 
-//            BillDto newBill = new BillDto();
+            // Cài đặt thông tin hóa đơn
             Instant now = Instant.now();
             billDto.setBillType((byte) 0);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
-            Bill bill = billMapper.entityBillMapper(billDto,  null,account,null,null,null);
-            Bill saveBill= billRepository.save(bill);
-            return billMapper.dtoBillMapper(saveBill);
-        }catch (Exception e){
-            e.printStackTrace();
+
+//             Lấy mã hóa đơn mới
+//            String newCode = billRepository.getNewCode();
+//            if (newCode == null) newCode = "1"; // Nếu không có hóa đơn trước đó, bắt đầu từ "1"
+//
+//            // Định dạng mã hóa đơn: HD001, HD002...
+//            String formattedCode = String.format("HD00%s", newCode);
+            billDto.setNameBill("HD00"+billRepository.getNewCode());
+            System.out.println(billRepository.getNewCode());
+//            Chuyển DTO sang Entity
+            Bill bill = billMapper.entityBillMapper(billDto, null, account, null, null, null);
+            // Lưu vào database
+            Bill savedBill = billRepository.save(bill);
+
+            // Trả về DTO
+            return billMapper.dtoBillMapper(savedBill);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tạo hóa đơn: " + e.getMessage(), e);
         }
-        return null;
     }
+
 
     @Override
     public BillDto updateHoaDonTaiQuay(BillDto billDto){
@@ -185,6 +200,9 @@ public class BillServiceImpl implements BillService {
         );
         return billMapper.dtoBillMapper(bill);
     }
+
+
+
 
     @Override
     public void updateHuyHoaDon(Integer idBill){

@@ -1,6 +1,7 @@
 package com.example.be.core.admin.banhang.service;
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
+import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.entity.BillDetail;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public interface BillDetailService {
 
     BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
 
-    List<BillDetailDto> getByIdBill(Integer idBill);
+    List<SearchBillDetailDto> getByIdBill(Integer idBill);
 
     BigDecimal tongTienBill(Integer idBill);
 

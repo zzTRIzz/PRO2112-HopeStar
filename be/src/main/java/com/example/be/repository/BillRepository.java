@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Bill;
+import com.example.be.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,10 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
   long countByStatus(String status);
 
   @Query(value = """
-    SELECT COALESCE(MAX(CAST(SUBSTRING(code, 6) AS UNSIGNED)), 0) + 1 
-    FROM rear_camera
+    SELECT COALESCE(MAX(CAST(SUBSTRING(name_bill, 4) AS UNSIGNED)), 0) + 1
+    FROM bill
     """, nativeQuery = true)
   String getNewCode();
+
+
 }

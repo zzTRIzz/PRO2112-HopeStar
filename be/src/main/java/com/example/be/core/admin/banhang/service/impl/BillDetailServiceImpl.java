@@ -2,7 +2,9 @@ package com.example.be.core.admin.banhang.service.impl;
 
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
+import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
+import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
@@ -28,6 +30,9 @@ public class BillDetailServiceImpl implements BillDetailService {
 
     @Autowired
     BillDetailMapper billDetailMapper;
+
+    @Autowired
+    SearchBillDetailMapper searchBillDetailMapper;
 
     @Autowired
     ProductDetailRepository productDetailRepository;
@@ -88,14 +93,14 @@ public class BillDetailServiceImpl implements BillDetailService {
 
 
     @Override
-    public List<BillDetailDto> getByIdBill(Integer idBill) {
+    public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
         List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
 
         if (billDetails.isEmpty()) {
             throw new RuntimeException("Không tìm thấy chi tiết hóa đơn nào cho hóa đơn ID: " + idBill);
         }
         return billDetails.stream()
-                .map(billDetailMapper::dtoBillDetailMapper)
+                .map(searchBillDetailMapper::dtoBillDetailMapper)
                 .collect(Collectors.toList());
     }
 
