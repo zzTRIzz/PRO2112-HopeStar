@@ -1,7 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.entity.Ram;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.RamRepository;
 import com.example.be.core.admin.atribute_management.service.product_detail.RamService;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +18,15 @@ public class RamServiceImpl implements RamService {
     }
 
     @Override
-    public Ram create(Ram ram) {
+    public Ram create(Ram ram) throws Exception {
         Ram newRam = new Ram();
         newRam.setCode("RAMS_"+ramRepository.getNewCode());
+        if (ramRepository.countByCapacity(ram.getCapacity())>0){
+            throw new Exception("ram capacity already exists");
+        }
         newRam.setCapacity(ram.getCapacity());
         newRam.setDescription(ram.getDescription());
-        newRam.setStatus(StatusCommon.ACTIVE);
+        newRam.setStatus(ram.getStatus());
         return ramRepository.save(newRam);
     }
 
@@ -32,7 +34,14 @@ public class RamServiceImpl implements RamService {
     public void update(Integer id, Ram entity) throws Exception {
         Ram ram = getById(id);
         if (ram != null){
-            ramRepository.save(entity);
+            if (ramRepository.countByCapacityAndNotId(entity.getCapacity(),ram.getId())<=0){
+                ram.setCapacity(entity.getCapacity());
+                ram.setDescription(entity.getDescription());
+                ram.setStatus(entity.getStatus());
+                ramRepository.save(ram);
+            }else {
+                throw new Exception("ram capacity already exists");
+            }
         }
     }
 

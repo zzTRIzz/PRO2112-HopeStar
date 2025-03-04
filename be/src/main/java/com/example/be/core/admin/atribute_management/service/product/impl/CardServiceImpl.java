@@ -1,7 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Card;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CardRepository;
 import com.example.be.core.admin.atribute_management.service.product.CardService;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +18,15 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Card create(Card card) {
+    public Card create(Card card) throws Exception {
         Card newCard = new Card();
         newCard.setCode("CARD_"+cardRepository.getNewCode());
+        if (cardRepository.existsByTypeAndCapacity(card.getType(),card.getCapacity())){
+            throw new Exception("card type with capacity already exists");
+        }
         newCard.setCapacity(card.getCapacity());
         newCard.setType(card.getType());
-        newCard.setStatus(StatusCommon.ACTIVE);
+        newCard.setStatus(card.getStatus());
         return cardRepository.save(newCard);
     }
 
@@ -32,7 +34,13 @@ public class CardServiceImpl implements CardService {
     public void update(Integer id, Card entity) throws Exception {
         Card card = getById(id);
         if (card != null){
-            cardRepository.save(entity);
+            if (!cardRepository.existsByTypeAndCapacityAndNotId(entity.getType(),entity.getCapacity(),card.getId())){
+                card.setType(entity.getType());
+                card.setStatus(entity.getStatus());
+                cardRepository.save(card);
+            }else {
+                throw new Exception("card type with capacity already exists");
+            }
         }
     }
 

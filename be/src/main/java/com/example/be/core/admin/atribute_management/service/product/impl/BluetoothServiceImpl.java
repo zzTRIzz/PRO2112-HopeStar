@@ -1,7 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Bluetooth;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BluetoothRepository;
 import com.example.be.core.admin.atribute_management.service.product.BluetoothService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +19,14 @@ public class BluetoothServiceImpl implements BluetoothService {
     }
 
     @Override
-    public Bluetooth create(Bluetooth bluetooth) {
+    public Bluetooth create(Bluetooth bluetooth) throws Exception {
         Bluetooth newBluetooth = new Bluetooth();
         newBluetooth.setCode("BLTO_"+bluetoothRepository.getNewCode());
+        if (bluetoothRepository.existsByNameTrimmedIgnoreCase(bluetooth.getName())){
+            throw new Exception("bluetooth name already exists");
+        }
         newBluetooth.setName(bluetooth.getName());
-        newBluetooth.setStatus(StatusCommon.ACTIVE);
+        newBluetooth.setStatus(bluetooth.getStatus());
         return bluetoothRepository.save(newBluetooth);
     }
 
@@ -32,7 +34,13 @@ public class BluetoothServiceImpl implements BluetoothService {
     public void update(Integer id, Bluetooth entity) throws Exception {
         Bluetooth bluetooth = getById(id);
         if (bluetooth != null){
-            bluetoothRepository.save(entity);
+            if (!bluetoothRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),bluetooth.getId())){
+                bluetooth.setName(entity.getName());
+                bluetooth.setStatus(entity.getStatus());
+                bluetoothRepository.save(bluetooth);
+            }else {
+                throw new Exception("bluetooth name already exists");
+            }
         }
     }
 

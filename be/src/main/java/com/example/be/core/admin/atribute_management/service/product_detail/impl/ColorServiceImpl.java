@@ -1,7 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.entity.Color;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ColorRepository;
 import com.example.be.core.admin.atribute_management.service.product_detail.ColorService;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +17,16 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public Color create(Color color) {
+    public Color create(Color color) throws Exception {
         Color newColor = new Color();
         newColor.setCode("COLR_"+colorRepository.getNewCode());
+        if (colorRepository.existsByNameTrimmedIgnoreCase(color.getName())){
+            throw new Exception("color name already exists");
+        }
         newColor.setName(color.getName());
         newColor.setDescription(color.getDescription());
         newColor.setHex(color.getHex());
-        newColor.setStatus(StatusCommon.ACTIVE);
+        newColor.setStatus(color.getStatus());
         return colorRepository.save(newColor);
     }
 
@@ -32,7 +34,15 @@ public class ColorServiceImpl implements ColorService {
     public void update(Integer id, Color entity) throws Exception {
         Color color = getById(id);
         if (color != null){
-            colorRepository.save(entity);
+            if (!colorRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),color.getId())){
+                color.setName(entity.getName());
+                color.setStatus(entity.getStatus());
+                color.setDescription(entity.getDescription());
+                color.setHex(entity.getHex());
+                colorRepository.save(color);
+            }else {
+                throw new Exception("color name already exists");
+            }
         }
     }
 

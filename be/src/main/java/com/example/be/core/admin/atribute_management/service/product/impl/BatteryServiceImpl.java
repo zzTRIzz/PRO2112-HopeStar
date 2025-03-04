@@ -2,7 +2,6 @@ package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.core.admin.atribute_management.service.product.BatteryService;
 import com.example.be.entity.Battery;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BatteryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,12 +20,15 @@ public class BatteryServiceImpl implements BatteryService {
     }
 
     @Override
-    public Battery create(Battery battery) {
+    public Battery create(Battery battery) throws Exception {
         Battery newBattery = new Battery();
         newBattery.setCode("BATE_"+batteryRepository.getNewCode());
+        if (batteryRepository.existsByTypeAndCapacity(battery.getType(), battery.getCapacity())){
+            throw new Exception("battery type with capacity already exists");
+        }
         newBattery.setCapacity(battery.getCapacity());
         newBattery.setType(battery.getType());
-        newBattery.setStatus(StatusCommon.ACTIVE);
+        newBattery.setStatus(battery.getStatus());
         return batteryRepository.save(newBattery);
     }
 
@@ -34,7 +36,13 @@ public class BatteryServiceImpl implements BatteryService {
     public void update(Integer id, Battery entity) throws Exception {
         Battery battery = getById(id);
         if (battery != null){
-            batteryRepository.save(entity);
+            if (!batteryRepository.existsByTypeAndCapacityAndNotId(entity.getType(),entity.getCapacity(),battery.getId())){
+                battery.setType(entity.getType());
+                battery.setStatus(entity.getStatus());
+                batteryRepository.save(battery);
+            }else {
+                throw new Exception("battery type with capacity already exists");
+            }
         }
     }
 

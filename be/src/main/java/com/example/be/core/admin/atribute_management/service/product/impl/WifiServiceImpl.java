@@ -1,7 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Wifi;
-import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.WifiRepository;
 import com.example.be.core.admin.atribute_management.service.product.WifiService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +19,14 @@ public class WifiServiceImpl implements WifiService {
     }
 
     @Override
-    public Wifi create(Wifi wifi) {
+    public Wifi create(Wifi wifi) throws Exception {
         Wifi newWifi = new Wifi();
         newWifi.setCode("WIFI_"+wifiRepository.getNewCode());
+        if (wifiRepository.existsByNameTrimmedIgnoreCase(wifi.getName())){
+            throw new Exception("wifi name already exists");
+        }
         newWifi.setName(wifi.getName());
-        newWifi.setStatus(StatusCommon.ACTIVE);
+        newWifi.setStatus(wifi.getStatus());
         return wifiRepository.save(newWifi);
     }
 
@@ -32,7 +34,13 @@ public class WifiServiceImpl implements WifiService {
     public void update(Integer id, Wifi entity) throws Exception {
         Wifi wifi = getById(id);
         if (wifi != null){
-            wifiRepository.save(entity);
+            if (!wifiRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),wifi.getId())){
+                wifi.setName(entity.getName());
+                wifi.setStatus(entity.getStatus());
+                wifiRepository.save(wifi);
+            }else {
+                throw new Exception("wifi name already exists");
+            }
         }
     }
 
