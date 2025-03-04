@@ -2,6 +2,7 @@ package com.example.be.core.admin.banhang.service.impl;
 
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
+import com.example.be.core.admin.banhang.dto.ProductDetailDto;
 import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
 import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
@@ -10,6 +11,7 @@ import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
 import com.example.be.entity.ProductDetail;
 
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.repository.BillDetailRepository;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.ProductDetailRepository;
@@ -128,5 +130,29 @@ public class BillDetailServiceImpl implements BillDetailService {
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
         billDetailRepository.deleteById(idBillDetail);
     }
+//lấy danh sách product ra để hiển thị lên
 
+
+    public ProductDetailDto productDetailDto(ProductDetail productDetail){
+        return new ProductDetailDto(
+                productDetail.getId(),
+                productDetail.getCode(),
+                productDetail.getProduct().getName(),
+                productDetail.getPriceSell(),
+                productDetail.getInventoryQuantity(),
+                productDetail.getStatus(),
+                productDetail.getColor().getName(),
+                productDetail.getRam().getCapacity(),
+                productDetail.getRom().getCapacity(),
+                productDetail.getImageUrl()
+        );
+    }
+
+
+    @Override
+    public List<ProductDetailDto> getAllProductDetailDto(){
+        List<ProductDetail> productDetails = productDetailRepository.getAllProductDetail(ProductDetailStatus.ACTIVE);
+            return productDetails.stream().map(this::productDetailDto)
+                    .collect(Collectors.toList());
+    }
 }

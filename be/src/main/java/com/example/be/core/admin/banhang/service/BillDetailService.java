@@ -1,6 +1,7 @@
 package com.example.be.core.admin.banhang.service;
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
+import com.example.be.core.admin.banhang.dto.ProductDetailDto;
 import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.entity.BillDetail;
 
@@ -21,4 +22,6 @@ public interface BillDetailService {
     BigDecimal tongTienBill(Integer idBill);
 
     void deleteBillDetail(Integer idBillDetail);
+
+    List<ProductDetailDto> getAllProductDetailDto();
 }

@@ -74,7 +74,6 @@ public class AccountService {
         return response;
     }
 
-
     public AccountResponse update(Integer id, AccountRequest request) {
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
@@ -98,4 +97,17 @@ public class AccountService {
                 .map(this::convertToResponse)
                 .orElse(null);
     }
+
+
+
+
+    public List<AccountResponse> getAllKhachHang() {
+
+        return accountRepository.getAllAcountKhachHang().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
 }

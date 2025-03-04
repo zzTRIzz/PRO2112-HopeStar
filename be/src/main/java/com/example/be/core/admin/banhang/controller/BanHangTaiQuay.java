@@ -1,17 +1,21 @@
 package com.example.be.core.admin.banhang.controller;
 
-import com.example.be.core.admin.banhang.dto.BillDetailDto;
-import com.example.be.core.admin.banhang.dto.BillDto;
-import com.example.be.core.admin.banhang.dto.ImeiSoldDto;
-import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
+import com.example.be.core.admin.account.dto.response.AccountResponse;
+import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.admin.account.dto.response.ResponseError;
+import com.example.be.core.admin.account.service.impl.AccountService;
+import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
+import com.example.be.core.admin.banhang.dto.*;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
+import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
 import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
+import com.example.be.entity.Imei;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.BillDetailRepository;
@@ -38,6 +42,12 @@ import java.util.Optional;
 public class BanHangTaiQuay {
     @Autowired
     BillService billService;
+
+    @Autowired
+    AccountService accountService;
+
+    @Autowired
+    ImeiService imeiService;
 
     @Autowired
     ProductDetailService productDetailService;
@@ -75,7 +85,7 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDetailDtos);
     }
 
-    @GetMapping("/deleteBillDetail/{idBillDetail}")
+    @DeleteMapping("/deleteBillDetail/{idBillDetail}")
     public String deleteBillDetail(@PathVariable("idBillDetail") Integer idBillDetail) {
         billDetailService.deleteBillDetail(idBillDetail);
         return "Delete Thanh Cong";
@@ -101,7 +111,6 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDto1);
     }
 
-    //Đang sai vì phải select voucher ra để trừ tiền voucher ra và tính lại tổng tiền
     @PutMapping("/thanh-toan")
     public ResponseEntity<?> thanhToan(@RequestBody BillDto billDto) {
         BigDecimal tienThua = billDto.getCustomerPayment().subtract(billDto.getTotalDue());
@@ -154,52 +163,22 @@ public class BanHangTaiQuay {
     }
 
 
-//    @PostMapping("/addHDCT")
-//    public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {
-//        ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
-//                .orElseThrow(() -> new RuntimeException("Không tim thấy sản phẩm chi tiết "));
-//
-//        BigDecimal price = productDetail.getPriceSell();
-//
-//        billDetailDto.setPrice(price);
-//
-//        BigDecimal total_price = price.multiply(BigDecimal.valueOf(billDetailDto.getQuantity()));
-//        billDetailDto.setTotalPrice(total_price);
-//
-//
-//        Bill bill = billRepository.findById(billDetailDto.getIdBill())
-//                .orElseThrow(() -> new RuntimeException("Không tim thấy hóa đơn  "));
-//
-//        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
-////        System.out.println(tongTienBill);
-//
-//        BillDto billDto = billMapper.dtoBillMapper(bill);
-//
-//        billDto.setTotalPrice(tongTienBill);
-//
-//
-//        BillDetailDto savebillDetailDto;
-//
-//        boolean found = false;
-//
-//        for (BillDetail bd : billDetailService.getALlThuong()) {
-//            if (Objects.equals(bd.getIdBill(), billDetailDto.getIdBill()) &&
-//                    Objects.equals(bd.getIdProductDetail(), billDetailDto.getIdProductDetail())) {
-////              savebillDetailDto =
-//                      billDetailService.thayDoiSoLuongKhiCungSPVaHD(
-//                        billDetailDto.getIdBill(), billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
-//
-//                found = true;
-//                break;
-//            }
-//        }
-//        if (!found) {
-////           savebillDetailDto =
-//                   billDetailService.createBillDetail(billDetailDto);
-//        }
-//        billService.updateTongTienHoaDon(billDto);
-//
-//        return ResponseEntity.ok("Đã Thêm Sản Phẩm Chi Tiết Thanh Công");
-//    }
+    @GetMapping("/product_detail")
+    public ResponseEntity<List<?>> getListProductDetail(){
+        List<ProductDetailDto> productDetailDto = billDetailService.getAllProductDetailDto();
+        return ResponseEntity.ok(productDetailDto);
+    }
 
+
+    @GetMapping("/account")
+    public ResponseEntity<List<?>> getAllAccount(){
+      List<AccountResponse> accountResponses=  accountService.getAllKhachHang();
+      return ResponseEntity.ok(accountResponses);
+    }
+
+    @GetMapping("/imei/{idProductDetail}")
+    public ResponseEntity<List<?>> getAllImei(@PathVariable("idProductDetail") Integer idProductDetail){
+      List<ProductImeiResponse> accountResponses=  imeiService.getImeiByProductDetail(idProductDetail);
+      return ResponseEntity.ok(accountResponses);
+    }
 }

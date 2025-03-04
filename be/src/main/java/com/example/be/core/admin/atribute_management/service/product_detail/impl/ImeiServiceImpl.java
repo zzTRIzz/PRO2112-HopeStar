@@ -1,9 +1,11 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
+import com.example.be.core.admin.banhang.dto.ImeiDto;
 import com.example.be.core.admin.products_management.mapper.ImeiMapper;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.entity.Imei;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
+import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.ImeiRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,4 +48,22 @@ public class ImeiServiceImpl implements ImeiService {
 
         return productImeiRespons1s;
     }
+
+
+    public ImeiDto imeiDto(Imei imei){
+        return new ImeiDto(
+                imei.getId(),
+                imei.getImeiCode(),
+                imei.getBarCode(),
+                imei.getStatus(),
+                imei.getProductDetail().getId()
+        );
+    }
+    @Override
+    public List<ImeiDto> getAllImeiChuaBan() {
+        List<Imei> imeis= imeiRepository.getAllImeiChuaBan(StatusImei.SOLD);
+        return imeis.stream().map(this::imeiDto)
+                .collect(Collectors.toList());
+    }
+
 }
