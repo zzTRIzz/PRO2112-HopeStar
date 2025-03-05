@@ -9,6 +9,10 @@ import com.example.be.core.admin.voucher.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +25,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public List<VoucherResponse> getAll() {
-        List<Voucher> vouchers = voucherRepository.findAll();
-        return vouchers.stream().map(voucherMapper::toResponse)
+        List<Voucher> vouchers = voucherRepository.findAllOrderByIdDesc();
+        return vouchers.stream()
+                .map(voucherMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -38,5 +43,35 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherMapper.toEntity(id,request);
         voucher = voucherRepository.save(voucher);
         return voucherMapper.toResponse(voucher);
+    }
+
+    @Override
+    public List<Voucher> findByCode(String code) {
+        return voucherRepository.findByCodeContainingIgnoreCase(code);
+    }
+
+    @Override
+    public List<VoucherResponse> findByDate(String startTime, String endTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate parseStartTime = LocalDate.parse(startTime, formatter);
+            LocalDate parseEndTime = LocalDate.parse(endTime, formatter);
+
+            // Chuyển đổi thành LocalDateTime để khớp với kiểu dữ liệu của entity
+            LocalDateTime startDateTime = parseStartTime.atStartOfDay(); // 00:00:00
+            LocalDateTime endDateTime = parseEndTime.atTime(23, 59, 59); // 23:59:59
+
+            // Validate ngày
+            if (startDateTime.isAfter(endDateTime)) {
+                throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc");
+            }
+
+            List<Voucher> vouchers = voucherRepository.findByStartTimeBetween(startDateTime, endDateTime);
+            return vouchers.stream()
+                    .map(voucherMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Ngày không đúng định dạng. Vui lòng nhập theo dd/MM/yyyy");
+        }
     }
 }
