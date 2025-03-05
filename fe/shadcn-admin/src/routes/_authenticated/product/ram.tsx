@@ -1,9 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import Ram from '@/features/product-management/attribute/ram'
 
 export const Route = createFileRoute('/_authenticated/product/ram')({
-  component: RouteComponent,
+  component: Ram,
 })
-
-function RouteComponent() {
-  return <div>Hello "/_authenticated/product/ram"!</div>
-}

@@ -21,10 +21,9 @@ public class CardServiceImpl implements CardService {
     public Card create(Card card) throws Exception {
         Card newCard = new Card();
         newCard.setCode("CARD_"+cardRepository.getNewCode());
-        if (cardRepository.existsByTypeAndCapacity(card.getType(),card.getCapacity())){
-            throw new Exception("card type with capacity already exists");
+        if (cardRepository.existsByTypeTrimmedIgnoreCase(card.getType())){
+            throw new Exception("card type already exists");
         }
-        newCard.setCapacity(card.getCapacity());
         newCard.setType(card.getType());
         newCard.setStatus(card.getStatus());
         return cardRepository.save(newCard);
@@ -34,12 +33,12 @@ public class CardServiceImpl implements CardService {
     public void update(Integer id, Card entity) throws Exception {
         Card card = getById(id);
         if (card != null){
-            if (!cardRepository.existsByTypeAndCapacityAndNotId(entity.getType(),entity.getCapacity(),card.getId())){
+            if (!cardRepository.existsByTypeTrimmedIgnoreCaseAndNotId(entity.getType(),card.getId())){
                 card.setType(entity.getType());
                 card.setStatus(entity.getStatus());
                 cardRepository.save(card);
             }else {
-                throw new Exception("card type with capacity already exists");
+                throw new Exception("card type already exists");
             }
         }
     }

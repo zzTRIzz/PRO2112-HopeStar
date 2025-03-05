@@ -28,7 +28,7 @@ public class ScreenServiceImpl implements ScreenService {
         newScreen.setResolution(screen.getResolution());
         newScreen.setRefreshRate(screen.getRefreshRate());
         newScreen.setType(screen.getType());
-        newScreen.setStatus(StatusCommon.ACTIVE);
+        newScreen.setStatus(screen.getStatus());
         return screenRepository.save(newScreen);
     }
 

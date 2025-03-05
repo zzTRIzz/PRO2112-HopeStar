@@ -19,11 +19,15 @@ public class FrontCameraServiceImpl implements FrontCameraService {
     }
 
     @Override
-    public FrontCamera create(FrontCamera frontCamera) {
+    public FrontCamera create(FrontCamera frontCamera) throws Exception {
         FrontCamera newFrontCamera = new FrontCamera();
         newFrontCamera.setCode("FRCA_"+frontCameraRepository.getNewCode());
+        if (frontCameraRepository.existsByTypeAndResolution(frontCamera.getType(), frontCamera.getResolution())){
+            throw new Exception("frontCamera type with resolution already exists");
+        }
         newFrontCamera.setType(frontCamera.getType());
         newFrontCamera.setResolution(frontCamera.getResolution());
+        newFrontCamera.setStatus(frontCamera.getStatus());
 
         return frontCameraRepository.save(newFrontCamera);
     }
@@ -32,7 +36,14 @@ public class FrontCameraServiceImpl implements FrontCameraService {
     public void update(Integer id, FrontCamera entity) throws Exception {
         FrontCamera frontCamera = getById(id);
         if (frontCamera != null){
-            frontCameraRepository.save(entity);
+            if (!frontCameraRepository.existsByTypeAndResolutionAndNotId(entity.getType(),entity.getResolution(),frontCamera.getId())){
+                frontCamera.setType(entity.getType());
+                frontCamera.setResolution(entity.getResolution());
+                frontCamera.setStatus(entity.getStatus());
+                frontCameraRepository.save(frontCamera);
+            }else {
+                throw new Exception("frontCamera type with resolution already exists");
+            }
         }
     }
 

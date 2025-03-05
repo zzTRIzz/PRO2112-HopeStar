@@ -38,6 +38,7 @@ public class BatteryServiceImpl implements BatteryService {
         if (battery != null){
             if (!batteryRepository.existsByTypeAndCapacityAndNotId(entity.getType(),entity.getCapacity(),battery.getId())){
                 battery.setType(entity.getType());
+                battery.setCapacity(entity.getCapacity());
                 battery.setStatus(entity.getStatus());
                 batteryRepository.save(battery);
             }else {
