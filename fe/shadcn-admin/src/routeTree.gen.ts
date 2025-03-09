@@ -23,8 +23,12 @@ import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated
 import { Route as AuthenticatedProductSimImport } from './routes/_authenticated/product/sim'
 import { Route as AuthenticatedProductScreenImport } from './routes/_authenticated/product/screen'
 import { Route as AuthenticatedProductRomImport } from './routes/_authenticated/product/rom'
+import { Route as AuthenticatedProductResolutionImport } from './routes/_authenticated/product/resolution'
+import { Route as AuthenticatedProductRearCameraImport } from './routes/_authenticated/product/rear-camera'
 import { Route as AuthenticatedProductRamImport } from './routes/_authenticated/product/ram'
+import { Route as AuthenticatedProductOsImport } from './routes/_authenticated/product/os'
 import { Route as AuthenticatedProductImeiImport } from './routes/_authenticated/product/imei'
+import { Route as AuthenticatedProductFrontCameraImport } from './routes/_authenticated/product/front-camera'
 import { Route as AuthenticatedProductCreateProductImport } from './routes/_authenticated/product/create-product'
 import { Route as AuthenticatedProductColorImport } from './routes/_authenticated/product/color'
 import { Route as AuthenticatedProductChipImport } from './routes/_authenticated/product/chip'
@@ -366,9 +370,29 @@ const AuthenticatedProductRomRoute = AuthenticatedProductRomImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
+const AuthenticatedProductResolutionRoute =
+  AuthenticatedProductResolutionImport.update({
+    id: '/product/resolution',
+    path: '/product/resolution',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedProductRearCameraRoute =
+  AuthenticatedProductRearCameraImport.update({
+    id: '/product/rear-camera',
+    path: '/product/rear-camera',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const AuthenticatedProductRamRoute = AuthenticatedProductRamImport.update({
   id: '/product/ram',
   path: '/product/ram',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const AuthenticatedProductOsRoute = AuthenticatedProductOsImport.update({
+  id: '/product/os',
+  path: '/product/os',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -377,6 +401,13 @@ const AuthenticatedProductImeiRoute = AuthenticatedProductImeiImport.update({
   path: '/product/imei',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+
+const AuthenticatedProductFrontCameraRoute =
+  AuthenticatedProductFrontCameraImport.update({
+    id: '/product/front-camera',
+    path: '/product/front-camera',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 const AuthenticatedProductCreateProductRoute =
   AuthenticatedProductCreateProductImport.update({
@@ -595,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductCreateProductImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/front-camera': {
+      id: '/_authenticated/product/front-camera'
+      path: '/product/front-camera'
+      fullPath: '/product/front-camera'
+      preLoaderRoute: typeof AuthenticatedProductFrontCameraImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/imei': {
       id: '/_authenticated/product/imei'
       path: '/product/imei'
@@ -602,11 +640,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductImeiImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/os': {
+      id: '/_authenticated/product/os'
+      path: '/product/os'
+      fullPath: '/product/os'
+      preLoaderRoute: typeof AuthenticatedProductOsImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/ram': {
       id: '/_authenticated/product/ram'
       path: '/product/ram'
       fullPath: '/product/ram'
       preLoaderRoute: typeof AuthenticatedProductRamImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/rear-camera': {
+      id: '/_authenticated/product/rear-camera'
+      path: '/product/rear-camera'
+      fullPath: '/product/rear-camera'
+      preLoaderRoute: typeof AuthenticatedProductRearCameraImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/resolution': {
+      id: '/_authenticated/product/resolution'
+      path: '/product/resolution'
+      fullPath: '/product/resolution'
+      preLoaderRoute: typeof AuthenticatedProductResolutionImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/rom': {
@@ -777,8 +836,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductChipRoute: typeof AuthenticatedProductChipRoute
   AuthenticatedProductColorRoute: typeof AuthenticatedProductColorRoute
   AuthenticatedProductCreateProductRoute: typeof AuthenticatedProductCreateProductRoute
+  AuthenticatedProductFrontCameraRoute: typeof AuthenticatedProductFrontCameraRoute
   AuthenticatedProductImeiRoute: typeof AuthenticatedProductImeiRoute
+  AuthenticatedProductOsRoute: typeof AuthenticatedProductOsRoute
   AuthenticatedProductRamRoute: typeof AuthenticatedProductRamRoute
+  AuthenticatedProductRearCameraRoute: typeof AuthenticatedProductRearCameraRoute
+  AuthenticatedProductResolutionRoute: typeof AuthenticatedProductResolutionRoute
   AuthenticatedProductRomRoute: typeof AuthenticatedProductRomRoute
   AuthenticatedProductScreenRoute: typeof AuthenticatedProductScreenRoute
   AuthenticatedProductSimRoute: typeof AuthenticatedProductSimRoute
@@ -807,8 +870,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductColorRoute: AuthenticatedProductColorRoute,
   AuthenticatedProductCreateProductRoute:
     AuthenticatedProductCreateProductRoute,
+  AuthenticatedProductFrontCameraRoute: AuthenticatedProductFrontCameraRoute,
   AuthenticatedProductImeiRoute: AuthenticatedProductImeiRoute,
+  AuthenticatedProductOsRoute: AuthenticatedProductOsRoute,
   AuthenticatedProductRamRoute: AuthenticatedProductRamRoute,
+  AuthenticatedProductRearCameraRoute: AuthenticatedProductRearCameraRoute,
+  AuthenticatedProductResolutionRoute: AuthenticatedProductResolutionRoute,
   AuthenticatedProductRomRoute: AuthenticatedProductRomRoute,
   AuthenticatedProductScreenRoute: AuthenticatedProductScreenRoute,
   AuthenticatedProductSimRoute: AuthenticatedProductSimRoute,
@@ -849,8 +916,12 @@ export interface FileRoutesByFullPath {
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
   '/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
+  '/product/os': typeof AuthenticatedProductOsRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
+  '/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
@@ -891,8 +962,12 @@ export interface FileRoutesByTo {
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
   '/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
+  '/product/os': typeof AuthenticatedProductOsRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
+  '/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
@@ -938,8 +1013,12 @@ export interface FileRoutesById {
   '/_authenticated/product/chip': typeof AuthenticatedProductChipRoute
   '/_authenticated/product/color': typeof AuthenticatedProductColorRoute
   '/_authenticated/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/_authenticated/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/_authenticated/product/imei': typeof AuthenticatedProductImeiRoute
+  '/_authenticated/product/os': typeof AuthenticatedProductOsRoute
   '/_authenticated/product/ram': typeof AuthenticatedProductRamRoute
+  '/_authenticated/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/_authenticated/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/_authenticated/product/rom': typeof AuthenticatedProductRomRoute
   '/_authenticated/product/screen': typeof AuthenticatedProductScreenRoute
   '/_authenticated/product/sim': typeof AuthenticatedProductSimRoute
@@ -984,8 +1063,12 @@ export interface FileRouteTypes {
     | '/product/chip'
     | '/product/color'
     | '/product/create-product'
+    | '/product/front-camera'
     | '/product/imei'
+    | '/product/os'
     | '/product/ram'
+    | '/product/rear-camera'
+    | '/product/resolution'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
@@ -1025,8 +1108,12 @@ export interface FileRouteTypes {
     | '/product/chip'
     | '/product/color'
     | '/product/create-product'
+    | '/product/front-camera'
     | '/product/imei'
+    | '/product/os'
     | '/product/ram'
+    | '/product/rear-camera'
+    | '/product/resolution'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
@@ -1070,8 +1157,12 @@ export interface FileRouteTypes {
     | '/_authenticated/product/chip'
     | '/_authenticated/product/color'
     | '/_authenticated/product/create-product'
+    | '/_authenticated/product/front-camera'
     | '/_authenticated/product/imei'
+    | '/_authenticated/product/os'
     | '/_authenticated/product/ram'
+    | '/_authenticated/product/rear-camera'
+    | '/_authenticated/product/resolution'
     | '/_authenticated/product/rom'
     | '/_authenticated/product/screen'
     | '/_authenticated/product/sim'
@@ -1163,8 +1254,12 @@ export const routeTree = rootRoute
         "/_authenticated/product/chip",
         "/_authenticated/product/color",
         "/_authenticated/product/create-product",
+        "/_authenticated/product/front-camera",
         "/_authenticated/product/imei",
+        "/_authenticated/product/os",
         "/_authenticated/product/ram",
+        "/_authenticated/product/rear-camera",
+        "/_authenticated/product/resolution",
         "/_authenticated/product/rom",
         "/_authenticated/product/screen",
         "/_authenticated/product/sim",
@@ -1263,12 +1358,28 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/create-product.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/product/front-camera": {
+      "filePath": "_authenticated/product/front-camera.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/imei": {
       "filePath": "_authenticated/product/imei.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/product/os": {
+      "filePath": "_authenticated/product/os.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/ram": {
       "filePath": "_authenticated/product/ram.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/rear-camera": {
+      "filePath": "_authenticated/product/rear-camera.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/resolution": {
+      "filePath": "_authenticated/product/resolution.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/rom": {

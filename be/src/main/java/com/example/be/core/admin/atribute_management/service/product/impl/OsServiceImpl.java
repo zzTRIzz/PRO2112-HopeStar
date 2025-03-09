@@ -19,9 +19,13 @@ public class OsServiceImpl implements OsService {
     }
 
     @Override
-    public Os create(Os os) {
+    public Os create(Os os) throws Exception {
         Os newOs = new Os();
+        if (osRepository.existsByNameTrimmedIgnoreCase(os.getName())){
+            throw new Exception("os name already exists");
+        }
         newOs.setName(os.getName());
+        newOs.setStatus(os.getStatus());
         return osRepository.save(newOs);
     }
 
@@ -29,7 +33,13 @@ public class OsServiceImpl implements OsService {
     public void update(Integer id, Os entity) throws Exception {
         Os os = getById(id);
         if (os != null){
-            osRepository.save(entity);
+            if (!osRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),os.getId())){
+                os.setName(entity.getName());
+                os.setStatus(entity.getStatus());
+                osRepository.save(os);
+            }else {
+                throw new Exception("os name already exists");
+            }
         }
     }
 

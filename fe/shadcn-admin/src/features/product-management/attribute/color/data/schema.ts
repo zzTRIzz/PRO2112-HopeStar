@@ -1,14 +1,11 @@
-
 import { z } from 'zod'
 
-// We're keeping a simple non-relational schema here.
-// IRL, you will have a schema for your data models.
-
 export const colorSchema = z.object({
-  id: z.number(),
-  code: z.string(),
-  name: z.string(),
-  status: z.string(),
+  id: z.number().optional(),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
+  hex: z.string().min(1, "Hex is required"),
+  status: z.string().min(1, "Status is required"),
 })
 
 export type Color = z.infer<typeof colorSchema>

@@ -27,7 +27,18 @@ const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: 'totalNumber',
-    header: 'Total Number',
+    header: 'Total',
+    cell: ({ row }) => {
+      const product = row.original as Product
+      return (
+        <div className='flex items-center gap-1'>
+          <span>{product.totalNumber}</span>
+          <span className='text-muted-foreground'>
+            ({product.totalVersion} version)
+          </span>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'status',

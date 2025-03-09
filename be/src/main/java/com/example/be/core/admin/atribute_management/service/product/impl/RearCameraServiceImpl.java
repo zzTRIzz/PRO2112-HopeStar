@@ -19,11 +19,15 @@ public class RearCameraServiceImpl implements RearCameraService {
     }
 
     @Override
-    public RearCamera create(RearCamera rearCamera) {
+    public RearCamera create(RearCamera rearCamera) throws Exception {
         RearCamera newRearCamera = new RearCamera();
         newRearCamera.setCode("RECA_"+rearCameraRepository.getNewCode());
+        if (rearCameraRepository.existsByTypeAndResolution(rearCamera.getType(), rearCamera.getResolution())){
+            throw new Exception("rearCamera type with resolution already exists");
+        }
         newRearCamera.setType(rearCamera.getType());
         newRearCamera.setResolution(rearCamera.getResolution());
+        newRearCamera.setStatus(rearCamera.getStatus());
         return rearCameraRepository.save(newRearCamera);
     }
 
@@ -31,7 +35,14 @@ public class RearCameraServiceImpl implements RearCameraService {
     public void update(Integer id, RearCamera entity) throws Exception {
         RearCamera rearCamera = getById(id);
         if (rearCamera != null){
-            rearCameraRepository.save(entity);
+            if (!rearCameraRepository.existsByTypeAndResolutionAndNotId(entity.getType(),entity.getResolution(),rearCamera.getId())){
+                rearCamera.setType(entity.getType());
+                rearCamera.setResolution(entity.getResolution());
+                rearCamera.setStatus(entity.getStatus());
+                rearCameraRepository.save(rearCamera);
+            }else {
+                throw new Exception("rearCamera type with resolution already exists");
+            }
         }
     }
 
