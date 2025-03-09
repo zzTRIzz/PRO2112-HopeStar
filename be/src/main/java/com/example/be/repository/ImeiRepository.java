@@ -11,12 +11,23 @@ import java.util.List;
 
 @Repository
 public interface ImeiRepository extends JpaRepository<Imei, Integer> {
-  List<Imei> findByProductDetailId(Integer id);
+    List<Imei> findByProductDetailId(Integer id);
 
-  List<Imei> findByIdIn(List<Integer> idImei);
+    List<Imei> findByIdIn(List<Integer> idImei);
 
 
-  @Query("select i from Imei i " +
-          "where i.status = :status")
-  List<Imei> getAllImeiChuaBan(@Param("status")StatusImei statusImei);
-  }
+    @Query("select i from Imei i " +
+            "where i.status = :status and i.productDetail.id = :id")
+    List<Imei> getAllImeiChuaBan(@Param("status") StatusImei statusImei,
+                                 @Param("id") Integer id);
+
+//    @Query("select i from Imei i " +
+//            "where i.status = :status and i.productDetail.id = :id")
+//    List<Imei> getAllImeiDaBan(@Param("status") StatusImei statusImei,
+//                                 @Param("id") Integer id);
+
+
+    @Query("select i from Imei i " +
+            "where i.productDetail.id = :id")
+    List<Imei> findImeiByIdProductDetail( @Param("id") Integer id);
+}

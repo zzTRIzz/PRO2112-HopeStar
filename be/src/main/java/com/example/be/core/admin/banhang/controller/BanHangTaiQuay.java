@@ -13,10 +13,7 @@ import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
-import com.example.be.entity.Bill;
-import com.example.be.entity.BillDetail;
-import com.example.be.entity.Imei;
-import com.example.be.entity.ProductDetail;
+import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.BillDetailRepository;
 import com.example.be.repository.BillRepository;
@@ -79,21 +76,34 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDtos);
     }
 
+    @GetMapping("/getByBill/{idBill}")
+    public ResponseEntity<?> getByIdBill(@PathVariable("idBill") Integer idBill) {
+        BillDto bill = billService.getByIdBill(idBill);
+        return ResponseEntity.ok(bill);
+    }
     @GetMapping("/{idBill}")
     public ResponseEntity<List<?>> getByHDCT(@PathVariable("idBill") Integer idBill) {
         List<SearchBillDetailDto> billDetailDtos = billDetailService.getByIdBill(idBill);
         return ResponseEntity.ok(billDetailDtos);
     }
 
-    @DeleteMapping("/deleteBillDetail/{idBillDetail}")
-    public String deleteBillDetail(@PathVariable("idBillDetail") Integer idBillDetail) {
-        billDetailService.deleteBillDetail(idBillDetail);
-        return "Delete Thanh Cong";
-    }
+    @DeleteMapping("/deleteBillDetail/{idBillDetail}/{idBill}")
+    public String deleteBillDetail(@PathVariable("idBillDetail") Integer idBillDetail,
+                                   @PathVariable("idBill") Integer idBill) {
+        BillDetail billDetail = billDetailRepository.findById(idBillDetail)
+                .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail "+idBillDetail));
+        // Kiểm tra hóa đơn có tồn tại không
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
 
-    @GetMapping("/deleteBill/{idBill}")
-    public String deleteBill(@PathVariable("idBill") Integer idBill) {
-        billService.deleteBill(idBill);
+        imeiSoldService.deleteImeiSold(idBillDetail);
+        billDetailService.deleteBillDetail(idBillDetail);
+        billDetailService.tongTienBill(billDetail.getIdBill().getId());
+        productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(),billDetail.getQuantity());
+        productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
+        imeiSoldService.deleteImeiSold(idBillDetail);
+        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
+        billService.apDungVoucher(bill.getId(), accountId);
         return "Delete Thanh Cong";
     }
 
@@ -105,9 +115,11 @@ public class BanHangTaiQuay {
     }
 
     //    Chỉ cần có id Khach hang để gán vào bill là được
-    @PutMapping
-    public ResponseEntity<?> addKhachHang(@RequestBody BillDto billDto) {
-        BillDto billDto1 = billService.updateHoaDonTaiQuay(billDto);
+    @PutMapping("/addKhachHang")
+    public ResponseEntity<?> addKhachHang(@RequestParam("idBill") Integer idBill,
+                                          @RequestParam("idAccount") Integer idAccount) {
+        billService.addAccount(idBill,idAccount);
+        BillDto billDto1 = billService.apDungVoucher(idBill,idAccount);
         return ResponseEntity.ok(billDto1);
     }
 
@@ -152,33 +164,62 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(savebillDetailDto);
     }
 
-    @PostMapping("/create_imei_sold")
-    public ResponseEntity<?> createImeiSold(@RequestBody ImeiSoldDto imeiSoldDto) {
-        BillDetailDto billDetailDto = imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
+    @PostMapping("/create_imei_sold/{idBill}/{idProduct}")
+    public ResponseEntity<?> createImeiSold(@RequestBody ImeiSoldDto imeiSoldDto,
+                                            @PathVariable("idBill") Integer idBill,
+                                            @PathVariable("idProduct") Integer idProduct
+    ) {
+
+        BillDetailDto billDetailDto;
+
+        billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
+                idBill, idProduct, imeiSoldDto.getId_Imei().size());
+        imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
-        Integer quantyti = imeiSoldDto.getId_Imei().size() ;
-        productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(),quantyti);
-        productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
+        BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
+        BillDto billDto = billMapper.dtoBillMapper(bill);
+        billDto.setTotalPrice(tongTienBill);
+        billService.updateTongTienHoaDon(billDto);
+        Integer quantyti = imeiSoldDto.getId_Imei().size();
+        productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
+        productDetailService.updateStatusProduct(idProduct);
+        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
+        billService.apDungVoucher(bill.getId(), accountId);
         return ResponseEntity.ok(billDetailDto);
     }
 
-
     @GetMapping("/product_detail")
-    public ResponseEntity<List<?>> getListProductDetail(){
+    public ResponseEntity<List<?>> getListProductDetail() {
         List<ProductDetailDto> productDetailDto = billDetailService.getAllProductDetailDto();
         return ResponseEntity.ok(productDetailDto);
     }
 
-
     @GetMapping("/account")
-    public ResponseEntity<List<?>> getAllAccount(){
-      List<AccountResponse> accountResponses=  accountService.getAllKhachHang();
-      return ResponseEntity.ok(accountResponses);
+    public ResponseEntity<List<?>> getAllAccount() {
+        List<AccountResponse> accountResponses = accountService.getAllKhachHang();
+        return ResponseEntity.ok(accountResponses);
     }
 
     @GetMapping("/imei/{idProductDetail}")
-    public ResponseEntity<List<?>> getAllImei(@PathVariable("idProductDetail") Integer idProductDetail){
-      List<ProductImeiResponse> accountResponses=  imeiService.getImeiByProductDetail(idProductDetail);
-      return ResponseEntity.ok(accountResponses);
+    public ResponseEntity<List<?>> getAllImei(@PathVariable("idProductDetail") Integer idProductDetail) {
+        List<ImeiDto> accountResponses = imeiService.getAllImeiChuaBan(idProductDetail);
+        return ResponseEntity.ok(accountResponses);
+    }
+    @GetMapping("/findImeiById/{idProductDetail}")
+    public ResponseEntity<List<?>> findImeiByIdProductDetail(@PathVariable("idProductDetail") Integer idProductDetail) {
+        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail);
+        return ResponseEntity.ok(accountResponses);
+    }
+    @GetMapping("/findImeiByIdProductDetailDaBan/{idProductDetail}")
+    public ResponseEntity<List<?>> findImeiByIdProductDetailDaBan(@PathVariable("idProductDetail") Integer idProductDetail) {
+        List<ImeiDto> accountResponses = imeiService.findImeiByIdProDaBan(idProductDetail);
+        return ResponseEntity.ok(accountResponses);
+    }
+    @GetMapping("/findByAccount/{idBill}")
+    public ResponseEntity<List<?>> findAccount(@PathVariable("idBill") Integer idBill){
+        List<AccountResponse> saveAccounts = accountService.getByAccount(idBill);
+        return ResponseEntity.ok(saveAccounts);
     }
 }

@@ -10,6 +10,9 @@ import java.util.List;
 public interface ImeiService extends GenericService<Imei,Integer> {
     List<ProductImeiResponse> getImeiByProductDetail(Integer id);
 
+    List<ImeiDto> getAllImeiChuaBan(Integer id);
 
-    List<ImeiDto> getAllImeiChuaBan();
+    List<ImeiDto> findImeiByIdProDaBan(Integer id);
+
+    List<ImeiDto> findImeiByIdProductDetail(Integer id);
 }

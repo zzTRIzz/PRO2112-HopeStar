@@ -7,8 +7,10 @@ import com.example.be.entity.Role;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.AccountRepository;
 import com.example.be.core.admin.account.dto.request.AccountRequest;
+import com.example.be.repository.BillRepository;
 import com.example.be.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     private final RoleRepository roleRepository;
+
+    private final BillRepository billRepository;
 
     public AccountResponse create(AccountRequest request) {
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
@@ -99,8 +103,6 @@ public class AccountService {
     }
 
 
-
-
     public List<AccountResponse> getAllKhachHang() {
 
         return accountRepository.getAllAcountKhachHang().stream()
@@ -109,5 +111,16 @@ public class AccountService {
     }
 
 
+    public List<AccountResponse> getByAccount(Integer idBill) {
+        try {
+            billRepository.findById(idBill).orElseThrow(() -> new RuntimeException("Không tìm thấy bill" + idBill));
+            List<Account> accounts = accountRepository.getByAccount(idBill);
+            return accounts.stream().map(this::convertToResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());
+        }
+    }
 
 }

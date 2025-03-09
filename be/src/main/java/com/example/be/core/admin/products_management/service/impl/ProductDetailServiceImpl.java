@@ -89,20 +89,21 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void updateStatusProduct(Integer idProductDetail){
         ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
                 .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-        if (productDetail.getInventoryQuantity().equals(0)){
+        if (productDetail.getInventoryQuantity() <= 0){
             productDetail.setStatus(ProductDetailStatus.DESIST);
+            productDetailRepository.save(productDetail);
+        }else {
+            productDetail.setStatus(ProductDetailStatus.ACTIVE);
             productDetailRepository.save(productDetail);
         }
     }
 
-//    @Override
-//    public void updateStatusProductTrue(Integer idProductDetail){
-//        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-//                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-//        if (!productDetail.getInventoryQuantity().equals(0)){
-//            productDetail.setStatus(ProductDetailStatus.);
-//            productDetailRepository.save(productDetail);
-//        }
-//    }
+    @Override
+    public void updateSoLuongSanPham(Integer idProductDetail, Integer quantity){
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+        productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+quantity);
+        productDetailRepository.save(productDetail);
+    }
 
 }

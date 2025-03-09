@@ -1,4 +1,4 @@
-import BanHangTaiQuay from '@/features/banhang/banHangTaiQuay'
+import BanHangTaiQuay from '@/features/banhang/BanHangTaiQuay'
 import { createLazyFileRoute } from '@tanstack/react-router'
 
 export const Route = createLazyFileRoute('/_authenticated/banhang/')({

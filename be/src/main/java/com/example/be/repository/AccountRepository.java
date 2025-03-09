@@ -5,6 +5,7 @@ import com.example.be.repository.base.BaseRepository;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +18,10 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     @Query("select a from Account a " +
             "where a.idRole.id = 3")
     List<Account> getAllAcountKhachHang();
+
+
+
+    @Query("select a from  Account a " +
+            "where a.id = (select b.idAccount.id from Bill b where b.id = :idBill)")
+    List<Account> getByAccount(@Param("idBill") Integer idBill);
 }

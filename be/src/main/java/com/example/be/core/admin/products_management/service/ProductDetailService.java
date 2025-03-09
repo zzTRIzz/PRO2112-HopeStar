@@ -11,4 +11,6 @@ public interface ProductDetailService {
     void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity);
 
     void updateStatusProduct(Integer idProductDetail);
+
+    void updateSoLuongSanPham(Integer idProductDetail, Integer quantity);
 }

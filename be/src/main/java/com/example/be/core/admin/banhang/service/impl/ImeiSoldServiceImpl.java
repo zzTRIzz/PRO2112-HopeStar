@@ -1,12 +1,10 @@
 package com.example.be.core.admin.banhang.service.impl;
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
-import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.banhang.dto.ImeiSoldDto;
 import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
-import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
-import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
 import com.example.be.entity.Imei;
 import com.example.be.entity.ImeiSold;
@@ -16,11 +14,8 @@ import com.example.be.repository.BillRepository;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ImeiSoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,22 +54,52 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
             imeiSold.setId_Imei(imei);
             imeiSold.setIdBillDetail(billDetail);
             imeiSoldList.add(imeiSold);
-            imei.setStatus(StatusImei.NOT_SOLD);
+            imei.setStatus(StatusImei.SOLD);
         }
         imeiSoldRepository.saveAll(imeiSoldList);
         imeiRepository.saveAll(imeis);
-        Integer quantity = idImei.size();
-        billDetail.setQuantity(idImei.size());
-        BigDecimal tongTien =  billDetail.getPrice().multiply(BigDecimal.valueOf(quantity));
-        billDetail.setTotalPrice(tongTien);
-        Bill bill = billRepository.findById(billDetail.getIdBill().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
+//        Integer quantity = idImei.size();
+//        billDetail.setQuantity(idImei.size());
+//        BigDecimal tongTien =  billDetail.getPrice().multiply(BigDecimal.valueOf(quantity));
+//        billDetail.setTotalPrice(tongTien);
+//        Bill bill = billRepository.findById(billDetail.getIdBill().getId())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
+//
+//        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
+//        bill.setTotalPrice(tongTienBill);
+//        billRepository.save(bill);
+        BillDetail savebillD = billDetailRepository.findById(idBillDetail)
+                .orElseThrow(()->new RuntimeException("Bill Detail not found"));
 
-        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
-        bill.setTotalPrice(tongTienBill);
-        billRepository.save(bill);
-        BillDetail saveBillDetail = billDetailRepository.save(billDetail);
+        BillDetail saveBillDetail = billDetailRepository.save(savebillD);
          return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
-     }
+    }
+
+//
+//    @Override
+//    public void updateStartusImei(ImeiSoldDto imeiSoldDto) {
+//
+//        List<Imei> imeis = imeiRepository.findByIdIn(imeiSoldDto.getId_Imei());
+//        if (!imeis.isEmpty()) {
+//            imeiRepository.saveAll(imeis);
+//        }
+//        for (Imei imei : imeis) {
+//            imei.setStatus(StatusImei.NOT_SOLD);
+//        }
+//        imeiRepository.saveAll(imeis);
+//    }
+
+    @Override
+    public void deleteImeiSold(Integer idBillDetail){
+        List<Imei> imeis = imeiSoldRepository.searchImeiSold(idBillDetail);
+        if (!imeis.isEmpty()) {
+            imeiRepository.saveAll(imeis);
+        }
+        for (Imei imei : imeis) {
+            imei.setStatus(StatusImei.NOT_SOLD);
+        }
+        imeiRepository.saveAll(imeis);
+        imeiSoldRepository.deleteImeiSold(idBillDetail);
+    }
 
 }

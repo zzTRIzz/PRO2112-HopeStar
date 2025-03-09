@@ -98,9 +98,6 @@ public class BillDetailServiceImpl implements BillDetailService {
     public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
         List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
 
-        if (billDetails.isEmpty()) {
-            throw new RuntimeException("Không tìm thấy chi tiết hóa đơn nào cho hóa đơn ID: " + idBill);
-        }
         return billDetails.stream()
                 .map(searchBillDetailMapper::dtoBillDetailMapper)
                 .collect(Collectors.toList());
@@ -110,13 +107,18 @@ public class BillDetailServiceImpl implements BillDetailService {
     @Override
     public BigDecimal tongTienBill(Integer idBill) {
         BigDecimal tongTien = BigDecimal.ZERO; // Khởi tạo đúng cách là zero
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(()->new RuntimeException("Khong tim thay bill"+idBill));
         for (BillDetail billDetail : billDetailRepository.findAll()) {
             if (billDetail.getIdBill().getId().equals(idBill)) {
                 tongTien = tongTien.add(
-                        billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity()))
-                );
+                        billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())));
+            }else {
+                tongTien=BigDecimal.ZERO;
             }
         }
+        bill.setTotalPrice(tongTien);
+        billRepository.save(bill);
         return tongTien;
     }
 
@@ -147,7 +149,6 @@ public class BillDetailServiceImpl implements BillDetailService {
                 productDetail.getImageUrl()
         );
     }
-
 
     @Override
     public List<ProductDetailDto> getAllProductDetailDto(){

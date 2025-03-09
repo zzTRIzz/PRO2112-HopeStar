@@ -36,6 +36,7 @@ import { Route as AuthenticatedProductBatteryImport } from './routes/_authentica
 
 // Create Virtual Routes
 
+const authIndexLazyImport = createFileRoute('/(auth)/')()
 const errors503LazyImport = createFileRoute('/(errors)/503')()
 const errors500LazyImport = createFileRoute('/(errors)/500')()
 const errors404LazyImport = createFileRoute('/(errors)/404')()
@@ -95,6 +96,14 @@ const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
+
+const authIndexLazyRoute = authIndexLazyImport
+  .update({
+    id: '/(auth)/',
+    path: '/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() => import('./routes/(auth)/index.lazy').then((d) => d.Route))
 
 const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
   id: '/',
@@ -523,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/(auth)/': {
+      id: '/(auth)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/_authenticated/product/battery': {
       id: '/_authenticated/product/battery'
       path: '/product/battery'
@@ -824,7 +840,7 @@ export interface FileRoutesByFullPath {
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof authIndexLazyRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -866,7 +882,7 @@ export interface FileRoutesByTo {
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof authIndexLazyRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -913,6 +929,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/(auth)/': typeof authIndexLazyRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1044,6 +1061,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/(auth)/'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1088,6 +1106,7 @@ export interface RootRouteChildren {
   errors404LazyRoute: typeof errors404LazyRoute
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
+  authIndexLazyRoute: typeof authIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1103,6 +1122,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors404LazyRoute: errors404LazyRoute,
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
+  authIndexLazyRoute: authIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1126,7 +1146,8 @@ export const routeTree = rootRoute
         "/(errors)/403",
         "/(errors)/404",
         "/(errors)/500",
-        "/(errors)/503"
+        "/(errors)/503",
+        "/(auth)/"
       ]
     },
     "/_authenticated": {
@@ -1206,6 +1227,9 @@ export const routeTree = rootRoute
     "/_authenticated/": {
       "filePath": "_authenticated/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/(auth)/": {
+      "filePath": "(auth)/index.lazy.tsx"
     },
     "/_authenticated/product/battery": {
       "filePath": "_authenticated/product/battery.tsx",

@@ -1,5 +1,6 @@
 package com.example.be.core.admin.banhang.service.impl;
 
+import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
@@ -25,7 +26,6 @@ public class BillServiceImpl implements BillService {
 //loại trạng thái bán hàng
 //    0 là bán hàng tại quầy
 //    1 là bán hàng trên web
-
 
 
     @Autowired
@@ -54,34 +54,30 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public List<BillDto> getAllBill(){
+    public List<BillDto> getAllBill() {
         List<Bill> bills = billRepository.findAll();
-        return bills.stream().map(billMapper ::dtoBillMapper).
+        return bills.stream().map(billMapper::dtoBillMapper).
                 collect(Collectors.toList());
     }
 
     @Override
-    public List<BillDto> listTaiQuay(){
+    public List<BillDto> listTaiQuay() {
         List<Bill> listHoaDonCTT = new ArrayList<>();
-        for (Bill bill: billRepository.findAll()) {
-            if (bill.getStatus().equals(StatusBill.CHO_THANH_TOAN)){
+        for (Bill bill : billRepository.findAll()) {
+            if (bill.getStatus().equals(StatusBill.CHO_THANH_TOAN)) {
                 listHoaDonCTT.add(bill);
             }
         }
-        return listHoaDonCTT.stream().map(billMapper ::dtoBillMapper)
+        return listHoaDonCTT.stream().map(billMapper::dtoBillMapper)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteBill(Integer idBill){
-        List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
-
-        if (billDetail == null){
-            billRepository.deleteById(idBill);
-        }else {
-            billDetailRepository.deleteByIDBill(idBill);
-            billRepository.deleteById(idBill);
-        }
+    public BillDto getByIdBill(Integer idBill) {
+        // Kiểm tra hóa đơn có tồn tại không
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+        return billMapper.dtoBillMapper(bill);
     }
 
     @Override
@@ -96,14 +92,7 @@ public class BillServiceImpl implements BillService {
             billDto.setBillType((byte) 0);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
-
-//             Lấy mã hóa đơn mới
-//            String newCode = billRepository.getNewCode();
-//            if (newCode == null) newCode = "1"; // Nếu không có hóa đơn trước đó, bắt đầu từ "1"
-//
-//            // Định dạng mã hóa đơn: HD001, HD002...
-//            String formattedCode = String.format("HD00%s", newCode);
-            billDto.setNameBill("HD00"+billRepository.getNewCode());
+            billDto.setNameBill("HD00" + billRepository.getNewCode());
             System.out.println(billRepository.getNewCode());
 //            Chuyển DTO sang Entity
             Bill bill = billMapper.entityBillMapper(billDto, null, account, null, null, null);
@@ -114,173 +103,240 @@ public class BillServiceImpl implements BillService {
             return billMapper.dtoBillMapper(savedBill);
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Lỗi khi tạo hóa đơn: " + e.getMessage(), e);
         }
     }
 
 
     @Override
-    public BillDto updateHoaDonTaiQuay(BillDto billDto){
+    public BillDto updateHoaDonTaiQuay(BillDto billDto) {
         try {
+            if (billDto.getIdAccount() == null) {
+                System.out.println("Khong tim thay bill");
+            }
+            Account accountNhanVien = accountRepository.findById(billDto.getIdNhanVien()).
+                    orElseThrow(() -> new RuntimeException("Khong tim thay nhan vien"));
 
-            Account accountNhanVien = accountRepository.findById(billDto.getIdNhanVien()).orElse(null);
+            Account accountKhachHang = accountRepository.findById(billDto.getIdAccount()).
+                    orElseThrow(() -> new RuntimeException("Khong tim thay khach hang"));
 
-            Account accountKhachHang = accountRepository.findById(billDto.getIdAccount()).orElse(null);
-
+            List<Voucher> voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE);
             Voucher voucher;
-//            if (accountKhachHang.getId() == null){
-//                throw new RuntimeException("Khach hang khon duoc null");
-//            }
-//            else {
-//                 voucher  =voucherRepository.findById(billDto.getIdVoucher()).orElse(null);
-            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE);
-            voucher = voucherList.isEmpty() ? null : voucherList.get(0);
-//            }
+            if (voucherList.isEmpty()) {
+                voucher = null;
+                billDto.setTotalDue(billDto.getTotalPrice());
+            } else {
+                voucher = voucherList.get(0);
+            }
             BigDecimal tongSauKhiGiam;
 
-            if (voucher == null){
+            if (voucher == null) {
                 tongSauKhiGiam = billDto.getTotalPrice();
                 voucher = null;
-            }else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
-                tongSauKhiGiam= billDto.getTotalPrice().subtract(voucher.getDiscountValue());
+            } else if (voucher.getDiscountValue().compareTo(billDto.getTotalPrice()) < 0) {
+                tongSauKhiGiam = billDto.getTotalPrice().subtract(voucher.getDiscountValue());
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
             }
-            if (voucher != null){
+            if (voucher != null) {
                 voucherService.updateSoLuongVoucher(voucher.getId());
             }
             billDto.setTotalDue(tongSauKhiGiam);
             PaymentMethod paymentMethod;
-            if (billDto.getIdPayment() == null){
+            if (billDto.getIdPayment() == null) {
                 paymentMethod = null;
-            }else {
+            } else {
                 paymentMethod = paymentMethodRepository.findById(billDto.getIdPayment()).orElse(null);
             }
 
             DeliveryMethod deliveryMethod;
-            if (billDto.getIdDelivery() == null){
+            if (billDto.getIdDelivery() == null) {
                 deliveryMethod = null;
-            }else {
+            } else {
                 deliveryMethod = deliveryMethodRepository.findById(billDto.getIdDelivery()).orElse(null);
             }
-
-
-            Bill bill = billMapper.entityBillMapper(billDto,  accountKhachHang,accountNhanVien,voucher,paymentMethod,deliveryMethod);
-            Bill saveBill= billRepository.save(bill);
+            Bill bill = billMapper.entityBillMapper(billDto, accountKhachHang, accountNhanVien, voucher, paymentMethod, deliveryMethod);
+            Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật cho hóa đơn: " + e.getMessage());
+
         }
-        return null;
     }
 
     @Override
-    public BillDto updateTongTienHoaDon(BillDto billDto){
+    public void addAccount(Integer idBill, Integer idAccount) {
+        try {
+            // Kiểm tra hóa đơn có tồn tại không
+            Bill bill = billRepository.findById(idBill)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+            // Kiểm tra khách hàng có tồn tại không
+            Account accountKhachHang = accountRepository.findById(idAccount)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng " + idAccount));
+            bill.setIdAccount(accountKhachHang);
+            billRepository.save(bill);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi thêm khách hàng cho hóa đơn: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public BillDto apDungVoucher(Integer idBill, Integer idAccount) {
+        try {
+            // Kiểm tra hóa đơn có tồn tại không
+            Bill bill = billRepository.findById(idBill)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+            // Nếu idAccount == null, không tìm khách hàng và không áp dụng voucher
+            if (idAccount == null) {
+                bill.setTotalDue(bill.getTotalPrice()); // Không có giảm giá
+                bill.setDiscountedTotal(BigDecimal.ZERO); // Giảm giá là 0
+                bill.setIdVoucher(null); // Không áp dụng voucher
+                billRepository.save(bill);
+                return billMapper.dtoBillMapper(bill);
+            }
+            // Kiểm tra khách hàng có tồn tại không
+            Account accountKhachHang = accountRepository.findById(idAccount)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng " + idAccount));
+
+            // Tìm voucher tốt nhất cho khách hàng
+            List<Voucher> voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE);
+            Voucher voucher = voucherList.isEmpty() ? null : voucherList.get(0);
+
+            // Áp dụng giảm giá nếu có voucher
+            BigDecimal tongSauKhiGiam;
+            if (voucher == null) {
+                tongSauKhiGiam = bill.getTotalPrice();
+            } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
+                tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
+                voucherService.updateSoLuongVoucher(voucher.getId()); // Giảm số lượng voucher
+            } else {
+                tongSauKhiGiam = BigDecimal.ZERO;
+                voucherService.updateSoLuongVoucher(voucher.getId());
+            }
+            BigDecimal tongTienGiamGia = bill.getTotalPrice().subtract(tongSauKhiGiam);
+            // Cập nhật lại hóa đơn với khách hàng và voucher
+            bill.setIdAccount(accountKhachHang);
+            bill.setIdVoucher(voucher);
+            bill.setTotalDue(tongSauKhiGiam);
+            bill.setDiscountedTotal(tongTienGiamGia);
+            billRepository.save(bill);
+            return billMapper.dtoBillMapper(bill);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật khách hàng cho hóa đơn: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public BillDto updateTongTienHoaDon(BillDto billDto) {
         try {
 
             Account accountNhanVien = accountRepository.findById(billDto.getIdNhanVien())
-                    .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay nhan vien " + billDto.getIdNhanVien()));
 
-            Bill bill = billMapper.entityBillMapper(billDto,  null,accountNhanVien,null,null,null);
+            Bill bill = billMapper.entityBillMapper(billDto, null, accountNhanVien, null, null, null);
 
-            Bill saveBill= billRepository.save(bill);
+            Bill saveBill = billRepository.save(bill);
 
             return billMapper.dtoBillMapper(saveBill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật tông tiền cho hóa đơn: " + e.getMessage());
         }
-        return null;
     }
 
 
     @Override
-    public BillDto getByIdHoaDon(Integer id){
-        Bill bill = billRepository.findById(id).orElseThrow(()->
-                new RuntimeException("Khong tim thay id "+id)
+    public BillDto getByIdHoaDon(Integer id) {
+        Bill bill = billRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Khong tim thay id " + id)
         );
         return billMapper.dtoBillMapper(bill);
     }
 
 
-
-
     @Override
-    public void updateHuyHoaDon(Integer idBill){
+    public void updateHuyHoaDon(Integer idBill) {
         try {
             Bill bill = billRepository.findById(idBill).orElseThrow(
-                    ()-> new RuntimeException("Bill not found with id:" +idBill)
+                    () -> new RuntimeException("Bill not found with id:" + idBill)
             );
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
         }
     }
 
 
     //__________________________________________________________________________________________
     @Override
-    public BillDto createHoaDonTaiWeb(BillDto billDto){
+    public BillDto createHoaDonTaiWeb(BillDto billDto) {
         try {
             Account account = accountRepository.findById(billDto.getIdNhanVien())
-                    .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay nhan vien " + billDto.getIdNhanVien()));
 
 //            BillDto newBill = new BillDto();
             Instant now = Instant.now();
             billDto.setBillType((byte) 1);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setPaymentDate(now);
-            Bill bill = billMapper.entityBillMapper(billDto,  null,account,null,null,null);
-            Bill saveBill= billRepository.save(bill);
+            Bill bill = billMapper.entityBillMapper(billDto, null, account, null, null, null);
+            Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi thêm hóa đơn tại web cho hóa đơn: " + e.getMessage());
         }
-        return null;
     }
 
-
     @Override
-    public void apDungVoucherChoOnline(Bill bill){
+    public void apDungVoucherChoOnline(Bill bill) {
         try {
             Account accountKhachHang = accountRepository.findById(bill.getIdAccount().getId()).orElse(null);
-//            System.out.println("id khahcs hang "+bill.getIdAccount().getId());
             Voucher voucher;
-            List<Voucher>  voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(),StatusVoucher.ACTIVE);
+            List<Voucher> voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE);
             voucher = voucherList.isEmpty() ? null : voucherList.get(0);
             BigDecimal tongSauKhiGiam;
-            if (voucher == null){
+            if (voucher == null) {
                 tongSauKhiGiam = bill.getTotalPrice();
                 voucher = null;
-            }else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
-                tongSauKhiGiam= bill.getTotalPrice().subtract(voucher.getDiscountValue());
+            } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
+                tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
                 voucherService.updateSoLuongVoucher(voucher.getId());
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
                 voucherService.updateSoLuongVoucher(voucher.getId());
             }
-            System.out.println("voucher da tim duoc la :"+voucher);
+            System.out.println("voucher da tim duoc la :" + voucher);
             bill.setIdVoucher(voucher);
             bill.setTotalDue(tongSauKhiGiam);
             billRepository.save(bill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật áp dụng voucher online cho hóa đơn: " + e.getMessage());
         }
     }
+
     @Override
-    public BillDto createDatHangOnline(BillDto billDto){
+    public BillDto createDatHangOnline(BillDto billDto) {
         try {
 //            Account account = accountRepository.findById(billDto.getIdNhanVien())
 //                    .orElseThrow(()-> new RuntimeException("Khong tim thay nhan vien " +billDto.getIdNhanVien()));
-           billDto.setStatus(StatusBill.CHO_XAC_NHAN);
-            Bill bill = billMapper.entityBillMapper(billDto,  null,null,null,null,null);
-            Bill saveBill= billRepository.save(bill);
+            billDto.setStatus(StatusBill.CHO_XAC_NHAN);
+            Bill bill = billMapper.entityBillMapper(billDto, null, null, null, null, null);
+            Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Lỗi khi tạo hóa đơn: " + e.getMessage());
         }
-        return null;
     }
+
 
 }
 
