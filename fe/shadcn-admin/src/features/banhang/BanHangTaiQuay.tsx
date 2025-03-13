@@ -8,7 +8,15 @@ import { FaShoppingCart, FaTimes, FaPlus, FaTrash, FaEdit } from "react-icons/fa
 import { CgAdd } from "react-icons/cg";
 import { Main } from '@/components/layout/main';
 import { Button } from '@/components/ui/button';
-import { getData, findImeiByIdProductDaBan, findBill, findKhachHang, addKhachHang, addHoaDon, findImeiById, createImeiSold, deleteProduct, getImei, getAccountKhachHang, getProductDetail, addHDCT, getByIdBillDetail } from './service/BanHangTaiQuayService';
+import {
+  getData, findImeiByIdProductDaBan, findBill,
+  findKhachHang, addKhachHang, addHoaDon, findImeiById,
+  createImeiSold, deleteProduct, getImei, getAccountKhachHang,
+  getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung
+  , findVoucherByAccount, huyHoaDon
+}
+  from './service/BanHangTaiQuayService';
+import "./custom-toast.css"; // Thêm CSS tùy chỉnh
 import { ImCart } from "react-icons/im";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -18,8 +26,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Checkbox } from "@/components/ui/checkbox"
-// import { BillDetailSchema } from './service/BillDetailSchema';
-// import { ImeiSoldSchema } from './service/ImeiSoldSchema';
+import { Input } from "@/components/ui/input"
+
 import {
   Dialog,
   DialogContent,
@@ -29,7 +37,17 @@ import {
   // DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { fi } from '@faker-js/faker';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { toast, ToastContainer } from 'react-toastify';
+import { SourceTextModule } from 'vm';
 
 
 interface Bill {
@@ -102,12 +120,26 @@ interface imei {
   barCode: string,
   status: string
 }
+interface Voucher {
+  id: number;
+  code: string;
+  name: string;
+  conditionPriceMin: number;
+  conditionPriceMax: number;
+  discountValue: number;
+  voucherType: boolean;
+  quantity: number;
+  startTime: string;
+  endTime: string;
+  status: string;
+}
+
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<Bill[]>([]);
   const [searchBill, setSearchBill] = useState<Bill>();
   const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
-  const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang[]>([]);
+  const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
   const [listImei, setListImei] = useState<imei[]>([]);
   const [listImeiDaBan, setListImeiDaBan] = useState<imei[]>([]);
   const [idBill, setIdBill] = useState<number>(0);
@@ -120,6 +152,9 @@ function BanHangTaiQuay() {
   const [hoveredBillId, setHoveredBillId] = useState<number | null>(null);
   const [isKhachHang, setIsKhachHang] = useState(false);
   const [isVoucher, setIsVoucher] = useState(false);
+  const [isCapNhatImei, setIsCapNhatImei] = useState(false);
+  const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
+  const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
 
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
@@ -156,6 +191,18 @@ function BanHangTaiQuay() {
     }
   };
 
+  // Lấy danh sách voucher theo account 
+  const loadVoucherByAcount = async (idBillAC: number) => {
+    try {
+      const data = await findVoucherByAccount(idBillAC);
+      // console.log("ID voucher " + idBillAC)
+      setListVoucherTheoAccount(data);
+    } catch (error) {
+      setListVoucherTheoAccount([]);
+      console.error('Error fetching data:', error);
+    }
+  };
+
   // Lấy danh sách imei
   const loadImei = async (idProductDetail: number) => {
     try {
@@ -179,17 +226,36 @@ function BanHangTaiQuay() {
     }
   }
 
+  // Huy hoa don 
+  const huyHoaDonTheoId = async (idBillHuy: number) => {
+    try {
+      await huyHoaDon(idBillHuy);
+      await loadBill();
+      loadProductDet();
+      setProduct([]);
+      // hienThiKhachHang();
+      setIdBill(0);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   // Lấy hóa đơn chi tiet theo ID bill 
   const getById = async (id: number) => {
     try {
       const data = await getByIdBillDetail(id);
-      console.log(data);
-      console.log("ID hóa đơn:", id);
+      // console.log(data);
+      // console.log("ID hóa đơn:", id);
       setProduct(data); // Cập nhật state
       setIdBill(id);
       const khachHang = await findKhachHang(id);
       hienThiKhachHang(khachHang);
       findBillById(id);
+      const voucher = await getVoucherDangSuDung(id);
+      setDuLieuVoucherDangDung(voucher);
+      findBillById(id);
+      await loadVoucherByAcount(id);
     } catch (error) {
       setProduct([]); // Xóa danh sách cũ
       setIdBill(0);
@@ -198,10 +264,10 @@ function BanHangTaiQuay() {
     }
   };
 
+
   // Tìm kiếm imei theo idProductDetail
   const findImeiByIdProductDetail = async (idProductDetail: number) => {
     try {
-      console.log("ID product detail da ban:", idProductDetail);
       const data = await findImeiById(idProductDetail);
       setListImei(data);
       setIdProductDetail(idProductDetail);
@@ -215,10 +281,11 @@ function BanHangTaiQuay() {
     try {
       console.log(idBillDetail);
       const data = await deleteProduct(idBillDetail, idBill);
-      console.log("Xoa san pham:", data);
+      // console.log("Xoa san pham:", data);
       await loadProductDet();
       await loadImei(idProductDetail);
       await getById(idBill);
+      showToast("Xóa sản phẩm chi tiết thành công");
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -229,9 +296,9 @@ function BanHangTaiQuay() {
   const handleAddBill = async () => {
     try {
       const newBill = await addHoaDon({ idNhanVien: Number(9) }); // Truyền trực tiếp idNhanVien
-      // toast.success("Thêm hóa đơn thành công!");
       console.log("Hóa đơn mới:", newBill);
       setListBill([...listBill, newBill]); // Cập nhật danh sách
+      showToast("Thêm hóa đơn thành công");
     } catch (error) {
       // toast.error("Lỗi khi thêm hóa đơn!");
       console.error("Lỗi API:", error);
@@ -240,19 +307,27 @@ function BanHangTaiQuay() {
 
   // Thêm sản phẩm chi tiết vào hóa đơn chi tiết 
   const handleAddProduct = async (product: ProductDetail) => {
-
     try {
+      console.log("ID bill san pham " + idBill);
+      if (idBill == 0 || idBill == null) {
+        showToast("Vui lòng chọn hóa đơn");
+        setIsDialogOpen(false);
+        return;
+      }
       const newProduct = await addHDCT({
         idBill: idBill,
         idProductDetail: product.id
       });
-      console.log("Sản phẩm chọn:", product.id);
-      console.log("Sản phẩm mới:", newProduct);
+
+      // console.log("Sản phẩm chọn:", product.id);
+      // console.log("Sản phẩm mới:", newProduct);
       setIdBillDetail(newProduct.id);
       setIdProductDetail(product.id);
-      await loadImei(product.id);
-      await getById(idBill);
+      setSelectedImei([]);
+      loadImei(product.id);
+      getById(idBill);
       setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
+      showToast("Thêm sản phẩm vào hóa đơn thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
     }
@@ -284,36 +359,42 @@ function BanHangTaiQuay() {
       await loadProductDet();
       await loadImei(idProductDetail);
       await getById(idBill);
+      showToast("Thêm IMEI thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
     }
   };
 
-  const handleUpdateProduct = async (idPD: number) => {
+  const handleUpdateProduct = async (idPD: number, billDetail: number) => {
     console.log("ID product detail:", idPD);
     setSelectedImei([]);  // Reset trước khi cập nhật
 
     try {
-      // Lấy danh sách IMEI đã bán
-      const data = await findImeiByIdProductDaBan(idPD);
-
-      // Kiểm tra nếu `data` là một mảng hợp lệ
+      const data = await findImeiByIdProductDaBan(idPD, billDetail);
       if (!Array.isArray(data)) {
         console.error("Dữ liệu trả về không phải là một mảng:", data);
         return;
       }
-
-      // Trích xuất danh sách ID từ `data`
       const ids: number[] = data.map((imei) => imei.id);
-
-      // Cập nhật state với danh sách IMEI đã bán
       setSelectedImei(ids);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách IMEI đã bán:", error);
     }
-
     // Gọi API khác (nếu cần)
     await findImeiByIdProductDetail(idPD);
+  };
+
+
+  const showToast = (message: string) => {
+    toast.success(message, {
+      position: "top-right",
+      className: "custom-toast", // Áp dụng CSS tùy chỉnh
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   // Thêm khách hàng vào hóa đơn
@@ -326,11 +407,31 @@ function BanHangTaiQuay() {
       const khachHang = await findKhachHang(idBill);
       hienThiKhachHang(khachHang);
       await findBillById(idBill);
+      // Hiển thị thông báo
+      const voucher = await getVoucherDangSuDung(idBill);
+      setDuLieuVoucherDangDung(voucher);
+      await loadVoucherByAcount(idBill);
+      showToast("Thêm khách hàng thành công");
     } catch (error) {
       console.error("Lỗi khi thêm khách hàng:", error);
     }
   }
+  const CartEmpty = () => {
+    return (
+      <>
+        <div className="flex flex-col items-center justify-center mt-4" style={{ height: "224px" }}>
+          <img
+            src="https://res.cloudinary.com/dqwfbbd9g/image/upload/v1701448962/yy04ozpcgnsz3lv4r2h2.png"
+            style={{ width: "190px" }}
+          />
+          <p className="text-dark font-semibold text-center text-lg">
+            Chưa có sản phẩm nào trong giỏ hàng!
+          </p>
+        </div>
 
+      </>
+    );
+  };
   return (
     <>
       <div>
@@ -366,9 +467,18 @@ function BanHangTaiQuay() {
                   )}
                 </div>
               </button>
-              <button className="text-red-500">
+              <button
+                onClick={() => void huyHoaDonTheoId(b.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
                 <FaTimes size={16} />
               </button>
+
             </div>
           ))}
           <button onClick={handleAddBill} ><CgAdd size={26} /></button>
@@ -460,83 +570,92 @@ function BanHangTaiQuay() {
           </div>  <hr className="border-t-1.5 border-gray-600" />
 
           {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="right">Stt</TableCell>
-                  <TableCell align="center">Sản phẩm</TableCell>
-                  <TableCell align="right">Đơn giá</TableCell>
-                  <TableCell align="right">Số lượng</TableCell>
-                  <TableCell align="right">Thành tiền</TableCell>
-                  <TableCell align="center">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {product.map((pr, index) => (
-                  <TableRow
-                    key={pr.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell align="right">{index + 1}</TableCell>
-                    <TableCell component="th" scope="row" align="center">
-                      {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
-                    </TableCell>
-                    <TableCell align="right">{pr.price}</TableCell>
-                    <TableCell align="right">{pr.quantity}</TableCell>
-                    <TableCell align="right">{pr.totalPrice}</TableCell>
-                    <TableCell align="center" style={{}}>
-                      <div className="right space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button className="bg-white-500 border border-black rounded-sm border-opacity-50
-                           text-black hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail)}>
-                              Cập nhật
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[500px]">
-                            <TableContainer>
-                              <Table>
-                                <TableHead>
-                                  <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell>Stt</TableCell>
-                                    <TableCell>Imei code</TableCell>
-                                  </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                  {listImei.map((im, index) => (
-                                    <TableRow key={im.id}>
-                                      <TableCell>
-                                        <div className="flex items-center space-x-2">
-                                          <Checkbox
-                                            checked={selectedImei.includes(im.id)}
-                                            onCheckedChange={() => handleCheckboxChange(im.id)}
-                                          />
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>{index + 1}</TableCell>
-                                      <TableCell>{im.imeiCode}</TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </TableContainer>
-                            <Button className="bg-black text-white hover:bg-gray-600" onClick={handleAddImei}>
-                              Chọn
-                            </Button>
-                          </DialogContent>
-                        </Dialog>
 
-                        <Button className="bg-black text-white hover:bg-gray-600" onClick={() => deleteBillDetail(pr.id)}>
-                          Xóa
-                        </Button>
-                      </div>
-                    </TableCell>
+          {product.length === 0 ? (
+            <CartEmpty />
+
+
+          ) : (
+
+
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="right">Stt</TableCell>
+                    <TableCell align="center">Sản phẩm</TableCell>
+                    <TableCell align="right">Đơn giá</TableCell>
+                    <TableCell align="right">Số lượng</TableCell>
+                    <TableCell align="right">Thành tiền</TableCell>
+                    <TableCell align="center">Action</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {product.map((pr, index) => (
+                    <TableRow
+                      key={pr.id}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell align="right">{index + 1}</TableCell>
+                      <TableCell component="th" scope="row" align="center">
+                        {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
+                      </TableCell>
+                      <TableCell align="right">{pr.price} VND</TableCell>
+                      <TableCell align="right">{pr.quantity}</TableCell>
+                      <TableCell align="right">{pr.totalPrice} VND</TableCell>
+                      <TableCell align="center" style={{}}>
+                        <div className="right space-x-2">
+                          <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
+                            <DialogTrigger asChild>
+                              <Button className="bg-white-500 border border-black rounded-sm border-opacity-50
+                           text-black hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
+                                Cập nhật
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[500px]">
+                              <TableContainer>
+                                <Table>
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell></TableCell>
+                                      <TableCell>Stt</TableCell>
+                                      <TableCell>Imei code</TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {listImei.map((im, index) => (
+                                      <TableRow key={im.id}>
+                                        <TableCell>
+                                          <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                              checked={selectedImei.includes(im.id)}
+                                              onCheckedChange={() => handleCheckboxChange(im.id)}
+                                            />
+                                          </div>
+                                        </TableCell>
+                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{im.imeiCode}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                              <Button className="bg-black text-white hover:bg-gray-600" onClick={handleAddImei}>
+                                Chọn
+                              </Button>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Button className="bg-black text-white hover:bg-gray-600" onClick={() => deleteBillDetail(pr.id)}>
+                            Xóa
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Main>
       </div>
       <br />
@@ -583,6 +702,7 @@ function BanHangTaiQuay() {
                             <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
                               Chọn
                             </Button>
+
                           </TableCell>
                         </TableRow>
                       ))}
@@ -591,32 +711,31 @@ function BanHangTaiQuay() {
                 </TableContainer>
               </DialogContent>
             </Dialog>
+            <ToastContainer />
           </div>
         </div>
         <hr className="border-t-1.5 border-gray-600" />
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mã</TableCell>
-                <TableCell>Họ và tên</TableCell>
-                <TableCell>Số điện thoại</TableCell>
-                <TableCell>Địa chỉ</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {listKhachHang.map((ac) => (
-                <TableRow key={ac.id}>
-                  <TableCell>{ac.code}</TableCell>
-                  <TableCell>{ac.fullName}</TableCell>
-                  <TableCell>{ac.phone}</TableCell>
-                  <TableCell>{ac.address}</TableCell>
+        {/* Thông tin khách hàng */}
+        <div className="p-4 max-w-3xl" >
+          <div className="flex justify-between pb-2 mb-2 gap-4 pt-5">
+            <div className="flex items-center gap-2">
+              <span className='whitespace-nowrap pr-5'>Tên khách hàng </span> <Input type="email" placeholder="Tên khách hàng"
+               value={listKhachHang?.fullName == null ? "" : listKhachHang?.fullName} />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-16 whitespace-nowrap">Email</span>
+               <Input type="email" placeholder="Email" className='h-[35px]' value={listKhachHang?.email == null ? "" : listKhachHang?.email} />
+            </div>
+          </div>
+          <div className="flex justify-between  pb-2 mb-2">
+            <div className="flex items-center gap-2">
+              <span className='whitespace-nowrap pr-10'>Số điện thoại</span>
+               <Input type="email" placeholder="Số điện thoại" value={listKhachHang?.phone == null ? "" : listKhachHang?.phone}/>
+            </div>
+          </div>
+        
+        </div>
 
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
       </div> <br />
       <div className='p-2 bg-white
            rounded-lg shadow-md border border-gray-300 mr-1.5'
@@ -630,132 +749,200 @@ function BanHangTaiQuay() {
             <Button variant="outline"
               className="border border-gray-500 rounded-lg
              hover:border-orange-600 hover:text-orange-600 px-3 text-2xs">
+
+              <Dialog >
+                <DialogTrigger asChild>
+                  <Checkbox id="terms" />
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[980px]">
+                  <div className="p-6 bg-white rounded-lg shadow-lg">
+                    <h3 className=" font-semibold mb-4">Địa chỉ giao hàng</h3>
+                    <div className="grid gap-4">
+                      {/* Tỉnh / Thành phố */}
+                      <div className="flexflex-wrap">
+                        <label className="text-gray-700">
+                          Tỉnh / Thành phố
+                        </label>
+                        <Select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Danh sách</SelectLabel>
+                              <SelectItem value="hcm">Hồ Chí Minh</SelectItem>
+                              <SelectItem value="hanoi">Hà Nội</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Quận / Huyện */}
+                      <div className="flex flex-wrap">
+                        <label className="text-gray-700 font-medium mb-1">
+                          Quận / Huyện
+                        </label>
+                        <Select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Chọn Quận / Huyện" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Danh sách</SelectLabel>
+                              <SelectItem value="q1">Quận 1</SelectItem>
+                              <SelectItem value="q3">Quận 3</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Phường / Xã */}
+                      <div className="flex flex-wrap">
+                        <label className="text-gray-700 font-medium mb-1">Phường / Xã</label>
+                        <Select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Chọn Phường / Xã" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Danh sách</SelectLabel>
+                              <SelectItem value="pbennghe">Phường Bến Nghé</SelectItem>
+                              <SelectItem value="ptandinh">Phường Tân Định</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Số nhà, tên đường */}
+                      <div className="flex flex-wrap">
+                        <label className="text-gray-700 font-medium mb-1">
+                          Số nhà, tên đường
+                        </label>
+                        <Input type="email" placeholder="Nhập số nhà, tên đường" />
+                      </div>
+
+                      {/* Ghi chú */}
+                      <div className="flex flex-wrap">
+                        <label className="text-gray-700 font-medium mb-1">Ghi chú</label>
+                        <Input type="email" placeholder="Nhập ghi chú (nếu có)" />
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
               Bán giao hàng
             </Button>
-            
-            <Dialog>
-              <DialogTrigger asChild>
-              <Button variant="outline"
+            <Button variant="outline"
               className="text-blue-600 border border-blue-500 
              rounded-lg px-3  text-2xs
              hover:text-red-700 hover:border-red-700 ">
               Thanh toán
             </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[980px]">
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Stt</TableCell>
-                        <TableCell>Mã</TableCell>
-                        <TableCell>Họ và tên</TableCell>
-                        <TableCell>Số điện thoại</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Địa chỉ</TableCell>
-                        <TableCell>Thao Tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {listAccount.map((ac, index) => (
-                        <TableRow key={ac.id}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{ac.code}</TableCell>
-                          <TableCell>{ac.fullName}</TableCell>
-                          <TableCell>{ac.phone}</TableCell>
-                          <TableCell>{ac.email}</TableCell>
-                          <TableCell>{ac.address}</TableCell>
-                          <TableCell>
-                            <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
-                              Chọn
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </DialogContent>
-            </Dialog>
+
           </div>
         </div>
-        <hr className="border-t-1.5 border-gray-600" /><br />
-        <div className="ml-auto mr-5 w-fit text-lg">
-          <div className="mb-4 flex items-center gap-2">
-            <p className="font-bold text-base">Mã Giảm Giá</p>
-            <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
-              <span className="text-gray-700 font-semibold text-sm">Voucher122</span>
-              <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
-            </div>
-            {/* <button className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500">
-          Chọn Mã Giảm Giá
-        </button> */}
+        <hr className=" border-gray-600" /><br />
 
-            <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
-              <DialogTrigger asChild>
-                <Button variant="outline"
-                  className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500">
-                  Chọn Mã Giảm Giá
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[980px]">
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Stt</TableCell>
-                        <TableCell>Mã</TableCell>
-                        <TableCell>Họ và tên</TableCell>
-                        <TableCell>Số điện thoại</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Địa chỉ</TableCell>
-                        <TableCell>Thao Tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {listAccount.map((ac, index) => (
-                        <TableRow key={ac.id}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{ac.code}</TableCell>
-                          <TableCell>{ac.fullName}</TableCell>
-                          <TableCell>{ac.phone}</TableCell>
-                          <TableCell>{ac.email}</TableCell>
-                          <TableCell>{ac.address}</TableCell>
-                          <TableCell>
-                            <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
-                              Chọn
-                            </Button>
-                          </TableCell>
+        <div className="grid grid-cols-2  ">
+          {/* Cột 1 */}
+          .
+          {/* Cột 2 */}
+          <div className="ml-auto mr-5 w-fit text-lg">
+            <div className="mb-4 flex items-center gap-2">
+              <p className="font-bold text-base">Mã Giảm Giá</p>
+              <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
+                <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
+                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
+              </div>
+              <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="text-dark"
+                    style={{
+                      marginBottom: "3px",
+                      fontSize: "13.5px",
+                      fontWeight: "500",
+                    }}>
+                    {/* // className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500"> */}
+                    {/* Chọn Mã Giảm Giá */}
+                    {/* <span */}
+
+                    {/* > */}
+                    Chọn Mã Giảm Giá
+                    {/* </span> */}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[980px]">
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Stt</TableCell>
+                          <TableCell>Mã</TableCell>
+                          <TableCell>Giá min</TableCell>
+                          <TableCell>Giá max</TableCell>
+                          <TableCell>Giá trị giảm</TableCell>
+                          <TableCell>Kiểu</TableCell>
+                          <TableCell>Số lượng </TableCell>
+                          <TableCell>Số lượng </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </DialogContent>
-            </Dialog>
-          </div>
-          <div className="space-y-2" >
-            <p className="flex text-base justify-between">
-              Tổng tiền hàng: <span className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</span>
-            </p>
-            <p className="flex justify-between text-base">
-              Giảm giá: <span className="font-semibold ">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal}đ</span>
-            </p>
-            <p className="flex justify-between text-base">
-              Khách cần trả: <span className=" font-semibold">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</span>
-            </p>
-            <p className="flex justify-between text-base font-bold text-red-700">
-              Khách thanh toán: <span className=" font-semibold" style={{ paddingLeft: '100px' }}>{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</span>
-            </p>
-            <p className="flex justify-between text-base font-bold text-red-700">
-              Tiền thừa trả khách: <span className=" font-semibold">{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</span>
-            </p>
-          </div>
-        </div><br /><br />
-      </div>
-      <br /> <br />
+                      </TableHead>
+                      <TableBody>
+                        {ListVoucherTheoAccount.map((ac, index) => (
+                          <TableRow key={ac.id}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{ac.code}</TableCell>
+                            <TableCell>{ac.conditionPriceMin}</TableCell>
+                            <TableCell>{ac.conditionPriceMax}</TableCell>
+                            <TableCell>{ac.discountValue}</TableCell>
+                            <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
+                            <TableCell>{ac.quantity}</TableCell>
+                            <TableCell>
+                              <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
+                                Chọn
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="space-y-1" >
 
+              <div className="bg-white p-6 rounded-lg shadow">
+                <div className="space-y-4">
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="text-gray-700">Tổng tiền hàng: </span>
+                    <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</p>
+                  </div>
+                  <div className="flex justify-between border-b pb-2">
+                    <p className="text-gray-700">Giảm giá:</p>
+                    <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal} đ</p>
+                  </div>
+                  <div className="flex justify-between border-b pb-2">
+                    <p className="text-gray-700">Khách cần trả:</p>
+                    <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</p>
+                  </div>
+                  <div className="flex justify-between border-b pb-2">
+                    <p className="text-gray-700"> Khách thanh toán:</p>
+                    <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</p>
+                  </div>
+                </div>
 
+                {/* Tổng tiền */}
+                <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
+                  <p>Tiền thừa trả khách:</p>
+                  <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</p>
+                </div>
+              </div>
+              <Button variant="outline" >Xác nhận thanh toán</Button>
+
+            </div>
+          </div>
+        </div>
+      </div><br /><br />
     </>
   );
 }

@@ -75,20 +75,6 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
          return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
 
-//
-//    @Override
-//    public void updateStartusImei(ImeiSoldDto imeiSoldDto) {
-//
-//        List<Imei> imeis = imeiRepository.findByIdIn(imeiSoldDto.getId_Imei());
-//        if (!imeis.isEmpty()) {
-//            imeiRepository.saveAll(imeis);
-//        }
-//        for (Imei imei : imeis) {
-//            imei.setStatus(StatusImei.NOT_SOLD);
-//        }
-//        imeiRepository.saveAll(imeis);
-//    }
-
     @Override
     public void deleteImeiSold(Integer idBillDetail){
         List<Imei> imeis = imeiSoldRepository.searchImeiSold(idBillDetail);

@@ -32,7 +32,7 @@ public class AccountService {
         );
         Account account = new Account();
         account.setFullName(request.getFullName());
-        account.setCode("USER_"+ accountRepository.getNewCode());
+        account.setCode("USER_" + accountRepository.getNewCode());
         account.setEmail(request.getEmail());
         account.setPassword(request.getPassword());
         account.setPhone(request.getPhone());
@@ -111,12 +111,14 @@ public class AccountService {
     }
 
 
-    public List<AccountResponse> getByAccount(Integer idBill) {
+    public AccountResponse getByAccount(Integer idBill) {
         try {
             billRepository.findById(idBill).orElseThrow(() -> new RuntimeException("Không tìm thấy bill" + idBill));
-            List<Account> accounts = accountRepository.getByAccount(idBill);
-            return accounts.stream().map(this::convertToResponse)
-                    .collect(Collectors.toList());
+            Account accounts = accountRepository.getByAccount(idBill);
+            if (accounts == null) {
+                return new AccountResponse(); // Trả về đối tượng rỗng thay vì null
+            }
+            return convertToResponse(accounts);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());

@@ -67,8 +67,8 @@ public class ImeiServiceImpl implements ImeiService {
     }
 
     @Override
-    public List<ImeiDto> findImeiByIdProDaBan(Integer id) {
-        List<Imei> imeis= imeiRepository.getAllImeiChuaBan(StatusImei.SOLD, id);
+    public List<ImeiDto> findImeiByIdProDaBan(Integer idProduct, Integer idBillDetail) {
+        List<Imei> imeis= imeiRepository.getAllImeiDaBan(StatusImei.SOLD, idProduct,idBillDetail);
         return imeis.stream().map(this::imeiDto)
                 .collect(Collectors.toList());
     }

@@ -128,7 +128,6 @@ importers:
       react-hook-form:
         specifier: ^7.54.0
         version: 7.54.0(react@19.0.0)
-<<<<<<< HEAD
       react-icon:
         specifier: 1.0.0
         version: 1.0.0(babel-runtime@5.8.38)(react@19.0.0)
@@ -138,11 +137,9 @@ importers:
       react-router-dom:
         specifier: 7.2.0
         version: 7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-=======
       react-toastify:
         specifier: ^11.0.5
         version: 11.0.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
->>>>>>> feature_hieu
       recharts:
         specifier: ^2.14.1
         version: 2.14.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)

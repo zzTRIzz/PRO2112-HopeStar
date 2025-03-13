@@ -21,10 +21,14 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
     List<Imei> getAllImeiChuaBan(@Param("status") StatusImei statusImei,
                                  @Param("id") Integer id);
 
-//    @Query("select i from Imei i " +
-//            "where i.status = :status and i.productDetail.id = :id")
-//    List<Imei> getAllImeiDaBan(@Param("status") StatusImei statusImei,
-//                                 @Param("id") Integer id);
+    @Query("select i from Imei i " +
+            "join ImeiSold iSold on iSold.id_Imei.id = i.id " +
+            "where i.status = :status and i.productDetail.id = :idProduct " +
+            "and iSold.idBillDetail.id = :idBillDetail")
+    List<Imei> getAllImeiDaBan(@Param("status") StatusImei statusImei,
+                                 @Param("idProduct") Integer idProduct,
+                                 @Param("idBillDetail") Integer idBillDetail
+    );
 
 
     @Query("select i from Imei i " +

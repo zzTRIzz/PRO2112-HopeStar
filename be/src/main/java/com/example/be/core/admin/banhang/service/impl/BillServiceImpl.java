@@ -5,6 +5,10 @@ import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
+import com.example.be.core.admin.banhang.service.ImeiSoldService;
+import com.example.be.core.admin.products_management.service.ProductDetailService;
+import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
+import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +57,14 @@ public class BillServiceImpl implements BillService {
     @Autowired
     DeliveryMethodRepository deliveryMethodRepository;
 
+    @Autowired
+    VoucherMapper voucherMapper;
+
+    @Autowired
+    ProductDetailService productDetailService;
+
+    @Autowired
+    ImeiSoldService imeiSoldService;
 
     @Override
     public List<BillDto> getAllBill() {
@@ -211,10 +224,10 @@ public class BillServiceImpl implements BillService {
                 tongSauKhiGiam = bill.getTotalPrice();
             } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
                 tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
-                voucherService.updateSoLuongVoucher(voucher.getId()); // Giảm số lượng voucher
+//                voucherService.updateSoLuongVoucher(voucher.getId()); // Giảm số lượng voucher
             } else {
                 tongSauKhiGiam = BigDecimal.ZERO;
-                voucherService.updateSoLuongVoucher(voucher.getId());
+//                voucherService.updateSoLuongVoucher(voucher.getId());
             }
             BigDecimal tongTienGiamGia = bill.getTotalPrice().subtract(tongSauKhiGiam);
             // Cập nhật lại hóa đơn với khách hàng và voucher
@@ -264,6 +277,12 @@ public class BillServiceImpl implements BillService {
             Bill bill = billRepository.findById(idBill).orElseThrow(
                     () -> new RuntimeException("Bill not found with id:" + idBill)
             );
+            List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
+            for (BillDetail bd: billDetail) {
+                imeiSoldService.deleteImeiSold(bd.getId());
+                productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
+                productDetailService.updateStatusProduct(bd.getIdProductDetail().getId());
+            }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
         } catch (Exception e) {
@@ -337,6 +356,35 @@ public class BillServiceImpl implements BillService {
         }
     }
 
+
+    @Override
+    public VoucherResponse hienThiVoucherTheoBill(Integer idBill) {
+        Bill bill = billRepository.findById(idBill).orElseThrow(
+                () -> new RuntimeException("Bill not found with id:" + idBill));
+
+        if (bill.getIdVoucher() != null) {
+            Voucher voucher = voucherRepository.findByIdVoucher(idBill);
+            return voucherMapper.toResponse(voucher);
+        }else {
+            return new VoucherResponse();
+        }
+    }
+
+    @Override
+    public List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill) {
+        Bill bill = billRepository.findById(idBill).orElseThrow(
+                () -> new RuntimeException("Bill not found with id: " + idBill));
+
+        if (bill.getIdAccount() == null) {
+            return Collections.emptyList(); // Trả về danh sách rỗng thay vì null
+        }
+
+        List<Voucher> vouchers = voucherRepository.findByIdAccount(bill.getIdAccount().getId());
+
+        return vouchers.stream()
+                .map(voucherMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 
 }
 

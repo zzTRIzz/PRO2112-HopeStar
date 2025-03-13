@@ -12,11 +12,8 @@ public interface VoucherService {
     List<VoucherResponse> getAll();
     VoucherResponse add(VoucherRequest request);
     VoucherResponse update(Integer id, VoucherRequest request);
-<<<<<<< HEAD
-
     void updateSoLuongVoucher(Integer idVoucher);
-=======
     List<Voucher> findByCode(String code);
     List<VoucherResponse> findByDate(String startTime,String endTime);
->>>>>>> feature_hieu
+
 }

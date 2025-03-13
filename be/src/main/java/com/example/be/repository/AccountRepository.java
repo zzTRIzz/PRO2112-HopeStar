@@ -23,5 +23,5 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
 
     @Query("select a from  Account a " +
             "where a.id = (select b.idAccount.id from Bill b where b.id = :idBill)")
-    List<Account> getByAccount(@Param("idBill") Integer idBill);
+    Account getByAccount(@Param("idBill") Integer idBill);
 }

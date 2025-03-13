@@ -2,6 +2,7 @@ package com.example.be.core.admin.banhang.service;
 
 
 import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
 import com.example.be.entity.Bill;
 
@@ -37,4 +38,7 @@ public interface BillService {
 
     BillDto createDatHangOnline(BillDto billDto);
 
+    VoucherResponse hienThiVoucherTheoBill(Integer idBill);
+
+    List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill);
 }

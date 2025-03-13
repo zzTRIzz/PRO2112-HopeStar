@@ -17,6 +17,7 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
   List<BillDetail> findByIdBill(@Param("idBill") Integer idBill);
 
 
+
   @Modifying
   @Transactional
    @Query("DELETE FROM BillDetail bd WHERE bd.idBill.id = :idBill")

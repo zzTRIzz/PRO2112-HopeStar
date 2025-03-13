@@ -138,9 +138,9 @@ export const findImeiById = async (idProductDetail: number) => {
     }
 }
 // Tìm kiếm Imei theo idProductDetail
-export const findImeiByIdProductDaBan = async (idProductDetail: number) => {
+export const findImeiByIdProductDaBan = async (idProductDetail: number,idBillDetail : number) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/findImeiByIdProductDetailDaBan/${idProductDetail}`);
+        const response = await axios.get(`${API_BASE_URL}/findImeiByIdProductDetailDaBan/${idProductDetail}/${idBillDetail}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -159,6 +159,39 @@ export const createImeiSold = async (imeiSold: ImeiSoldSchema,
         return response.data;
     } catch (error) {
         console.error('Error add imei sold data:', error);
+        throw error;
+    }
+}
+
+// Lấy mã voucher đang sử dụng 
+export const getVoucherDangSuDung = async (idBillHienTai: number) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/findByVoucher/${idBillHienTai}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+// Lấy dữ liệu data của vocher theo account
+export const findVoucherByAccount = async (idBillHienTai: number) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/hienThiByVoucher/${idBillHienTai}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+// Lấy dữ liệu data của vocher theo account
+export const huyHoaDon = async (idBillCanHuy: number) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
         throw error;
     }
 }
