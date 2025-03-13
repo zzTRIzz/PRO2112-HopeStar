@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Wifi;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.WifiRepository;
 import com.example.be.core.admin.atribute_management.service.product.WifiService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,10 @@ public class WifiServiceImpl implements WifiService {
     public Wifi getById(Integer id) throws Exception {
         return wifiRepository.findById(id).orElseThrow(()->
                 new Exception("wifi not found with id: " + id));
+    }
+
+    @Override
+    public List<Wifi> getAllActive() {
+        return wifiRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

@@ -23,11 +23,11 @@ const columns: ColumnDef<Bluetooth>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const bluetooth = row.original as Bluetooth
       return <StatusSwitch bluetooth={bluetooth} />
@@ -51,7 +51,7 @@ export default function Bluetooth() {
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Bluetooth</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your bluetooths!
+              Đây là danh sách các bluetooth của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

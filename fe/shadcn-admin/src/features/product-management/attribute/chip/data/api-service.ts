@@ -13,6 +13,16 @@ export const getChip = async () => {
   }
 };
 
+export const getChipActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/chip/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addChip = async (chip: Chip) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/chip`, chip);

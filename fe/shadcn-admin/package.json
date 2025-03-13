@@ -13,6 +13,8 @@
     "knip": "knip"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
@@ -48,15 +50,18 @@
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.0",
+    "react-spinners": "^0.15.0",
     "recharts": "^2.14.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@faker-js/faker": "^9.3.0",
+    "@mui/material": "6.4.6",
     "@tanstack/eslint-plugin-query": "^5.62.1",
     "@tanstack/react-query-devtools": "^5.62.3",
     "@tanstack/router-devtools": "^1.86.1",

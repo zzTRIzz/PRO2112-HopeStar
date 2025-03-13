@@ -22,6 +22,7 @@ public class ProductResponse {
     private List<String> frontCamera;
     private List<String> rearCamera;
     private List<String> category;
+    private List<String> sim;
     private Boolean nfc;
     private String typeBattery;
     private String chargerType;

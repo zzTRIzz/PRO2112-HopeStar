@@ -4,6 +4,7 @@ import com.example.be.core.admin.products_management.dto.model.ProductDetailDTO;
 import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.entity.ProductDetail;
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.repository.ColorRepository;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.RamRepository;
@@ -38,9 +39,9 @@ public class ProductDetailMapper {
         ProductDetailDTO dto = new ProductDetailDTO();
         dto.setPriceSell(request.getPriceSell());
         dto.setInventoryQuantity(request.getInventoryQuantity());
-        dto.setStatus(request.getProductDetailStatus());
+        dto.setStatus(ProductDetailStatus.ACTIVE);
         dto.setImageUrl(request.getImageUrl());
-        dto.setIdColor(request.getIdColors());
+        dto.setIdColor(request.getIdColor());
         dto.setIdRam(request.getIdRam());
         dto.setIdRom(request.getIdRom());
 

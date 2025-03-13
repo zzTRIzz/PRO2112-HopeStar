@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Resolution;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ResolutionRepository;
 import com.example.be.core.admin.atribute_management.service.product.ResolutionService;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,10 @@ public class ResolutionServiceImpl implements ResolutionService {
     public Resolution getById(Integer id) throws Exception {
         return resolutionRepository.findById(id).orElseThrow(()->
                 new Exception("resolution not found with id: " + id));
+    }
+
+    @Override
+    public List<Resolution> getAllActive() {
+        return null;
     }
 }

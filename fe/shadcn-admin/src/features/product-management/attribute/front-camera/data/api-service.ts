@@ -13,6 +13,16 @@ export const getFrontCamera = async () => {
   }
 };
 
+export const getFrontCameraActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/front-camera/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addFrontCamera = async (frontCamera: FrontCamera) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/front-camera`, frontCamera);

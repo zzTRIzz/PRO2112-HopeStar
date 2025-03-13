@@ -33,4 +33,10 @@ public class FormatController<E,S extends GenericService<E, Integer>> {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<E>> getAllActive(){
+        List<E> list =s.getAllActive();
+        return ResponseEntity.ok(list);
+    }
+
 }

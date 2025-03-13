@@ -7,12 +7,13 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { DataTable } from './components/data-table'
 import { TasksDialogs } from './components/product-dialogs'
+import { StatusSwitch } from './components/status-switch'
 import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import TasksProvider from './context/tasks-context'
 import { getProducts } from './data/api-service'
-import type { Product } from './data/schema'
+import type { ProductResponse } from './data/schema'
 
-const columns: ColumnDef<Product>[] = [
+const columns: ColumnDef<ProductResponse>[] = [
   {
     accessorKey: 'id',
     header: 'STT',
@@ -29,7 +30,7 @@ const columns: ColumnDef<Product>[] = [
     accessorKey: 'totalNumber',
     header: 'Total',
     cell: ({ row }) => {
-      const product = row.original as Product
+      const product = row.original as ProductResponse
       return (
         <div className='flex items-center gap-1'>
           <span>{product.totalNumber}</span>
@@ -43,11 +44,15 @@ const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
+    cell: ({ row }) => {
+      const product = row.original as ProductResponse
+      return <StatusSwitch product={product} />
+    },
   },
 ]
 
 export default function Product() {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 

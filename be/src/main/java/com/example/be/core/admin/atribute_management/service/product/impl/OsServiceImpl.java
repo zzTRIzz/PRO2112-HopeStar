@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Os;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.OsRepository;
 import com.example.be.core.admin.atribute_management.service.product.OsService;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,10 @@ public class OsServiceImpl implements OsService {
     public Os getById(Integer id) throws Exception {
         return osRepository.findById(id).orElseThrow(()->
                 new Exception("os not found with id: " + id));
+    }
+
+    @Override
+    public List<Os> getAllActive() {
+        return osRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

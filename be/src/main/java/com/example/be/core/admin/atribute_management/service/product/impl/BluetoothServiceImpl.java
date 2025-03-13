@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Bluetooth;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BluetoothRepository;
 import com.example.be.core.admin.atribute_management.service.product.BluetoothService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,10 @@ public class BluetoothServiceImpl implements BluetoothService {
     public Bluetooth getById(Integer id) throws Exception {
         return bluetoothRepository.findById(id).orElseThrow(()->
                 new Exception("bluetooth not found with id: " + id));
+    }
+
+    @Override
+    public List<Bluetooth> getAllActive() {
+        return bluetoothRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

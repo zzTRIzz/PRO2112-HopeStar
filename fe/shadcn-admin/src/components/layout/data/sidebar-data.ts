@@ -48,11 +48,11 @@ export const sidebarData: SidebarData = {
         }
         ,
         {
-          title: 'Product Management',
+          title: 'Quản lý sản phẩm',
           icon: IconDeviceMobile,
           items: [
             {
-              title: 'Product',
+              title: 'Sản phẩm',
               url: '/product',
               icon: IconPointFilled,
             },
@@ -72,63 +72,8 @@ export const sidebarData: SidebarData = {
               icon: IconPointFilled,
             },
             {
-              title: 'Color',
-              url: '/product/color',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Battery',
+              title: 'Pin',
               url: '/product/battery',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Bluetooth',
-              url: '/product/bluetooth',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Brand',
-              url: '/product/brand',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Card',
-              url: '/product/card',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Category',
-              url: '/product/category',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Chip',
-              url: '/product/chip',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Front Camera',
-              url: '/product/front-camera',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Os',
-              url: '/product/os',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Rear Camera',
-              url: '/product/rear-camera',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Resolution',
-              url: '/product/resolution',
-              icon: IconPointFilled,
-            },
-            {
-              title: 'Screen',
-              url: '/product/screen',
               icon: IconPointFilled,
             },
             {
@@ -137,8 +82,63 @@ export const sidebarData: SidebarData = {
               icon: IconPointFilled,
             },
             {
+              title: 'Chip',
+              url: '/product/chip',
+              icon: IconPointFilled,
+            },
+            {
               title: 'Wifi',
               url: '/product/wifi',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Bluetooth',
+              url: '/product/bluetooth',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Màu sắc',
+              url: '/product/color',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Thẻ nhớ',
+              url: '/product/card',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Phân giải',
+              url: '/product/resolution',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Màn hình',
+              url: '/product/screen',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Danh mục',
+              url: '/product/category',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Thương hiệu',
+              url: '/product/brand',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Camera trước',
+              url: '/product/front-camera',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Camera sau',
+              url: '/product/rear-camera',
+              icon: IconPointFilled,
+            },
+            {
+              title: 'Hệ điều hành',
+              url: '/product/os',
               icon: IconPointFilled,
             },
           ]

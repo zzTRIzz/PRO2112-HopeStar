@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.entity.Rom;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.RomRepository;
 import com.example.be.core.admin.atribute_management.service.product_detail.RomService;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,10 @@ public class RomServiceImpl implements RomService {
     public Rom getById(Integer id) throws Exception {
         return romRepository.findById(id).orElseThrow(()->
                 new Exception("rom not found with id: " + id));
+    }
+
+    @Override
+    public List<Rom> getAllActive() {
+        return romRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

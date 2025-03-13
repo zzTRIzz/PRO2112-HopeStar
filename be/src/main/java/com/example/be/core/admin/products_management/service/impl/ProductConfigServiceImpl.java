@@ -44,6 +44,8 @@ public class ProductConfigServiceImpl implements ProductConfigService {
     private final ImeiMapper imeiMapper;
     private final BarcodeGenerator barcodeGenerator;
     private final ImeiRepository imeiRepository;
+    private final SimRepository simRepository;
+    private final ProductSimRepository productSimRepository;
 
     @Override
     public ProductConfigResponse create(ProductConfigRequest productConfigRequest) throws Exception {
@@ -121,6 +123,20 @@ public class ProductConfigServiceImpl implements ProductConfigService {
             productCategoryRepository.save(productCategory);
         });
 
+        productDTO.getSim().forEach((item)->{
+            ProductSim productSim = new ProductSim();
+            productSim.setProduct(createProduct);
+            Sim sim =null;
+            try {
+                sim = simRepository.findById(Integer.parseInt(item)).orElseThrow(()->
+                        new Exception("category not found:"+item));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            productSim.setSim(sim);
+            productSimRepository.save(productSim);
+        });
+
         ProductResponse productResponse = productMapper.dtoToResponse(productMapper.entityToDTO(createProduct));
 
         List<ProductDetailResponse> productDetailRespons1s = new ArrayList<>();
@@ -129,7 +145,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
                 ProductDetailDTO productDetailDTO = productDetailMapper.requestToDTO(item);
                 productDetailDTO.setCode("PRDE_"+productDetailRepository.getNewCode());
-                productDetailDTO.setStatus(ProductDetailStatus.ACTIVE);
+//                productDetailDTO.setStatus(ProductDetailStatus.ACTIVE);
 
                 ProductDetail productDetail = productDetailMapper.dtoToEntity(productDetailDTO);
                 productDetail.setProduct(createProduct);
@@ -140,7 +156,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
                     for (ProductImeiRequest imeiRequest : item.getProductImeiRequests()){
                         ProductImeiDTO productImeiDTO = imeiMapper.requestToDTO(imeiRequest);
                         productImeiDTO.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
-                        productImeiDTO.setStatusImei(StatusImei.NOT_SOLD);
+//                        productImeiDTO.setStatusImei(StatusImei.NOT_SOLD);
 
                         Imei imei = imeiMapper.dtoToEntity(productImeiDTO);
                         imei.setProductDetail(createProductDetail);
