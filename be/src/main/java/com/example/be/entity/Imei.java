@@ -20,9 +20,9 @@ public class Imei extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Size(max = 10)
+    @Size(max = 15)
     @NotNull
-    @Column(name = "imei_code", nullable = false, length = 10)
+    @Column(name = "imei_code", nullable = false, length = 15)
     private String imeiCode;
 
 

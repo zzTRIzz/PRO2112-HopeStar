@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { CHARGER_TYPES, ProductConfigRequest } from './data/schema'
+import { CHARGER_TYPES, ProductConfigRequest } from '../../data/schema'
 
 interface ProductFormProps {
   control: Control<ProductConfigRequest>

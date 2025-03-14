@@ -1,8 +1,8 @@
 import { Row } from '@tanstack/react-table'
-import { IconClipboardText, IconEye, IconPencil } from '@tabler/icons-react'
+import { IconEye, IconPencil } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { useTasks } from '../context/tasks-context'
-import { productSchema } from '../data/schema'
+import { productResponseSchema } from '../data/schema'
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -11,7 +11,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const product = productSchema.parse(row.original)
+  const product = productResponseSchema.parse(row.original)
   const { setOpen, setCurrentRow } = useTasks()
 
   return (

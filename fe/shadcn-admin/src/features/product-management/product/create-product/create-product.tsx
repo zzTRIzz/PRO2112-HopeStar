@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -7,25 +7,29 @@ import { BeatLoader } from 'react-spinners'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { getBatteryActive } from '../attribute/battery/data/api-service'
-import { getBluetoothActive } from '../attribute/bluetooth/data/api-service'
-import { getBrandActive } from '../attribute/brand/data/api-service'
-import { getCardActive } from '../attribute/card/data/api-service'
-import { getCategoryActive } from '../attribute/category/data/api-service'
-import { getChipActive } from '../attribute/chip/data/api-service'
-import { getColorActive } from '../attribute/color/data/api-service'
-import { getFrontCameraActive } from '../attribute/front-camera/data/api-service'
-import { getOsActive } from '../attribute/os/data/api-service'
-import { getRamActive } from '../attribute/ram/data/api-service'
-import { getRearCameraActive } from '../attribute/rear-camera/data/api-service'
-import { getRomActive } from '../attribute/rom/data/api-service'
-import { getScreenActive } from '../attribute/screen/data/api-service'
-import { getSimActive } from '../attribute/sim/data/api-service'
-import { getWifiActive } from '../attribute/wifi/data/api-service'
-import { createProduct } from './data/api-service'
-import { ProductConfigRequest, productConfigRequestSchema } from './data/schema'
-import { ProductDetailForm } from './product-detail-form'
-import { ProductForm } from './product-form'
+import { getBatteryActive } from '../../attribute/battery/data/api-service'
+import { getBluetoothActive } from '../../attribute/bluetooth/data/api-service'
+import { getBrandActive } from '../../attribute/brand/data/api-service'
+import { getCardActive } from '../../attribute/card/data/api-service'
+import { getCategoryActive } from '../../attribute/category/data/api-service'
+import { getChipActive } from '../../attribute/chip/data/api-service'
+import { getColorActive } from '../../attribute/color/data/api-service'
+import { getFrontCameraActive } from '../../attribute/front-camera/data/api-service'
+import { getOsActive } from '../../attribute/os/data/api-service'
+import { getRamActive } from '../../attribute/ram/data/api-service'
+import { getRearCameraActive } from '../../attribute/rear-camera/data/api-service'
+import { getRomActive } from '../../attribute/rom/data/api-service'
+import { getScreenActive } from '../../attribute/screen/data/api-service'
+import { getSimActive } from '../../attribute/sim/data/api-service'
+import { getWifiActive } from '../../attribute/wifi/data/api-service'
+import { createProduct } from '.././data/api-service'
+import {
+  ProductConfigRequest,
+  productConfigRequestSchema,
+  ProductImeiRequest,
+} from '.././data/schema'
+import { ProductDetailForm } from './components/product-detail-form'
+import { ProductForm } from './components/product-form'
 
 const useFetchData = () => {
   const { data } = useQuery({
@@ -109,9 +113,19 @@ const useFetchData = () => {
 export default function CreateProduct() {
   const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(false)
+
   const [tableRows, setTableRows] = useState<
-    { ramId: number; romId: number; colorId: number }[]
-  >([]) // Thêm state để lưu trữ `tableRows`
+    {
+      idRam: number
+      idRom: number
+      idColor: number
+      price: number
+      inventoryQuantity?: number
+      productImeiRequests?: ProductImeiRequest[]
+      imageUrl: string
+    }[]
+  >([])
+
   const navigate = useNavigate()
 
   const {
@@ -169,24 +183,48 @@ export default function CreateProduct() {
     },
   })
 
+  useEffect(() => {
+    if (tableRows.length > 0) {
+      // Cập nhật productDetailRequests trong form
+      form.setValue(
+        'productDetailRequests',
+        tableRows.map((row) => ({
+          priceSell: row.price,
+          inventoryQuantity: row.inventoryQuantity || 0,
+          idRam: row.idRam,
+          idRom: row.idRom,
+          idColor: row.idColor,
+          productImeiRequests: row.productImeiRequests || [],
+          imageUrl: row.imageUrl || '',
+        }))
+      )
+    }
+  }, [tableRows, form.setValue])
+
   const onSubmit = useCallback(
     async (data: ProductConfigRequest) => {
-      setIsLoading(true) // Bật trạng thái loading
-      try {
-        // Xử lý dữ liệu từ bảng
-        const processedData = {
-          ...data,
-          productDetailRequests: tableRows.map((row) => ({
-            priceSell: 0, // Giá trị mặc định
-            inventoryQuantity: 0, // Giá trị mặc định
-            idRam: row.ramId,
-            idRom: row.romId,
-            idColor: row.colorId,
-            productImeiRequests: [], // Giá trị mặc định
-            imageUrl: '', // Giá trị mặc định
-          })),
-        }
+      console.log('Form submitted!')
+      console.log('Form data:', data)
+      console.log('Table rows:', tableRows)
 
+      // Xử lý dữ liệu từ bảng
+      const processedData = {
+        ...data,
+        productDetailRequests: tableRows.map((row) => ({
+          priceSell: row.price,
+          inventoryQuantity: row.inventoryQuantity || 0,
+          idRam: row.idRam,
+          idRom: row.idRom,
+          idColor: row.idColor,
+          productImeiRequests: row.productImeiRequests || [],
+          imageUrl: row.imageUrl || '',
+        })),
+      }
+
+      form.reset(processedData)
+      setIsLoading(true) // Bật trạng thái loading
+
+      try {
         await createProduct(processedData)
         await queryClient.invalidateQueries({ queryKey: ['products'] })
         toast({
@@ -196,6 +234,7 @@ export default function CreateProduct() {
         })
         navigate({ to: '/product' })
       } catch (error: any) {
+        console.error('Error:', error)
         const errorMessage =
           error.response?.data?.message || 'Failed to create product'
         toast({
@@ -207,15 +246,23 @@ export default function CreateProduct() {
         setIsLoading(false) // Tắt trạng thái loading dù thành công hay thất bại
       }
     },
-    [queryClient, navigate, tableRows]
+    [queryClient, navigate, tableRows, form.formState.errors]
   )
 
   return (
     <div className='h-full'>
-      <div className='mx-auto w-11/12 py-4'>
+      <div className='mx-auto w-11/12 py-4 pt-10'>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            {/* <ProductForm
+          <form
+            onSubmit={(e) => {
+              console.log('Form submit event triggered')
+              console.log('Validation errors:', form.formState.errors)
+              console.log('Table rows:', tableRows)
+              form.handleSubmit(onSubmit)(e)
+            }}
+            className='space-y-4'
+          >
+            <ProductForm
               control={form.control}
               batteries={batteries}
               bluetooths={bluetooths}
@@ -229,7 +276,7 @@ export default function CreateProduct() {
               screens={screens}
               sims={sims}
               wifis={wifis}
-            /> */}
+            />
 
             <FormProvider {...form}>
               <ProductDetailForm
@@ -250,14 +297,7 @@ export default function CreateProduct() {
                 Cancel
               </Button>
               <Button type='submit' disabled={isLoading}>
-                {isLoading ? (
-                  <div className='flex items-center gap-2'>
-                    <BeatLoader size={8} color='#ffffff' /> {/* Spinner */}
-                    <span>Creating...</span>
-                  </div>
-                ) : (
-                  'Create Product'
-                )}
+                {isLoading ? 'Creating...' : 'Create Product'}
               </Button>
             </div>
           </form>

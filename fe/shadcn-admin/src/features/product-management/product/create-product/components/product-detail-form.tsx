@@ -1,14 +1,6 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { IconDownload, IconTrash } from '@tabler/icons-react'
-import * as XLSX from 'xlsx'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -40,7 +32,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ProductConfigRequest } from './data/schema'
+import { ProductConfigRequest } from '../../data/schema'
+import { ProductImeiRequest } from '../../data/schema'
+import { AddImeiDialog } from './add-imei-dialog'
+import { ImageUploader } from './upload-image'
 
 // Hàm định dạng số với dấu phẩy ngăn cách hàng nghìn
 const formatNumberWithCommas = (value: number | string): string => {
@@ -64,7 +59,15 @@ interface ProductDetailFormProps {
   roms?: Option[]
   colors?: Option[]
   onTableRowsChange: (
-    rows: { ramId: number; romId: number; colorId: number; price: number }[]
+    rows: {
+      idRam: number
+      idRom: number
+      idColor: number
+      price: number
+      inventoryQuantity?: number
+      productImeiRequests?: { imeiCode: string }[]
+      imageUrl: string
+    }[]
   ) => void
 }
 
@@ -192,74 +195,50 @@ const ColorSelector: React.FC<{
 }
 
 interface ProductTableProps {
-  ramId: number
-  romId: number
+  idRam: number
+  idRom: number
   rams: Option[]
   roms: Option[]
   colors: Option[]
-  tableRows: { ramId: number; romId: number; colorId: number; price: number }[]
-  onDeleteRow: (ramId: number, romId: number, colorId: number) => void
-  onDeleteAll: (ramId: number, romId: number) => void
-  onSetGeneralPrice: (ramId: number, romId: number, price: number) => void
+  tableRows: {
+    idRam: number
+    idRom: number
+    idColor: number
+    price: number
+    inventoryQuantity?: number
+    productImeiRequests?: { imeiCode: string }[]
+  }[]
+  onDeleteRow: (idRam: number, idRom: number, idColor: number) => void
+  onDeleteAll: (idRam: number, idRom: number) => void
+  onSetGeneralPrice: (idRam: number, idRom: number, price: number) => void
   onPriceChange: (
-    ramId: number,
-    romId: number,
-    colorId: number,
+    idRam: number,
+    idRom: number,
+    idColor: number,
     price: number
   ) => void
-  onAddColors: (ramId: number, romId: number, colorIds: number[]) => void // Thêm prop mới
-}
-
-//imei
-const AddImeiDialog: React.FC<{
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  onFileUpload: (
-    file: File,
-    ramId: number,
-    romId: number,
-    colorId: number
+  //
+  onAddColors: (idRam: number, idRom: number, colorIds: number[]) => void
+  //
+  onAddImeis: (
+    idRam: number,
+    idRom: number,
+    idColor: number,
+    imeis: ProductImeiRequest[],
+    quantity: number
   ) => void
-  ramId: number
-  romId: number
-  colorId: number
-}> = ({ isOpen, onOpenChange, onFileUpload, ramId, romId, colorId }) => {
-  const [file, setFile] = useState<File | null>(null)
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0])
-    }
-  }
-
-  const handleUpload = () => {
-    if (file) {
-      onFileUpload(file, ramId, romId, colorId) // Truyền ramId, romId, và colorId
-      onOpenChange(false)
-    }
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Upload IMEI File</DialogTitle>
-          <DialogDescription>
-            Please select a file containing IMEI numbers.
-          </DialogDescription>
-        </DialogHeader>
-        <Input type='file' accept='.csv, .xlsx' onChange={handleFileChange} />
-        <Button onClick={handleUpload} disabled={!file}>
-          Upload
-        </Button>
-      </DialogContent>
-    </Dialog>
-  )
+  //
+  onImageChange: (
+    idRam: number,
+    idRom: number,
+    idColor: number,
+    imageUrl: string
+  ) => void
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
-  ramId,
-  romId,
+  idRam,
+  idRom,
   rams,
   roms,
   colors,
@@ -268,75 +247,38 @@ const ProductTable: React.FC<ProductTableProps> = ({
   onDeleteAll,
   onSetGeneralPrice,
   onPriceChange,
-  onAddColors, // Nhận prop mới
+  onAddColors,
+  onAddImeis,
+  onImageChange,
 }) => {
   const { control } = useFormContext<ProductConfigRequest>()
   const [isChecked, setIsChecked] = useState<boolean>(false)
   const [isGeneralPriceDialogOpen, setIsGeneralPriceDialogOpen] =
     useState(false)
-  const [isAddColorDialogOpen, setIsAddColorDialogOpen] = useState(false)
   const [generalPrice, setGeneralPrice] = useState<string>('')
+
+  //xu ly color them
+  const [isAddColorDialogOpen, setIsAddColorDialogOpen] = useState(false)
   const [selectedColorsForTable, setSelectedColorsForTable] = useState<
     number[]
   >([])
 
-  const [isAddImeiDialogOpen, setIsAddImeiDialogOpen] = useState(false)
-
-  const handleFileUpload = (
-    file: File,
-    ramId: number,
-    romId: number,
-    colorId: number
-  ) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const data = e.target?.result
-      if (data) {
-        const workbook = XLSX.read(data, { type: 'binary' })
-        const sheetName = workbook.SheetNames[0]
-        const worksheet = workbook.Sheets[sheetName]
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-
-        const imeis = jsonData
-          .map((row: any) => row[0])
-          .filter((imei: any) => imei)
-
-        console.log('IMEI Data:', imeis)
-
-        // Cập nhật tableRows với IMEI và số lượng
-        setTableRows((prevRows) =>
-          prevRows.map((row) => {
-            if (
-              row.ramId === ramId &&
-              row.romId === romId &&
-              row.colorId === colorId
-            ) {
-              return {
-                ...row,
-                productImeiRequests: imeis.map((imei) => ({ imei })),
-                inventoryQuantity: imeis.length,
-              }
-            }
-            return row
-          })
-        )
-      }
-    }
-    reader.readAsBinaryString(file)
-  }
-
-  const filteredRows = tableRows.filter(
-    (row) => row.ramId === ramId && row.romId === romId
-  )
-
   // Khi mở Dialog "Add Color", cập nhật các màu đã được chọn trong bảng
   useEffect(() => {
     if (isAddColorDialogOpen) {
-      // Lấy danh sách các màu đã có trong bảng
-      const existingColorIds = filteredRows.map((row) => row.colorId)
+      // Only update selectedColorsForTable when the dialog opens
+      const existingColorIds = filteredRows.map((row) => row.idColor)
       setSelectedColorsForTable(existingColorIds)
     }
-  }, [isAddColorDialogOpen]) // Chỉ chạy khi `isAddColorDialogOpen` thay đổi
+  }, [isAddColorDialogOpen])
+
+  // For IMEI dialog
+  const [isAddImeiDialogOpen, setIsAddImeiDialogOpen] = useState(false)
+  const [currentColorId, setCurrentColorId] = useState<number | null>(null)
+
+  const filteredRows = tableRows.filter(
+    (row) => row.idRam === idRam && row.idRom === idRom
+  )
 
   if (filteredRows.length === 0) {
     return null
@@ -352,28 +294,40 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
   const handleSetGeneralPrice = () => {
     const numericValue = parseFormattedNumber(generalPrice)
-    onSetGeneralPrice(ramId, romId, numericValue)
+    onSetGeneralPrice(idRam, idRom, numericValue)
     setIsGeneralPriceDialogOpen(false)
   }
 
-  const handleSelectColorForTable = (colorId: number) => {
+  const handleSelectColorForTable = (idColor: number) => {
     setSelectedColorsForTable(
       (prev) =>
-        prev.includes(colorId)
-          ? prev.filter((id) => id !== colorId) // Bỏ chọn nếu đã chọn
-          : [...prev, colorId] // Thêm vào nếu chưa chọn
+        prev.includes(idColor)
+          ? prev.filter((id) => id !== idColor) // Bỏ chọn nếu đã chọn
+          : [...prev, idColor] // Thêm vào nếu chưa chọn
     )
   }
 
   const handleAddColorsToTable = () => {
     // Gọi hàm từ component cha để cập nhật tableRows
-    onAddColors(ramId, romId, selectedColorsForTable)
+    onAddColors(idRam, idRom, selectedColorsForTable)
     setIsAddColorDialogOpen(false) // Đóng Dialog
+  }
+
+  const handleOpenImeiDialog = (idColor: number) => {
+    setCurrentColorId(idColor)
+    setIsAddImeiDialogOpen(true)
+  }
+
+  const handleImeiAdd = (imeis: ProductImeiRequest[], quantity: number) => {
+    if (currentColorId !== null) {
+      onAddImeis(idRam, idRom, currentColorId, imeis, quantity)
+      setCurrentColorId(null)
+    }
   }
 
   return (
     <>
-      <Table key={`table-${ramId}-${romId}`} className='mt-10 rounded border'>
+      <Table key={`table-${idRam}-${idRom}`} className='mt-10 rounded border'>
         <TableHeader>
           <TableRow>
             <TableHead colSpan={2} className='h-16 py-2 text-xl'>
@@ -381,8 +335,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 checked={isChecked}
                 onCheckedChange={() => setIsChecked(!isChecked)}
               />
-              Version {rams.find((r) => r.id === ramId)?.capacity} /{' '}
-              {roms.find((r) => r.id === romId)?.capacity}GB
+              Version {rams.find((r) => r.id === idRam)?.capacity} /{' '}
+              {roms.find((r) => r.id === idRom)?.capacity}GB
             </TableHead>
             {isChecked && (
               <TableHead colSpan={4} className='space-x-2 py-2 text-right'>
@@ -400,7 +354,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 </Button>
                 <Button
                   className='bg-red-500 hover:bg-red-600'
-                  onClick={() => onDeleteAll(ramId, romId)}
+                  onClick={() => onDeleteAll(idRam, idRom)}
                 >
                   Delete all
                 </Button>
@@ -418,13 +372,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
         </TableHeader>
         <TableBody>
           {filteredRows.map((row, index) => (
-            <TableRow key={`${row.ramId}-${row.romId}-${row.colorId}`}>
+            <TableRow key={`${row.idRam}-${row.idRom}-${row.idColor}`}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>
-                {colors.find((c) => c.id === row.colorId)?.name}
+                {colors.find((c) => c.id === row.idColor)?.name}
               </TableCell>
-              <TableCell>0</TableCell>
+              <TableCell>{row.inventoryQuantity || 0}</TableCell>
               <TableCell>
                 <FormControl>
                   <input
@@ -436,7 +390,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                       const rawValue = e.target.value.replace(/,/g, '')
                       const numericValue = Number(rawValue)
                       if (!isNaN(numericValue)) {
-                        onPriceChange(ramId, romId, row.colorId, numericValue)
+                        onPriceChange(idRam, idRom, row.idColor, numericValue)
                       }
                     }}
                   />
@@ -445,25 +399,24 @@ const ProductTable: React.FC<ProductTableProps> = ({
               <TableCell className='space-x-2'>
                 <Button
                   className='bg-blue-500 hover:bg-blue-600'
-                  onClick={() => setIsAddImeiDialogOpen(true)} // Mở dialog khi click
+                  onClick={() => handleOpenImeiDialog(row.idColor)}
                 >
                   <IconDownload stroke={3} />
                 </Button>
-                {/* Dialog để thêm IMEI */}
-                <AddImeiDialog
-                  isOpen={isAddImeiDialogOpen}
-                  onOpenChange={setIsAddImeiDialogOpen}
-                  onFileUpload={handleFileUpload}
-                  ramId={ramId}
-                  romId={romId}
-                  colorId={row.colorId} // Truyền colorId từ hàng hiện tại
-                />
                 <Button
                   className='bg-red-500 hover:bg-red-600'
-                  onClick={() => onDeleteRow(ramId, romId, row.colorId)}
+                  onClick={() => onDeleteRow(idRam, idRom, row.idColor)}
                 >
                   <IconTrash stroke={3} />
                 </Button>
+              </TableCell>
+              <TableCell>
+                <ImageUploader
+                  currentImage={row.imageUrl}
+                  onImageChange={(imageUrl) =>
+                    onImageChange(idRam, idRom, row.idColor, imageUrl)
+                  }
+                />
               </TableCell>
             </TableRow>
           ))}
@@ -495,7 +448,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {/* Dialog để thêm màu vào bảng */}
       <Dialog
         open={isAddColorDialogOpen}
-        onOpenChange={setIsAddColorDialogOpen}
+        onOpenChange={(open) => {
+          setIsAddColorDialogOpen(open)
+          // Don't update selectedColorsForTable here
+        }}
       >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -523,6 +479,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                   <span>{color.name}</span>
                   <Checkbox
                     checked={selectedColorsForTable.includes(color.id)}
+                    // Remove any onCheckedChange handler here that might be causing updates
                   />
                 </div>
               ))}
@@ -533,6 +490,16 @@ const ProductTable: React.FC<ProductTableProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Using the new extracted AddImeiDialog component */}
+      <AddImeiDialog
+        isOpen={isAddImeiDialogOpen}
+        onOpenChange={setIsAddImeiDialogOpen}
+        onImeiAdd={handleImeiAdd}
+        idRam={idRam}
+        idRom={idRom}
+        idColor={currentColorId || 0}
+      />
     </>
   )
 }
@@ -557,7 +524,7 @@ export function ProductDetailForm({
   })
 
   const [tableRows, setTableRows] = useState<
-    { ramId: number; romId: number; colorId: number; price: number }[]
+    { idRam: number; idRom: number; idColor: number; price: number }[]
   >([])
 
   // Tối ưu hóa hàm toggleSelection với useCallback
@@ -578,16 +545,16 @@ export function ProductDetailForm({
     if (!selections.rams.length || !selections.roms.length) {
       return []
     }
-    return selections.rams.flatMap((ramId) =>
-      selections.roms.flatMap((romId) =>
+    return selections.rams.flatMap((idRam) =>
+      selections.roms.flatMap((idRom) =>
         selections.colors.length
-          ? selections.colors.map((colorId) => ({
-              ramId,
-              romId,
-              colorId,
+          ? selections.colors.map((idColor) => ({
+              idRam,
+              idRom,
+              idColor,
               price: 0,
             }))
-          : [{ ramId, romId, colorId: -1, price: 0 }]
+          : [{ idRam, idRom, idColor: -1, price: 0 }]
       )
     )
   }, [selections])
@@ -598,9 +565,9 @@ export function ProductDetailForm({
     const mergedRows = newRows.map((newRow) => {
       const existing = tableRows.find(
         (row) =>
-          row.ramId === newRow.ramId &&
-          row.romId === newRow.romId &&
-          row.colorId === newRow.colorId
+          row.idRam === newRow.idRam &&
+          row.idRom === newRow.idRom &&
+          row.idColor === newRow.idColor
       )
       return existing || newRow
     })
@@ -609,66 +576,109 @@ export function ProductDetailForm({
   }, [selections, generateTableRows, onTableRowsChange])
 
   // Gộp các hàm xử lý vào một object memoized
+  // In ProductDetailForm, update the handlers object to include the IMEI handler
+
   const handlers = useMemo(
     () => ({
-      deleteRow: (ramId: number, romId: number, colorId: number) => {
+      deleteRow: (idRam: number, idRom: number, idColor: number) => {
         setTableRows((prev) =>
           prev.filter(
             (row) =>
               !(
-                row.ramId === ramId &&
-                row.romId === romId &&
-                row.colorId === colorId
+                row.idRam === idRam &&
+                row.idRom === idRom &&
+                row.idColor === idColor
               )
           )
         )
       },
-      deleteAll: (ramId: number, romId: number) => {
+      deleteAll: (idRam: number, idRom: number) => {
         setTableRows((prev) =>
-          prev.filter((row) => !(row.ramId === ramId && row.romId === romId))
+          prev.filter((row) => !(row.idRam === idRam && row.idRom === idRom))
         )
       },
-      setGeneralPrice: (ramId: number, romId: number, price: number) => {
+      setGeneralPrice: (idRam: number, idRom: number, price: number) => {
         setTableRows((prev) =>
           prev.map((row) =>
-            row.ramId === ramId && row.romId === romId ? { ...row, price } : row
+            row.idRam === idRam && row.idRom === idRom ? { ...row, price } : row
           )
         )
       },
       updatePrice: (
-        ramId: number,
-        romId: number,
-        colorId: number,
+        idRam: number,
+        idRom: number,
+        idColor: number,
         price: number
       ) => {
         setTableRows((prev) =>
           prev.map((row) =>
-            row.ramId === ramId &&
-            row.romId === romId &&
-            row.colorId === colorId
+            row.idRam === idRam &&
+            row.idRom === idRom &&
+            row.idColor === idColor
               ? { ...row, price }
               : row
           )
         )
       },
-      addColors: (ramId: number, romId: number, colorIds: number[]) => {
+      addColors: (idRam: number, idRom: number, colorIds: number[]) => {
         setTableRows((prev) => {
           const existing = prev.filter(
-            (row) => !(row.ramId === ramId && row.romId === romId)
+            (row) => !(row.idRam === idRam && row.idRom === idRom)
           )
-          const newRows = colorIds.map((colorId) => ({
-            ramId,
-            romId,
-            colorId,
+          const newRows = colorIds.map((idColor) => ({
+            idRam,
+            idRom,
+            idColor,
             price: 0,
           }))
           return [...existing, ...newRows]
         })
       },
+      // Add new handler for IMEI updates
+      addImeis: (
+        idRam: number,
+        idRom: number,
+        idColor: number,
+        imeis: ProductImeiRequest[],
+        quantity: number
+      ) => {
+        setTableRows((prev) =>
+          prev.map((row) =>
+            row.idRam === idRam &&
+            row.idRom === idRom &&
+            row.idColor === idColor
+              ? {
+                  ...row,
+                  productImeiRequests: imeis,
+                  inventoryQuantity: quantity,
+                }
+              : row
+          )
+        )
+      },
+
+      //upload anh
+      updateImage: (
+        idRam: number,
+        idRom: number,
+        idColor: number,
+        imageUrl: string
+      ) => {
+        setTableRows((prev) =>
+          prev.map((row) =>
+            row.idRam === idRam &&
+            row.idRom === idRom &&
+            row.idColor === idColor
+              ? { ...row, imageUrl }
+              : row
+          )
+        )
+      },
     }),
     []
   )
 
+  // Then in the return statement, add the onAddImeis prop to ProductTable
   return (
     <div className='mx-auto rounded border px-4 py-4'>
       <h1 className='mb-4 text-center text-2xl font-semibold'>
@@ -696,23 +706,25 @@ export function ProductDetailForm({
           }
         />
       </div>
-      {selections.rams.map((ramId) =>
-        selections.roms.map((romId) => (
+      {selections.rams.map((idRam) =>
+        selections.roms.map((idRom) => (
           <ProductTable
-            key={`table-${ramId}-${romId}`}
-            ramId={ramId}
-            romId={romId}
+            key={`table-${idRam}-${idRom}`}
+            idRam={idRam}
+            idRom={idRom}
             rams={rams}
             roms={roms}
             colors={colors}
             tableRows={tableRows.filter(
-              (row) => row.ramId === ramId && row.romId === romId
+              (row) => row.idRam === idRam && row.idRom === idRom
             )}
             onDeleteRow={handlers.deleteRow}
             onDeleteAll={handlers.deleteAll}
             onSetGeneralPrice={handlers.setGeneralPrice}
             onPriceChange={handlers.updatePrice}
             onAddColors={handlers.addColors}
+            onAddImeis={handlers.addImeis}
+            onImageChange={handlers.updateImage}
           />
         ))
       )}

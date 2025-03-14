@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Switch } from '@/components/ui/switch'
 import { updateStatus } from '../data/api-service'
-import type { Product } from '../data/schema'
+import type { ProductResponse } from '../data/schema'
 
 interface StatusSwitchProps {
-  product: Product
+  product: ProductResponse
 }
 
 export function StatusSwitch({ product }: StatusSwitchProps) {
