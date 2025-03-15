@@ -45,7 +45,11 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
     return imeiRegex.test(imei)
   }
 
-  const handleUpload = () => {
+  const handleUpload = (e: React.MouseEvent) => {
+    // This is critical to prevent form submission in the parent
+    e.preventDefault()
+    e.stopPropagation()
+
     if (!file) {
       setErrorMessage('Please select a file to upload')
       return
@@ -55,9 +59,9 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
     setErrorMessage('')
 
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = (event) => {
       try {
-        const data = e.target?.result
+        const data = event.target?.result
         if (data) {
           const workbook = XLSX.read(data, { type: 'binary' })
           const sheetName = workbook.SheetNames[0]
@@ -100,13 +104,22 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
             imeiCode: imei,
           }))
 
-          // Process the data completely before modifying state
-          onImeiAdd(productImeiRequests, productImeiRequests.length)
+          // Store the processed data to pass after dialog closes
+          const processedData = {
+            imeis: productImeiRequests,
+            count: productImeiRequests.length,
+          }
 
-          // Reset state and close dialog
-          setFile(null)
-          setIsUploading(false)
+          // First close the dialog
           onOpenChange(false)
+
+          // Then pass the data with a slight delay to ensure UI updates first
+          setTimeout(() => {
+            onImeiAdd(processedData.imeis, processedData.count)
+            // Reset state
+            setFile(null)
+            setIsUploading(false)
+          }, 100)
         }
       } catch (error) {
         console.error('Error parsing file:', error)
@@ -125,6 +138,13 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
     reader.readAsBinaryString(file)
   }
 
+  // Safe cancel handler
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onOpenChange(false)
+  }
+
   return (
     <Dialog
       open={isOpen}
@@ -139,6 +159,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
       <DialogContent
         className='sm:max-w-[425px]'
         onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle>Upload IMEI File</DialogTitle>
@@ -147,7 +168,8 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
             digits.
           </DialogDescription>
         </DialogHeader>
-        <div className='space-y-4'>
+        {/* Isolate dialog content from parent form */}
+        <div className='space-y-4' onClick={(e) => e.stopPropagation()}>
           <Input
             type='file'
             accept='.csv, .xlsx, .xls'
@@ -164,7 +186,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
             <Button
               type='button'
               variant='outline'
-              onClick={() => onOpenChange(false)}
+              onClick={handleCancel}
               disabled={isUploading}
             >
               Cancel

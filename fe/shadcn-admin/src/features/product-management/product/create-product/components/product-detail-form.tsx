@@ -313,7 +313,11 @@ const ProductTable: React.FC<ProductTableProps> = ({
     setIsAddColorDialogOpen(false) // Đóng Dialog
   }
 
-  const handleOpenImeiDialog = (idColor: number) => {
+  const handleOpenImeiDialog = (e: React.MouseEvent, idColor: number) => {
+    // Prevent event bubbling to parent form
+    e.preventDefault()
+    e.stopPropagation()
+
     setCurrentColorId(idColor)
     setIsAddImeiDialogOpen(true)
   }
@@ -398,8 +402,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
               </TableCell>
               <TableCell className='space-x-2'>
                 <Button
+                  type='button'
                   className='bg-blue-500 hover:bg-blue-600'
-                  onClick={() => handleOpenImeiDialog(row.idColor)}
+                  onClick={(e) => handleOpenImeiDialog(e, row.idColor)}
                 >
                   <IconDownload stroke={3} />
                 </Button>
@@ -409,14 +414,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 >
                   <IconTrash stroke={3} />
                 </Button>
-              </TableCell>
-              <TableCell>
-                <ImageUploader
-                  currentImage={row.imageUrl}
-                  onImageChange={(imageUrl) =>
-                    onImageChange(idRam, idRom, row.idColor, imageUrl)
-                  }
-                />
               </TableCell>
             </TableRow>
           ))}
@@ -494,7 +491,12 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {/* Using the new extracted AddImeiDialog component */}
       <AddImeiDialog
         isOpen={isAddImeiDialogOpen}
-        onOpenChange={setIsAddImeiDialogOpen}
+        onOpenChange={(open) => {
+          // Ensure the dialog state change doesn't affect the parent form
+          setTimeout(() => {
+            setIsAddImeiDialogOpen(open)
+          }, 0)
+        }}
         onImeiAdd={handleImeiAdd}
         idRam={idRam}
         idRom={idRom}
@@ -516,7 +518,6 @@ export function ProductDetailForm({
     name: 'productDetailRequests',
   })
 
-  // Gộp các trạng thái lựa chọn vào một object để quản lý dễ hơn
   const [selections, setSelections] = useState({
     rams: [] as number[],
     roms: [] as number[],
@@ -524,10 +525,24 @@ export function ProductDetailForm({
   })
 
   const [tableRows, setTableRows] = useState<
-    { idRam: number; idRom: number; idColor: number; price: number }[]
+    {
+      idRam: number
+      idRom: number
+      idColor: number
+      price: number
+      imageUrl?: string
+    }[]
   >([])
 
-  // Tối ưu hóa hàm toggleSelection với useCallback
+  const [uniqueColors, setUniqueColors] = useState<number[]>([])
+  const [colorImages, setColorImages] = useState<{ [key: number]: string }>({})
+
+  useEffect(() => {
+    const colorIds = tableRows.map((row) => row.idColor)
+    const uniqueColorIds = Array.from(new Set(colorIds)) // Loại bỏ các màu sắc trùng lặp
+    setUniqueColors(uniqueColorIds)
+  }, [tableRows])
+
   const toggleSelection = useCallback(
     (type: 'rams' | 'roms' | 'colors', id: number) => {
       setSelections((prev) => ({
@@ -540,7 +555,6 @@ export function ProductDetailForm({
     []
   )
 
-  // Memoize việc tạo table rows
   const generateTableRows = useCallback(() => {
     if (!selections.rams.length || !selections.roms.length) {
       return []
@@ -559,7 +573,6 @@ export function ProductDetailForm({
     )
   }, [selections])
 
-  // Cập nhật tableRows khi selections thay đổi
   useEffect(() => {
     const newRows = generateTableRows()
     const mergedRows = newRows.map((newRow) => {
@@ -574,9 +587,6 @@ export function ProductDetailForm({
     setTableRows(mergedRows)
     onTableRowsChange(mergedRows)
   }, [selections, generateTableRows, onTableRowsChange])
-
-  // Gộp các hàm xử lý vào một object memoized
-  // In ProductDetailForm, update the handlers object to include the IMEI handler
 
   const handlers = useMemo(
     () => ({
@@ -634,7 +644,6 @@ export function ProductDetailForm({
           return [...existing, ...newRows]
         })
       },
-      // Add new handler for IMEI updates
       addImeis: (
         idRam: number,
         idRom: number,
@@ -657,77 +666,108 @@ export function ProductDetailForm({
         )
       },
 
-      //upload anh
       updateImage: (
         idRam: number,
         idRom: number,
         idColor: number,
         imageUrl: string
       ) => {
-        setTableRows((prev) =>
-          prev.map((row) =>
-            row.idRam === idRam &&
-            row.idRom === idRom &&
-            row.idColor === idColor
-              ? { ...row, imageUrl }
-              : row
-          )
-        )
+        setColorImages((prev) => ({
+          ...prev,
+          [idColor]: imageUrl,
+        }))
       },
     }),
     []
   )
 
-  // Then in the return statement, add the onAddImeis prop to ProductTable
   return (
-    <div className='mx-auto rounded border px-4 py-4'>
-      <h1 className='mb-4 text-center text-2xl font-semibold'>
-        Thông số sản phẩm
-      </h1>
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-        <OptionSelector
-          label='RAM'
-          options={rams}
-          selected={selections.rams}
-          onSelect={(id) => toggleSelection('rams', id)}
-        />
-        <OptionSelector
-          label='ROM'
-          options={roms}
-          selected={selections.roms}
-          onSelect={(id) => toggleSelection('roms', id)}
-        />
-        <ColorSelector
-          label='Màu sắc'
-          options={colors}
-          selected={selections.colors}
-          onSelect={(ids) =>
-            setSelections((prev) => ({ ...prev, colors: ids }))
-          }
-        />
-      </div>
-      {selections.rams.map((idRam) =>
-        selections.roms.map((idRom) => (
-          <ProductTable
-            key={`table-${idRam}-${idRom}`}
-            idRam={idRam}
-            idRom={idRom}
-            rams={rams}
-            roms={roms}
-            colors={colors}
-            tableRows={tableRows.filter(
-              (row) => row.idRam === idRam && row.idRom === idRom
-            )}
-            onDeleteRow={handlers.deleteRow}
-            onDeleteAll={handlers.deleteAll}
-            onSetGeneralPrice={handlers.setGeneralPrice}
-            onPriceChange={handlers.updatePrice}
-            onAddColors={handlers.addColors}
-            onAddImeis={handlers.addImeis}
-            onImageChange={handlers.updateImage}
+    <>
+      <div className='mx-auto rounded border px-4 py-4'>
+        <h1 className='mb-4 text-center text-2xl font-semibold'>
+          Thông số sản phẩm
+        </h1>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+          <OptionSelector
+            label='RAM'
+            options={rams}
+            selected={selections.rams}
+            onSelect={(id) => toggleSelection('rams', id)}
           />
-        ))
-      )}
-    </div>
+          <OptionSelector
+            label='ROM'
+            options={roms}
+            selected={selections.roms}
+            onSelect={(id) => toggleSelection('roms', id)}
+          />
+          <ColorSelector
+            label='Màu sắc'
+            options={colors}
+            selected={selections.colors}
+            onSelect={(ids) =>
+              setSelections((prev) => ({ ...prev, colors: ids }))
+            }
+          />
+        </div>
+        {selections.rams.map((idRam) =>
+          selections.roms.map((idRom) => (
+            <ProductTable
+              key={`table-${idRam}-${idRom}`}
+              idRam={idRam}
+              idRom={idRom}
+              rams={rams}
+              roms={roms}
+              colors={colors}
+              tableRows={tableRows.filter(
+                (row) => row.idRam === idRam && row.idRom === idRom
+              )}
+              onDeleteRow={handlers.deleteRow}
+              onDeleteAll={handlers.deleteAll}
+              onSetGeneralPrice={handlers.setGeneralPrice}
+              onPriceChange={handlers.updatePrice}
+              onAddColors={handlers.addColors}
+              onAddImeis={handlers.addImeis}
+              onImageChange={handlers.updateImage}
+            />
+          ))
+        )}
+      </div>
+      <div className='mx-auto rounded border px-4 py-4'>
+        <h1 className='mb-4 text-center text-2xl font-semibold'>
+          Upload hình ảnh
+        </h1>
+        <div className='grid grid-cols-1 gap-4 py-4 md:grid-cols-3'>
+          {uniqueColors.map((idColor) => {
+            const color = colors.find((c) => c.id === idColor)
+            if (!color) return null
+
+            return (
+              <div
+                key={color.id}
+                className='flex flex-col items-center space-y-2 border-l border-r'
+              >
+                <div
+                  className='h-12 w-12 rounded-full'
+                  style={{
+                    backgroundColor: color.hex,
+                    border:
+                      color.name?.toLowerCase() === 'white'
+                        ? '2px solid #ccc'
+                        : 'none',
+                  }}
+                ></div>
+                <ImageUploader
+                  currentImage={colorImages[idColor] || ''}
+                  onImageChange={(imageUrl) => {
+                    // Cập nhật ảnh cho màu sắc cụ thể
+                    handlers.updateImage(0, 0, idColor, imageUrl)
+                  }}
+                />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </>
   )
 }
