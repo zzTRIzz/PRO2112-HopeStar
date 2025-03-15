@@ -207,6 +207,7 @@ interface ProductTableProps {
     price: number
     inventoryQuantity?: number
     productImeiRequests?: { imeiCode: string }[]
+    imageUrl: string
   }[]
   onDeleteRow: (idRam: number, idRom: number, idColor: number) => void
   onDeleteAll: (idRam: number, idRom: number) => void
@@ -264,21 +265,21 @@ const ProductTable: React.FC<ProductTableProps> = ({
   >([])
 
   // Khi mở Dialog "Add Color", cập nhật các màu đã được chọn trong bảng
+  const filteredRows = tableRows.filter(
+    (row) => row.idRam === idRam && row.idRom === idRom
+  )
+
   useEffect(() => {
     if (isAddColorDialogOpen) {
       // Only update selectedColorsForTable when the dialog opens
       const existingColorIds = filteredRows.map((row) => row.idColor)
       setSelectedColorsForTable(existingColorIds)
     }
-  }, [isAddColorDialogOpen])
+  }, [isAddColorDialogOpen, tableRows, filteredRows])
 
   // For IMEI dialog
   const [isAddImeiDialogOpen, setIsAddImeiDialogOpen] = useState(false)
   const [currentColorId, setCurrentColorId] = useState<number | null>(null)
-
-  const filteredRows = tableRows.filter(
-    (row) => row.idRam === idRam && row.idRom === idRom
-  )
 
   if (filteredRows.length === 0) {
     return null
@@ -299,12 +300,18 @@ const ProductTable: React.FC<ProductTableProps> = ({
   }
 
   const handleSelectColorForTable = (idColor: number) => {
-    setSelectedColorsForTable(
-      (prev) =>
+    // Kiểm tra xem màu này đã có trong bảng chưa
+    const existingColorIds = filteredRows.map((row) => row.idColor)
+    const isExistingColor = existingColorIds.includes(idColor)
+    
+    // Chỉ cho phép thêm màu mới, không cho phép bỏ chọn màu đã có
+    if (!isExistingColor) {
+      setSelectedColorsForTable((prev) =>
         prev.includes(idColor)
-          ? prev.filter((id) => id !== idColor) // Bỏ chọn nếu đã chọn
+          ? prev.filter((id) => id !== idColor) // Bỏ chọn nếu đã chọn (chỉ cho màu mới)
           : [...prev, idColor] // Thêm vào nếu chưa chọn
-    )
+      )
+    }
   }
 
   const handleAddColorsToTable = () => {
@@ -452,38 +459,49 @@ const ProductTable: React.FC<ProductTableProps> = ({
       >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Add Color</DialogTitle>
-            <DialogDescription>Click save when you're done.</DialogDescription>
+            <DialogTitle>Thêm màu</DialogTitle>
+            <DialogDescription>Chọn màu và nhấn Lưu khi hoàn tất.</DialogDescription>
           </DialogHeader>
           <ScrollArea className='w-full'>
             <div className='flex space-x-4 pb-4'>
-              {colors.map((color) => (
-                <div
-                  key={color.id}
-                  className='flex cursor-pointer flex-col items-center space-y-2 p-2 hover:bg-gray-100'
-                  onClick={() => handleSelectColorForTable(color.id)}
-                >
+              {colors.map((color) => {
+                // Kiểm tra xem màu này đã có trong bảng chưa
+                const existingColorIds = filteredRows.map((row) => row.idColor)
+                const isExistingColor = existingColorIds.includes(color.id)
+                
+                return (
                   <div
-                    className='h-12 w-12 rounded-full'
-                    style={{
-                      backgroundColor: color.hex,
-                      border:
-                        color.name?.toLowerCase() === 'white'
-                          ? '2px solid #ccc'
-                          : 'none',
-                    }}
-                  ></div>
-                  <span>{color.name}</span>
-                  <Checkbox
-                    checked={selectedColorsForTable.includes(color.id)}
-                    // Remove any onCheckedChange handler here that might be causing updates
-                  />
-                </div>
-              ))}
+                    key={color.id}
+                    className={`flex flex-col items-center space-y-2 p-2 ${
+                      isExistingColor 
+                        ? 'cursor-not-allowed opacity-70' 
+                        : 'cursor-pointer hover:bg-gray-100'
+                    }`}
+                    onClick={() => !isExistingColor && handleSelectColorForTable(color.id)}
+                  >
+                    <div
+                      className='h-12 w-12 rounded-full'
+                      style={{
+                        backgroundColor: color.hex,
+                        border:
+                          color.name?.toLowerCase() === 'white'
+                            ? '2px solid #ccc'
+                            : 'none',
+                      }}
+                    ></div>
+                    <span>{color.name}</span>
+                    <Checkbox
+                      checked={selectedColorsForTable.includes(color.id)}
+                      disabled={isExistingColor}
+                      // Không cần onCheckedChange vì chúng ta xử lý thông qua onClick của div
+                    />
+                  </div>
+                )
+              })}
             </div>
           </ScrollArea>
           <div className='mt-4 flex justify-end'>
-            <Button onClick={handleAddColorsToTable}>Cài đặt</Button>
+            <Button onClick={handleAddColorsToTable}>Lưu</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -513,7 +531,7 @@ export function ProductDetailForm({
   onTableRowsChange,
 }: ProductDetailFormProps) {
   const { control } = useFormContext<ProductConfigRequest>()
-  const { append, remove } = useFieldArray({
+  const { append: _append, remove: _remove } = useFieldArray({
     control,
     name: 'productDetailRequests',
   })
@@ -530,12 +548,20 @@ export function ProductDetailForm({
       idRom: number
       idColor: number
       price: number
-      imageUrl?: string
+      inventoryQuantity: number
+      productImeiRequests: ProductImeiRequest[]
+      imageUrl: string
     }[]
   >([])
 
   const [uniqueColors, setUniqueColors] = useState<number[]>([])
   const [colorImages, setColorImages] = useState<{ [key: number]: string }>({})
+
+  const [deletedVersions, setDeletedVersions] = useState<{
+    ram: number
+    rom: number
+    color?: number
+  }[]>([])
 
   useEffect(() => {
     const colorIds = tableRows.map((row) => row.idColor)
@@ -559,40 +585,92 @@ export function ProductDetailForm({
     if (!selections.rams.length || !selections.roms.length) {
       return []
     }
+    
+    // Tạo các hàng mới và lọc ra các phiên bản đã xóa
     return selections.rams.flatMap((idRam) =>
-      selections.roms.flatMap((idRom) =>
-        selections.colors.length
-          ? selections.colors.map((idColor) => ({
-              idRam,
-              idRom,
-              idColor,
+      selections.roms.flatMap((idRom) => {
+        // Kiểm tra xem cặp RAM/ROM này đã bị xóa hoàn toàn chưa
+        const isVersionDeleted = deletedVersions.some(
+          (v) => v.ram === idRam && v.rom === idRom && v.color === undefined
+        );
+        
+        if (isVersionDeleted) {
+          return [];
+        }
+        
+        return selections.colors.length
+          ? selections.colors.map((idColor) => {
+              // Kiểm tra xem phiên bản cụ thể này đã bị xóa chưa
+              const isColorVersionDeleted = deletedVersions.some(
+                (v) => v.ram === idRam && v.rom === idRom && v.color === idColor
+              );
+              
+              if (isColorVersionDeleted) {
+                return null;
+              }
+              
+              return {
+                idRam,
+                idRom,
+                idColor,
+                price: 0,
+                inventoryQuantity: 0,
+                productImeiRequests: [],
+                imageUrl: colorImages[idColor] || '',
+              };
+            }).filter(Boolean)
+          : [{ 
+              idRam, 
+              idRom, 
+              idColor: -1, 
               price: 0,
-            }))
-          : [{ idRam, idRom, idColor: -1, price: 0 }]
-      )
+              inventoryQuantity: 0,
+              productImeiRequests: [],
+              imageUrl: '',
+            }]
+      })
     )
-  }, [selections])
+  }, [selections, colorImages, deletedVersions])
 
+  // Sử dụng useEffect để cập nhật tableRows khi selections thay đổi
   useEffect(() => {
-    const newRows = generateTableRows()
-    const mergedRows = newRows.map((newRow) => {
-      const existing = tableRows.find(
-        (row) =>
-          row.idRam === newRow.idRam &&
-          row.idRom === newRow.idRom &&
-          row.idColor === newRow.idColor
-      )
-      return existing || newRow
-    })
-    setTableRows(mergedRows)
-    onTableRowsChange(mergedRows)
-  }, [selections, generateTableRows, onTableRowsChange])
+    if (selections.rams.length && selections.roms.length) {
+      const newRows = generateTableRows()
+      
+      // Giữ lại các giá trị đã có trong tableRows
+      const mergedRows = newRows.map((newRow) => {
+        const existing = tableRows.find(
+          (row) =>
+            row.idRam === newRow.idRam &&
+            row.idRom === newRow.idRom &&
+            row.idColor === newRow.idColor
+        )
+        return existing || newRow
+      })
+      
+      setTableRows(mergedRows)
+    }
+  }, [selections, generateTableRows]) // Loại bỏ tableRows khỏi dependencies
+
+  // Sử dụng useEffect riêng biệt để gọi onTableRowsChange mỗi khi tableRows thay đổi
+  useEffect(() => {
+    if (tableRows.length > 0) {
+      console.log('Gửi tableRows lên component cha:', tableRows)
+      onTableRowsChange(tableRows)
+    }
+  }, [tableRows, onTableRowsChange])
 
   const handlers = useMemo(
     () => ({
       deleteRow: (idRam: number, idRom: number, idColor: number) => {
-        setTableRows((prev) =>
-          prev.filter(
+        // Thêm vào danh sách phiên bản đã xóa
+        setDeletedVersions(prev => [
+          ...prev, 
+          { ram: idRam, rom: idRom, color: idColor }
+        ]);
+        
+        setTableRows((prev) => {
+          const newRows = prev.filter(
             (row) =>
               !(
                 row.idRam === idRam &&
@@ -600,19 +678,28 @@ export function ProductDetailForm({
                 row.idColor === idColor
               )
           )
-        )
+          return newRows
+        })
       },
       deleteAll: (idRam: number, idRom: number) => {
-        setTableRows((prev) =>
-          prev.filter((row) => !(row.idRam === idRam && row.idRom === idRom))
-        )
+        // Thêm vào danh sách phiên bản đã xóa (toàn bộ cặp RAM/ROM)
+        setDeletedVersions(prev => [
+          ...prev, 
+          { ram: idRam, rom: idRom }
+        ]);
+        
+        setTableRows((prev) => {
+          const newRows = prev.filter((row) => !(row.idRam === idRam && row.idRom === idRom))
+          return newRows
+        })
       },
       setGeneralPrice: (idRam: number, idRom: number, price: number) => {
-        setTableRows((prev) =>
-          prev.map((row) =>
+        setTableRows((prev) => {
+          const newRows = prev.map((row) =>
             row.idRam === idRam && row.idRom === idRom ? { ...row, price } : row
           )
-        )
+          return newRows
+        })
       },
       updatePrice: (
         idRam: number,
@@ -620,29 +707,61 @@ export function ProductDetailForm({
         idColor: number,
         price: number
       ) => {
-        setTableRows((prev) =>
-          prev.map((row) =>
+        setTableRows((prev) => {
+          const newRows = prev.map((row) =>
             row.idRam === idRam &&
             row.idRom === idRom &&
             row.idColor === idColor
               ? { ...row, price }
               : row
           )
-        )
+          return newRows
+        })
       },
       addColors: (idRam: number, idRom: number, colorIds: number[]) => {
+        // Xóa các màu đã bị xóa khỏi danh sách deletedVersions
+        setDeletedVersions(prev => 
+          prev.filter(v => !(v.ram === idRam && v.rom === idRom && colorIds.includes(v.color || -1)))
+        );
+        
+        // Lấy danh sách màu hiện tại cho cặp RAM/ROM này
+        const existingColors = tableRows
+          .filter(row => row.idRam === idRam && row.idRom === idRom)
+          .map(row => row.idColor);
+        
+        // Chỉ thêm những màu mới chưa có trong bảng
+        const newColorIds = colorIds.filter(id => !existingColors.includes(id));
+        
+        if (newColorIds.length === 0) {
+          return; // Không có màu mới để thêm
+        }
+        
+        // Cập nhật selections để kích hoạt useEffect tạo lại tableRows
+        setSelections(prev => ({
+          ...prev,
+          colors: [...new Set([...prev.colors, ...newColorIds])]
+        }));
+        
         setTableRows((prev) => {
-          const existing = prev.filter(
-            (row) => !(row.idRam === idRam && row.idRom === idRom)
-          )
-          const newRows = colorIds.map((idColor) => ({
+          // Giữ lại tất cả các hàng không thuộc cặp RAM/ROM hiện tại
+          // và các hàng của cặp RAM/ROM hiện tại nhưng không phải màu mới
+          const existingRows = prev.filter(
+            row => !(row.idRam === idRam && row.idRom === idRom && newColorIds.includes(row.idColor))
+          );
+          
+          // Tạo các hàng mới cho màu mới
+          const newRows = newColorIds.map((idColor) => ({
             idRam,
             idRom,
             idColor,
             price: 0,
-          }))
-          return [...existing, ...newRows]
-        })
+            inventoryQuantity: 0,
+            productImeiRequests: [],
+            imageUrl: colorImages[idColor] || '',
+          }));
+          
+          return [...existingRows, ...newRows];
+        });
       },
       addImeis: (
         idRam: number,
@@ -651,8 +770,8 @@ export function ProductDetailForm({
         imeis: ProductImeiRequest[],
         quantity: number
       ) => {
-        setTableRows((prev) =>
-          prev.map((row) =>
+        setTableRows((prev) => {
+          const newRows = prev.map((row) =>
             row.idRam === idRam &&
             row.idRom === idRom &&
             row.idColor === idColor
@@ -663,22 +782,45 @@ export function ProductDetailForm({
                 }
               : row
           )
-        )
+          return newRows
+        })
       },
 
       updateImage: (
-        idRam: number,
-        idRom: number,
+        _idRam: number,
+        _idRom: number,
         idColor: number,
         imageUrl: string
       ) => {
+        // Cập nhật trong colorImages
         setColorImages((prev) => ({
           ...prev,
           [idColor]: imageUrl,
         }))
+        
+        // Cập nhật imageUrl trong tất cả các hàng có màu này
+        // Chỉ cập nhật các hàng chưa bị xóa
+        setTableRows((prev) => {
+          return prev.map((row) => {
+            // Kiểm tra xem hàng này đã bị xóa chưa
+            const isDeleted = deletedVersions.some(
+              v => v.ram === row.idRam && v.rom === row.idRom && 
+                  (v.color === undefined || v.color === row.idColor)
+            );
+            
+            // Nếu hàng đã bị xóa, không cập nhật
+            if (isDeleted) {
+              return row;
+            }
+            
+            return row.idColor === idColor
+              ? { ...row, imageUrl }
+              : row
+          })
+        })
       },
     }),
-    []
+    [colorImages, deletedVersions, tableRows]
   )
 
   return (
@@ -759,7 +901,7 @@ export function ProductDetailForm({
                 <ImageUploader
                   currentImage={colorImages[idColor] || ''}
                   onImageChange={(imageUrl) => {
-                    // Cập nhật ảnh cho màu sắc cụ thể
+                    // Cập nhật ảnh cho màu sắc cụ thể và tất cả các hàng có màu này
                     handlers.updateImage(0, 0, idColor, imageUrl)
                   }}
                 />
