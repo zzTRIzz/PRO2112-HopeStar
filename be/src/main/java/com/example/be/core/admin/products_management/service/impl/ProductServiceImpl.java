@@ -14,9 +14,6 @@ import com.example.be.repository.*;
 import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.core.admin.products_management.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,10 +31,35 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getAll() {
         List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(product -> productMapper.dtoToResponse(productMapper.entityToDTO(product)))
+        List<ProductDTO> dtoList = new ArrayList<>();
+
+        for (Product product:products) {
+            int totalVersion = product.getProductDetails().size();
+            int totalNumber =0;
+            for (ProductDetail productDetail: product.getProductDetails()) {
+                for (Imei imei: productDetail.getImeis()) {
+                    if (imei.getStatus().equals(StatusImei.NOT_SOLD)){
+                        totalNumber ++;
+                    }
+                }
+            }
+            ProductDTO productDTO = productMapper.entityToDTO(product);
+            productDTO.setTotalVersion(totalVersion);
+            productDTO.setTotalNumber(totalNumber);
+            dtoList.add(productDTO);
+        }
+
+        List<ProductResponse> responseList = new ArrayList<>();
+
+        for (ProductDTO productDTO:dtoList) {
+            ProductResponse productResponse = productMapper.dtoToResponse(productDTO);
+            responseList.add(productResponse);
+        }
+        return responseList.stream()
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Product getProductById(Integer id) throws Exception {
@@ -103,28 +125,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> searchProducts(SearchProductRequest searchRequest, int page, int size) {
+    public List<ProductResponse> searchProducts(SearchProductRequest searchRequest) {
         List<Product> allMatchingProducts = productRepository.findAllMatching(searchRequest);
-
-        if (allMatchingProducts.isEmpty()) {
-            return Page.empty();
-        }
-
-        int total = allMatchingProducts.size();
-        int totalPages = (int) Math.ceil((double) total / size);
-
-        // Nếu trang hiện tại không có dữ liệu, chuyển đến trang cuối cùng có dữ liệu
-        if (page * size >= total) {
-            page = totalPages - 1;
-        }
-
-        int start = Math.min(page * size, total);
-        int end = Math.min(start + size, total);
-        List<Product> pagedProducts = allMatchingProducts.subList(start, end);
 
         List<ProductDTO> dtoList = new ArrayList<>();
 
-        for (Product product:pagedProducts) {
+        for (Product product:allMatchingProducts) {
             int totalVersion = product.getProductDetails().size();
             int totalNumber =0;
             for (ProductDetail productDetail: product.getProductDetails()) {
@@ -147,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
             responseList.add(productResponse);
         }
 
-        return new PageImpl<>(responseList, PageRequest.of(page, size), total);
+        return responseList;
     }
 
 

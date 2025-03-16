@@ -76,3 +76,17 @@ export type ProductImeiRequest = z.infer<typeof productImeiRequestSchema>
 
 // Constants for select options
 export const CHARGER_TYPES = ['Type-C', 'Lightning', 'Micro USB'] as const
+
+// Interface cho SearchProductRequest
+export interface SearchProductRequest {
+  key?: string;
+  idChip?: number;
+  idBrand?: number;
+  idScreen?: number;
+  idCard?: number;
+  idOs?: number;
+  idWifi?: number;
+  idBluetooth?: number;
+  idBattery?: number;
+  idCategory?: number;
+}

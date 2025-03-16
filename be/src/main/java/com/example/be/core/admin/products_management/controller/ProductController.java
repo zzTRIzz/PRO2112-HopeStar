@@ -7,7 +7,6 @@ import com.example.be.core.admin.products_management.dto.request.ProductConfigRe
 import com.example.be.core.admin.products_management.dto.request.ProductRequest;
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
-import com.example.be.core.admin.products_management.dto.response.ApiResponse;
 import com.example.be.core.admin.products_management.dto.response.ProductConfigResponse;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.core.admin.products_management.dto.response.ProductResponse;
@@ -32,20 +31,17 @@ public class ProductController {
     private final ProductDetailService productDetailService;
     private final ProductMapper productMapper;
 
-    //    @GetMapping
-//    public ResponseEntity<List<ProductResponse>> getAll(){
-//
-//        List<ProductResponse> responses = productService.getAll();
-//        return ResponseEntity.ok(responses);
-//
-//    }
     @GetMapping("")
-    public ResponseEntity<List<ProductResponse>> searchProducts(
-            @ModelAttribute SearchProductRequest searchRequest,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<ProductResponse>> getAll(){
+        List<ProductResponse> responses = productService.getAll();
+        return ResponseEntity.ok(responses);
 
-        List<ProductResponse> result = productService.searchProducts(searchRequest, page, size).getContent();
+    }
+    @GetMapping("search")
+    public ResponseEntity<List<ProductResponse>> searchProducts(
+            @ModelAttribute SearchProductRequest searchRequest) {
+
+        List<ProductResponse> result = productService.searchProducts(searchRequest);
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}")

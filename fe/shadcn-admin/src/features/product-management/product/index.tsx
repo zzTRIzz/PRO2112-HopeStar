@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
-import { Header } from '@/components/layout/header'
-import { Main } from '@/components/layout/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
-import { DataTable } from './components/data-table'
-import { TasksDialogs } from './components/product-dialogs'
-import { StatusSwitch } from './components/status-switch'
-import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
-import TasksProvider from './context/tasks-context'
-import { getProducts } from './data/api-service'
-import type { ProductResponse } from './data/schema'
+import React, { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Header } from '@/components/layout/header';
+import { Main } from '@/components/layout/main';
+import { ProfileDropdown } from '@/components/profile-dropdown';
+import { Search } from '@/components/search';
+import { ThemeSwitch } from '@/components/theme-switch';
+import { DataTable } from './components/data-table';
+import { TasksDialogs } from './components/product-dialogs';
+import { StatusSwitch } from './components/status-switch';
+import { TasksPrimaryButtons } from './components/tasks-primary-buttons';
+import TasksProvider from './context/tasks-context';
+import { getProducts, searchProducts } from './data/api-service';
+import type { ProductResponse, SearchProductRequest } from './data/schema';
 
 const columns: ColumnDef<ProductResponse>[] = [
   {
@@ -30,7 +30,7 @@ const columns: ColumnDef<ProductResponse>[] = [
     accessorKey: 'totalNumber',
     header: 'Total',
     cell: ({ row }) => {
-      const product = row.original as ProductResponse
+      const product = row.original as ProductResponse;
       return (
         <div className='flex items-center gap-1'>
           <span>{product.totalNumber}</span>
@@ -38,51 +38,99 @@ const columns: ColumnDef<ProductResponse>[] = [
             ({product.totalVersion} version)
           </span>
         </div>
-      )
+      );
     },
   },
   {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const product = row.original as ProductResponse
-      return <StatusSwitch product={product} />
+      const product = row.original as ProductResponse;
+      return <StatusSwitch product={product} />;
     },
   },
-]
+];
 
 export default function Product() {
-  const [products, setProducts] = useState<ProductResponse[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
+  // State cho các filter
+  const [searchValue, setSearchValue] = useState('');
+  const [idChip, setIdChip] = useState<number | undefined>(undefined);
+  const [idBrand, setIdBrand] = useState<number | undefined>(undefined);
+  const [idScreen, setIdScreen] = useState<number | undefined>(undefined);
+  const [idCard, setIdCard] = useState<number | undefined>(undefined);
+  const [idOs, setIdOs] = useState<number | undefined>(undefined);
+  const [idWifi, setIdWifi] = useState<number | undefined>(undefined);
+  const [idBluetooth, setIdBluetooth] = useState<number | undefined>(undefined);
+  const [idBattery, setIdBattery] = useState<number | undefined>(undefined);
+  const [idCategory, setIdCategory] = useState<number | undefined>(undefined);
+
+  // Gọi API getProducts khi vào trang
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProducts()
-        setProducts(data)
+        const data = await getProducts();
+        setProducts(data);
       } catch (error) {
-        setError(error as Error)
+        setError(error as Error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
+
+  // Gọi API searchProducts khi có thay đổi trong filter
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Nếu không có giá trị tìm kiếm hoặc filter, gọi getProducts
+        if (!searchValue && !idChip && !idBrand && !idScreen && !idCard && !idOs && !idWifi && !idBluetooth && !idBattery && !idCategory) {
+          const data = await getProducts();
+          setProducts(data);
+          return;
+        }
+
+        // Nếu có giá trị tìm kiếm hoặc filter, gọi searchProducts
+        const searchProductRequest: SearchProductRequest = {
+          key: searchValue,
+          idChip,
+          idBrand,
+          idScreen,
+          idCard,
+          idOs,
+          idWifi,
+          idBluetooth,
+          idBattery,
+          idCategory,
+        };
+        const data = await searchProducts(searchProductRequest);
+        setProducts(data);
+      } catch (error) {
+        setError(error as Error);
+      }
+    };
+
+    fetchData();
+  }, [searchValue, idChip, idBrand, idScreen, idCard, idOs, idWifi, idBluetooth, idBattery, idCategory]);
 
   if (loading)
     return (
       <div className='flex h-screen items-center justify-center text-2xl'>
         Loading...
       </div>
-    )
+    );
+
   if (error)
     return (
       <div className='mt-9 flex h-screen items-center justify-center text-2xl'>
         Error: {error.message}
       </div>
-    )
+    );
 
   return (
     <TasksProvider>
@@ -105,11 +153,34 @@ export default function Product() {
           <TasksPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <DataTable data={products} columns={columns} />
+          <DataTable
+            data={products}
+            columns={columns}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            idChip={idChip}
+            setIdChip={setIdChip}
+            idBrand={idBrand}
+            setIdBrand={setIdBrand}
+            idScreen={idScreen}
+            setIdScreen={setIdScreen}
+            idCard={idCard}
+            setIdCard={setIdCard}
+            idOs={idOs}
+            setIdOs={setIdOs}
+            idWifi={idWifi}
+            setIdWifi={setIdWifi}
+            idBluetooth={idBluetooth}
+            setIdBluetooth={setIdBluetooth}
+            idBattery={idBattery}
+            setIdBattery={setIdBattery}
+            idCategory={idCategory}
+            setIdCategory={setIdCategory}
+          />
         </div>
       </Main>
 
       <TasksDialogs />
     </TasksProvider>
-  )
+  );
 }

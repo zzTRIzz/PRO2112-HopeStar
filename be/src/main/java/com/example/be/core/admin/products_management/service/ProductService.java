@@ -15,5 +15,5 @@ public interface ProductService {
     Product getProductById(Integer id) throws Exception;
     void update(ProductRequest productRequest, Integer id) throws Exception;
     void updateStatus(Integer id) throws Exception;
-    Page<ProductResponse> searchProducts(SearchProductRequest searchRequest, int page, int size);
+    List<ProductResponse> searchProducts(SearchProductRequest searchRequest);
 }

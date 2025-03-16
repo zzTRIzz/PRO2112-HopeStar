@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product, Integer> {
+
     @Query("SELECT p FROM Product p " +
             "LEFT JOIN p.brand b " +
             "LEFT JOIN p.screen s " +
@@ -22,8 +23,7 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "LEFT JOIN p.battery ba " +
             "LEFT JOIN ProductCategory pc ON p.id = pc.product.id " +
             "LEFT JOIN pc.category cat " +
-            "WHERE (:#{#searchRequest.code} IS NULL OR p.code LIKE %:#{#searchRequest.code}%) " +
-            "AND (:#{#searchRequest.name} IS NULL OR p.name LIKE %:#{#searchRequest.name}%) " +
+            "WHERE (:#{#searchRequest.key} IS NULL OR p.code LIKE %:#{#searchRequest.key}% OR p.name LIKE %:#{#searchRequest.key}%) " +
             "AND (:#{#searchRequest.idChip} IS NULL OR p.chip.id = :#{#searchRequest.idChip}) " +
             "AND (:#{#searchRequest.idBrand} IS NULL OR b.id = :#{#searchRequest.idBrand}) " +
             "AND (:#{#searchRequest.idScreen} IS NULL OR s.id = :#{#searchRequest.idScreen}) " +
@@ -34,5 +34,6 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND (:#{#searchRequest.idBattery} IS NULL OR ba.id = :#{#searchRequest.idBattery}) " +
             "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory})")
     List<Product> findAllMatching(@Param("searchRequest") SearchProductRequest searchRequest);
+
 
   }

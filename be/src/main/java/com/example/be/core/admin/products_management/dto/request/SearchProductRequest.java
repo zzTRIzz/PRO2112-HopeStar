@@ -5,8 +5,7 @@ import lombok.Data;
 
 @Data
 public class SearchProductRequest {
-    private String code;
-    private String name;
+    private String key;
     private Integer idChip;
     private Integer idBrand;
     private Integer idScreen;
