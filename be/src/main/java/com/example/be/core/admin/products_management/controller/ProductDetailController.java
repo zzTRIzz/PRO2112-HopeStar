@@ -33,7 +33,5 @@ public class ProductDetailController {
         }catch (Exception e){
             return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
         }
-
     }
-
 }

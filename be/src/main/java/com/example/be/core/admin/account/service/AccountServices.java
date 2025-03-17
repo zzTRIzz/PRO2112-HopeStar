@@ -10,6 +10,6 @@ public interface AccountServices {
     Account create(AccountRequest request);
     Account update(Integer id,AccountRequest request);
     Account getById(Integer id);
-
+    List<Account> getByAccount();
 
 }

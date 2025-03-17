@@ -18,8 +18,8 @@ public class ShoppingCart extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_account")
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "id_account", unique = true,nullable = true)
     private Account idAccount;
 
     @Size(max = 255)

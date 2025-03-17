@@ -12,7 +12,7 @@ public class VoucherRequest {
     private String name;
     private BigDecimal conditionPriceMin;
     private BigDecimal conditionPriceMax;
-    private Integer discountValue;
+    private BigDecimal discountValue;
     private Boolean voucherType;
     private Integer quantity;
     private LocalDateTime startTime;

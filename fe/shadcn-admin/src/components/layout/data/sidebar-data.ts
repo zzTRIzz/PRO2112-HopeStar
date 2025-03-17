@@ -19,6 +19,7 @@ import {
   IconUserOff,
   IconUsers,
   IconSubtask,
+  IconDiscount,
   IconPointFilled
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
@@ -45,6 +46,12 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/',
           icon: IconLayoutDashboard,
+        }
+        ,
+         {
+          title: 'Bán Hàng',
+          url: '/banhang',
+          icon: IconShoppingCart,
         }
         ,
         {
@@ -166,6 +173,11 @@ export const sidebarData: SidebarData = {
           url: '/users',
           icon: IconUsers,
         },
+        {
+          title: 'Voucher',
+          url: '/voucher',
+          icon: IconDiscount
+        }
       ],
     },
     {

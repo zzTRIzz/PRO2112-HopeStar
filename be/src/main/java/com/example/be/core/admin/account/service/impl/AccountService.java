@@ -7,8 +7,10 @@ import com.example.be.entity.Role;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.AccountRepository;
 import com.example.be.core.admin.account.dto.request.AccountRequest;
+import com.example.be.repository.BillRepository;
 import com.example.be.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +24,15 @@ public class AccountService {
 
     private final RoleRepository roleRepository;
 
+    private final BillRepository billRepository;
+
     public AccountResponse create(AccountRequest request) {
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
         Account account = new Account();
         account.setFullName(request.getFullName());
-        account.setCode("USER_"+ accountRepository.getNewCode());
+        account.setCode("USER_" + accountRepository.getNewCode());
         account.setEmail(request.getEmail());
         account.setPassword(request.getPassword());
         account.setPhone(request.getPhone());
@@ -74,7 +78,6 @@ public class AccountService {
         return response;
     }
 
-
     public AccountResponse update(Integer id, AccountRequest request) {
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
@@ -98,4 +101,28 @@ public class AccountService {
                 .map(this::convertToResponse)
                 .orElse(null);
     }
+
+
+    public List<AccountResponse> getAllKhachHang() {
+
+        return accountRepository.getAllAcountKhachHang().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    public AccountResponse getByAccount(Integer idBill) {
+        try {
+            billRepository.findById(idBill).orElseThrow(() -> new RuntimeException("Không tìm thấy bill" + idBill));
+            Account accounts = accountRepository.getByAccount(idBill);
+            if (accounts == null) {
+                return new AccountResponse(); // Trả về đối tượng rỗng thay vì null
+            }
+            return convertToResponse(accounts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());
+        }
+    }
+
 }
