@@ -263,7 +263,7 @@ export default function CreateProduct() {
             }}
             className='space-y-4'
           >
-            <ProductForm
+            {/* <ProductForm
               control={form.control}
               batteries={batteries}
               bluetooths={bluetooths}
@@ -277,7 +277,7 @@ export default function CreateProduct() {
               screens={screens}
               sims={sims}
               wifis={wifis}
-            />
+            /> */}
 
             <FormProvider {...form}>
               <ProductDetailForm

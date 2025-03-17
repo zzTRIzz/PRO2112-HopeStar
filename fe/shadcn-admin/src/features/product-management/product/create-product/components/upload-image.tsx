@@ -40,8 +40,9 @@ export function ImageUploader({
       onImageChange(data.secure_url) // Gọi callback để cập nhật ảnh lên component cha
       toast.success('Tải ảnh lên thành công')
     } catch (error) {
-      console.error('Lỗi khi tải ảnh lên Cloudinary:', error)
-      toast.error('Không thể tải ảnh lên. Vui lòng thử lại.')
+      // Xử lý lỗi mà không dùng console.log
+      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định'
+      toast.error(`Không thể tải ảnh lên: ${errorMessage}`)
     } finally {
       setIsUploading(false)
     }
@@ -50,6 +51,19 @@ export function ImageUploader({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Kiểm tra kích thước file (giới hạn 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Kích thước ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 5MB.')
+      return
+    }
+
+    // Kiểm tra định dạng file
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Định dạng ảnh không hỗ trợ. Vui lòng sử dụng JPEG, PNG hoặc WebP.')
+      return
+    }
 
     // Hiển thị preview trước khi upload
     const localPreviewUrl = URL.createObjectURL(file)
@@ -109,6 +123,7 @@ export function ImageUploader({
         className='hidden'
         onChange={handleFileChange}
       />
+      {isUploading && <p className="text-xs text-muted-foreground">Đang tải ảnh lên...</p>}
     </div>
   )
 }
