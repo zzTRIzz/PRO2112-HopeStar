@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,6 +24,9 @@ public class Account extends AuditEntity {
     @Size(max = 255)
     @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Size(max = 255)
     @Column(name = "code")

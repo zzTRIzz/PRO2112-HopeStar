@@ -1,6 +1,7 @@
 package com.example.be.core.admin.account.controller;
 
 import com.example.be.core.admin.account.dto.request.AccountRequest;
+import com.example.be.core.admin.account.dto.request.NhanVienRequest;
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.ResponseData;
 import com.example.be.core.admin.account.dto.response.ResponseError;
@@ -43,5 +44,32 @@ public class AccountController {
         return new ResponseData<>(HttpStatus.ACCEPTED,"Cập nhật user thành công",accountService.update(id,request));
     }
 
+    @GetMapping("list-nhan-vien")
+    public ResponseData<List<AccountResponse>> listNhanVien(){
+        try {
+            return new ResponseData<List<AccountResponse>>(HttpStatus.OK,"Lấy user thành công",accountService.getAllNhanVien());
+        }catch (Exception e){
+            return new ResponseError(HttpStatus.BAD_REQUEST,"Lỗi");
+        }
+    }
+
+    @PostMapping("add-nhan-vien")
+    public ResponseData<AccountResponse> addNhanVien(@RequestBody NhanVienRequest request){
+        return new ResponseData<>(HttpStatus.CREATED,"Thêm user thành công",accountService.createNhanVien(request));
+    }
+
+    @PutMapping("update-nhan-vien/{id}")
+    public ResponseData<AccountResponse> updateNhanVien(@PathVariable Integer id, @RequestBody NhanVienRequest request){
+        return new ResponseData<>(HttpStatus.ACCEPTED,"Cập nhật user thành công",accountService.updateNhanVien(id,request));
+    }
+
+    @GetMapping("list-khach-hang")
+    public ResponseData<List<AccountResponse>> listKhachHang(){
+        try {
+            return new ResponseData<List<AccountResponse>>(HttpStatus.OK,"Lấy user thành công",accountService.getAllGuest());
+        }catch (Exception e){
+            return new ResponseError(HttpStatus.BAD_REQUEST,"Lỗi");
+        }
+    }
 
 }

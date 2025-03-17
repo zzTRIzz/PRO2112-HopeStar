@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 
 /**
  * DTO for {@link Account}
@@ -35,5 +37,6 @@ public class AccountResponse {
     String imageAvatar;
     RoleResponse idRole;
     Boolean gender;
+    LocalDate birthDate;
     String status;
 }

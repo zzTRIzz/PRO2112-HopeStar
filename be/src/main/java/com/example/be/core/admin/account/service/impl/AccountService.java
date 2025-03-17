@@ -1,5 +1,6 @@
 package com.example.be.core.admin.account.service.impl;
 
+import com.example.be.core.admin.account.dto.request.NhanVienRequest;
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.RoleResponse;
 import com.example.be.entity.Account;
@@ -10,7 +11,6 @@ import com.example.be.core.admin.account.dto.request.AccountRequest;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class AccountService {
         );
         Account account = new Account();
         account.setFullName(request.getFullName());
-        account.setCode("USER_" + accountRepository.getNewCode());
+        account.setCode("USER_"+ accountRepository.getNewCode());
         account.setEmail(request.getEmail());
         account.setPassword(request.getPassword());
         account.setPhone(request.getPhone());
@@ -40,14 +40,52 @@ public class AccountService {
         account.setGoogleId(request.getGoogleId());
         account.setImageAvatar(request.getImageAvatar());
         account.setIdRole(role);
-        account.setGender(false);
+        account.setGender(request.getGender());
+        account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.ACTIVE);
+        return convertToResponse(accountRepository.save(account));
+    }
+
+    public AccountResponse createNhanVien(NhanVienRequest request){
+        Role role = roleRepository.findById(3).orElseThrow(
+                () -> new RuntimeException("Role not found")
+        );
+        Account account = new Account();
+        account.setFullName(request.getFullName());
+        account.setBirthDate(request.getBirthDate());
+        account.setCode(request.getCode());
+        account.setEmail(request.getEmail());
+        account.setPassword(request.getPassword());
+        account.setPhone(request.getPhone());
+        account.setAddress(request.getAddress());
+        account.setGoogleId(request.getGoogleId());
+        account.setImageAvatar(request.getImageAvatar());
+        account.setIdRole(role);
+        account.setGender(request.getGender());
+        account.setStatus(StatusCommon.ACTIVE);
+
         return convertToResponse(accountRepository.save(account));
     }
 
     public List<AccountResponse> getAll() {
         return accountRepository.findAll().stream()
                 .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccountResponse> getAllGuest(){
+        Role role = roleRepository.findById(2).orElseThrow(() -> new RuntimeException(">>>>Role not found khách hàng"));
+        return accountRepository.findAccountsByIdRole(role)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccountResponse> getAllNhanVien() {
+        Role role = roleRepository.findById(3).orElseThrow(() -> new RuntimeException(">>>>Role not found nhân viên"));
+        return accountRepository.findAccountsByIdRole(role)
+                .stream()
+                .map(account -> this.convertToResponse(account))
                 .collect(Collectors.toList());
     }
 
@@ -73,10 +111,12 @@ public class AccountService {
         response.setImageAvatar(account.getImageAvatar());
         response.setIdRole(roleResponse);
         response.setGender(account.getGender());
+        response.setBirthDate(account.getBirthDate());
         response.setStatus(String.valueOf(account.getStatus()));
 
         return response;
     }
+
 
     public AccountResponse update(Integer id, AccountRequest request) {
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
@@ -92,6 +132,27 @@ public class AccountService {
         account.setImageAvatar(request.getImageAvatar());
         account.setIdRole(role);
         account.setGender(request.getGender());
+        account.setBirthDate(request.getBirthDate());
+        account.setStatus(StatusCommon.valueOf(request.getStatus()));
+        return convertToResponse(accountRepository.save(account));
+    }
+
+    public AccountResponse updateNhanVien(Integer id, NhanVienRequest request){
+        Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
+                () -> new RuntimeException("Role not found")
+        );
+        Account account = accountRepository.findById(id).orElseThrow();
+        account.setCode(request.getCode());
+        account.setFullName(request.getFullName());
+        account.setEmail(request.getEmail());
+        account.setPassword(request.getPassword());
+        account.setPhone(request.getPhone());
+        account.setAddress(request.getAddress());
+        account.setGoogleId(request.getGoogleId());
+        account.setImageAvatar(request.getImageAvatar());
+        account.setIdRole(role);
+        account.setGender(request.getGender());
+        account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.valueOf(request.getStatus()));
         return convertToResponse(accountRepository.save(account));
     }
@@ -102,14 +163,12 @@ public class AccountService {
                 .orElse(null);
     }
 
-
     public List<AccountResponse> getAllKhachHang() {
 
         return accountRepository.getAllAcountKhachHang().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
-
 
     public AccountResponse getByAccount(Integer idBill) {
         try {
@@ -124,5 +183,6 @@ public class AccountService {
             throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());
         }
     }
+
 
 }

@@ -1,17 +1,16 @@
 package com.example.be.core.admin.account.dto.request;
 
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
 
-
 @Data
-public class AccountRequest {
-    String code;
-
+public class NhanVienRequest {
     String fullName;
+    String code;
     @Size(max = 255)
     @Email(message = "Đang sai định dạng email")
     String email;
