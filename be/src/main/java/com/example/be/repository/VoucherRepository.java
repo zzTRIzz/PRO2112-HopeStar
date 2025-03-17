@@ -22,4 +22,10 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
   List<Voucher> findByStartTimeBetween(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
   @Query("SELECT v FROM Voucher v ORDER BY v.id DESC")
   List<Voucher> findAllOrderByIdDesc();
+  @Query("SELECT v FROM Voucher v WHERE LOWER(v.code) LIKE LOWER(CONCAT('%', :code, '%')) AND v.startTime >= :startTime AND v.endTime <= :endTime")
+  List<Voucher> findByCodeAndDateRange(
+          @Param("code") String code,
+          @Param("startTime") LocalDateTime startTime,
+          @Param("endTime") LocalDateTime endTime
+  );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getVouchers, searchVoucherByCode, searchVoucherByDate } from "./data/apiVoucher"
+import { getVouchers, searchVoucherByCode, searchVoucherByDate, searchVoucherByCodeAndDate, searchVoucherByDateRange } from "./data/apiVoucher"
 import { useNavigate } from "@tanstack/react-router";
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -17,8 +17,49 @@ interface Voucher {
     quantity: number;
     startTime: string;
     endTime: string;
-    status: "ACTIVE" | "IN_ACTIVE";
+    status: "UPCOMING" | "ACTIVE" | "EXPIRED";
 }
+
+// Add helper function to check voucher status
+const getVoucherStatus = (startTime: string, endTime: string): "UPCOMING" | "ACTIVE" | "EXPIRED" => {
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+
+    if (now < startDate) {
+        return "UPCOMING";
+    } else if (now > endDate) {
+        return "EXPIRED";
+    } else {
+        return "ACTIVE";
+    }
+};
+
+// Update the status display in the table
+const getStatusDisplay = (status: string) => {
+    switch (status) {
+        case "UPCOMING":
+            return {
+                text: "Sắp diễn ra",
+                className: "bg-yellow-100 text-yellow-800"
+            };
+        case "ACTIVE":
+            return {
+                text: "Đang hoạt động",
+                className: "bg-green-100 text-green-800"
+            };
+        case "EXPIRED":
+            return {
+                text: "Đã hết hạn",
+                className: "bg-red-100 text-red-800"
+            };
+        default:
+            return {
+                text: status,
+                className: "bg-gray-100 text-gray-800"
+            };
+    }
+};
 
 // Thêm component NoData
 const NoData = () => (
@@ -232,29 +273,68 @@ export default function VoucherUI() {
         try {
             setLoading(true);
             let data;
-            if (searchCode.trim()) {
-                data = await searchVoucherByCode(searchCode);
-            } else if (searchStartTime && searchEndTime) {
+
+            // Sửa lại phần xử lý tìm kiếm kết hợp
+            if (searchCode.trim() && searchStartTime && searchEndTime) {
                 const startDate = new Date(searchStartTime);
                 const endDate = new Date(searchEndTime);
                 
                 if (startDate > endDate) {
-                    setError(new Error('Ngày bắt đầu không được sau ngày kết thúc'));
+                    toast.error('Ngày bắt đầu không được sau ngày kết thúc');
+                    return;
+                }
+
+                try {
+                    data = await searchVoucherByCodeAndDate(
+                        searchCode.trim(),
+                        searchStartTime,
+                        searchEndTime
+                    );
+
+                    if (data.length === 0) {
+                        toast.info('Không tìm thấy voucher phù hợp với điều kiện tìm kiếm');
+                    } else {
+                        console.log('Found vouchers:', data); // Debug log
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    toast.error('Có lỗi xảy ra khi tìm kiếm');
+                }
+            }
+            // Nếu chỉ có mã code
+            else if (searchCode.trim()) {
+                data = await searchVoucherByCode(searchCode);
+                if (data.length === 0) {
+                    toast.info('Không tìm thấy voucher với mã này');
+                }
+            }
+            // Nếu chỉ có ngày
+            else if (searchStartTime && searchEndTime) {
+                const startDate = new Date(searchStartTime);
+                const endDate = new Date(searchEndTime);
+                
+                if (startDate > endDate) {
+                    toast.error('Ngày bắt đầu không được sau ngày kết thúc');
                     return;
                 }
                 
-                data = await searchVoucherByDate(searchStartTime, searchEndTime);
-            } else {
+                data = await searchVoucherByDateRange(searchStartTime, searchEndTime);
+                if (data.length === 0) {
+                    toast.info('Không tìm thấy voucher trong khoảng thời gian này');
+                }
+            }
+            // Nếu không có điều kiện tìm kiếm nào
+            else {
                 data = await getVouchers();
             }
 
             setVouchers(Array.isArray(data) ? data : []);
             setCurrentPage(1);
             setError(null);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error searching:', error);
-            setError(error as Error);
-            setVouchers([]); // Reset vouchers khi có lỗi
+            toast.error(error.message || 'Có lỗi xảy ra khi tìm kiếm');
+            setVouchers([]);
         } finally {
             setLoading(false);
         }
@@ -428,12 +508,15 @@ export default function VoucherUI() {
                                             {new Date(voucher.endTime).toLocaleDateString('vi-VN')}
                                         </td>
                                         <td className="p-3">
-                                            <span className={`px-2 py-1 rounded-full text-sm ${voucher.status === 'ACTIVE'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {voucher.status === 'ACTIVE' ? 'Hoạt động' : 'Hết hạn'}
-                                            </span>
+                                            {(() => {
+                                                const status = getVoucherStatus(voucher.startTime, voucher.endTime);
+                                                const statusDisplay = getStatusDisplay(status);
+                                                return (
+                                                    <span className={`px-2 py-1 rounded-full text-sm ${statusDisplay.className}`}>
+                                                        {statusDisplay.text}
+                                                    </span>
+                                                );
+                                            })()}
                                         </td>
                                         <td className="p-3 space-x-2">
                                             <button
