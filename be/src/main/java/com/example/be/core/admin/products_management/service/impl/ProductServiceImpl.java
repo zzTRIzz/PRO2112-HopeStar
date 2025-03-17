@@ -37,11 +37,7 @@ public class ProductServiceImpl implements ProductService {
             int totalVersion = product.getProductDetails().size();
             int totalNumber =0;
             for (ProductDetail productDetail: product.getProductDetails()) {
-                for (Imei imei: productDetail.getImeis()) {
-                    if (imei.getStatus().equals(StatusImei.NOT_SOLD)){
-                        totalNumber ++;
-                    }
-                }
+                totalNumber +=productDetail.getInventoryQuantity();
             }
             ProductDTO productDTO = productMapper.entityToDTO(product);
             productDTO.setTotalVersion(totalVersion);
@@ -134,11 +130,7 @@ public class ProductServiceImpl implements ProductService {
             int totalVersion = product.getProductDetails().size();
             int totalNumber =0;
             for (ProductDetail productDetail: product.getProductDetails()) {
-                for (Imei imei: productDetail.getImeis()) {
-                    if (imei.getStatus().equals(StatusImei.NOT_SOLD)){
-                        totalNumber ++;
-                    }
-                }
+                totalNumber +=productDetail.getInventoryQuantity();
             }
             ProductDTO productDTO = productMapper.entityToDTO(product);
             productDTO.setTotalVersion(totalVersion);
@@ -153,7 +145,9 @@ public class ProductServiceImpl implements ProductService {
             responseList.add(productResponse);
         }
 
-        return responseList;
+        return responseList.stream()
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
+                .collect(Collectors.toList());
     }
 
 

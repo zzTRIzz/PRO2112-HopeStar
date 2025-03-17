@@ -77,6 +77,22 @@ export type ProductImeiRequest = z.infer<typeof productImeiRequestSchema>
 // Constants for select options
 export const CHARGER_TYPES = ['Type-C', 'Lightning', 'Micro USB'] as const
 
+interface StatusOption {
+  value: 'ACTIVE' | 'IN_ACTIVE'
+  name: string
+}
+
+export const STATUS: StatusOption[] = [
+  {
+    value: 'ACTIVE',
+    name: 'Hoạt động'
+  },
+  {
+    value: 'IN_ACTIVE',
+    name: 'Không hoạt động'
+  }
+]
+
 // Interface cho SearchProductRequest
 export interface SearchProductRequest {
   key?: string;
@@ -89,4 +105,5 @@ export interface SearchProductRequest {
   idBluetooth?: number;
   idBattery?: number;
   idCategory?: number;
+  status?: string;
 }

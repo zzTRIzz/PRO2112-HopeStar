@@ -32,7 +32,8 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND (:#{#searchRequest.idWifi} IS NULL OR w.id = :#{#searchRequest.idWifi}) " +
             "AND (:#{#searchRequest.idBluetooth} IS NULL OR bt.id = :#{#searchRequest.idBluetooth}) " +
             "AND (:#{#searchRequest.idBattery} IS NULL OR ba.id = :#{#searchRequest.idBattery}) " +
-            "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory})")
+            "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory})"+
+            "AND (:#{#searchRequest.status} IS NULL OR p.status = :#{#searchRequest.getStatusCommon()})")
     List<Product> findAllMatching(@Param("searchRequest") SearchProductRequest searchRequest);
 
 

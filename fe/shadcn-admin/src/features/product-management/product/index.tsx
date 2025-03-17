@@ -17,25 +17,29 @@ const columns: ColumnDef<ProductResponse>[] = [
   {
     accessorKey: 'id',
     header: 'STT',
+    cell: ({ row }) => {
+      // Lấy index của row và cộng thêm 1 vì index bắt đầu từ 0
+      return <div>{row.index + 1}</div>
+    },
   },
   {
     accessorKey: 'code',
-    header: 'Code',
+    header: 'Mã',
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên sản phẩm',
   },
   {
     accessorKey: 'totalNumber',
-    header: 'Total',
+    header: 'Tổng số lượng',
     cell: ({ row }) => {
       const product = row.original as ProductResponse;
       return (
         <div className='flex items-center gap-1'>
           <span>{product.totalNumber}</span>
           <span className='text-muted-foreground'>
-            ({product.totalVersion} version)
+            ({product.totalVersion} phiên bản)
           </span>
         </div>
       );
@@ -43,7 +47,7 @@ const columns: ColumnDef<ProductResponse>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const product = row.original as ProductResponse;
       return <StatusSwitch product={product} />;
@@ -67,6 +71,7 @@ export default function Product() {
   const [idBluetooth, setIdBluetooth] = useState<number | undefined>(undefined);
   const [idBattery, setIdBattery] = useState<number | undefined>(undefined);
   const [idCategory, setIdCategory] = useState<number | undefined>(undefined);
+  const [status, setStatus] = useState<string | undefined>(undefined);
 
   // Gọi API getProducts khi vào trang
   useEffect(() => {
@@ -89,7 +94,7 @@ export default function Product() {
     const fetchData = async () => {
       try {
         // Nếu không có giá trị tìm kiếm hoặc filter, gọi getProducts
-        if (!searchValue && !idChip && !idBrand && !idScreen && !idCard && !idOs && !idWifi && !idBluetooth && !idBattery && !idCategory) {
+        if (!searchValue && !idChip && !idBrand && !idScreen && !idCard && !idOs && !idWifi && !idBluetooth && !idBattery && !idCategory && !status) {
           const data = await getProducts();
           setProducts(data);
           return;
@@ -107,6 +112,7 @@ export default function Product() {
           idBluetooth,
           idBattery,
           idCategory,
+          status,
         };
         const data = await searchProducts(searchProductRequest);
         setProducts(data);
@@ -116,19 +122,19 @@ export default function Product() {
     };
 
     fetchData();
-  }, [searchValue, idChip, idBrand, idScreen, idCard, idOs, idWifi, idBluetooth, idBattery, idCategory]);
+  }, [searchValue, idChip, idBrand, idScreen, idCard, idOs, idWifi, idBluetooth, idBattery, idCategory, status]);
 
   if (loading)
     return (
       <div className='flex h-screen items-center justify-center text-2xl'>
-        Loading...
+        Đang tải...
       </div>
     );
 
   if (error)
     return (
       <div className='mt-9 flex h-screen items-center justify-center text-2xl'>
-        Error: {error.message}
+        Lỗi: {error.message}
       </div>
     );
 
@@ -145,9 +151,9 @@ export default function Product() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Product</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Quản lý sản phẩm</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your product for this month!
+              Danh sách sản phẩm của bạn trong hệ thống
             </p>
           </div>
           <TasksPrimaryButtons />
@@ -176,6 +182,8 @@ export default function Product() {
             setIdBattery={setIdBattery}
             idCategory={idCategory}
             setIdCategory={setIdCategory}
+            status={status}
+            setStatus={setStatus}
           />
         </div>
       </Main>

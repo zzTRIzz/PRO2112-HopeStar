@@ -47,6 +47,8 @@ interface DataTableProps<TData, TValue> {
   setIdBattery: (value: number | undefined) => void;
   idCategory: number | undefined;
   setIdCategory: (value: number | undefined) => void;
+  status: string | undefined;
+  setStatus: (value: string | undefined) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -72,6 +74,8 @@ export function DataTable<TData, TValue>({
   setIdBattery,
   idCategory,
   setIdCategory,
+  status,
+  setStatus,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -124,6 +128,8 @@ export function DataTable<TData, TValue>({
         setIdBattery={setIdBattery}
         idCategory={idCategory}
         setIdCategory={setIdCategory}
+        status={status}
+        setStatus={setStatus}
       />
       <div className='rounded-md border'>
         <Table>
@@ -152,7 +158,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className='h-24 text-center'>
-                  No results.
+                  Không có kết quả.
                 </TableCell>
               </TableRow>
             )}
