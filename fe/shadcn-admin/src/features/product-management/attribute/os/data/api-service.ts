@@ -13,6 +13,16 @@ export const getOs = async () => {
   }
 };
 
+export const getOsActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/os/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addOs = async (os: Os) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/os`, os);

@@ -17,16 +17,12 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
   List<BillDetail> findByIdBill(@Param("idBill") Integer idBill);
 
 
-
-  @Modifying
-  @Transactional
-   @Query("DELETE FROM BillDetail bd WHERE bd.idBill.id = :idBill")
-  void deleteByIDBill(@Param("idBill") Integer idBill);
+  @Query("SELECT bd FROM BillDetail bd WHERE bd.idProductDetail.id = :idProductDetail")
+  BillDetail searchBillDetail(@Param("idProductDetail") Integer idProductDetail);
 
 
   @Query("SELECT bd FROM BillDetail bd WHERE bd.idBill.id = :idBill AND bd.idProductDetail.id = :idProductDetail")
   Optional<BillDetail> findFirstByIdBillAndIdProductDetail(@Param("idBill") Integer idBill,
                                                            @Param("idProductDetail") Integer idProductDetail);
-
 
   }

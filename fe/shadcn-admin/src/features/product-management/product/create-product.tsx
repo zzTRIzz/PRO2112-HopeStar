@@ -1,326 +1,268 @@
-import { useForm } from 'react-hook-form'
+import { useCallback, useMemo, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { BeatLoader } from 'react-spinners'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import { SelectDropdown } from '@/components/select-dropdown'
-import { Product, productSchema } from './data/schema'
+import { Form } from '@/components/ui/form'
+import { getBatteryActive } from '../attribute/battery/data/api-service'
+import { getBluetoothActive } from '../attribute/bluetooth/data/api-service'
+import { getBrandActive } from '../attribute/brand/data/api-service'
+import { getCardActive } from '../attribute/card/data/api-service'
+import { getCategoryActive } from '../attribute/category/data/api-service'
+import { getChipActive } from '../attribute/chip/data/api-service'
+import { getColorActive } from '../attribute/color/data/api-service'
+import { getFrontCameraActive } from '../attribute/front-camera/data/api-service'
+import { getOsActive } from '../attribute/os/data/api-service'
+import { getRamActive } from '../attribute/ram/data/api-service'
+import { getRearCameraActive } from '../attribute/rear-camera/data/api-service'
+import { getRomActive } from '../attribute/rom/data/api-service'
+import { getScreenActive } from '../attribute/screen/data/api-service'
+import { getSimActive } from '../attribute/sim/data/api-service'
+import { getWifiActive } from '../attribute/wifi/data/api-service'
+import { createProduct } from './data/api-service'
+import { ProductConfigRequest, productConfigRequestSchema } from './data/schema'
+import { ProductDetailForm } from './product-detail-form'
+import { ProductForm } from './product-form'
 
-export default function CreateProduct() {
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
+const useFetchData = () => {
+  const { data } = useQuery({
+    queryKey: ['productAttributes'],
+    queryFn: async () => {
+      const [
+        batteries,
+        bluetooths,
+        brands,
+        cards,
+        categories,
+        chips,
+        colors,
+        frontCameras,
+        os,
+        rams,
+        rearCameras,
+        roms,
+        screens,
+        sims,
+        wifis,
+      ] = await Promise.all([
+        getBatteryActive(),
+        getBluetoothActive(),
+        getBrandActive(),
+        getCardActive(),
+        getCategoryActive(),
+        getChipActive(),
+        getColorActive(),
+        getFrontCameraActive(),
+        getOsActive(),
+        getRamActive(),
+        getRearCameraActive(),
+        getRomActive(),
+        getScreenActive(),
+        getSimActive(),
+        getWifiActive(),
+      ])
 
-  const form = useForm<Product>({
-    resolver: zodResolver(productSchema.omit({ id: true })),
-    defaultValues: {
-      code: '',
-      name: '',
-      description: '',
-      weight: 0,
-      nameChip: '',
-      nameBrand: '',
-      typeScreen: '',
-      typeCard: '',
-      nameOs: '',
-      nameWifi: '',
-      nameBluetooth: '',
-      frontCamera: [],
-      rearCamera: [],
-      category: [],
-      nfc: false,
-      typeBattery: '',
-      chargerType: '',
-      status: '',
-      content: '',
-      totalNumber: 0,
-      totalVersion: 0,
+      return {
+        batteries,
+        bluetooths,
+        brands,
+        cards,
+        categories,
+        chips,
+        colors,
+        frontCameras,
+        os,
+        rams,
+        rearCameras,
+        roms,
+        screens,
+        sims,
+        wifis,
+      }
     },
   })
 
-  const onSubmit = async (data: Product) => {
-    try {
-      // API call here
-      await queryClient.invalidateQueries({ queryKey: ['products'] })
-      toast({
-        title: 'Success',
-        description: 'Product created successfully',
-        className: 'bg-white',
-      })
-      navigate('/products')
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to create product',
-        variant: 'destructive',
-      })
+  return (
+    data || {
+      batteries: [],
+      bluetooths: [],
+      brands: [],
+      cards: [],
+      categories: [],
+      chips: [],
+      colors: [],
+      frontCameras: [],
+      os: [],
+      rams: [],
+      rearCameras: [],
+      roms: [],
+      screens: [],
+      sims: [],
+      wifis: [],
     }
-  }
+  )
+}
+
+export default function CreateProduct() {
+  const queryClient = useQueryClient()
+  const [isLoading, setIsLoading] = useState(false)
+  const [tableRows, setTableRows] = useState<
+    { ramId: number; romId: number; colorId: number }[]
+  >([]) // Thêm state để lưu trữ `tableRows`
+  const navigate = useNavigate()
+
+  const {
+    batteries,
+    bluetooths,
+    brands,
+    cards,
+    categories,
+    chips,
+    colors,
+    frontCameras,
+    os,
+    rams,
+    rearCameras,
+    roms,
+    screens,
+    sims,
+    wifis,
+  } = useFetchData()
+
+  const form = useForm<ProductConfigRequest>({
+    resolver: zodResolver(productConfigRequestSchema),
+    defaultValues: {
+      productRequest: {
+        name: '',
+        description: '',
+        weight: 0,
+        idChip: undefined,
+        idBrand: undefined,
+        idScreen: undefined,
+        idCard: undefined,
+        idOs: undefined,
+        idWifi: undefined,
+        idBluetooth: undefined,
+        nfc: false,
+        idBattery: undefined,
+        chargerType: '',
+        content: '',
+        frontCamera: [],
+        rearCamera: [],
+        category: [],
+        sim: [],
+      },
+      productDetailRequests: [
+        {
+          priceSell: 0,
+          inventoryQuantity: 0,
+          idRam: undefined,
+          idRom: undefined,
+          idColor: undefined,
+          productImeiRequests: [],
+          imageUrl: '',
+        },
+      ],
+    },
+  })
+
+  const onSubmit = useCallback(
+    async (data: ProductConfigRequest) => {
+      setIsLoading(true) // Bật trạng thái loading
+      try {
+        // Xử lý dữ liệu từ bảng
+        const processedData = {
+          ...data,
+          productDetailRequests: tableRows.map((row) => ({
+            priceSell: 0, // Giá trị mặc định
+            inventoryQuantity: 0, // Giá trị mặc định
+            idRam: row.ramId,
+            idRom: row.romId,
+            idColor: row.colorId,
+            productImeiRequests: [], // Giá trị mặc định
+            imageUrl: '', // Giá trị mặc định
+          })),
+        }
+
+        await createProduct(processedData)
+        await queryClient.invalidateQueries({ queryKey: ['products'] })
+        toast({
+          title: 'Success',
+          description: 'Product created successfully',
+          className: 'bg-white',
+        })
+        navigate({ to: '/product' })
+      } catch (error: any) {
+        const errorMessage =
+          error.response?.data?.message || 'Failed to create product'
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        })
+      } finally {
+        setIsLoading(false) // Tắt trạng thái loading dù thành công hay thất bại
+      }
+    },
+    [queryClient, navigate, tableRows]
+  )
 
   return (
-    <div className='container mx-auto py-10'>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            {/* Basic Information */}
-            <div className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='code'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter product code' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter product name' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='weight'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight (g)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        placeholder='Enter weight'
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Specifications */}
-            <div className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='nameChip'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Chip</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter chip name' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='nameBrand'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Brand</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter brand name' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='typeScreen'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Screen Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter screen type' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Connectivity */}
-            <div className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='nameWifi'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>WiFi</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Enter WiFi specification'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='nameBluetooth'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bluetooth</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter Bluetooth version' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='nfc'
-                render={({ field }) => (
-                  <FormItem className='flex items-center justify-between'>
-                    <FormLabel>NFC Support</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Additional Features */}
-            <div className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='typeBattery'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Battery Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter battery type' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='chargerType'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Charger Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Enter charger type' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='status'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      placeholder='Select status'
-                      items={[
-                        { label: 'Active', value: 'ACTIVE' },
-                        { label: 'Inactive', value: 'IN_ACTIVE' },
-                      ]}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Description and Content */}
-          <div className='space-y-4'>
-            <FormField
+    <div className='h-full'>
+      <div className='mx-auto w-11/12 py-4'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            {/* <ProductForm
               control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Enter product description'
-                      className='min-h-[100px]'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              batteries={batteries}
+              bluetooths={bluetooths}
+              brands={brands}
+              cards={cards}
+              categories={categories}
+              chips={chips}
+              frontCameras={frontCameras}
+              os={os}
+              rearCameras={rearCameras}
+              screens={screens}
+              sims={sims}
+              wifis={wifis}
+            /> */}
 
-            <FormField
-              control={form.control}
-              name='content'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Enter product content'
-                      className='min-h-[100px]'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+            <FormProvider {...form}>
+              <ProductDetailForm
+                rams={rams}
+                roms={roms}
+                colors={colors}
+                onTableRowsChange={setTableRows}
+              />
+            </FormProvider>
 
-          <div className='flex justify-end gap-4'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => navigate('/products')}
-            >
-              Cancel
-            </Button>
-            <Button type='submit'>Create Product</Button>
-          </div>
-        </form>
-      </Form>
+            <div className='flex justify-end gap-4'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => navigate({ to: '/product' })}
+                disabled={isLoading} // Vô hiệu hóa nút Cancel khi đang loading
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isLoading}>
+                {isLoading ? (
+                  <div className='flex items-center gap-2'>
+                    <BeatLoader size={8} color='#ffffff' /> {/* Spinner */}
+                    <span>Creating...</span>
+                  </div>
+                ) : (
+                  'Create Product'
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   )
 }

@@ -40,13 +40,18 @@ public class ImeiServiceImpl implements ImeiService {
     }
 
     @Override
+    public List<Imei> getAllActive() {
+        return null;
+    }
+
+    @Override
     public List<ProductImeiResponse> getImeiByProductDetail(Integer id) {
         List<Imei> imeiList = imeiRepository.findByProductDetailId(id);
-        List<ProductImeiResponse> productImeiRespons1s = imeiList.stream()
+        List<ProductImeiResponse> productImeiResponse = imeiList.stream()
                 .map(imei -> imeiMapper.dtoToResponse(imeiMapper.entityToDTO(imei)))
                 .collect(Collectors.toList());
 
-        return productImeiRespons1s;
+        return productImeiResponse;
     }
 
 
@@ -74,8 +79,8 @@ public class ImeiServiceImpl implements ImeiService {
     }
 
     @Override
-    public List<ImeiDto> findImeiByIdProductDetail(Integer id) {
-        List<Imei> imeis= imeiRepository.findImeiByIdProductDetail(id);
+    public List<ImeiDto> findImeiByIdProductDetail(Integer idProduct,Integer idBillDetail) {
+        List<Imei> imeis= imeiRepository.findImeiByIdProductDetail( idProduct,idBillDetail);
         return imeis.stream().map(this::imeiDto)
                 .collect(Collectors.toList());
     }

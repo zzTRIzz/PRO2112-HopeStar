@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Chip;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ChipRepository;
 import com.example.be.core.admin.atribute_management.service.product.ChipService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,10 @@ public class ChipServiceImpl implements ChipService {
     public Chip getById(Integer id) throws Exception {
         return chipRepository.findById(id).orElseThrow(()->
                 new Exception("chip not found with id: " + id));
+    }
+
+    @Override
+    public List<Chip> getAllActive() {
+        return chipRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

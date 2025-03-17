@@ -13,6 +13,16 @@ export const getRom = async () => {
   }
 };
 
+export const getRomActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/rom/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addRom = async (rom: Rom) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/rom`, rom);

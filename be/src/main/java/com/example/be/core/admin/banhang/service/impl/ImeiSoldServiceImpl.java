@@ -58,22 +58,45 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
         }
         imeiSoldRepository.saveAll(imeiSoldList);
         imeiRepository.saveAll(imeis);
-//        Integer quantity = idImei.size();
-//        billDetail.setQuantity(idImei.size());
-//        BigDecimal tongTien =  billDetail.getPrice().multiply(BigDecimal.valueOf(quantity));
-//        billDetail.setTotalPrice(tongTien);
-//        Bill bill = billRepository.findById(billDetail.getIdBill().getId())
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-//
-//        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
-//        bill.setTotalPrice(tongTienBill);
-//        billRepository.save(bill);
         BillDetail savebillD = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(()->new RuntimeException("Bill Detail not found"));
 
         BillDetail saveBillDetail = billDetailRepository.save(savebillD);
          return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
+//
+    @Override
+    public BillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
+        BillDetail billDetail = billDetailRepository.findById(idBillDetail)
+                .orElseThrow(()->new RuntimeException("Bill Detail not found"));
+        List<Imei> listImeis = imeiSoldRepository.searchImeiSold(idBillDetail);
+        List<ImeiSold> searchimeiSold = imeiSoldRepository.searchImeiSoldByIdImei(idImei);
+        if (searchimeiSold !=null){
+            for (Imei imei : listImeis) {
+                imei.setStatus(StatusImei.NOT_SOLD);
+            }
+            imeiRepository.saveAll(listImeis);
+            imeiSoldRepository.deleteImeiSold(idBillDetail);
+        }
+        List<Imei> imeis = imeiRepository.findByIdIn(idImei);
+        List<ImeiSold> imeiSoldList = new ArrayList<>();
+
+        for (Imei imei : imeis) {
+            ImeiSold imeiSold = new ImeiSold();
+            imeiSold.setId_Imei(imei);
+            imeiSold.setIdBillDetail(billDetail);
+            imeiSoldList.add(imeiSold);
+            imei.setStatus(StatusImei.SOLD);
+        }
+        imeiSoldRepository.saveAll(imeiSoldList);
+        imeiRepository.saveAll(imeis);
+        BillDetail savebillD = billDetailRepository.findById(idBillDetail)
+                .orElseThrow(()->new RuntimeException("Bill Detail not found"));
+
+        BillDetail saveBillDetail = billDetailRepository.save(savebillD);
+        return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+    }
+
 
     @Override
     public void deleteImeiSold(Integer idBillDetail){

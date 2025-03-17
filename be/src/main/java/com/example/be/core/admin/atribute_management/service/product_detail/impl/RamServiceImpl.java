@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.entity.Ram;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.RamRepository;
 import com.example.be.core.admin.atribute_management.service.product_detail.RamService;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,10 @@ public class RamServiceImpl implements RamService {
     public Ram getById(Integer id) throws Exception {
         return ramRepository.findById(id).orElseThrow(()->
                 new Exception("ram not found with id: " + id));
+    }
+
+    @Override
+    public List<Ram> getAllActive() {
+        return ramRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

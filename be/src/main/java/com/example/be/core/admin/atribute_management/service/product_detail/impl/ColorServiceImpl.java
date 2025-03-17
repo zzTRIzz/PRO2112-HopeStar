@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
 import com.example.be.entity.Color;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.ColorRepository;
 import com.example.be.core.admin.atribute_management.service.product_detail.ColorService;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,10 @@ public class ColorServiceImpl implements ColorService {
     public Color getById(Integer id) throws Exception {
         return colorRepository.findById(id).orElseThrow(()->
                 new Exception("color not found with id: " + id));
+    }
+
+    @Override
+    public List<Color> getAllActive() {
+        return colorRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

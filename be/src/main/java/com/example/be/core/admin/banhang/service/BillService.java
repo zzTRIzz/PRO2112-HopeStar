@@ -15,6 +15,8 @@ public interface BillService {
     List<BillDto> listTaiQuay();
 
 
+    List<BillDto> listBillTop6();
+
     BillDto getByIdBill(Integer idBill);
 
     BillDto createHoaDonTaiQuay(BillDto billDto);

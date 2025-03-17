@@ -2,6 +2,7 @@ package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.core.admin.atribute_management.service.product.BatteryService;
 import com.example.be.entity.Battery;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.BatteryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,10 @@ public class BatteryServiceImpl implements BatteryService {
     public Battery getById(Integer id) throws Exception {
         return batteryRepository.findById(id).orElseThrow(()->
                 new Exception("battery not found with id: " + id));
+    }
+
+    @Override
+    public List<Battery> getAllActive() {
+        return batteryRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

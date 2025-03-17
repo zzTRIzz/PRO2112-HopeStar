@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { addSim, updateSim } from '../data/api-service'
 import type { Sim } from '../data/schema'

@@ -2,6 +2,7 @@ package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.core.admin.atribute_management.service.product.CategoryService;
 import com.example.be.entity.Category;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,10 @@ public class CategoryServiceImpl implements CategoryService {
     public Category getById(Integer id) throws Exception {
         return categoryRepository.findById(id).orElseThrow(()->
                 new Exception("category not found with id: " + id));
+    }
+
+    @Override
+    public List<Category> getAllActive() {
+        return categoryRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

@@ -7,4 +7,5 @@ public interface GenericService<T, ID> {
     T create(T entity) throws Exception;
     void update(ID id, T entity) throws Exception;
     T getById(ID id) throws Exception;
+    List<T> getAllActive();
 }

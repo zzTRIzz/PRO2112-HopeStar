@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Card;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CardRepository;
 import com.example.be.core.admin.atribute_management.service.product.CardService;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,10 @@ public class CardServiceImpl implements CardService {
     public Card getById(Integer id) throws Exception {
         return cardRepository.findById(id).orElseThrow(()->
                 new Exception("card not found with id: " + id));
+    }
+
+    @Override
+    public List<Card> getAllActive() {
+        return cardRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

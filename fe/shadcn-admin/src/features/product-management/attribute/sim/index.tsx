@@ -23,11 +23,11 @@ const columns: ColumnDef<Sim>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const sim = row.original as Sim
       return <StatusSwitch sim={sim} />
@@ -49,9 +49,9 @@ export default function Sim() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Sim</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Quản lý Sim</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your sims!
+              Danh sách Sim của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

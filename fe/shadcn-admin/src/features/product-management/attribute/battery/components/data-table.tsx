@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
   })
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>Đang tải...</div>
   }
 
   return (
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
-                <TableHead>Action</TableHead>
+                <TableHead>Hành động</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length + 1}
                   className='h-24 text-center'
                 >
-                  No results.
+                  Không có kết quả.
                 </TableCell>
               </TableRow>
             )}

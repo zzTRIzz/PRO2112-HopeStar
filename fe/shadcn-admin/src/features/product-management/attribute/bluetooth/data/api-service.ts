@@ -13,6 +13,16 @@ export const getBluetooth = async () => {
   }
 };
 
+export const getBluetoothActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/bluetooth/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addBluetooth = async (bluetooth: Bluetooth) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/bluetooth`, bluetooth);

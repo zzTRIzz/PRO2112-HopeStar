@@ -23,11 +23,11 @@ const columns: ColumnDef<Wifi>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const wifi = row.original as Wifi
       return <StatusSwitch wifi={wifi} />
@@ -51,7 +51,7 @@ export default function Wifi() {
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Wifi</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your wifis!
+              Đây là danh sách các wifi của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

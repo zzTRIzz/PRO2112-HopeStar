@@ -14,9 +14,9 @@ public class ProductDetailRequest {
     private Integer inventoryQuantity;
     private Integer idRam;
     private Integer idRom;
-    private Integer idColors;
+    private Integer idColor;
     private List<ProductImeiRequest> productImeiRequests;
     private String imageUrl;
-    private ProductDetailStatus productDetailStatus;
+//    private ProductDetailStatus productDetailStatus;
 
 }

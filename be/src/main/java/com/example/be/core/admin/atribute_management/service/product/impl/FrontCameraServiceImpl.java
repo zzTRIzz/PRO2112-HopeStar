@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.FrontCamera;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.FrontCameraRepository;
 import com.example.be.core.admin.atribute_management.service.product.FrontCameraService;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,10 @@ public class FrontCameraServiceImpl implements FrontCameraService {
     public FrontCamera getById(Integer id) throws Exception {
         return frontCameraRepository.findById(id).orElseThrow(()->
                 new Exception("frontCamera not found with id: " + id));
+    }
+
+    @Override
+    public List<FrontCamera> getAllActive() {
+        return frontCameraRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }

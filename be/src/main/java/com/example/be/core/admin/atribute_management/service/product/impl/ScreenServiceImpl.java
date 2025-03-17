@@ -45,4 +45,9 @@ public class ScreenServiceImpl implements ScreenService {
         return screenRepository.findById(id).orElseThrow(()->
                 new Exception("screen not found with id: " + id));
     }
+
+    @Override
+    public List<Screen> getAllActive() {
+        return screenRepository.findByStatus(StatusCommon.ACTIVE);
+    }
 }

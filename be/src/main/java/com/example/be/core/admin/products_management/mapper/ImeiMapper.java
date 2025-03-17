@@ -5,6 +5,7 @@ import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
 import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.entity.Imei;
+import com.example.be.entity.status.StatusImei;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class ImeiMapper {
 
         ProductImeiDTO dto = new ProductImeiDTO();
         dto.setImeiCode(request.getImeiCode());
-        dto.setStatusImei(request.getStatusImei());
+        dto.setStatusImei(StatusImei.NOT_SOLD);
 
         return dto;
     }

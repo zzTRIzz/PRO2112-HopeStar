@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import TasksProvider from '../tasks/context/tasks-context';
-import { FaShoppingCart, FaTimes, FaPlus, FaTrash, FaEdit } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { CgAdd } from "react-icons/cg";
 import { Main } from '@/components/layout/main';
 import { Button } from '@/components/ui/button';
+import { DataTablePagination } from './attribute/data-table-pagination'
 import {
   getData, findImeiByIdProductDaBan, findBill,
   findKhachHang, addKhachHang, addHoaDon, findImeiById,
   createImeiSold, deleteProduct, getImei, getAccountKhachHang,
   getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung
-  , findVoucherByAccount, huyHoaDon
+  , findVoucherByAccount, huyHoaDon, getDataChoThanhToan,updateImeiSold
 }
   from './service/BanHangTaiQuayService';
 import "./custom-toast.css"; // Thêm CSS tùy chỉnh
+// import "./custom-toast.css"; // Thêm CSS tùy chỉnh
 import { ImCart } from "react-icons/im";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -27,7 +29,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-
+import useVietnamAddress from './service/ApiTichHopDiaChi';
 import {
   Dialog,
   DialogContent,
@@ -37,18 +39,54 @@ import {
   // DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { toast, ToastContainer } from 'react-toastify';
-import { SourceTextModule } from 'vm';
 
+import { toast, ToastContainer } from 'react-toastify';
+
+
+
+import {
+  useForm
+} from "react-hook-form"
+import {
+  zodResolver
+} from "@hookform/resolvers/zod"
+import * as z from "zod"
+import {
+  cn
+} from "@/lib/utils"
+
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Check,
+  ChevronsUpDown
+} from "lucide-react"
+import {
+  Textarea
+} from "@/components/ui/textarea"
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface Bill {
   id: number;
@@ -134,14 +172,26 @@ interface Voucher {
   status: string;
 }
 
+const formSchema = z.object({
+  fullName: z.string().min(1),
+  phone: z.string().min(1),
+  province: z.string().min(1),
+  district: z.string().min(1),
+  ward: z.string().min(1),
+  address: z.string().min(1),
+  note: z.string().optional()
+});
+
+
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<Bill[]>([]);
+  const [billChoThanhToan, setBillChoThanhToan] = useState<Bill[]>([]);
   const [searchBill, setSearchBill] = useState<Bill>();
   const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
   const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
   const [listImei, setListImei] = useState<imei[]>([]);
-  const [listImeiDaBan, setListImeiDaBan] = useState<imei[]>([]);
+  // const [listImeiDaBan, setListImeiDaBan] = useState<imei[]>([]);
   const [idBill, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
   const [selectedImei, setSelectedImei] = useState<number[]>([]);
@@ -155,18 +205,32 @@ function BanHangTaiQuay() {
   const [isCapNhatImei, setIsCapNhatImei] = useState(false);
   const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
   const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
+  const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
+  const handleBanGiaoHangChange = () => {
+    setIsBanGiaoHang((prev) => !prev);
+  };
 
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
     loadBill();
     loadProductDet();
     loadAccountKH();
+    loadBillChoThanhToan();
   }, []);
-  // Lấy danh sách hóa đơn
+  // Lấy danh sách hóa đơn top 5 
   const loadBill = async () => {
     try {
       const data = await getData();
       setListBill(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  // Lấy danh sách hóa đơn cho thanh toan
+  const loadBillChoThanhToan = async () => {
+    try {
+      const data = await getDataChoThanhToan();
+      setBillChoThanhToan(data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -233,6 +297,7 @@ function BanHangTaiQuay() {
       await loadBill();
       loadProductDet();
       setProduct([]);
+      loadBillChoThanhToan();
       // hienThiKhachHang();
       setIdBill(0);
 
@@ -245,8 +310,6 @@ function BanHangTaiQuay() {
   const getById = async (id: number) => {
     try {
       const data = await getByIdBillDetail(id);
-      // console.log(data);
-      // console.log("ID hóa đơn:", id);
       setProduct(data); // Cập nhật state
       setIdBill(id);
       const khachHang = await findKhachHang(id);
@@ -266,9 +329,9 @@ function BanHangTaiQuay() {
 
 
   // Tìm kiếm imei theo idProductDetail
-  const findImeiByIdProductDetail = async (idProductDetail: number) => {
+  const findImeiByIdProductDetail = async (idProductDetail: number, idBillDetai: number) => {
     try {
-      const data = await findImeiById(idProductDetail);
+      const data = await findImeiById(idProductDetail, idBillDetai);
       setListImei(data);
       setIdProductDetail(idProductDetail);
     } catch (error) {
@@ -285,7 +348,7 @@ function BanHangTaiQuay() {
       await loadProductDet();
       await loadImei(idProductDetail);
       await getById(idBill);
-      showToast("Xóa sản phẩm chi tiết thành công");
+      fromThanhCong("Xóa sản phẩm chi tiết thành công");
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -298,7 +361,9 @@ function BanHangTaiQuay() {
       const newBill = await addHoaDon({ idNhanVien: Number(9) }); // Truyền trực tiếp idNhanVien
       console.log("Hóa đơn mới:", newBill);
       setListBill([...listBill, newBill]); // Cập nhật danh sách
-      showToast("Thêm hóa đơn thành công");
+      loadBill();
+      loadBillChoThanhToan();
+      fromThanhCong("Thêm hóa đơn thành công");
     } catch (error) {
       // toast.error("Lỗi khi thêm hóa đơn!");
       console.error("Lỗi API:", error);
@@ -310,7 +375,7 @@ function BanHangTaiQuay() {
     try {
       console.log("ID bill san pham " + idBill);
       if (idBill == 0 || idBill == null) {
-        showToast("Vui lòng chọn hóa đơn");
+        fromThatBai("Vui lòng chọn hóa đơn");
         setIsDialogOpen(false);
         return;
       }
@@ -318,16 +383,13 @@ function BanHangTaiQuay() {
         idBill: idBill,
         idProductDetail: product.id
       });
-
-      // console.log("Sản phẩm chọn:", product.id);
-      // console.log("Sản phẩm mới:", newProduct);
       setIdBillDetail(newProduct.id);
       setIdProductDetail(product.id);
       setSelectedImei([]);
       loadImei(product.id);
       getById(idBill);
       setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
-      showToast("Thêm sản phẩm vào hóa đơn thành công");
+      fromThanhCong("Thêm sản phẩm vào hóa đơn thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
     }
@@ -344,7 +406,7 @@ function BanHangTaiQuay() {
 
 
   // Them imei vao hoa don chi tiet
-  const handleAddImei = async () => {
+  const handleAddImei = async (idBillDetail:number) => {
     try {
       const newImei = await createImeiSold({
         id_Imei: selectedImei,
@@ -359,18 +421,41 @@ function BanHangTaiQuay() {
       await loadProductDet();
       await loadImei(idProductDetail);
       await getById(idBill);
-      showToast("Thêm IMEI thành công");
+      fromThanhCong("Thêm IMEI thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
     }
   };
 
-  const handleUpdateProduct = async (idPD: number, billDetail: number) => {
+
+  const updateHandleImeiSold = async (idBillDetail:number) => {
+    try {
+      const newImei = await updateImeiSold({
+        id_Imei: selectedImei,
+        idBillDetail: idBillDetail
+      },
+        idBill,
+        idProductDetail
+      );
+      console.log("Imei mới:", newImei);
+      setSelectedImei([]);
+      setIsCapNhatImei(false);
+      await loadProductDet();
+      await loadImei(idProductDetail);
+      await getById(idBill);
+      fromThanhCong("Cập nhật IMEI thành công");
+    } catch (error) {
+      console.error("Lỗi API:", error);
+    }
+  };
+
+  // Ca
+  const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
     console.log("ID product detail:", idPD);
     setSelectedImei([]);  // Reset trước khi cập nhật
-
+    // setIsCapNhatImei(true);
     try {
-      const data = await findImeiByIdProductDaBan(idPD, billDetail);
+      const data = await findImeiByIdProductDaBan(idPD, billDetaill);
       if (!Array.isArray(data)) {
         console.error("Dữ liệu trả về không phải là một mảng:", data);
         return;
@@ -380,12 +465,11 @@ function BanHangTaiQuay() {
     } catch (error) {
       console.error("Lỗi khi lấy danh sách IMEI đã bán:", error);
     }
-    // Gọi API khác (nếu cần)
-    await findImeiByIdProductDetail(idPD);
+    findImeiByIdProductDetail(idPD, billDetaill);
   };
 
 
-  const showToast = (message: string) => {
+  const fromThanhCong = (message: string) => {
     toast.success(message, {
       position: "top-right",
       className: "custom-toast", // Áp dụng CSS tùy chỉnh
@@ -397,8 +481,26 @@ function BanHangTaiQuay() {
     });
   };
 
+
+  const fromThatBai = (message: string) => {
+    toast.success(message, {
+      position: "top-right",
+      className: "custom-thatBai", // Áp dụng CSS tùy chỉnh
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
+
   // Thêm khách hàng vào hóa đơn
   const handleAddKhachHang = async (idAccount: number) => {
+    if (idBill == 0 || idBill == null) {
+      fromThatBai("Vui lòng chọn hóa đơn");
+      setIsKhachHang(false);
+      return;
+    }
     try {
       const data = await addKhachHang(idBill, idAccount);
       console.log("Khách hàng mới:", data);
@@ -411,7 +513,7 @@ function BanHangTaiQuay() {
       const voucher = await getVoucherDangSuDung(idBill);
       setDuLieuVoucherDangDung(voucher);
       await loadVoucherByAcount(idBill);
-      showToast("Thêm khách hàng thành công");
+      fromThanhCong("Thêm khách hàng thành công");
     } catch (error) {
       console.error("Lỗi khi thêm khách hàng:", error);
     }
@@ -420,10 +522,10 @@ function BanHangTaiQuay() {
     return (
       <>
         <div className="flex flex-col items-center justify-center mt-4" style={{ height: "224px" }}>
-          <img
+          {/* <img
             src="https://res.cloudinary.com/dqwfbbd9g/image/upload/v1701448962/yy04ozpcgnsz3lv4r2h2.png"
             style={{ width: "190px" }}
-          />
+          /> */}
           <p className="text-dark font-semibold text-center text-lg">
             Chưa có sản phẩm nào trong giỏ hàng!
           </p>
@@ -432,6 +534,34 @@ function BanHangTaiQuay() {
       </>
     );
   };
+
+
+
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+
+  })
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      console.log(values);
+      toast(
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
+        </pre>
+      );
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  }
+
+  const { provinces, districts, wards, fetchDistricts, fetchWards } = useVietnamAddress();
+
+  // const form = useForm({ resolver: zodResolver(formSchema) });
+  const [open, setOpen] = React.useState(false)
+  const [valueID, setValue] = React.useState("")
+
   return (
     <>
       <div>
@@ -446,43 +576,99 @@ function BanHangTaiQuay() {
         </TasksProvider>
       </div><br />
       <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5" style={{ paddingTop: '18px', margin: '0 13px' }}>
+      <div className="grid grid-cols-9 gap-4">
+      <div className='col-span-7'>
         <div className="flex space-x-1" style={{ paddingLeft: '13px', paddingRight: '10px' }}>
-          {listBill.map((b) => (
-            <div key={b.id}
-              className={`flex items-center space-x-1 p-2 border-b-2 text-sm rounded-[5%] shadow-sm
+              {listBill.map((b) => (
+                <div key={b.id}
+                  className={`flex items-center space-x-1 p-2 border-b-2 text-sm rounded-[5%] shadow-sm
               ${idBill === b.id ? 'border-blue-600 bg-gray-300' : 'border-transparent'}
               ${hoveredBillId === b.id ? 'bg-gray-200' : ''}`}
-              onClick={() => getById(b.id)}
-              onMouseEnter={() => setHoveredBillId(b.id)}
-              onMouseLeave={() => setHoveredBillId(null)}
-            >
-              <button className="flex items-center space-x-1">
-                {b.nameBill}
-                <div className="relative">
-                  <ImCart size={20} />
-                  {b.itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
-                      {b.itemCount}
-                    </span>
-                  )}
-                </div>
-              </button>
-              <button
-                onClick={() => void huyHoaDonTheoId(b.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                }}
-              >
-                <FaTimes size={16} />
-              </button>
+                  onClick={() => getById(b.id)}
+                  onMouseEnter={() => setHoveredBillId(b.id)}
+                  onMouseLeave={() => setHoveredBillId(null)}
+                >
+                  <button className="flex items-center space-x-1"
+                    onClick={() => setValue("")} >
+                    {b.nameBill}
+                    <div className="relative">
+                      <ImCart size={20} />
+                      {b.itemCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
+                          {b.itemCount}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => void huyHoaDonTheoId(b.id)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <FaTimes size={16} />
+                  </button>
 
+                </div>
+              ))}
+              <button onClick={handleAddBill} ><CgAdd size={26} /></button>
             </div>
-          ))}
-          <button onClick={handleAddBill} ><CgAdd size={26} /></button>
-        </div>  <hr />
+            </div>
+            <div className='col-span-2'>
+              {/* <div className="transform -translate-x-[-145px]"> */}
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-[180px] justify-between"
+                    >
+                      {valueID
+                        ? billChoThanhToan.find((bill) => bill.nameBill === valueID)?.nameBill
+                        : "Hóa đơn"}
+
+                      <ChevronsUpDown className="opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search bill" className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>No bill</CommandEmpty>
+                        <CommandGroup>
+                          {billChoThanhToan.map((b) => (
+                            <CommandItem
+                              key={b.id}
+                              value={b.nameBill}
+                              onSelect={(currentValue) => {
+                                setValue(currentValue === valueID ? "" : currentValue)
+                                setOpen(false),
+                                  getById(b.id); // Gọi API lấy sản phẩm
+
+                              }}
+                            >
+                              {b.nameBill}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  valueID === b.nameBill ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+        </div>
+
+        <hr />
 
         <Main>
           <div className="mb-2 flex items-center justify-between">
@@ -500,6 +686,10 @@ function BanHangTaiQuay() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[980px]">
+                  <Input
+                    placeholder="Tìm mã sản phẩm, tên sản phẩm  "
+                    className="max-w-sm"
+                  />
                   {dialogContent === 'product' ? (
                     <TableContainer>
                       {/* <h2>Sản phẩm </h2>   */}
@@ -532,6 +722,7 @@ function BanHangTaiQuay() {
                         </TableBody>
                       </Table>
                     </TableContainer>
+
                   ) : (
                     <TableContainer>
                       <Table>
@@ -559,13 +750,14 @@ function BanHangTaiQuay() {
                           ))}
                         </TableBody>
                       </Table>
-                      <Button className="bg-black text-white hover:bg-gray-600" onClick={handleAddImei}>
+                      <Button className="bg-black text-white hover:bg-gray-600" onClick={() =>handleAddImei(idBillDetail)}>
                         Chọn
                       </Button>
                     </TableContainer>
                   )}
                 </DialogContent>
               </Dialog>
+              {/* <DataTablePagina tion/> */}
             </div>
           </div>  <hr className="border-t-1.5 border-gray-600" />
 
@@ -573,11 +765,7 @@ function BanHangTaiQuay() {
 
           {product.length === 0 ? (
             <CartEmpty />
-
-
           ) : (
-
-
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -639,7 +827,7 @@ function BanHangTaiQuay() {
                                   </TableBody>
                                 </Table>
                               </TableContainer>
-                              <Button className="bg-black text-white hover:bg-gray-600" onClick={handleAddImei}>
+                              <Button className="bg-black text-white hover:bg-gray-600" onClick={()=>updateHandleImeiSold(pr.id)}>
                                 Chọn
                               </Button>
                             </DialogContent>
@@ -676,6 +864,29 @@ function BanHangTaiQuay() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[980px]">
+                <div className="grid grid-cols-10 gap-4">
+                  <div className='col-span-7'>
+                    <Input
+                      placeholder="Tìm mã, họ và tên"
+                      className="max-w-sm"
+                    />
+                  </div>
+                  {/* <div className="grid grid-cols-2 gap-4"> */}
+                  <div className='col-span-1'>
+                    <Button variant="outline" className="bg-white-500 border
+                     border-black rounded-sm border-opacity-50
+                      text-black hover:bg-gray-300"  onClick={() => handleAddKhachHang(1)}>
+                      Khách lẻ
+                    </Button> </div>
+                  <div className='col-span-2'>
+                    <Button variant="outline"
+                      className="bg-blue-600 text-white hover:bg-gray-400 text-white">
+                      Thêm khách hàng
+                    </Button>
+                  </div>
+                </div>
+                {/* </div> */}
+
                 <TableContainer>
                   <Table>
                     <TableHead>
@@ -719,21 +930,25 @@ function BanHangTaiQuay() {
         <div className="p-4 max-w-3xl" >
           <div className="flex justify-between pb-2 mb-2 gap-4 pt-5">
             <div className="flex items-center gap-2">
-              <span className='whitespace-nowrap pr-5'>Tên khách hàng </span> <Input type="email" placeholder="Tên khách hàng"
-               value={listKhachHang?.fullName == null ? "" : listKhachHang?.fullName} />
+              <span className='whitespace-nowrap pr-5'>Tên khách hàng </span> <Input type="email"
+                placeholder=" Tên khách hàng" disabled className='text-blue-600 text-base font-bold'
+                value={listKhachHang?.fullName == null ? "" : listKhachHang?.fullName} />
             </div>
             <div className="flex items-center gap-2">
               <span className="w-16 whitespace-nowrap">Email</span>
-               <Input type="email" placeholder="Email" className='h-[35px]' value={listKhachHang?.email == null ? "" : listKhachHang?.email} />
+              <Input type="email" disabled placeholder="Email"
+                className='h-[35px] text-blue-600 text-base font-bold' value={listKhachHang?.email == null ? "" : listKhachHang?.email} />
             </div>
           </div>
           <div className="flex justify-between  pb-2 mb-2">
             <div className="flex items-center gap-2">
               <span className='whitespace-nowrap pr-10'>Số điện thoại</span>
-               <Input type="email" placeholder="Số điện thoại" value={listKhachHang?.phone == null ? "" : listKhachHang?.phone}/>
+              <Input type="email" placeholder="Số điện thoại"
+                className='text-blue-600 text-base font-bold'
+                value={listKhachHang?.phone == null ? "" : listKhachHang?.phone} disabled />
             </div>
           </div>
-        
+
         </div>
 
       </div> <br />
@@ -746,92 +961,21 @@ function BanHangTaiQuay() {
         <div className="mb-2 flex items-center justify-between ">
           <h1 className=" font-bold tracking-tight">Thông tin đơn hàng </h1>
           <div className="flex space-x-2">
-            <Button variant="outline"
+            {/* <Button variant="outline"
               className="border border-gray-500 rounded-lg
              hover:border-orange-600 hover:text-orange-600 px-3 text-2xs">
-
-              <Dialog >
-                <DialogTrigger asChild>
-                  <Checkbox id="terms" />
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px]">
-                  <div className="p-6 bg-white rounded-lg shadow-lg">
-                    <h3 className=" font-semibold mb-4">Địa chỉ giao hàng</h3>
-                    <div className="grid gap-4">
-                      {/* Tỉnh / Thành phố */}
-                      <div className="flexflex-wrap">
-                        <label className="text-gray-700">
-                          Tỉnh / Thành phố
-                        </label>
-                        <Select>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Danh sách</SelectLabel>
-                              <SelectItem value="hcm">Hồ Chí Minh</SelectItem>
-                              <SelectItem value="hanoi">Hà Nội</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Quận / Huyện */}
-                      <div className="flex flex-wrap">
-                        <label className="text-gray-700 font-medium mb-1">
-                          Quận / Huyện
-                        </label>
-                        <Select>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Chọn Quận / Huyện" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Danh sách</SelectLabel>
-                              <SelectItem value="q1">Quận 1</SelectItem>
-                              <SelectItem value="q3">Quận 3</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Phường / Xã */}
-                      <div className="flex flex-wrap">
-                        <label className="text-gray-700 font-medium mb-1">Phường / Xã</label>
-                        <Select>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Chọn Phường / Xã" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Danh sách</SelectLabel>
-                              <SelectItem value="pbennghe">Phường Bến Nghé</SelectItem>
-                              <SelectItem value="ptandinh">Phường Tân Định</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Số nhà, tên đường */}
-                      <div className="flex flex-wrap">
-                        <label className="text-gray-700 font-medium mb-1">
-                          Số nhà, tên đường
-                        </label>
-                        <Input type="email" placeholder="Nhập số nhà, tên đường" />
-                      </div>
-
-                      {/* Ghi chú */}
-                      <div className="flex flex-wrap">
-                        <label className="text-gray-700 font-medium mb-1">Ghi chú</label>
-                        <Input type="email" placeholder="Nhập ghi chú (nếu có)" />
-                      </div>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Checkbox id="terms" />
               Bán giao hàng
-            </Button>
+            </Button> */}
+            <div className="flex space-x-2">
+              <Button variant="outline"
+                className="border border-gray-500 rounded-lg hover:border-orange-600
+                 hover:text-orange-600 px-3 text-2xs">
+                <Checkbox id="ban-giao-hang" checked={isBanGiaoHang} onCheckedChange={handleBanGiaoHangChange} />
+                Bán giao hàng
+              </Button>
+            </div>
+
             <Button variant="outline"
               className="text-blue-600 border border-blue-500 
              rounded-lg px-3  text-2xs
@@ -843,106 +987,437 @@ function BanHangTaiQuay() {
         </div>
         <hr className=" border-gray-600" /><br />
 
-        <div className="grid grid-cols-2  ">
-          {/* Cột 1 */}
-          .
+        <div className="grid grid-cols-2 gap-4">
+          {/* --------- cot 1 ----------- */}
+          <div
+            className={`transition-all duration-300 ${isBanGiaoHang ? "w-full opacity-100 visible" : "w-0 opacity-0 invisible"
+              }`}
+            style={{ minWidth: isBanGiaoHang ? "400px" : "0px" }}
+          >            {isBanGiaoHang && (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-6">
+
+                    <FormField
+                      control={form.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Họ và tên</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Họ và tên "
+
+                              type=""
+                              {...field} />
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-6">
+
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Số điện thoại</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Số điện thoại"
+
+                              type=""
+                              {...field} />
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                </div>
+
+                <div className="grid grid-cols-10 gap-4">
+
+                  <div className="col-span-5">
+                    <FormField
+                      control={form.control}
+                      name="province"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Thành phố/tỉnh</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                {/* <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-[150px] justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+
+                              >
+                                {field.value
+                                  ? languages.find(
+                                    (language) => language.value === field.value
+                                  )?.label
+                                  : "Mời chọn"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button> */}
+                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
+                                  {field.value ? provinces.find((p) => p.code === field.value)?.name : "Chọn tỉnh/thành phố"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[230px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search" />
+                                <CommandList>
+                                  <CommandEmpty>No language found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {/* {languages.map((language) => (
+                                    <CommandItem
+                                      value={language.label}
+                                      key={language.value}
+                                      onSelect={() => {
+                                        form.setValue("province", language.value);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.label}
+                                    </CommandItem>
+                                  ))} */}
+                                    {provinces.map((p) => (
+                                      <CommandItem key={p.code} onSelect={() => {
+                                        form.setValue("province", p.code);
+                                        fetchDistricts(p.code);
+                                      }}>
+                                        <Check className={p.code === field.value ? "opacity-100" : "opacity-0"} />
+                                        {p.name}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-5">
+                    <FormField
+                      control={form.control}
+                      name="district"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Quận/huyện</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                {/* <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-[150px] justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+
+                              >
+                                {field.value
+                                  ? languages.find(
+                                    (language) => language.value === field.value
+                                  )?.label
+                                  : "Mời chọn"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button> */}
+                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
+                                  {field.value ? districts.find((d) => d.code === field.value)?.name : "Chọn quận/huyện"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[230px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search " />
+                                <CommandList>
+                                  <CommandEmpty>No language found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {/* {languages.map((language) => (
+                                    <CommandItem
+                                      value={language.label}
+                                      key={language.value}
+                                      onSelect={() => {
+                                        form.setValue("district", language.value);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.label}
+                                    </CommandItem>
+                                  ))} */}
+                                    {districts.map((d) => (
+                                      <CommandItem key={d.code} onSelect={() => {
+                                        form.setValue("district", d.code);
+                                        fetchWards(d.code);
+                                      }}>
+                                        <Check className={d.code === field.value ? "opacity-100" : "opacity-0"} />
+                                        {d.name}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-6 pt-3">
+                    <FormField
+                      control={form.control}
+                      name="ward"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Phường/xã</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                {/* <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-[150px] justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+
+                              >
+                                {field.value
+                                  ? languages.find(
+                                    (language) => language.value === field.value
+                                  )?.label
+                                  : "Mời chọn"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button> */}
+                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
+                                  {field.value ? wards.find((w) => w.code === field.value)?.name : "Chọn phường/xã"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[230px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search" />
+                                <CommandList>
+                                  <CommandEmpty>No language found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {/* {languages.map((language) => (
+                                    <CommandItem
+                                      value={language.label}
+                                      key={language.value}
+                                      onSelect={() => {
+                                        form.setValue("ward", language.value);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.label}
+                                    </CommandItem>
+                                  ))} */}
+                                    {wards.map((w) => (
+                                      <CommandItem key={w.code} onSelect={() => form.setValue("ward", w.code)}>
+                                        <Check className={w.code === field.value ? "opacity-100" : "opacity-0"} />
+                                        {w.name}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Địa chỉ cụ thể</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Địa chỉ người nhận"
+
+                              type=""
+                              {...field} />
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ghi chú</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ghi chú"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* <Button type="submit">Submit</Button> */}
+              </form>
+            </Form>
+          )}
+          </div>
+
+
           {/* Cột 2 */}
-          <div className="ml-auto mr-5 w-fit text-lg">
-            <div className="mb-4 flex items-center gap-2">
-              <p className="font-bold text-base">Mã Giảm Giá</p>
-              <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
-                <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
-                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
-              </div>
-              <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="text-dark"
-                    style={{
-                      marginBottom: "3px",
-                      fontSize: "13.5px",
-                      fontWeight: "500",
-                    }}>
-                    {/* // className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500"> */}
-                    {/* Chọn Mã Giảm Giá */}
-                    {/* <span */}
-
-                    {/* > */}
-                    Chọn Mã Giảm Giá
-                    {/* </span> */}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px]">
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Stt</TableCell>
-                          <TableCell>Mã</TableCell>
-                          <TableCell>Giá min</TableCell>
-                          <TableCell>Giá max</TableCell>
-                          <TableCell>Giá trị giảm</TableCell>
-                          <TableCell>Kiểu</TableCell>
-                          <TableCell>Số lượng </TableCell>
-                          <TableCell>Số lượng </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {ListVoucherTheoAccount.map((ac, index) => (
-                          <TableRow key={ac.id}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>{ac.code}</TableCell>
-                            <TableCell>{ac.conditionPriceMin}</TableCell>
-                            <TableCell>{ac.conditionPriceMax}</TableCell>
-                            <TableCell>{ac.discountValue}</TableCell>
-                            <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
-                            <TableCell>{ac.quantity}</TableCell>
-                            <TableCell>
-                              <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
-                                Chọn
-                              </Button>
-                            </TableCell>
+          <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
+            <div className="ml-auto mr-5 w-fit text-lg">
+              <div className="mb-4 flex items-center gap-2">
+                <p className="font-bold text-base">Mã Giảm Giá</p>
+                <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
+                  <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
+                  <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
+                </div>
+                <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline"
+                      className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500">
+                      Chọn Mã Giảm Giá
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[980px]">
+                    <TableContainer>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Stt</TableCell>
+                            <TableCell>Mã</TableCell>
+                            <TableCell>Giá min</TableCell>
+                            <TableCell>Giá max</TableCell>
+                            <TableCell>Giá trị giảm</TableCell>
+                            <TableCell>Kiểu</TableCell>
+                            <TableCell>Số lượng </TableCell>
+                            <TableCell>Số lượng </TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <div className="space-y-1" >
-
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="space-y-4">
-                  <div className="flex justify-between border-b pb-2">
-                    <span className="text-gray-700">Tổng tiền hàng: </span>
-                    <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</p>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <p className="text-gray-700">Giảm giá:</p>
-                    <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal} đ</p>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <p className="text-gray-700">Khách cần trả:</p>
-                    <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</p>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <p className="text-gray-700"> Khách thanh toán:</p>
-                    <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</p>
-                  </div>
-                </div>
-
-                {/* Tổng tiền */}
-                <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
-                  <p>Tiền thừa trả khách:</p>
-                  <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</p>
-                </div>
+                        </TableHead>
+                        <TableBody>
+                          {ListVoucherTheoAccount.map((ac, index) => (
+                            <TableRow key={ac.id}>
+                              <TableCell>{index + 1}</TableCell>
+                              <TableCell>{ac.code}</TableCell>
+                              <TableCell>{ac.conditionPriceMin}</TableCell>
+                              <TableCell>{ac.conditionPriceMax}</TableCell>
+                              <TableCell>{ac.discountValue}</TableCell>
+                              <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
+                              <TableCell>{ac.quantity}</TableCell>
+                              <TableCell>
+                                <Button color="primary">
+                                  Chọn
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </DialogContent>
+                </Dialog>
               </div>
-              <Button variant="outline" >Xác nhận thanh toán</Button>
+              <div className="space-y-1" >
 
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="space-y-4">
+                    <div className="flex justify-between border-b pb-2">
+                      <span className="text-gray-700 text-base">Tổng tiền hàng: </span>
+                      <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</p>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <p className="text-gray-700 text-base">Giảm giá:</p>
+                      <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal} đ</p>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <p className="text-gray-700 text-base">Khách cần trả:</p>
+                      <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</p>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <p className="text-gray-700 text-base"> Khách thanh toán:</p>
+                      <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</p>
+                    </div>
+                  </div>
+
+                  {/* Tổng tiền */}
+                  <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
+                    <p className='text-base'>Tiền thừa trả khách:</p>
+                    <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 ">
+                  <Switch id="airplane-mode" />
+                  <Label htmlFor="airplane-mode">Thanh toán khi nhận hàng </Label>
+                </div>
+                <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] ">
+                  Xác nhận thanh toán</Button>
+              </div>
             </div>
           </div>
         </div>
-      </div><br /><br />
+      </div><br />
     </>
   );
 }

@@ -10,5 +10,8 @@ public interface ImeiSoldService {
 
 //    void updateStartusImei(ImeiSoldDto imeiSoldDto);
 
+    //
+    BillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei);
+
     void deleteImeiSold(Integer idBillDetail);
 }

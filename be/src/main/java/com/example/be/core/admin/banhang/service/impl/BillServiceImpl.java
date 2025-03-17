@@ -15,6 +15,8 @@ import com.example.be.entity.status.StatusBill;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -82,6 +84,14 @@ public class BillServiceImpl implements BillService {
             }
         }
         return listHoaDonCTT.stream().map(billMapper::dtoBillMapper)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BillDto> listBillTop6() {
+        Pageable top6 = PageRequest.of(0, 5);
+        List<Bill> billList = billRepository.findTop6BillsPendingPayment(top6,StatusBill.CHO_THANH_TOAN);
+        return billList.stream().map(billMapper::dtoBillMapper)
                 .collect(Collectors.toList());
     }
 

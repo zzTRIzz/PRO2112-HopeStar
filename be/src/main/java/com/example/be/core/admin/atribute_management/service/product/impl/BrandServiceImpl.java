@@ -57,6 +57,11 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public List<Brand> getAllActive() {
+        return brandRepository.findByStatus(StatusCommon.ACTIVE);
+    }
+
+    @Override
     public void remove(Integer id) throws Exception {
         Brand brand = getById(id);
         if (brand != null){

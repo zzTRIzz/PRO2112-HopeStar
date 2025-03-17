@@ -23,11 +23,11 @@ const columns: ColumnDef<Battery>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'capacity',
-    header: 'Capacity',
+    header: 'Dung lượng',
     cell: ({ row }) => {
       const battery = row.original as Battery
       return <div>{battery.capacity} mAh</div>
@@ -35,7 +35,7 @@ const columns: ColumnDef<Battery>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const battery = row.original as Battery
       return <StatusSwitch battery={battery} />
@@ -57,9 +57,9 @@ export default function Battery() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Battery</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Pin</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your batteries!
+              Đây là danh sách các pin của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

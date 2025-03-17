@@ -15,5 +15,6 @@ public interface ImeiService extends GenericService<Imei,Integer> {
 
     List<ImeiDto> findImeiByIdProDaBan(Integer idProduct, Integer idBillDetail);
 
-    List<ImeiDto> findImeiByIdProductDetail(Integer id);
+
+    List<ImeiDto> findImeiByIdProductDetail(Integer idProduct, Integer idBillDetail);
 }

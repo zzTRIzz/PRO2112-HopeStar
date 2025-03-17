@@ -5,10 +5,21 @@ import { BillSchema } from './BillSchema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
-// Lấy dữ liệu data của bill
+// Lấy dữ liệu data top 5 của bill
 export const getData = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+// Lấy dữ liệu data cho thanh toan của bill
+export const getDataChoThanhToan = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/listBill`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -108,7 +119,7 @@ export const getAccountKhachHang = async () => {
     }
 }
 // Xoa san pham chi tiet trong hoa don
-export const deleteProduct = async (idBillDetail: number,idBill: number) => {
+export const deleteProduct = async (idBillDetail: number, idBill: number) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}/deleteBillDetail/${idBillDetail}/${idBill}`);
         return response.data;
@@ -128,9 +139,9 @@ export const getImei = async (idProductDetail: number) => {
     }
 }
 // Tìm kiếm Imei theo idProductDetail
-export const findImeiById = async (idProductDetail: number) => {
+export const findImeiById = async (idProductDetail: number, idBillDetail: number) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/findImeiById/${idProductDetail}`);
+        const response = await axios.get(`${API_BASE_URL}/findImeiById/${idProductDetail}/${idBillDetail}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -138,7 +149,7 @@ export const findImeiById = async (idProductDetail: number) => {
     }
 }
 // Tìm kiếm Imei theo idProductDetail
-export const findImeiByIdProductDaBan = async (idProductDetail: number,idBillDetail : number) => {
+export const findImeiByIdProductDaBan = async (idProductDetail: number, idBillDetail: number) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/findImeiByIdProductDetailDaBan/${idProductDetail}/${idBillDetail}`);
         return response.data;
@@ -149,13 +160,27 @@ export const findImeiByIdProductDaBan = async (idProductDetail: number,idBillDet
 }
 
 
-//  Thêm sản phẩm vào hóa đơn
+//  Thêm sản phẩm imei vào hóa đơn
 export const createImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
     idProduct: number
 ) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/create_imei_sold/${idBill}/${idProduct}`, imeiSold);
+        return response.data;
+    } catch (error) {
+        console.error('Error add imei sold data:', error);
+        throw error;
+    }
+}
+
+//  Cap nhat imei vào hóa đơn
+export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
+    idBill: number,
+    idProduct: number
+) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold);
         return response.data;
     } catch (error) {
         console.error('Error add imei sold data:', error);

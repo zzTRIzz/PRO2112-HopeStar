@@ -73,7 +73,12 @@ public class BanHangTaiQuay {
     ProductDetailRepository productDetailRepository;
 
     @GetMapping
-    public ResponseEntity<List<?>> getListHoaDon() {
+    public ResponseEntity<List<?>> getListHoaDonTop6() {
+        List<BillDto> billDtos = billService.listBillTop6();
+        return ResponseEntity.ok(billDtos);
+    }
+    @GetMapping("/listBill")
+    public ResponseEntity<List<?>> getListHoaDonAll() {
         List<BillDto> billDtos = billService.listTaiQuay();
         return ResponseEntity.ok(billDtos);
     }
@@ -156,7 +161,7 @@ public class BanHangTaiQuay {
                 billDetailDto.getIdBill(), billDetailDto.getIdProductDetail());
 
         BillDetailDto savebillDetailDto;
-        //cộng số lượng nếu có sp và hóa đon giống nhau
+//        cộng số lượng nếu có sp và hóa đon giống nhau
         if (existingBillDetail.isPresent()) {
             savebillDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
                     billDetailDto.getIdBill(), billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
@@ -177,13 +182,11 @@ public class BanHangTaiQuay {
                                             @PathVariable("idBill") Integer idBill,
                                             @PathVariable("idProduct") Integer idProduct
     ) {
-
-        BillDetailDto billDetailDto;
-
-        billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
-                idBill, idProduct, imeiSoldDto.getId_Imei().size());
         imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
+
+        BillDetailDto billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
+                idBill, idProduct, imeiSoldDto.getId_Imei().size());
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
         BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
@@ -196,6 +199,36 @@ public class BanHangTaiQuay {
         Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
         billService.apDungVoucher(bill.getId(), accountId);
         return ResponseEntity.ok(billDetailDto);
+    }
+
+    @PostMapping("/update_imei_sold/{idBill}/{idProduct}")
+    public ResponseEntity<?> updateImeiSold(@RequestBody ImeiSoldDto imeiSoldDto,
+                                            @PathVariable("idBill") Integer idBill,
+                                            @PathVariable("idProduct") Integer idProduct
+    ) {
+        BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
+                .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
+        Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
+//        System.out.println("hhhhhhhhhhhhhhhh"+quantyti);
+        imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
+                imeiSoldDto.getId_Imei());
+        if (-quantyti ==billDetail.getQuantity()){
+            billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
+        }else {
+            BillDetailDto billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
+                    idBill, idProduct, quantyti);
+        }
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
+        BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
+        BillDto billDto = billMapper.dtoBillMapper(bill);
+        billDto.setTotalPrice(tongTienBill);
+        billService.updateTongTienHoaDon(billDto);
+        productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
+        productDetailService.updateStatusProduct(idProduct);
+        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
+        billService.apDungVoucher(bill.getId(), accountId);
+        return ResponseEntity.ok("");
     }
 
     @GetMapping("/product_detail")
@@ -216,9 +249,10 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(accountResponses);
     }
 
-    @GetMapping("/findImeiById/{idProductDetail}")
-    public ResponseEntity<List<?>> findImeiByIdProductDetail(@PathVariable("idProductDetail") Integer idProductDetail) {
-        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail);
+    @GetMapping("/findImeiById/{idProductDetail}/{idBillDetail}")
+    public ResponseEntity<List<?>> findImeiByIdProductDetail(@PathVariable("idProductDetail") Integer idProductDetail,
+                                                             @PathVariable("idBillDetail") Integer idBillDetail) {
+        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail,idBillDetail);
         return ResponseEntity.ok(accountResponses);
     }
 

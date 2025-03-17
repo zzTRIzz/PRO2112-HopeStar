@@ -69,7 +69,7 @@ public class BillDetailServiceImpl implements BillDetailService {
             e.printStackTrace();
             System.out.println(e);
         }
-        return null;
+        return new BillDetailDto();
     }
 
     @Override
@@ -80,9 +80,9 @@ public class BillDetailServiceImpl implements BillDetailService {
         if (optionalBillDetail.isPresent()) {
             BillDetail billDetail = optionalBillDetail.get();
             Integer soLuongTong = billDetail.getQuantity() + SoLuong;
-            billDetail.setQuantity(soLuongTong);
             BigDecimal tongTien = billDetail.getPrice()
                     .multiply(BigDecimal.valueOf(soLuongTong));
+            billDetail.setQuantity(soLuongTong);
             billDetail.setTotalPrice(tongTien);
             BillDetail saveBillDetail = billDetailRepository.save(billDetail);
             return billDetailMapper.dtoBillDetailMapper(saveBillDetail);

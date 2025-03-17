@@ -46,6 +46,9 @@ public class ProductMapper {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
 
+    @Autowired
+    private ProductSimRepository productSimRepository;
+
     // Chuyển đổi từ ProductRequest -> ProductDTO
     public ProductDTO requestToDTO(ProductRequest request) {
         ProductDTO dto = new ProductDTO();
@@ -67,6 +70,7 @@ public class ProductMapper {
         dto.setFrontCamera(request.getFrontCamera());
         dto.setRearCamera(request.getRearCamera());
         dto.setCategory(request.getCategory());
+        dto.setSim(request.getSim());
         return dto;
     }
 
@@ -129,6 +133,7 @@ public class ProductMapper {
                 .map(f -> f.getRearCamera().getResolution() +" "+f.getRearCamera().getType() + (f.getCameraMain() ? " (main)" : ""))
                 .collect(Collectors.toList()));
         dto.setCategory(productCategoryRepository.findByProductId(entity.getId()).stream().map(c->c.getCategory().getName()).collect(Collectors.toList()));
+        dto.setSim(productSimRepository.findByProductId(entity.getId()).stream().map(s->s.getSim().getType()).collect(Collectors.toList()));
         return dto;
     }
 
@@ -155,6 +160,7 @@ public class ProductMapper {
         response.setFrontCamera(dto.getFrontCamera());
         response.setRearCamera(dto.getRearCamera());
         response.setCategory(dto.getCategory());
+        response.setSim(dto.getSim());
         response.setTotalNumber(dto.getTotalNumber());
         response.setTotalVersion(dto.getTotalVersion());
         return response;

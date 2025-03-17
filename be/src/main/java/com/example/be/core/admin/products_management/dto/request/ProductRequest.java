@@ -20,11 +20,9 @@ public class ProductRequest {
     private Boolean nfc;
     private Integer idBattery;
     private String chargerType;
-//    private StatusCommon status;
     private String content;
     private List<String> frontCamera;
     private List<String> rearCamera;
     private List<String> category;
-
-
+    private List<String> sim;
 }

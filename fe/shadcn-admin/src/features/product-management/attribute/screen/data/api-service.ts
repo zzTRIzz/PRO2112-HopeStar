@@ -13,6 +13,16 @@ export const getScreen = async () => {
   }
 };
 
+export const getScreenActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/screen/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
 export const addScreen = async (screen: Screen) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/screen`, screen);

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Product } from '../data/schema'
 
-type TasksDialogType = 'create' | 'update' | 'delete' | 'import'
+type TasksDialogType = 'create' | 'update' | 'display' | 'import'
 
 interface TasksContextType {
   open: TasksDialogType | null

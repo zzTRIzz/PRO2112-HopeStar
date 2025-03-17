@@ -30,8 +30,16 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
                                  @Param("idBillDetail") Integer idBillDetail
     );
 
+    @Query("SELECT i FROM Imei i " +
+            "LEFT JOIN ImeiSold iSold ON i.id = iSold.id_Imei.id " +
+            "WHERE  i.productDetail.id = :idProduct " +
+            "AND (iSold.idBillDetail.id = :idBillDetail OR iSold.idBillDetail.id IS NULL)")
+    List<Imei> findImeiByIdProductDetail(
+                          @Param("idProduct") Integer idProduct,
+                          @Param("idBillDetail") Integer idBillDetail);
 
-    @Query("select i from Imei i " +
-            "where i.productDetail.id = :id")
-    List<Imei> findImeiByIdProductDetail( @Param("id") Integer id);
+
+//    @Query("select i from Imei i " +
+//            "where i.productDetail.id = :id")
+//    List<Imei> findImeiByIdProductDetail( @Param("id") Integer id);
 }

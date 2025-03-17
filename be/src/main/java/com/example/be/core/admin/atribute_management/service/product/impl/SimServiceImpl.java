@@ -1,6 +1,7 @@
 package com.example.be.core.admin.atribute_management.service.product.impl;
 
 import com.example.be.entity.Sim;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.SimRepository;
 import com.example.be.core.admin.atribute_management.service.product.SimService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,10 @@ public class SimServiceImpl implements SimService {
     public Sim getById(Integer id) throws Exception {
         return simRepository.findById(id).orElseThrow(()->
                 new Exception("sim not found with id: " + id));
+    }
+
+    @Override
+    public List<Sim> getAllActive() {
+        return simRepository.findByStatus(StatusCommon.ACTIVE);
     }
 }
