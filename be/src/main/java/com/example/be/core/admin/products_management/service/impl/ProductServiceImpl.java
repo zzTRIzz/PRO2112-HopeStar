@@ -99,7 +99,6 @@ public class ProductServiceImpl implements ProductService {
                         }
                     }
                 }
-
             }else {
                 product.setStatus(StatusCommon.ACTIVE);
 

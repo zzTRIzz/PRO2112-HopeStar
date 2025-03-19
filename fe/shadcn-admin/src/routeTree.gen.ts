@@ -69,6 +69,9 @@ const AuthenticatedSettingsIndexLazyImport = createFileRoute(
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
 )()
+const AuthenticatedHoadonIndexLazyImport = createFileRoute(
+  '/_authenticated/hoadon/',
+)()
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
   '/_authenticated/help-center/',
 )()
@@ -251,6 +254,15 @@ const AuthenticatedProductIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/product/index.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedHoadonIndexLazyRoute =
+  AuthenticatedHoadonIndexLazyImport.update({
+    id: '/hoadon/',
+    path: '/hoadon/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/hoadon/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedHelpCenterIndexLazyRoute =
@@ -759,6 +771,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/hoadon/': {
+      id: '/_authenticated/hoadon/'
+      path: '/hoadon'
+      fullPath: '/hoadon'
+      preLoaderRoute: typeof AuthenticatedHoadonIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/': {
       id: '/_authenticated/product/'
       path: '/product'
@@ -851,6 +870,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBanhangIndexLazyRoute: typeof AuthenticatedBanhangIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
+  AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
@@ -885,6 +905,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBanhangIndexLazyRoute: AuthenticatedBanhangIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
+  AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
@@ -935,6 +956,7 @@ export interface FileRoutesByFullPath {
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
@@ -981,6 +1003,7 @@ export interface FileRoutesByTo {
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
@@ -1032,6 +1055,7 @@ export interface FileRoutesById {
   '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
@@ -1082,6 +1106,7 @@ export interface FileRouteTypes {
     | '/banhang'
     | '/chats'
     | '/help-center'
+    | '/hoadon'
     | '/product'
     | '/settings/'
     | '/tasks'
@@ -1127,6 +1152,7 @@ export interface FileRouteTypes {
     | '/banhang'
     | '/chats'
     | '/help-center'
+    | '/hoadon'
     | '/product'
     | '/settings'
     | '/tasks'
@@ -1176,6 +1202,7 @@ export interface FileRouteTypes {
     | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
@@ -1269,6 +1296,7 @@ export const routeTree = rootRoute
         "/_authenticated/banhang/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
+        "/_authenticated/hoadon/",
         "/_authenticated/product/",
         "/_authenticated/tasks/",
         "/_authenticated/users/",
@@ -1432,6 +1460,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/help-center/": {
       "filePath": "_authenticated/help-center/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/hoadon/": {
+      "filePath": "_authenticated/hoadon/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/": {

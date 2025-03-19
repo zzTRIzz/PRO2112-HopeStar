@@ -86,6 +86,18 @@ export const addKhachHang = async (idBill: number, idAccount: number) => {
     }
 }
 
+
+// Cập nhật voucher vào hóa đơn
+export const updateVoucher = async (idBill: number, idVoucher: number) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/updateVoucher/${idBill}/${idVoucher}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi thêm khách hàng:", error);
+        throw error;
+    }
+}
+
 // Tìm kiếm khách hàng theo  bill
 export const findKhachHang = async (idBill: number) => {
     try {

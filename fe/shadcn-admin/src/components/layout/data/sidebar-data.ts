@@ -49,7 +49,7 @@ export const sidebarData: SidebarData = {
         }
         ,
          {
-          title: 'Bán Hàng',
+          title: 'Bán hàng tại quầy',
           url: '/banhang',
           icon: IconShoppingCart,
         }
@@ -149,6 +149,11 @@ export const sidebarData: SidebarData = {
               icon: IconPointFilled,
             },
           ]
+        }
+        ,{
+          title: 'Quản lý hóa đơn',
+          url: '/hoadon',
+          icon: IconShoppingCart,
         }
         ,
         {

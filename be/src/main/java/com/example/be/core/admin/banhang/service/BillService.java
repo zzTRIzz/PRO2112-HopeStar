@@ -21,13 +21,15 @@ public interface BillService {
 
     BillDto createHoaDonTaiQuay(BillDto billDto);
 
-    BillDto updateHoaDonTaiQuay(BillDto billDto);
+//    BillDto updateHoaDonTaiQuay(BillDto billDto);
 
     void addAccount(Integer idBill, Integer idAccount);
 
     BillDto apDungVoucher(Integer idBill, Integer idAccount);
 
-    BillDto updateTongTienHoaDon(BillDto billDto);
+    BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher);
+
+    BillDto saveBillDto(BillDto billDto);
 
     BillDto getByIdHoaDon(Integer id);
 

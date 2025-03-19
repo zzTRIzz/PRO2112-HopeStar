@@ -2,12 +2,25 @@ package com.example.be.core.admin.banhang.mapper;
 
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.entity.*;
+import com.example.be.repository.AccountRepository;
+import com.example.be.repository.DeliveryMethodRepository;
+import com.example.be.repository.PaymentMethodRepository;
+import com.example.be.repository.VoucherRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @AllArgsConstructor
 public class BillMapper {
+    @Autowired
+    AccountRepository accountRepository;
+    @Autowired
+    VoucherRepository voucherRepository;
+    @Autowired
+    PaymentMethodRepository paymentMethodRepository;
+    @Autowired
+    DeliveryMethodRepository deliveryMethodRepository;
 
 
     public BillDto dtoBillMapper(Bill bill) {
@@ -43,11 +56,27 @@ public class BillMapper {
         );
     }
 
-    public Bill entityBillMapper(BillDto billDto,
-                                 Account accountKhachHang,Account accountNhanVien,
-                                 Voucher voucher, PaymentMethod paymentMethod,
-                                 DeliveryMethod deliveryMethod){
-      return new Bill(
+    public Bill entityBillMapper(BillDto billDto){
+        Account accountNhanVien = (billDto.getIdNhanVien() != null)
+                ? accountRepository.findById(billDto.getIdNhanVien()).orElse(null)
+                : null;
+
+        Account accountKhachHang = (billDto.getIdAccount() != null)
+                ? accountRepository.findById(billDto.getIdAccount()).orElse(null)
+                : null;
+
+        PaymentMethod paymentMethod = (billDto.getIdPayment() != null)
+                ? paymentMethodRepository.findById(billDto.getIdPayment()).orElse(null)
+                : null;
+
+        DeliveryMethod deliveryMethod = (billDto.getIdDelivery() != null)
+                ? deliveryMethodRepository.findById(billDto.getIdDelivery()).orElse(null)
+                : null;
+
+        Voucher voucher = (billDto.getIdVoucher() != null)
+                ? voucherRepository.findById(billDto.getIdVoucher()).orElse(null)
+                : null;
+        return new Bill(
               billDto.getId(),
               billDto.getNameBill(),
               accountKhachHang,

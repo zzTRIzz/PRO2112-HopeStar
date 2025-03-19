@@ -18,17 +18,20 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
             "AND v.status = :status " +
             "AND v.conditionPriceMin <= ( " +
             "    SELECT COALESCE(MAX(b.totalPrice), 0) " +
-            "    FROM Bill b WHERE b.idAccount.id = :idAccount " +
-            ") " +
+            "    FROM Bill b WHERE b.idAccount.id = :idAccount) " +
             "AND v.conditionPriceMax >= ( " +
             "    SELECT COALESCE(MAX(b.totalPrice), 0) " +
-            "    FROM Bill b WHERE b.idAccount.id = :idAccount " +
-            ") " +
+            "    FROM Bill b WHERE b.idAccount.id = :idAccount) " +
             "AND v.quantity > 0 " +
+            "AND v.startTime <= :dateTime " +
+            "AND v.endTime >= :dateTime " +
             "AND v.voucherType = false " +
             "ORDER BY v.discountValue DESC")
     List<Voucher> giamGiaTotNhat(@Param("idAccount") Integer idAccount,
-                                 @Param("status") StatusVoucher status);
+                                 @Param("status") StatusVoucher status,
+                                 @Param("dateTime") LocalDateTime  dateTime
+                                 );
+
 
     @Query("SELECT v FROM Voucher v JOIN Bill b ON b.idVoucher.id = v.id " +
             "WHERE b.id = :idBill")
@@ -36,8 +39,12 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     @Query("SELECT v FROM Voucher v " +
             "JOIN VoucherAccount va ON va.idVoucher.id = v.id " +
-            "WHERE va.idAccount.id = :idAccount")
-    List<Voucher> findByIdAccount(@Param("idAccount") Integer idAccount);
+            "WHERE va.idAccount.id = :idAccount " +
+            "AND v.quantity > 0 " +
+            "AND v.startTime <= :dateTime " +
+            "AND v.endTime >= :dateTime " )
+    List<Voucher> findByIdAccount(@Param("idAccount") Integer idAccount,
+                                  @Param("dateTime") LocalDateTime  dateTime);
 
 
 

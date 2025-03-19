@@ -141,7 +141,7 @@ public class BanHangTaiQuay {
         BigDecimal tienThua = billDto.getCustomerPayment().subtract(billDto.getTotalDue());
         billDto.setAmountChange(tienThua);
         billDto.setStatus(StatusBill.DA_THANH_TOAN);
-        BillDto saveBillDto = billService.updateHoaDonTaiQuay(billDto);
+        BillDto saveBillDto = billService.saveBillDto(billDto);
         return ResponseEntity.ok(saveBillDto);
     }
 
@@ -171,7 +171,7 @@ public class BanHangTaiQuay {
         BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billDto.setTotalPrice(tongTienBill);
-        billService.updateTongTienHoaDon(billDto);
+        billService.saveBillDto(billDto);
         productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
         return ResponseEntity.ok(savebillDetailDto);
@@ -192,7 +192,7 @@ public class BanHangTaiQuay {
         BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billDto.setTotalPrice(tongTienBill);
-        billService.updateTongTienHoaDon(billDto);
+        billService.saveBillDto(billDto);
         Integer quantyti = imeiSoldDto.getId_Imei().size();
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
@@ -215,7 +215,7 @@ public class BanHangTaiQuay {
         if (-quantyti ==billDetail.getQuantity()){
             billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
         }else {
-            BillDetailDto billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
+            billDetailService.thayDoiSoLuongKhiCungSPVaHD(
                     idBill, idProduct, quantyti);
         }
         Bill bill = billRepository.findById(idBill)
@@ -223,7 +223,7 @@ public class BanHangTaiQuay {
         BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billDto.setTotalPrice(tongTienBill);
-        billService.updateTongTienHoaDon(billDto);
+        billService.saveBillDto(billDto);
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
         Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
@@ -273,6 +273,13 @@ public class BanHangTaiQuay {
     public ResponseEntity<?> findVoucher(@PathVariable("idBill") Integer idBill) {
         VoucherResponse voucherResponse = billService.hienThiVoucherTheoBill(idBill);
         return ResponseEntity.ok(voucherResponse);
+    }
+
+    @PostMapping("/updateVoucher/{idBill}/{idVoucher}")
+    public ResponseEntity<?> updateVoucher(@PathVariable("idBill") Integer idBill,
+                                           @PathVariable("idVoucher") Integer idVoucher) {
+        BillDto billDto = billService.capNhatVoucherKhiChon(idBill,idVoucher);
+        return ResponseEntity.ok(billDto);
     }
 
     @GetMapping("/hienThiByVoucher/{idBill}")

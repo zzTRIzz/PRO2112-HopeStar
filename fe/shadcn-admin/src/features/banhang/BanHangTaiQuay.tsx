@@ -14,7 +14,8 @@ import {
   findKhachHang, addKhachHang, addHoaDon, findImeiById,
   createImeiSold, deleteProduct, getImei, getAccountKhachHang,
   getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung
-  , findVoucherByAccount, huyHoaDon, getDataChoThanhToan,updateImeiSold
+  , findVoucherByAccount, huyHoaDon, getDataChoThanhToan, updateImeiSold
+  , updateVoucher
 }
   from './service/BanHangTaiQuayService';
 import "./custom-toast.css"; // Thêm CSS tùy chỉnh
@@ -41,9 +42,6 @@ import {
 } from "@/components/ui/dialog"
 
 import { toast, ToastContainer } from 'react-toastify';
-
-
-
 import {
   useForm
 } from "react-hook-form"
@@ -191,7 +189,6 @@ function BanHangTaiQuay() {
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
   const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
   const [listImei, setListImei] = useState<imei[]>([]);
-  // const [listImeiDaBan, setListImeiDaBan] = useState<imei[]>([]);
   const [idBill, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
   const [selectedImei, setSelectedImei] = useState<number[]>([]);
@@ -209,6 +206,7 @@ function BanHangTaiQuay() {
   const handleBanGiaoHangChange = () => {
     setIsBanGiaoHang((prev) => !prev);
   };
+  const [customerPayment, setCustomerPayment] = useState<number>(0);
 
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
@@ -406,7 +404,7 @@ function BanHangTaiQuay() {
 
 
   // Them imei vao hoa don chi tiet
-  const handleAddImei = async (idBillDetail:number) => {
+  const handleAddImei = async (idBillDetail: number) => {
     try {
       const newImei = await createImeiSold({
         id_Imei: selectedImei,
@@ -428,7 +426,7 @@ function BanHangTaiQuay() {
   };
 
 
-  const updateHandleImeiSold = async (idBillDetail:number) => {
+  const updateHandleImeiSold = async (idBillDetail: number) => {
     try {
       const newImei = await updateImeiSold({
         id_Imei: selectedImei,
@@ -468,6 +466,17 @@ function BanHangTaiQuay() {
     findImeiByIdProductDetail(idPD, billDetaill);
   };
 
+  const updateVoucherKhiChon = (idVoucher: number) => {
+    try {
+      updateVoucher(idBill, idVoucher);
+      getById(idBill);
+      setIsVoucher(false);
+
+      fromThanhCong("Cập nhật voucher thành công ")
+    } catch (error) {
+      console.error("Lỗi khi cập nhật voucher:", error);
+    }
+  }
 
   const fromThanhCong = (message: string) => {
     toast.success(message, {
@@ -537,10 +546,8 @@ function BanHangTaiQuay() {
 
 
 
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-
   })
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -576,9 +583,9 @@ function BanHangTaiQuay() {
         </TasksProvider>
       </div><br />
       <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5" style={{ paddingTop: '18px', margin: '0 13px' }}>
-      <div className="grid grid-cols-9 gap-4">
-      <div className='col-span-7'>
-        <div className="flex space-x-1" style={{ paddingLeft: '13px', paddingRight: '10px' }}>
+        <div className="grid grid-cols-9 gap-4">
+          <div className='col-span-7'>
+            <div className="flex space-x-1" style={{ paddingLeft: '13px', paddingRight: '10px' }}>
               {listBill.map((b) => (
                 <div key={b.id}
                   className={`flex items-center space-x-1 p-2 border-b-2 text-sm rounded-[5%] shadow-sm
@@ -616,56 +623,56 @@ function BanHangTaiQuay() {
               ))}
               <button onClick={handleAddBill} ><CgAdd size={26} /></button>
             </div>
-            </div>
-            <div className='col-span-2'>
-              {/* <div className="transform -translate-x-[-145px]"> */}
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className="w-[180px] justify-between"
-                    >
-                      {valueID
-                        ? billChoThanhToan.find((bill) => bill.nameBill === valueID)?.nameBill
-                        : "Hóa đơn"}
+          </div>
+          <div className='col-span-2'>
+            {/* <div className="transform -translate-x-[-145px]"> */}
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-[180px] justify-between"
+                >
+                  {valueID
+                    ? billChoThanhToan.find((bill) => bill.nameBill === valueID)?.nameBill
+                    : "Hóa đơn"}
 
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search bill" className="h-9" />
-                      <CommandList>
-                        <CommandEmpty>No bill</CommandEmpty>
-                        <CommandGroup>
-                          {billChoThanhToan.map((b) => (
-                            <CommandItem
-                              key={b.id}
-                              value={b.nameBill}
-                              onSelect={(currentValue) => {
-                                setValue(currentValue === valueID ? "" : currentValue)
-                                setOpen(false),
-                                  getById(b.id); // Gọi API lấy sản phẩm
+                  <ChevronsUpDown className="opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search bill" className="h-9" />
+                  <CommandList>
+                    <CommandEmpty>No bill</CommandEmpty>
+                    <CommandGroup>
+                      {billChoThanhToan.map((b) => (
+                        <CommandItem
+                          key={b.id}
+                          value={b.nameBill}
+                          onSelect={(currentValue) => {
+                            setValue(currentValue === valueID ? "" : currentValue)
+                            setOpen(false),
+                              getById(b.id); // Gọi API lấy sản phẩm
 
-                              }}
-                            >
-                              {b.nameBill}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  valueID === b.nameBill ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                          }}
+                        >
+                          {b.nameBill}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              valueID === b.nameBill ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         <hr />
@@ -710,7 +717,7 @@ function BanHangTaiQuay() {
                               <TableCell>{index + 1}</TableCell>
                               <TableCell>{product.code}</TableCell>
                               <TableCell>{product.name + " " + product.ram + "/" + product.rom + "GB (" + product.color + ")"}</TableCell>
-                              <TableCell>{product.priceSell}</TableCell>
+                              <TableCell>{product.priceSell.toLocaleString('vi-VN')}</TableCell>
                               <TableCell align="center">{product.inventoryQuantity}</TableCell>
                               <TableCell>
                                 <Button color="primary" onClick={() => handleAddProduct(product)}>
@@ -750,7 +757,7 @@ function BanHangTaiQuay() {
                           ))}
                         </TableBody>
                       </Table>
-                      <Button className="bg-black text-white hover:bg-gray-600" onClick={() =>handleAddImei(idBillDetail)}>
+                      <Button className="bg-black text-white hover:bg-gray-600" onClick={() => handleAddImei(idBillDetail)}>
                         Chọn
                       </Button>
                     </TableContainer>
@@ -787,9 +794,9 @@ function BanHangTaiQuay() {
                       <TableCell component="th" scope="row" align="center">
                         {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
                       </TableCell>
-                      <TableCell align="right">{pr.price} VND</TableCell>
+                      <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
                       <TableCell align="right">{pr.quantity}</TableCell>
-                      <TableCell align="right">{pr.totalPrice} VND</TableCell>
+                      <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
                       <TableCell align="center" style={{}}>
                         <div className="right space-x-2">
                           <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
@@ -827,7 +834,7 @@ function BanHangTaiQuay() {
                                   </TableBody>
                                 </Table>
                               </TableContainer>
-                              <Button className="bg-black text-white hover:bg-gray-600" onClick={()=>updateHandleImeiSold(pr.id)}>
+                              <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
                                 Chọn
                               </Button>
                             </DialogContent>
@@ -976,13 +983,58 @@ function BanHangTaiQuay() {
               </Button>
             </div>
 
-            <Button variant="outline"
-              className="text-blue-600 border border-blue-500 
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline"
+                  className="text-blue-600 border border-blue-500 
              rounded-lg px-3  text-2xs
              hover:text-red-700 hover:border-red-700 ">
-              Thanh toán
-            </Button>
+                  Thanh toán
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[700px]">
+                <div className="space-y-1" >
+                  <h2 className=' font-bold tracking-tight'>Thanh toán tổng tiền</h2>
+                  <div className="bg-white p-6 ">
+                    <div className="space-y-4">
 
+                      <div className="flex justify-between pb-2">
+                        <p className="text-gray-700 text-base">Khách cần trả:</p>
+                        <p className="font-semibold">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
+                      </div>
+                     
+                      <div className="flex justify-between pb-2 items-center">
+                        <p className="text-gray-700 text-base">Phương thức thanh toán:</p>
+                        <div className="flex gap-x-2">
+                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-yellow-700 hover:text-yellow-700 px-3 text-2xs">
+                            Tiền mặt
+                          </Button>
+                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-red-600 hover:text-red-600 px-3 text-2xs">
+                            Chuyển khoản
+                          </Button>
+                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-blue-600 hover:text-blue-600 px-3 text-2xs">
+                            Ví VNPAY
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between pb-2">
+                        <p className="text-gray-700 text-base"> Khách thanh toán:</p>
+                        <p className="font-semibold text-green-600"> <Input type="number" placeholder="Nhập số tiền" value={customerPayment}
+                          onChange={(e) => setCustomerPayment(Number(e.target.value))} /></p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
+                      <p className='text-base'>Tiền thừa trả khách:</p>
+                      <p>{Math.max(customerPayment - (searchBill?.totalDue ?? 0)).toLocaleString('vi-VN')} đ</p>
+                      </div>
+                  </div>
+                  <div className='ml-[420px]'>
+                    <Button className="w-[135px] h-[47px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] ">
+                      Xác nhận</Button></div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         <hr className=" border-gray-600" /><br />
@@ -1361,13 +1413,13 @@ function BanHangTaiQuay() {
                             <TableRow key={ac.id}>
                               <TableCell>{index + 1}</TableCell>
                               <TableCell>{ac.code}</TableCell>
-                              <TableCell>{ac.conditionPriceMin}</TableCell>
-                              <TableCell>{ac.conditionPriceMax}</TableCell>
-                              <TableCell>{ac.discountValue}</TableCell>
+                              <TableCell>{ac.conditionPriceMin.toLocaleString('vi-VN')}</TableCell>
+                              <TableCell>{ac.conditionPriceMax.toLocaleString('vi-VN')}</TableCell>
+                              <TableCell>{ac.discountValue.toLocaleString('vi-VN')}</TableCell>
                               <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
                               <TableCell>{ac.quantity}</TableCell>
                               <TableCell>
-                                <Button color="primary">
+                                <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
                                   Chọn
                                 </Button>
                               </TableCell>
@@ -1379,32 +1431,32 @@ function BanHangTaiQuay() {
                   </DialogContent>
                 </Dialog>
               </div>
-              <div className="space-y-1" >
 
+              <div className="space-y-1" >
                 <div className="bg-white p-6 rounded-lg shadow">
                   <div className="space-y-4">
                     <div className="flex justify-between border-b pb-2">
                       <span className="text-gray-700 text-base">Tổng tiền hàng: </span>
-                      <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</p>
+                      <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice.toLocaleString('vi-VN')} đ</p>
                     </div>
                     <div className="flex justify-between border-b pb-2">
                       <p className="text-gray-700 text-base">Giảm giá:</p>
-                      <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal} đ</p>
+                      <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal.toLocaleString('vi-VN')} đ</p>
                     </div>
                     <div className="flex justify-between border-b pb-2">
                       <p className="text-gray-700 text-base">Khách cần trả:</p>
-                      <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</p>
+                      <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
                     </div>
                     <div className="flex justify-between border-b pb-2">
                       <p className="text-gray-700 text-base"> Khách thanh toán:</p>
-                      <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</p>
+                      <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment.toLocaleString('vi-VN')} đ</p>
                     </div>
                   </div>
 
                   {/* Tổng tiền */}
                   <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
                     <p className='text-base'>Tiền thừa trả khách:</p>
-                    <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</p>
+                    <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange.toLocaleString('vi-VN')} đ</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 ">
@@ -1417,7 +1469,7 @@ function BanHangTaiQuay() {
             </div>
           </div>
         </div>
-      </div><br />
+      </div > <br />
     </>
   );
 }
