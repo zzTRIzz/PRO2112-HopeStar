@@ -20,7 +20,8 @@ import {
   IconUsers,
   IconSubtask,
   IconDiscount,
-  IconPointFilled
+  IconPointFilled,
+  IconUser
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -147,6 +148,20 @@ export const sidebarData: SidebarData = {
               title: 'Hệ điều hành',
               url: '/product/os',
               icon: IconPointFilled,
+            },
+          ]
+        },
+        {
+          title: 'Quản lý tài khoản',
+          icon: IconUser,
+          items: [
+            {
+              title: 'Khách hàng',
+              url: '/taikhoan/khachhang',
+            },
+            {
+              title: 'Nhân viên',
+              url: '/taikhoan/nhanvien',
             },
           ]
         }

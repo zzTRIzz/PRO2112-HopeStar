@@ -36,6 +36,8 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
+import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
 import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
@@ -467,6 +469,20 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedTaikhoanNhanvienIndexRoute =
+  AuthenticatedTaikhoanNhanvienIndexImport.update({
+    id: '/taikhoan/nhanvien/',
+    path: '/taikhoan/nhanvien/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedTaikhoanKhachhangIndexRoute =
+  AuthenticatedTaikhoanKhachhangIndexImport.update({
+    id: '/taikhoan/khachhang/',
+    path: '/taikhoan/khachhang/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const AuthenticatedProductIdProductDetailRoute =
   AuthenticatedProductIdProductDetailImport.update({
     id: '/product/$id/product-detail',
@@ -814,6 +830,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/taikhoan/khachhang/': {
+      id: '/_authenticated/taikhoan/khachhang/'
+      path: '/taikhoan/khachhang'
+      fullPath: '/taikhoan/khachhang'
+      preLoaderRoute: typeof AuthenticatedTaikhoanKhachhangIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/taikhoan/nhanvien/': {
+      id: '/_authenticated/taikhoan/nhanvien/'
+      path: '/taikhoan/nhanvien'
+      fullPath: '/taikhoan/nhanvien'
+      preLoaderRoute: typeof AuthenticatedTaikhoanNhanvienIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -876,6 +906,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
   AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
+  AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  AuthenticatedTaikhoanNhanvienIndexRoute: typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -912,6 +944,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
   AuthenticatedProductIdProductDetailRoute:
     AuthenticatedProductIdProductDetailRoute,
+  AuthenticatedTaikhoanKhachhangIndexRoute:
+    AuthenticatedTaikhoanKhachhangIndexRoute,
+  AuthenticatedTaikhoanNhanvienIndexRoute:
+    AuthenticatedTaikhoanNhanvienIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -965,6 +1001,8 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -1014,6 +1052,8 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesById {
@@ -1066,6 +1106,8 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
   '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/_authenticated/taikhoan/khachhang/': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/_authenticated/taikhoan/nhanvien/': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -1118,6 +1160,8 @@ export interface FileRouteTypes {
     | '/users'
     | '/voucher'
     | '/product/$id/product-detail'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -1166,6 +1210,8 @@ export interface FileRouteTypes {
     | '/users'
     | '/voucher'
     | '/product/$id/product-detail'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
   id:
     | '__root__'
     | '/_authenticated'
@@ -1216,6 +1262,8 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/voucher/'
     | '/_authenticated/product/$id/product-detail'
+    | '/_authenticated/taikhoan/khachhang/'
+    | '/_authenticated/taikhoan/nhanvien/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1308,7 +1356,9 @@ export const routeTree = rootRoute
         "/_authenticated/tasks/",
         "/_authenticated/users/",
         "/_authenticated/voucher/",
-        "/_authenticated/product/$id/product-detail"
+        "/_authenticated/product/$id/product-detail",
+        "/_authenticated/taikhoan/khachhang/",
+        "/_authenticated/taikhoan/nhanvien/"
       ]
     },
     "/(auth)/500": {
@@ -1492,6 +1542,14 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/$id/product-detail": {
       "filePath": "_authenticated/product/$id.product-detail.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/taikhoan/khachhang/": {
+      "filePath": "_authenticated/taikhoan/khachhang/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/taikhoan/nhanvien/": {
+      "filePath": "_authenticated/taikhoan/nhanvien/index.tsx",
       "parent": "/_authenticated"
     }
   }
