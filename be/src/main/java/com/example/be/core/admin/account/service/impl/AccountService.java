@@ -10,7 +10,10 @@ import com.example.be.repository.AccountRepository;
 import com.example.be.core.admin.account.dto.request.AccountRequest;
 import com.example.be.repository.BillRepository;
 import com.example.be.repository.RoleRepository;
+import com.example.be.utils.EmailService;
+import com.example.be.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +29,11 @@ public class AccountService {
 
     private final BillRepository billRepository;
 
+    private final EmailService guiEmail;
+
+
     public AccountResponse create(AccountRequest request) {
+        String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
@@ -34,7 +41,9 @@ public class AccountService {
         account.setFullName(request.getFullName());
         account.setCode("USER_"+ accountRepository.getNewCode());
         account.setEmail(request.getEmail());
-        account.setPassword(request.getPassword());
+        account.setPassword(
+                new BCryptPasswordEncoder().encode(matKhauDuocTaoRa)
+        );
         account.setPhone(request.getPhone());
         account.setAddress(request.getAddress());
         account.setGoogleId(request.getGoogleId());
@@ -43,10 +52,14 @@ public class AccountService {
         account.setGender(request.getGender());
         account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.ACTIVE);
+
+        guiEmail.sendPassWordEmail(account.getEmail(), matKhauDuocTaoRa );
         return convertToResponse(accountRepository.save(account));
     }
 
     public AccountResponse createNhanVien(NhanVienRequest request){
+        String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
+
         Role role = roleRepository.findById(3).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
@@ -55,7 +68,9 @@ public class AccountService {
         account.setBirthDate(request.getBirthDate());
         account.setCode(request.getCode());
         account.setEmail(request.getEmail());
-        account.setPassword(request.getPassword());
+        account.setPassword(
+                new BCryptPasswordEncoder().encode(matKhauDuocTaoRa)
+        );
         account.setPhone(request.getPhone());
         account.setAddress(request.getAddress());
         account.setGoogleId(request.getGoogleId());
@@ -64,6 +79,7 @@ public class AccountService {
         account.setGender(request.getGender());
         account.setStatus(StatusCommon.ACTIVE);
 
+        guiEmail.sendPassWordEmail(account.getEmail(), matKhauDuocTaoRa );
         return convertToResponse(accountRepository.save(account));
     }
 
@@ -82,10 +98,10 @@ public class AccountService {
     }
 
     public List<AccountResponse> getAllNhanVien() {
-        Role role = roleRepository.findById(3).orElseThrow(() -> new RuntimeException(">>>>Role not found nhân viên"));
+        Role role = roleRepository.findById(3).orElseThrow(() -> new RuntimeException(">>>>Role not found khách hàng"));
         return accountRepository.findAccountsByIdRole(role)
                 .stream()
-                .map(account -> this.convertToResponse(account))
+                .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -138,7 +154,7 @@ public class AccountService {
     }
 
     public AccountResponse updateNhanVien(Integer id, NhanVienRequest request){
-        Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
+        Role role = roleRepository.findById(3).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
         Account account = accountRepository.findById(id).orElseThrow();
