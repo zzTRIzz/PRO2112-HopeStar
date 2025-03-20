@@ -1,11 +1,12 @@
 import tailwindCssAnimate from 'tailwindcss-animate'
 import { fontFamily } from 'tailwindcss/defaultTheme'
 import { fonts } from './src/config/fonts'
-
+const {heroui} = require("@heroui/react");
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
+  content: ["./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
+    './index.html', './src/**/*.{ts,tsx,js,jsx}'],
   safelist: fonts.map((font) => `font-${font}`),
   theme: {
     container: {
@@ -79,5 +80,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindCssAnimate],
+  plugins: [tailwindCssAnimate,heroui()],
 }
