@@ -13,15 +13,6 @@ export const getRam = async () => {
   }
 };
 
-export const getRamActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/ram/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addRam = async (ram: Ram) => {
   try {

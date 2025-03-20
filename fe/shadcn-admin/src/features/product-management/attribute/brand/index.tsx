@@ -21,17 +21,13 @@ const columns: ColumnDef<Brand>[] = [
       return <div>{row.index + 1}</div>
     },
   },
-  // {
-  //   accessorKey: 'code',
-  //   header: 'Code',
-  // },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên thương hiệu', // Chuyển sang tiếng Việt
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái', // Chuyển sang tiếng Việt
     cell: ({ row }) => {
       const brand = row.original as Brand
       return <StatusSwitch brand={brand} />
@@ -53,9 +49,10 @@ export default function Brand() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Brand</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Thương hiệu</h2>{' '}
+            {/* Chuyển sang tiếng Việt */}
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your brands!
+              Danh sách các thương hiệu của bạn! {/* Chuyển sang tiếng Việt */}
             </p>
           </div>
           <TasksPrimaryButtons />

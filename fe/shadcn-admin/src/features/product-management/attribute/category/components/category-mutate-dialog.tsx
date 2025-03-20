@@ -66,17 +66,18 @@ export function CategoryMutateDialog({
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `Danh mục đã được ${isUpdate ? 'cập nhật' : 'tạo mới'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message ||
+            `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'} danh mục`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -89,12 +90,14 @@ export function CategoryMutateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Category</DialogTitle>
+          <DialogTitle>
+            {isUpdate ? 'Cập nhật danh mục' : 'Tạo mới danh mục'}
+          </DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the category by providing necessary info.'
-              : 'Add a new category by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật thông tin danh mục bằng cách điền các thông tin cần thiết.'
+              : 'Thêm danh mục mới bằng cách điền các thông tin cần thiết.'}
+            Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -109,9 +112,9 @@ export function CategoryMutateDialog({
               name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên danh mục</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter a name' />
+                    <Input {...field} placeholder='Nhập tên danh mục' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,14 +126,14 @@ export function CategoryMutateDialog({
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Ngừng hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -142,10 +145,10 @@ export function CategoryMutateDialog({
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='category-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

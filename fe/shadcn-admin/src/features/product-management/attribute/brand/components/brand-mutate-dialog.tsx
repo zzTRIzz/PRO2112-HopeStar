@@ -62,17 +62,18 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `Thương hiệu đã được ${isUpdate ? 'cập nhật' : 'tạo mới'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message ||
+            `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'} thương hiệu`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -85,12 +86,14 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Brand</DialogTitle>
+          <DialogTitle>
+            {isUpdate ? 'Cập nhật thương hiệu' : 'Tạo mới thương hiệu'}
+          </DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the brand by providing necessary info.'
-              : 'Add a new brand by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật thông tin thương hiệu bằng cách điền các thông tin cần thiết.'
+              : 'Thêm thương hiệu mới bằng cách điền các thông tin cần thiết.'}
+            Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,9 +108,9 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên thương hiệu</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter a name' />
+                    <Input {...field} placeholder='Nhập tên thương hiệu' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,14 +122,14 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Ngừng hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -138,10 +141,10 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='brand-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

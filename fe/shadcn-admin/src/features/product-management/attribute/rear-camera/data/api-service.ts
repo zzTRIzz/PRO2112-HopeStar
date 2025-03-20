@@ -13,15 +13,6 @@ export const getRearCamera = async () => {
   }
 };
 
-export const getRearCameraActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/rear-camera/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addRearCamera = async (rearCamera: RearCamera) => {
   try {

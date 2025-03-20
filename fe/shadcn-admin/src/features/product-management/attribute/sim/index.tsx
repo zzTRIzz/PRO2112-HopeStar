@@ -15,7 +15,7 @@ import type { Sim } from './data/schema'
 const columns: ColumnDef<Sim>[] = [
   {
     accessorKey: 'id',
-    header: 'STT',
+    header: 'STT', // Số thứ tự
     cell: ({ row }) => {
       // Lấy index của row và cộng thêm 1 vì index bắt đầu từ 0
       return <div>{row.index + 1}</div>
@@ -49,9 +49,9 @@ export default function Sim() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Quản lý Sim</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Quản lý SIM</h2>
             <p className='text-muted-foreground'>
-              Danh sách Sim của bạn!
+              Đây là danh sách các SIM của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

@@ -13,15 +13,6 @@ export const getCategory = async () => {
   }
 };
 
-export const getCategoryActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/category/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addCategory = async (category: Category) => {
   try {

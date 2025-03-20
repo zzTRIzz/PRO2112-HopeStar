@@ -15,14 +15,14 @@ import type { Rom } from './data/schema'
 const columns: ColumnDef<Rom>[] = [
   {
     accessorKey: 'id',
-    header: 'STT',
+    header: 'STT', // Số thứ tự
     cell: ({ row }) => {
       return <div>{row.index + 1}</div>
     },
   },
   {
     accessorKey: 'capacity',
-    header: 'Capacity',
+    header: 'Dung lượng',
     cell: ({ row }) => {
       const rom = row.original as Rom
       return <div>{rom.capacity} GB</div>
@@ -33,11 +33,11 @@ const columns: ColumnDef<Rom>[] = [
   },
   {
     accessorKey: 'description',
-    header: 'Description',
+    header: 'Mô tả',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const rom = row.original as Rom
       return <StatusSwitch rom={rom} />
@@ -59,9 +59,9 @@ export default function Rom() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Rom</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>ROM</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your roms!
+              Đây là danh sách các ROM của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

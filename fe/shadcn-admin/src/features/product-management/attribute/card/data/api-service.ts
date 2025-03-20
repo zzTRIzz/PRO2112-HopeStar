@@ -28,15 +28,6 @@ export const addCard = async (card: Card) => {
   }
 };
 
-export const getCardActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/card/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const updateCard = async (card: Card) => {
   try {

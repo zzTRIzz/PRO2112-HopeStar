@@ -84,17 +84,17 @@ export function ResolutionMutateDialog({
           resolutionType: '',
         })
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `${isUpdate ? 'Đã cập nhật' : 'Đã tạo'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -107,12 +107,14 @@ export function ResolutionMutateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Resolution</DialogTitle>
+          <DialogTitle>
+            {isUpdate ? 'Cập nhật' : 'Tạo'} Độ phân giải
+          </DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the resolution by providing necessary info.'
-              : 'Add a new resolution by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật độ phân giải bằng cách cung cấp thông tin cần thiết.'
+              : 'Thêm một độ phân giải mới bằng cách cung cấp thông tin cần thiết.'}
+            Nhấn lưu khi bạn hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -127,12 +129,9 @@ export function ResolutionMutateDialog({
               name='resolutionType'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Resolution Type</FormLabel>
+                  <FormLabel>Loại độ phân giải</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder='Example: HD, Full HD, 4K...'
-                    />
+                    <Input {...field} placeholder='Ví dụ: HD, Full HD, 4K...' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,13 +142,13 @@ export function ResolutionMutateDialog({
               name='height'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Height (px)</FormLabel>
+                  <FormLabel>Chiều cao (px)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter height'
+                      placeholder='Nhập chiều cao'
                     />
                   </FormControl>
                   <FormMessage />
@@ -162,13 +161,13 @@ export function ResolutionMutateDialog({
               name='width'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Width (px)</FormLabel>
+                  <FormLabel>Chiều rộng (px)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter width'
+                      placeholder='Nhập chiều rộng'
                     />
                   </FormControl>
                   <FormMessage />
@@ -180,10 +179,10 @@ export function ResolutionMutateDialog({
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='resolution-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -68,17 +68,17 @@ export function RearCameraMutateDialog({
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `${isUpdate ? 'Đã cập nhật' : 'Đã tạo'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -91,14 +91,12 @@ export function RearCameraMutateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>
-            {isUpdate ? 'Update' : 'Create'} Rear Camera
-          </DialogTitle>
+          <DialogTitle>{isUpdate ? 'Cập nhật' : 'Tạo'} Camera Sau</DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the rearCamera by providing necessary info.'
-              : 'Add a new rearCamera by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật camera sau bằng cách cung cấp thông tin cần thiết.'
+              : 'Thêm một camera sau mới bằng cách cung cấp thông tin cần thiết.'}
+            Nhấn lưu khi bạn hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,9 +111,9 @@ export function RearCameraMutateDialog({
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Loại</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter camera type' />
+                    <Input {...field} placeholder='Nhập loại camera' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,13 +125,13 @@ export function RearCameraMutateDialog({
               name='resolution'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Resolution (MP)</FormLabel>
+                  <FormLabel>Độ phân giải (MP)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter resolution'
+                      placeholder='Nhập độ phân giải'
                     />
                   </FormControl>
                   <FormMessage />
@@ -146,14 +144,14 @@ export function RearCameraMutateDialog({
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -165,10 +163,10 @@ export function RearCameraMutateDialog({
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='rearCamera-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

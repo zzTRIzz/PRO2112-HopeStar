@@ -1,17 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
-import { Header } from '@/components/layout/header';
-import { Main } from '@/components/layout/main';
-import { ProfileDropdown } from '@/components/profile-dropdown';
-import { Search } from '@/components/search';
-import { ThemeSwitch } from '@/components/theme-switch';
-import { DataTable } from './components/data-table';
-import { TasksDialogs } from './components/product-dialogs';
-import { StatusSwitch } from './components/status-switch';
-import { TasksPrimaryButtons } from './components/tasks-primary-buttons';
-import TasksProvider from './context/tasks-context';
-import { getProducts, searchProducts } from './data/api-service';
-import type { ProductResponse, SearchProductRequest } from './data/schema';
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { ColumnDef } from '@tanstack/react-table'
+import { IconLoader2 } from '@tabler/icons-react'
+import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
+import { ThemeSwitch } from '@/components/theme-switch'
+import { Breadcrumb } from '../breadcrumb'
+import { DataTable } from './components/data-table'
+import { ProductDialogs } from './components/product-dialogs'
+import { ProductPrimaryButtons } from './components/product-primary-buttons'
+import { StatusSwitch } from './components/status-switch'
+import ProductProvider from './context/product-context'
+import {
+  getProducts,
+  productDetailById,
+  searchProducts,
+} from './data/api-service'
+import type { ProductResponse, SearchProductRequest } from './data/schema'
 
 const columns: ColumnDef<ProductResponse>[] = [
   {
@@ -34,70 +41,105 @@ const columns: ColumnDef<ProductResponse>[] = [
     accessorKey: 'totalNumber',
     header: 'Tổng số lượng',
     cell: ({ row }) => {
-      const product = row.original as ProductResponse;
+      const product = row.original as ProductResponse
+      const navigate = useNavigate()
+
+      const handleClick = async () => {
+        try {
+          await productDetailById(product.id)
+          navigate({
+            to: '/product/$id/product-detail',
+            params: { id: product.id.toString() },
+          })
+        } catch (error) {
+          toast({
+            title: 'Lỗi',
+            description: 'Không thể tải chi tiết sản phẩm',
+            variant: 'destructive',
+          })
+        }
+      }
+
       return (
-        <div className='flex items-center gap-1'>
-          <span>{product.totalNumber}</span>
-          <span className='text-muted-foreground'>
+        <div
+          className='group flex cursor-pointer items-center gap-1 hover:text-primary'
+          onClick={handleClick}
+        >
+          <span className='underline decoration-dotted group-hover:decoration-solid'>
+            {product.totalNumber}
+          </span>
+          <span className='text-muted-foreground underline decoration-dotted group-hover:decoration-solid'>
             ({product.totalVersion} phiên bản)
           </span>
         </div>
-      );
+      )
     },
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => {
-      const product = row.original as ProductResponse;
-      return <StatusSwitch product={product} />;
+      const product = row.original as ProductResponse
+      return <StatusSwitch product={product} />
     },
   },
-];
+]
 
 export default function Product() {
-  const [products, setProducts] = useState<ProductResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [products, setProducts] = useState<ProductResponse[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   // State cho các filter
-  const [searchValue, setSearchValue] = useState('');
-  const [idChip, setIdChip] = useState<number | undefined>(undefined);
-  const [idBrand, setIdBrand] = useState<number | undefined>(undefined);
-  const [idScreen, setIdScreen] = useState<number | undefined>(undefined);
-  const [idCard, setIdCard] = useState<number | undefined>(undefined);
-  const [idOs, setIdOs] = useState<number | undefined>(undefined);
-  const [idWifi, setIdWifi] = useState<number | undefined>(undefined);
-  const [idBluetooth, setIdBluetooth] = useState<number | undefined>(undefined);
-  const [idBattery, setIdBattery] = useState<number | undefined>(undefined);
-  const [idCategory, setIdCategory] = useState<number | undefined>(undefined);
-  const [status, setStatus] = useState<string | undefined>(undefined);
+  const [searchValue, setSearchValue] = useState('')
+  const [idChip, setIdChip] = useState<number | undefined>(undefined)
+  const [idBrand, setIdBrand] = useState<number | undefined>(undefined)
+  const [idScreen, setIdScreen] = useState<number | undefined>(undefined)
+  const [idCard, setIdCard] = useState<number | undefined>(undefined)
+  const [idOs, setIdOs] = useState<number | undefined>(undefined)
+  const [idWifi, setIdWifi] = useState<number | undefined>(undefined)
+  const [idBluetooth, setIdBluetooth] = useState<number | undefined>(undefined)
+  const [idBattery, setIdBattery] = useState<number | undefined>(undefined)
+  const [idCategory, setIdCategory] = useState<number | undefined>(undefined)
+  const [status, setStatus] = useState<string | undefined>(undefined)
 
   // Gọi API getProducts khi vào trang
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProducts();
-        setProducts(data);
+        const data = await getProducts()
+        setProducts(data)
       } catch (error) {
-        setError(error as Error);
+        setError(error as Error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProducts();
-  }, []);
+    fetchProducts()
+  }, [])
 
   // Gọi API searchProducts khi có thay đổi trong filter
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Nếu không có giá trị tìm kiếm hoặc filter, gọi getProducts
-        if (!searchValue && !idChip && !idBrand && !idScreen && !idCard && !idOs && !idWifi && !idBluetooth && !idBattery && !idCategory && !status) {
-          const data = await getProducts();
-          setProducts(data);
-          return;
+        if (
+          !searchValue &&
+          !idChip &&
+          !idBrand &&
+          !idScreen &&
+          !idCard &&
+          !idOs &&
+          !idWifi &&
+          !idBluetooth &&
+          !idBattery &&
+          !idCategory &&
+          !status
+        ) {
+          const data = await getProducts()
+          setProducts(data)
+          return
         }
 
         // Nếu có giá trị tìm kiếm hoặc filter, gọi searchProducts
@@ -113,33 +155,45 @@ export default function Product() {
           idBattery,
           idCategory,
           status,
-        };
-        const data = await searchProducts(searchProductRequest);
-        setProducts(data);
+        }
+        const data = await searchProducts(searchProductRequest)
+        setProducts(data)
       } catch (error) {
-        setError(error as Error);
+        setError(error as Error)
       }
-    };
+    }
 
-    fetchData();
-  }, [searchValue, idChip, idBrand, idScreen, idCard, idOs, idWifi, idBluetooth, idBattery, idCategory, status]);
+    fetchData()
+  }, [
+    searchValue,
+    idChip,
+    idBrand,
+    idScreen,
+    idCard,
+    idOs,
+    idWifi,
+    idBluetooth,
+    idBattery,
+    idCategory,
+    status,
+  ])
 
   if (loading)
     return (
-      <div className='flex h-screen items-center justify-center text-2xl'>
-        Đang tải...
+      <div className='flex h-full items-center justify-center'>
+        <IconLoader2 className='h-8 w-8 animate-spin' />
       </div>
-    );
+    )
 
   if (error)
     return (
       <div className='mt-9 flex h-screen items-center justify-center text-2xl'>
         Lỗi: {error.message}
       </div>
-    );
+    )
 
   return (
-    <TasksProvider>
+    <ProductProvider>
       <Header fixed>
         <Search />
         <div className='ml-auto flex items-center space-x-4'>
@@ -151,12 +205,23 @@ export default function Product() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Quản lý sản phẩm</h2>
+            <div className='flex items-center pb-1'>
+              <Breadcrumb
+                items={[
+                  {
+                    label: 'Sản phẩm',
+                  },
+                ]}
+              />
+            </div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Quản lý sản phẩm
+            </h2>
             <p className='text-muted-foreground'>
               Danh sách sản phẩm của bạn trong hệ thống
             </p>
           </div>
-          <TasksPrimaryButtons />
+          <ProductPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
           <DataTable
@@ -188,7 +253,7 @@ export default function Product() {
         </div>
       </Main>
 
-      <TasksDialogs />
-    </TasksProvider>
-  );
+      <ProductDialogs />
+    </ProductProvider>
+  )
 }

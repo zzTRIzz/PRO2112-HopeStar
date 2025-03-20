@@ -15,18 +15,18 @@ import type { RearCamera } from './data/schema'
 const columns: ColumnDef<RearCamera>[] = [
   {
     accessorKey: 'id',
-    header: 'STT',
+    header: 'STT', // Số thứ tự
     cell: ({ row }) => {
       return <div>{row.index + 1}</div>
     },
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'resolution',
-    header: 'Resolution',
+    header: 'Độ phân giải',
     cell: ({ row }) => {
       const camera = row.original as RearCamera
       return <div>{camera.resolution} MP</div>
@@ -34,7 +34,7 @@ const columns: ColumnDef<RearCamera>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const camera = row.original as RearCamera
       return <StatusSwitch rearCamera={camera} />
@@ -56,9 +56,9 @@ export default function RearCamera() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>RearCamera</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Camera Sau</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your rearCameras!
+              Đây là danh sách các camera sau của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

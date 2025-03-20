@@ -37,6 +37,7 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
 
@@ -461,6 +462,13 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedProductIdProductDetailRoute =
+  AuthenticatedProductIdProductDetailImport.update({
+    id: '/product/$id/product-detail',
+    path: '/product/$id/product-detail',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -794,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVoucherIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/$id/product-detail': {
+      id: '/_authenticated/product/$id/product-detail'
+      path: '/product/$id/product-detail'
+      fullPath: '/product/$id/product-detail'
+      preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -855,6 +870,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
+  AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -889,6 +905,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
+  AuthenticatedProductIdProductDetailRoute:
+    AuthenticatedProductIdProductDetailRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -940,6 +958,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
 }
 
 export interface FileRoutesByTo {
@@ -986,6 +1005,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
 }
 
 export interface FileRoutesById {
@@ -1037,6 +1057,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
+  '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
 }
 
 export interface FileRouteTypes {
@@ -1087,6 +1108,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/users'
     | '/voucher'
+    | '/product/$id/product-detail'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -1132,6 +1154,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/users'
     | '/voucher'
+    | '/product/$id/product-detail'
   id:
     | '__root__'
     | '/_authenticated'
@@ -1181,6 +1204,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
     | '/_authenticated/voucher/'
+    | '/_authenticated/product/$id/product-detail'
   fileRoutesById: FileRoutesById
 }
 
@@ -1272,7 +1296,8 @@ export const routeTree = rootRoute
         "/_authenticated/product/",
         "/_authenticated/tasks/",
         "/_authenticated/users/",
-        "/_authenticated/voucher/"
+        "/_authenticated/voucher/",
+        "/_authenticated/product/$id/product-detail"
       ]
     },
     "/(auth)/500": {
@@ -1452,6 +1477,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/voucher/": {
       "filePath": "_authenticated/voucher/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/$id/product-detail": {
+      "filePath": "_authenticated/product/$id.product-detail.tsx",
       "parent": "/_authenticated"
     }
   }

@@ -41,7 +41,7 @@ interface AttributeData {
   wifis: AttributeItem[]
 }
 
-const useFetchData = () => {
+export const useFetchData = () => {
   const { data } = useQuery<AttributeData>({
     queryKey: ['productAttributes'],
     queryFn: async () => {
@@ -68,15 +68,15 @@ const useFetchData = () => {
       ])
 
       return {
-        batteries,
-        bluetooths,
-        brands,
-        cards,
-        categories,
-        chips,
-        os,
-        screens,
-        wifis,
+        batteries: batteries || [],
+        bluetooths: bluetooths || [],
+        brands: brands || [],
+        cards: cards || [],
+        categories: categories || [],
+        chips: chips || [],
+        os: os || [],
+        screens: screens || [],
+        wifis: wifis || [],
       }
     },
   })
@@ -149,15 +149,15 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const data = useFetchData()
   const {
-    batteries,
-    bluetooths,
-    brands,
-    cards,
-    categories,
-    chips,
-    os,
-    screens,
-    wifis,
+    batteries = [],
+    bluetooths = [],
+    brands = [],
+    cards = [],
+    categories = [],
+    chips = [],
+    os = [],
+    screens = [],
+    wifis = [],
   } = data
 
   const handleStatusChange = (value: string) => {
@@ -170,7 +170,7 @@ export function DataTableToolbar<TData>({
         <div className='flex flex-1 items-center space-x-2'>
           {/* Ô input để nhập mã hoặc tên */}
           <Input
-            placeholder='Lọc theo mã hoặc tên...'
+            placeholder='Tìm kiếm theo mã hoặc tên...'
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
             className='h-8 w-[150px] lg:w-[250px]'
@@ -179,6 +179,7 @@ export function DataTableToolbar<TData>({
       </div>
 
       <div className='mb-4 grid grid-cols-5 gap-4'>
+        {/* Chip Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='chip-select'
@@ -192,7 +193,7 @@ export function DataTableToolbar<TData>({
               setIdChip(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='chip-select' className=''>
+            <SelectTrigger id='chip-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -206,7 +207,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Brand */}
+        {/* Brand Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='brand-select'
@@ -220,7 +221,7 @@ export function DataTableToolbar<TData>({
               setIdBrand(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='brand-select' className=''>
+            <SelectTrigger id='brand-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -234,7 +235,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Screen */}
+        {/* Screen Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='screen-select'
@@ -248,7 +249,7 @@ export function DataTableToolbar<TData>({
               setIdScreen(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='screen-select' className=''>
+            <SelectTrigger id='screen-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -262,7 +263,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Card */}
+        {/* Card Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='card-select'
@@ -276,7 +277,7 @@ export function DataTableToolbar<TData>({
               setIdCard(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='card-select' className=''>
+            <SelectTrigger id='card-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -290,7 +291,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho OS */}
+        {/* OS Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='os-select'
@@ -304,7 +305,7 @@ export function DataTableToolbar<TData>({
               setIdOs(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='os-select' className=''>
+            <SelectTrigger id='os-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -318,6 +319,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
+        {/* WiFi Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='wifi-select'
@@ -331,7 +333,7 @@ export function DataTableToolbar<TData>({
               setIdWifi(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='wifi-select' className=''>
+            <SelectTrigger id='wifi-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -345,7 +347,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Bluetooth */}
+        {/* Bluetooth Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='bluetooth-select'
@@ -359,7 +361,7 @@ export function DataTableToolbar<TData>({
               setIdBluetooth(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='bluetooth-select' className=''>
+            <SelectTrigger id='bluetooth-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -373,7 +375,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Battery */}
+        {/* Battery Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='battery-select'
@@ -387,21 +389,21 @@ export function DataTableToolbar<TData>({
               setIdBattery(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='battery-select' className=''>
+            <SelectTrigger id='battery-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='0'>Tất cả</SelectItem>
               {batteries.map((battery: AttributeItem) => (
                 <SelectItem key={battery.id} value={battery.id.toString()}>
-                  {battery.capacity} {'mAh'}
+                  {battery.capacity} mAh
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Select input cho Category */}
+        {/* Category Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='category-select'
@@ -415,7 +417,7 @@ export function DataTableToolbar<TData>({
               setIdCategory(value === '0' ? undefined : Number(value))
             }
           >
-            <SelectTrigger id='category-select' className=''>
+            <SelectTrigger id='category-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>
@@ -429,7 +431,7 @@ export function DataTableToolbar<TData>({
           </Select>
         </div>
 
-        {/* Select input cho Status */}
+        {/* Status Select */}
         <div className='flex flex-col justify-center'>
           <Label
             htmlFor='status-select'
@@ -438,7 +440,7 @@ export function DataTableToolbar<TData>({
             Trạng thái
           </Label>
           <Select value={status || 'all'} onValueChange={handleStatusChange}>
-            <SelectTrigger id='status-select' className=''>
+            <SelectTrigger id='status-select'>
               <SelectValue placeholder='Tất cả' />
             </SelectTrigger>
             <SelectContent>

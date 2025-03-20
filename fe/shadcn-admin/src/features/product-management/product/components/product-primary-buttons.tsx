@@ -1,17 +1,17 @@
 import { useNavigate } from '@tanstack/react-router'
 import { IconDownload, IconPlus } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
-import { useTasks } from '../context/tasks-context'
+import { useProduct } from '../context/product-context'
 
-export function TasksPrimaryButtons() {
+export function ProductPrimaryButtons() {
   const navigate = useNavigate()
-
+  const { setOpen } = useProduct()
   function addNewProduct() {
     navigate({
       to: '/product/create-product',
     })
+    setOpen('create')
   }
-  const { setOpen } = useTasks()
   return (
     <div className='flex gap-2'>
       <Button

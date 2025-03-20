@@ -58,8 +58,8 @@ export function ProductForm({
   wifis,
 }: ProductFormProps) {
   return (
-    <div className='mx-auto space-y-4 rounded border px-4 py-6'>
-      <h1 className='text-center text-2xl font-semibold'>Create Product</h1>
+    <div className='mx-auto space-y-4 rounded border px-4 py-6 shadow'>
+      <h1 className='text-center text-2xl font-semibold'>Tạo Sản Phẩm</h1>
 
       {/* Basic Information */}
       <div className='w-full'>
@@ -68,9 +68,9 @@ export function ProductForm({
           name='productRequest.name'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product name</FormLabel>
+              <FormLabel>Tên sản phẩm</FormLabel>
               <FormControl>
-                <Input placeholder='' {...field} />
+                <Input placeholder=' ' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -83,9 +83,9 @@ export function ProductForm({
           name='productRequest.description'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Mô tả</FormLabel>
               <FormControl>
-                <Textarea placeholder='' className='min-h-8' {...field} />
+                <Textarea placeholder=' ' className='min-h-8' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -101,7 +101,7 @@ export function ProductForm({
             name='productRequest.category'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Categories</FormLabel>
+                <FormLabel>Danh mục</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -117,7 +117,7 @@ export function ProductForm({
                               )
                               .map((category) => category.name)
                               .join(', ')
-                          : 'Select categories'}
+                          : ''}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -162,11 +162,11 @@ export function ProductForm({
             name='productRequest.weight'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Weight(g)</FormLabel>
+                <FormLabel>Trọng lượng (g)</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
-                    placeholder=''
+                    placeholder=' '
                     {...field}
                     value={field.value || ''} // Đảm bảo giá trị không bị undefined
                     onChange={(e) => field.onChange(Number(e.target.value))} // Chuyển đổi thành số
@@ -184,14 +184,14 @@ export function ProductForm({
             name='productRequest.idBrand'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Brand</FormLabel>
+                <FormLabel>Thương hiệu</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select brand' />
+                      <SelectValue placeholder='Chọn thương hiệu' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -221,7 +221,7 @@ export function ProductForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select chip' />
+                      <SelectValue placeholder='Chọn chip' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -244,14 +244,14 @@ export function ProductForm({
             name='productRequest.idBattery'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Battery</FormLabel>
+                <FormLabel>Pin</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select battery' />
+                      <SelectValue placeholder='Chọn pin' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -277,14 +277,14 @@ export function ProductForm({
             name='productRequest.idScreen'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Screen</FormLabel>
+                <FormLabel>Màn hình</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select screen' />
+                      <SelectValue placeholder='Chọn màn hình' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -314,7 +314,7 @@ export function ProductForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select bluetooth' />
+                      <SelectValue placeholder='Chọn bluetooth' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -340,14 +340,14 @@ export function ProductForm({
             name='productRequest.idCard'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Card</FormLabel>
+                <FormLabel>Thẻ nhớ</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select card' />
+                      <SelectValue placeholder='Chọn thẻ nhớ' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -370,14 +370,14 @@ export function ProductForm({
             name='productRequest.idOs'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Os</FormLabel>
+                <FormLabel>Hệ điều hành</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select os' />
+                      <SelectValue placeholder='Chọn hệ điều hành' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -407,7 +407,7 @@ export function ProductForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select wifi' />
+                      <SelectValue placeholder='Chọn wifi' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -430,14 +430,14 @@ export function ProductForm({
             name='productRequest.chargerType'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Charger</FormLabel>
+                <FormLabel>Sạc</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(value)} // Không cần chuyển đổi thành số
                   defaultValue={field.value || ''} // Đảm bảo giá trị mặc định là chuỗi
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select charger' />
+                      <SelectValue placeholder='' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -461,7 +461,7 @@ export function ProductForm({
             render={({ field }) => (
               <FormItem className='flex items-center justify-between rounded-lg border p-2'>
                 <div className='flex items-center gap-2'>
-                  <FormLabel>NFC Support</FormLabel>
+                  <FormLabel>Hỗ trợ NFC</FormLabel>
                 </div>
                 <div className='flex items-center'>
                   <FormControl>
@@ -485,7 +485,7 @@ export function ProductForm({
             name='productRequest.sim'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sim</FormLabel>
+                <FormLabel>SIM</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -501,7 +501,7 @@ export function ProductForm({
                               )
                               .map((sim) => sim.type)
                               .join(', ')
-                          : 'Select sims'}
+                          : 'Chọn loại SIM'}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -545,7 +545,7 @@ export function ProductForm({
             name='productRequest.frontCamera'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Front Camera</FormLabel>
+                <FormLabel>Camera trước</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -561,7 +561,7 @@ export function ProductForm({
                               )
                               .map((camera) => camera.resolution)
                               .join(', ')
-                          : 'Select front cameras'}
+                          : 'Chọn camera trước'}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -605,7 +605,7 @@ export function ProductForm({
             name='productRequest.rearCamera'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Rear Camera</FormLabel>
+                <FormLabel>Camera sau</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -621,7 +621,7 @@ export function ProductForm({
                               )
                               .map((camera) => camera.resolution)
                               .join(', ')
-                          : 'Select rear cameras'}
+                          : 'Chọn camera sau'}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
