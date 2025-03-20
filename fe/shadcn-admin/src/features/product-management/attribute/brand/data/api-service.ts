@@ -13,15 +13,6 @@ export const getBrand = async () => {
   }
 };
 
-export const getBrandActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/brand/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addBrand = async (brand: Brand) => {
   try {

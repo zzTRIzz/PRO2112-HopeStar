@@ -44,7 +44,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow
   const { mutate, isPending } = useScreenMutation(isUpdate)
 
-  // Add this query to fetch resolutions
+  // Truy vấn để lấy danh sách độ phân giải
   const { data: resolutions } = useQuery({
     queryKey: ['resolutions'],
     queryFn: getResolution,
@@ -86,17 +86,17 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `${isUpdate ? 'Đã cập nhật' : 'Đã tạo'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -109,12 +109,12 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Screen</DialogTitle>
+          <DialogTitle>{isUpdate ? 'Cập nhật' : 'Tạo'} Màn hình</DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the screen by providing necessary info.'
-              : 'Add a new screen by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật màn hình bằng cách cung cấp thông tin cần thiết.'
+              : 'Thêm một màn hình mới bằng cách cung cấp thông tin cần thiết.'}
+            Nhấn lưu khi bạn hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -129,9 +129,9 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Loại</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter a type' />
+                    <Input {...field} placeholder='Nhập loại màn hình' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,14 +143,14 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='displaySize'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Display Size (inches)</FormLabel>
+                  <FormLabel>Kích thước màn hình (inch)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       step='0.1'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter display size'
+                      placeholder='Nhập kích thước màn hình'
                     />
                   </FormControl>
                   <FormMessage />
@@ -163,7 +163,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='resolution'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Resolution</FormLabel>
+                  <FormLabel>Độ phân giải</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       const resolution = JSON.parse(value)
@@ -177,7 +177,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder='Select resolution'>
+                      <SelectValue placeholder='Chọn độ phân giải'>
                         {field.value &&
                           `${field.value.width}x${field.value.height} (${field.value.resolutionType})`}
                       </SelectValue>
@@ -203,13 +203,13 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='refreshRate'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Refresh Rate (Hz)</FormLabel>
+                  <FormLabel>Tần số quét (Hz)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter refresh rate'
+                      placeholder='Nhập tần số quét'
                     />
                   </FormControl>
                   <FormMessage />
@@ -222,14 +222,14 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -241,10 +241,10 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='screen-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

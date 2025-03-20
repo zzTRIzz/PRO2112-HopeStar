@@ -15,18 +15,18 @@ import type { Screen } from './data/schema'
 const columns: ColumnDef<Screen>[] = [
   {
     accessorKey: 'id',
-    header: 'STT',
+    header: 'STT', // Số thứ tự
     cell: ({ row }) => {
       return <div>{row.index + 1}</div>
     },
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'displaySize',
-    header: 'Display Size',
+    header: 'Kích thước màn hình',
     cell: ({ row }) => {
       const screen = row.original as Screen
       return <div>{screen.displaySize}"</div>
@@ -34,7 +34,7 @@ const columns: ColumnDef<Screen>[] = [
   },
   {
     accessorKey: 'resolution',
-    header: 'Resolution',
+    header: 'Độ phân giải',
     cell: ({ row }) => {
       const screen = row.original as Screen
       return (
@@ -47,7 +47,7 @@ const columns: ColumnDef<Screen>[] = [
   },
   {
     accessorKey: 'refreshRate',
-    header: 'Refresh Rate',
+    header: 'Tần số quét',
     cell: ({ row }) => {
       const screen = row.original as Screen
       return <div>{screen.refreshRate} Hz</div>
@@ -55,7 +55,7 @@ const columns: ColumnDef<Screen>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const screen = row.original as Screen
       return <StatusSwitch screen={screen} />
@@ -77,9 +77,9 @@ export default function Screen() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Screen</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Màn hình</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your screens!
+              Đây là danh sách các màn hình của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

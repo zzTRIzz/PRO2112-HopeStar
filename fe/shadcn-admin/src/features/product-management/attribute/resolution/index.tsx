@@ -14,18 +14,18 @@ import type { Resolution } from './data/schema'
 const columns: ColumnDef<Resolution>[] = [
   {
     accessorKey: 'id',
-    header: 'STT',
+    header: 'STT', // Số thứ tự
     cell: ({ row }) => {
       return <div>{row.index + 1}</div>
     },
   },
   {
     accessorKey: 'resolutionType',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'height',
-    header: 'Height',
+    header: 'Chiều cao',
     cell: ({ row }) => {
       const resolution = row.original as Resolution
       return <div>{resolution.height}px</div>
@@ -33,7 +33,7 @@ const columns: ColumnDef<Resolution>[] = [
   },
   {
     accessorKey: 'width',
-    header: 'Width',
+    header: 'Chiều rộng',
     cell: ({ row }) => {
       const resolution = row.original as Resolution
       return <div>{resolution.width}px</div>
@@ -55,9 +55,9 @@ export default function Resolution() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Resolution</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Độ phân giải</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your resolutions!
+              Đây là danh sách các độ phân giải của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

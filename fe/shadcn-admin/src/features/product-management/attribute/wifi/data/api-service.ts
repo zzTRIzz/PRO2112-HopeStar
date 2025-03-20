@@ -13,16 +13,6 @@ export const getWifi = async () => {
   }
 };
 
-export const getWifiActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/wifi/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
-
 export const addWifi = async (wifi: Wifi) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/wifi`, wifi);

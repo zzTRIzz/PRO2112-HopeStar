@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,7 +12,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from '@tanstack/react-table'
 import {
   Table,
   TableBody,
@@ -20,35 +20,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { DataTablePagination } from './data-table-pagination';
-import { DataTableToolbar } from './data-table-toolbar';
+} from '@/components/ui/table'
+import { DataTablePagination } from './data-table-pagination'
+import { DataTableRowActions } from './data-table-row-actions'
+import { DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  searchValue: string;
-  setSearchValue: (value: string) => void;
-  idChip: number | undefined;
-  setIdChip: (value: number | undefined) => void;
-  idBrand: number | undefined;
-  setIdBrand: (value: number | undefined) => void;
-  idScreen: number | undefined;
-  setIdScreen: (value: number | undefined) => void;
-  idCard: number | undefined;
-  setIdCard: (value: number | undefined) => void;
-  idOs: number | undefined;
-  setIdOs: (value: number | undefined) => void;
-  idWifi: number | undefined;
-  setIdWifi: (value: number | undefined) => void;
-  idBluetooth: number | undefined;
-  setIdBluetooth: (value: number | undefined) => void;
-  idBattery: number | undefined;
-  setIdBattery: (value: number | undefined) => void;
-  idCategory: number | undefined;
-  setIdCategory: (value: number | undefined) => void;
-  status: string | undefined;
-  setStatus: (value: string | undefined) => void;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  searchValue: string
+  setSearchValue: (value: string) => void
+  idChip: number | undefined
+  setIdChip: (value: number | undefined) => void
+  idBrand: number | undefined
+  setIdBrand: (value: number | undefined) => void
+  idScreen: number | undefined
+  setIdScreen: (value: number | undefined) => void
+  idCard: number | undefined
+  setIdCard: (value: number | undefined) => void
+  idOs: number | undefined
+  setIdOs: (value: number | undefined) => void
+  idWifi: number | undefined
+  setIdWifi: (value: number | undefined) => void
+  idBluetooth: number | undefined
+  setIdBluetooth: (value: number | undefined) => void
+  idBattery: number | undefined
+  setIdBattery: (value: number | undefined) => void
+  idCategory: number | undefined
+  setIdCategory: (value: number | undefined) => void
+  status: string | undefined
+  setStatus: (value: string | undefined) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -77,10 +78,13 @@ export function DataTable<TData, TValue>({
   status,
   setStatus,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const table = useReactTable({
     data,
@@ -102,7 +106,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  });
+  })
 
   return (
     <div className='space-y-4'>
@@ -138,26 +142,42 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </TableHead>
                 ))}
+                <TableHead>Hành động</TableHead>
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
+                  <TableCell>
+                    <DataTableRowActions row={row} />
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className='h-24 text-center'>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
                   Không có kết quả.
                 </TableCell>
               </TableRow>
@@ -167,5 +187,5 @@ export function DataTable<TData, TValue>({
       </div>
       <DataTablePagination table={table} />
     </div>
-  );
+  )
 }

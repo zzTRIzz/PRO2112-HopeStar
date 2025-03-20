@@ -13,15 +13,6 @@ export const getSim = async () => {
   }
 };
 
-export const getSimActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/sim/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addSim = async (sim: Sim) => {
   try {

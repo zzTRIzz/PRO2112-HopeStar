@@ -23,11 +23,11 @@ const columns: ColumnDef<Card>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại thẻ', // Chuyển sang tiếng Việt
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái', // Chuyển sang tiếng Việt
     cell: ({ row }) => {
       const card = row.original as Card
       return <StatusSwitch card={card} />
@@ -49,9 +49,10 @@ export default function Card() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Card</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Quản lý thẻ</h2>{' '}
+            {/* Chuyển sang tiếng Việt */}
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your cards!
+              Danh sách các thẻ của bạn! {/* Chuyển sang tiếng Việt */}
             </p>
           </div>
           <TasksPrimaryButtons />

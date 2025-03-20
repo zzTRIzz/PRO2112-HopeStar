@@ -1,3 +1,4 @@
+import MyForm from '@/features/taikhoan/MyForm'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/taikhoan/khachhang/')({
@@ -5,5 +6,9 @@ export const Route = createFileRoute('/_authenticated/taikhoan/khachhang/')({
 })
 
 function RouteComponent() {
-  return <div>Hello "/_authenticated/taikhoan/khachhang/"!</div>
+  return (
+    <>
+      <MyForm />
+    </>
+  )
 }

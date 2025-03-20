@@ -45,7 +45,7 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Dashboard',
-          url: '/',
+          url: '/dashboard',
           icon: IconLayoutDashboard,
         }
         ,
@@ -148,6 +148,20 @@ export const sidebarData: SidebarData = {
               title: 'Hệ điều hành',
               url: '/product/os',
               icon: IconPointFilled,
+            },
+          ]
+        },
+        {
+          title: 'Quản lý tài khoản',
+          icon: IconUser,
+          items: [
+            {
+              title: 'Khách hàng',
+              url: '/taikhoan/khachhang',
+            },
+            {
+              title: 'Nhân viên',
+              url: '/taikhoan/nhanvien',
             },
           ]
         }

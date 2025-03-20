@@ -68,17 +68,17 @@ export function FrontCameraMutateDialog({
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `${isUpdate ? 'Cập nhật' : 'Tạo mới'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -92,13 +92,13 @@ export function FrontCameraMutateDialog({
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {isUpdate ? 'Update' : 'Create'} Front Camera
+            {isUpdate ? 'Cập nhật' : 'Tạo mới'} Camera trước
           </DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the frontCamera by providing necessary info.'
-              : 'Add a new frontCamera by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật thông tin camera trước bằng cách điền các thông tin cần thiết.'
+              : 'Thêm camera trước mới bằng cách điền các thông tin cần thiết.'}
+            Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,9 +113,9 @@ export function FrontCameraMutateDialog({
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Loại</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter camera type' />
+                    <Input {...field} placeholder='Nhập loại camera' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,13 +127,13 @@ export function FrontCameraMutateDialog({
               name='resolution'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Resolution (MP)</FormLabel>
+                  <FormLabel>Độ phân giải (MP)</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder='Enter resolution'
+                      placeholder='Nhập độ phân giải'
                     />
                   </FormControl>
                   <FormMessage />
@@ -146,14 +146,14 @@ export function FrontCameraMutateDialog({
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -165,10 +165,10 @@ export function FrontCameraMutateDialog({
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='frontCamera-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

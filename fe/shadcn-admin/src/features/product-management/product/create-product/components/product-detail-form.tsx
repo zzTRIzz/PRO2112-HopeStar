@@ -157,8 +157,10 @@ const ColorSelector: React.FC<{
         </DialogTrigger>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Select {label}</DialogTitle>
-            <DialogDescription>Click save when you're done.</DialogDescription>
+            <DialogTitle>Chọn {label}</DialogTitle>
+            <DialogDescription>
+              Click save khi bạn đã hoàn tất.
+            </DialogDescription>
           </DialogHeader>
           <ScrollArea className='w-full'>
             <div className='flex space-x-4 pb-4'>
@@ -185,7 +187,7 @@ const ColorSelector: React.FC<{
             </div>
           </ScrollArea>
           <div className='mt-4 flex justify-end'>
-            <Button onClick={handleConfirm}>Cài đặt</Button>
+            <Button onClick={handleConfirm}>Xác nhận</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -357,24 +359,27 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 checked={isChecked}
                 onCheckedChange={() => setIsChecked(!isChecked)}
               />
-              Version {rams.find((r) => r.id === idRam)?.capacity} /{' '}
+              Phiên bản {rams.find((r) => r.id === idRam)?.capacity} /{' '}
               {roms.find((r) => r.id === idRom)?.capacity}GB
             </TableHead>
             {isChecked && (
               <TableHead colSpan={4} className='space-x-2 py-2 text-right'>
                 <Button
+                  type='button' // Thêm type="button"
                   className='bg-blue-500 hover:bg-blue-600'
                   onClick={() => setIsAddColorDialogOpen(true)}
                 >
                   Thêm màu
                 </Button>
                 <Button
+                  type='button' // Thêm type="button"
                   className='bg-blue-500 hover:bg-blue-600'
                   onClick={() => setIsGeneralPriceDialogOpen(true)}
                 >
                   Giá chung
                 </Button>
                 <Button
+                  type='button' // Thêm type="button"
                   className='bg-red-500 hover:bg-red-600'
                   onClick={() => onDeleteAll(idRam, idRom)}
                 >
@@ -385,7 +390,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
           </TableRow>
           <TableRow>
             <TableHead>STT</TableHead>
-            <TableHead>Tên</TableHead>
             <TableHead>Màu sắc</TableHead>
             <TableHead>Số lượng</TableHead>
             <TableHead>Giá</TableHead>
@@ -396,7 +400,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
           {filteredRows.map((row, index) => (
             <TableRow key={`${row.idRam}-${row.idRom}-${row.idColor}`}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>Tên</TableCell>
               <TableCell>
                 {colors.find((c) => c.id === row.idColor)?.name}
               </TableCell>
@@ -427,6 +430,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                   <IconDownload stroke={3} />
                 </Button>
                 <Button
+                  type='button' // Thêm type="button"
                   className='bg-red-500 hover:bg-red-600'
                   onClick={() => onDeleteRow(idRam, idRom, row.idColor)}
                 >
@@ -446,7 +450,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
             <DialogTitle>Giá chung</DialogTitle>
-            <DialogDescription>Click save when you're done.</DialogDescription>
+            <DialogDescription>
+              Click save khi bạn đã hoàn tất.
+            </DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <Input
@@ -455,7 +461,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
               value={generalPrice}
               onChange={handleGeneralPriceChange}
             />
-            <Button onClick={handleSetGeneralPrice}>Cài đặt</Button>
+            <Button onClick={handleSetGeneralPrice}>Xác nhận</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -465,9 +471,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
         open={isAddColorDialogOpen}
         onOpenChange={(open) => {
           setIsAddColorDialogOpen(open)
-          if (!open) {
-            // Reset state khi đóng dialog
-            setSelectedColorsForTable([])
+          if (open) {
+            // When opening dialog, initialize with existing colors
+            setSelectedColorsForTable(existingColorIds)
           }
         }}
       >
@@ -481,7 +487,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
           <ScrollArea className='w-full'>
             <div className='flex flex-wrap gap-4 pb-4'>
               {colors.map((color) => {
-                // Kiểm tra xem màu này đã có trong bảng chưa
                 const isExistingColor = existingColorIds.includes(color.id)
 
                 return (
@@ -489,12 +494,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
                     key={color.id}
                     className={`flex flex-col items-center space-y-2 p-2 ${
                       isExistingColor
-                        ? 'cursor-not-allowed opacity-70'
+                        ? 'opacity-70'
                         : 'cursor-pointer hover:bg-gray-100'
                     }`}
-                    onClick={() =>
-                      !isExistingColor && handleSelectColorForTable(color.id)
-                    }
                   >
                     <div
                       className='h-12 w-12 rounded-full'
@@ -508,7 +510,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
                     ></div>
                     <span>{color.name}</span>
                     <Checkbox
-                      checked={selectedColorsForTable.includes(color.id)}
+                      checked={
+                        isExistingColor ||
+                        selectedColorsForTable.includes(color.id)
+                      }
                       disabled={isExistingColor}
                       onCheckedChange={(checked) => {
                         if (!isExistingColor) {
@@ -532,6 +537,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
           </ScrollArea>
           <div className='mt-4 flex justify-end space-x-2'>
             <Button
+              type='button' // Thêm type="button"
               variant='outline'
               onClick={() => {
                 setIsAddColorDialogOpen(false)
@@ -541,6 +547,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
               Hủy
             </Button>
             <Button
+              type='button' // Thêm type="button"
               onClick={handleAddColorsToTable}
               disabled={selectedColorsForTable.length === 0}
             >
@@ -615,18 +622,6 @@ export function ProductDetailForm({
     setUniqueColors(uniqueColorIds)
   }, [tableRows])
 
-  const toggleSelection = useCallback(
-    (type: 'rams' | 'roms' | 'colors', id: number) => {
-      setSelections((prev) => ({
-        ...prev,
-        [type]: prev[type].includes(id)
-          ? prev[type].filter((item) => item !== id)
-          : [...prev[type], id],
-      }))
-    },
-    []
-  )
-
   const generateTableRows = useCallback(() => {
     if (!selections.rams.length || !selections.roms.length) {
       return []
@@ -683,13 +678,41 @@ export function ProductDetailForm({
     )
   }, [selections, colorImages, deletedVersions])
 
-  // Sử dụng useEffect để cập nhật tableRows khi selections thay đổi
-  useEffect(() => {
-    if (selections.rams.length && selections.roms.length) {
-      const newRows = generateTableRows()
+  const toggleSelection = useCallback(
+    (type: 'rams' | 'roms' | 'colors', id: number) => {
+      // Kiểm tra xem id có trong danh sách chọn hiện tại không
+      const isCurrentlySelected = selections[type].includes(id)
 
-      // Giữ lại các giá trị đã có trong tableRows
-      const mergedRows = newRows.map((newRow) => {
+      // Cập nhật danh sách lựa chọn
+      const newSelections = {
+        ...selections,
+        [type]: isCurrentlySelected
+          ? selections[type].filter((item) => item !== id)
+          : [...selections[type], id],
+      }
+
+      setSelections(newSelections)
+
+      // Nếu đang thêm một lựa chọn mới (không phải bỏ chọn), cập nhật deletedVersions
+      if (!isCurrentlySelected) {
+        if (type === 'rams') {
+          setDeletedVersions((prev) => prev.filter((v) => v.ram !== id))
+        } else if (type === 'roms') {
+          setDeletedVersions((prev) => prev.filter((v) => v.rom !== id))
+        } else if (type === 'colors') {
+          setDeletedVersions((prev) => prev.filter((v) => v.color !== id))
+        }
+      }
+    },
+    [selections]
+  )
+
+  // Tách biệt việc tạo hàng mới và việc cập nhật tableRows
+  const mergeWithExistingRows = useCallback(
+    (newRows) => {
+      if (!tableRows || tableRows.length === 0) return newRows
+
+      return newRows.map((newRow) => {
         const existing = tableRows.find(
           (row) =>
             row.idRam === newRow.idRam &&
@@ -698,14 +721,33 @@ export function ProductDetailForm({
         )
         return existing || newRow
       })
+    },
+    [tableRows]
+  )
 
+  // Sử dụng useEffect để cập nhật tableRows khi selections hoặc deletedVersions thay đổi
+  useEffect(() => {
+    // Chỉ cập nhật khi có RAM và ROM được chọn
+    if (!selections.rams.length || !selections.roms.length) return
+
+    const newRows = generateTableRows()
+    const mergedRows = mergeWithExistingRows(newRows)
+
+    // Chỉ cập nhật nếu có sự thay đổi thực sự
+    if (JSON.stringify(mergedRows) !== JSON.stringify(tableRows)) {
       setTableRows(mergedRows)
     }
-  }, [selections, generateTableRows]) // Loại bỏ tableRows khỏi dependencies
+  }, [
+    selections,
+    deletedVersions,
+    generateTableRows,
+    mergeWithExistingRows,
+    tableRows,
+  ])
 
   // Sử dụng useEffect riêng biệt để gọi onTableRowsChange mỗi khi tableRows thay đổi
   useEffect(() => {
-    if (tableRows.length > 0) {
+    if (tableRows && tableRows.length > 0) {
       onTableRowsChange(tableRows)
     }
   }, [tableRows, onTableRowsChange])
@@ -775,7 +817,7 @@ export function ProductDetailForm({
               !(
                 v.ram === idRam &&
                 v.rom === idRom &&
-                colorIds.includes(v.color || -1)
+                (v.color === undefined || colorIds.includes(v.color || -1))
               )
           )
         )
@@ -880,7 +922,7 @@ export function ProductDetailForm({
 
   return (
     <>
-      <div className='mx-auto rounded border px-4 py-4'>
+      <div className='mx-auto rounded border px-4 py-4 shadow'>
         <h1 className='mb-4 text-center text-2xl font-semibold'>
           Thông số sản phẩm
         </h1>
@@ -901,9 +943,24 @@ export function ProductDetailForm({
             label='Màu sắc'
             options={colors}
             selected={selections.colors}
-            onSelect={(ids) =>
+            onSelect={(ids) => {
+              // Tìm các màu mới được thêm vào
+              const newColors = ids.filter(
+                (id) => !selections.colors.includes(id)
+              )
+
+              // Cập nhật selections
               setSelections((prev) => ({ ...prev, colors: ids }))
-            }
+
+              // Cập nhật deletedVersions nếu có màu mới
+              if (newColors.length > 0) {
+                setTimeout(() => {
+                  setDeletedVersions((prev) =>
+                    prev.filter((v) => !newColors.includes(v.color || -1))
+                  )
+                }, 0)
+              }
+            }}
           />
         </div>
         {selections.rams.map((idRam) =>
@@ -929,7 +986,7 @@ export function ProductDetailForm({
           ))
         )}
       </div>
-      <div className='mx-auto rounded border px-4 py-4'>
+      <div className='mx-auto rounded border px-4 py-4 shadow'>
         <h1 className='mb-4 text-center text-2xl font-semibold'>
           Upload hình ảnh
         </h1>

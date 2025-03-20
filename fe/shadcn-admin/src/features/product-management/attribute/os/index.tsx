@@ -23,11 +23,11 @@ const columns: ColumnDef<Os>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const os = row.original as Os
       return <StatusSwitch os={os} />
@@ -49,9 +49,9 @@ export default function Os() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Os</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Hệ điều hành</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your os!
+              Danh sách hệ điều hành của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

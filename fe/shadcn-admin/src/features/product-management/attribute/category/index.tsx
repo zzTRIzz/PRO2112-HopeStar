@@ -23,11 +23,11 @@ const columns: ColumnDef<Category>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên danh mục', // Chuyển sang tiếng Việt
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái', // Chuyển sang tiếng Việt
     cell: ({ row }) => {
       const category = row.original as Category
       return <StatusSwitch category={category} />
@@ -49,9 +49,12 @@ export default function Category() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Category</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Quản lý danh mục
+            </h2>{' '}
+            {/* Chuyển sang tiếng Việt */}
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your categories!
+              Danh sách các danh mục của bạn! {/* Chuyển sang tiếng Việt */}
             </p>
           </div>
           <TasksPrimaryButtons />

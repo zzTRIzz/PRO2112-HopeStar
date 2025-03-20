@@ -62,17 +62,18 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `Thẻ đã được ${isUpdate ? 'cập nhật' : 'tạo mới'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message ||
+            `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'} thẻ`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -85,12 +86,12 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Card</DialogTitle>
+          <DialogTitle>{isUpdate ? 'Cập nhật thẻ' : 'Tạo mới thẻ'}</DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the card by providing necessary info.'
-              : 'Add a new card by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật thông tin thẻ bằng cách điền các thông tin cần thiết.'
+              : 'Thêm thẻ mới bằng cách điền các thông tin cần thiết.'}
+            Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,9 +106,9 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Loại thẻ</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter a type' />
+                    <Input {...field} placeholder='Nhập loại thẻ' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,14 +120,14 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Ngừng hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -138,10 +139,10 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='card-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

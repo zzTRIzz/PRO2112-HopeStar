@@ -23,11 +23,11 @@ const columns: ColumnDef<Chip>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên chip',
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const chip = row.original as Chip
       return <StatusSwitch chip={chip} />
@@ -51,7 +51,7 @@ export default function Chip() {
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Chip</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your chips!
+              Đây là danh sách các chip của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />

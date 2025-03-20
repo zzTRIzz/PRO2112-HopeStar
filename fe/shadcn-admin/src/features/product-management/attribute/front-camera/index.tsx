@@ -22,11 +22,11 @@ const columns: ColumnDef<FrontCamera>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Loại',
   },
   {
     accessorKey: 'resolution',
-    header: 'Resolution',
+    header: 'Độ phân giải',
     cell: ({ row }) => {
       const camera = row.original as FrontCamera
       return <div>{camera.resolution} MP</div>
@@ -34,7 +34,7 @@ const columns: ColumnDef<FrontCamera>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const camera = row.original as FrontCamera
       return <StatusSwitch frontCamera={camera} />
@@ -56,9 +56,9 @@ export default function FrontCamera() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>FrontCamera</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Camera trước</h2>
             <p className='text-muted-foreground'>
-              Here&apos;s a list of your frontCameras!
+              Danh sách camera trước của bạn!
             </p>
           </div>
           <TasksPrimaryButtons />
