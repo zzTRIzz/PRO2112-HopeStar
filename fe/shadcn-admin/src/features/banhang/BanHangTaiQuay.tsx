@@ -530,11 +530,11 @@ function BanHangTaiQuay() {
   const CartEmpty = () => {
     return (
       <>
-        <div className="flex flex-col items-center justify-center mt-4" style={{ height: "224px" }}>
-          {/* <img
-            src="https://res.cloudinary.com/dqwfbbd9g/image/upload/v1701448962/yy04ozpcgnsz3lv4r2h2.png"
-            style={{ width: "190px" }}
-          /> */}
+        <div className="flex flex-col items-center justify-center mt-4" style={{ height: "260px" }}>
+          <img
+            src="https://media.istockphoto.com/vectors/shopping-cart-line-icon-fast-buy-vector-logo-vector-id1184670036?k=20&m=1184670036&s=170667a&w=0&h=HHWDur4nWsS7zTgNKJLPi4JiEW42MlWs2rC_SCgfcf4="
+            style={{ width: "300px", height:"250px" }}
+          />
           <p className="text-dark font-semibold text-center text-lg">
             Chưa có sản phẩm nào trong giỏ hàng!
           </p>

@@ -77,6 +77,11 @@ public class BanHangTaiQuay {
         List<BillDto> billDtos = billService.listBillTop6();
         return ResponseEntity.ok(billDtos);
     }
+    @GetMapping("/getAllBill")
+    public ResponseEntity<List<?>> getALlBill() {
+        List<BillDto> billDtos = billService.getAllBill();
+        return ResponseEntity.ok(billDtos);
+    }
     @GetMapping("/listBill")
     public ResponseEntity<List<?>> getListHoaDonAll() {
         List<BillDto> billDtos = billService.listTaiQuay();

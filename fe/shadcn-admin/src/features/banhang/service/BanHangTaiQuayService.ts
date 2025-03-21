@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { BillDetailSchema } from './BillDetailSchema';
 import { ImeiSoldSchema } from './ImeiSoldSchema';
-import { BillSchema } from './BillSchema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
