@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react"
-import { getVouchers, searchVoucherByCode, searchVoucherByDate, searchVoucherByCodeAndDate, searchVoucherByDateRange } from "./data/apiVoucher"
+import { 
+    getVouchers, 
+    searchVoucherByCode, 
+    searchVoucherByDate, 
+    searchVoucherByCodeAndDate,
+    getAccounts,
+    assignVoucherToAccounts 
+} from "./data/apiVoucher"
 import { useNavigate } from "@tanstack/react-router";
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PlusIcon } from "lucide-react";
+
 
 // Thêm interface ở đầu file
 interface Voucher {
@@ -18,6 +27,30 @@ interface Voucher {
     startTime: string;
     endTime: string;
     status: "UPCOMING" | "ACTIVE" | "EXPIRED";
+}
+
+interface Role {
+    id: number;
+    code: string;
+    name: string;
+}
+
+interface Account {
+    id: number;
+    fullName: string;
+    code: string;
+    email: string;
+    phone?: string;
+    address?: string;
+    imageAvatar?: string;
+    birthDate?: string;
+    gender?: boolean;
+    status: string;
+    idRole: {
+        id: number;
+        code: string;
+        name: string;
+    };
 }
 
 // Add helper function to check voucher status
@@ -102,6 +135,15 @@ export default function VoucherUI() {
     // Thêm state
     const [searchStartTime, setSearchStartTime] = useState('');
     const [searchEndTime, setSearchEndTime] = useState('');
+
+    // In VoucherUI component
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+
+    useEffect(() => {
+        console.log('Selected voucher:', selectedVoucher);
+        console.log('Show assign modal:', showAssignModal);
+    }, [selectedVoucher, showAssignModal]);
 
     // Thêm hàm xử lý edit
     const handleEdit = (voucher: Voucher) => {
@@ -318,7 +360,7 @@ export default function VoucherUI() {
                     return;
                 }
                 
-                data = await searchVoucherByDateRange(searchStartTime, searchEndTime);
+                data = await searchVoucherByDate(searchStartTime, searchEndTime);
                 if (data.length === 0) {
                     toast.info('Không tìm thấy voucher trong khoảng thời gian này');
                 }
@@ -524,6 +566,19 @@ export default function VoucherUI() {
                                                 onClick={() => handleEdit(voucher)}
                                             >
                                                 Sửa
+                                            </button>
+                                            <button
+                                                className="text-green-600 hover:text-green-800"
+                                                onClick={() => {
+                                                    setSelectedVoucher(voucher);
+                                                    setShowAssignModal(true);
+                                                }}
+                                                title="Thêm voucher cho khách hàng"
+                                            >
+                                                <span className="flex items-center gap-1">
+                                                    <PlusIcon className="w-4 h-4" />
+                                                    KH
+                                                </span>
                                             </button>
                                         </td>
                                     </tr>
@@ -736,6 +791,179 @@ export default function VoucherUI() {
     pauseOnHover
     theme="colored"
 />
+            {showAssignModal && selectedVoucher && (
+                <AssignVoucherModal
+                    voucher={selectedVoucher}
+                    onClose={() => {
+                        setShowAssignModal(false);
+                        setSelectedVoucher(null);
+                    }}
+                />
+            )}
         </>
     )
 }
+
+const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: () => void }) => {
+    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchAccounts = async () => {
+        try {
+            setLoading(true);
+            const data = await getAccounts();
+            console.log('Fetched accounts:', data);
+            
+            if (Array.isArray(data)) {
+                setAccounts(data);
+            } else {
+                throw new Error('Dữ liệu không hợp lệ');
+            }
+        } catch (error: any) {
+            console.error('Error fetching accounts:', error);
+            toast.error(error.message || 'Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAccounts();
+    }, []);
+
+    const handleSelectAccount = (accountId: number) => {
+        setSelectedAccounts(prev => {
+            if (prev.includes(accountId)) {
+                return prev.filter(id => id !== accountId);
+            }
+            return [...prev, accountId];
+        });
+    };
+
+    const handleSelectAll = () => {
+        if (selectedAccounts.length === accounts.length) {
+            setSelectedAccounts([]);
+        } else {
+            setSelectedAccounts(accounts.map(a => a.id));
+        }
+    };
+
+    const handleAssign = async () => {
+        if (selectedAccounts.length === 0) {
+            toast.warning('Vui lòng chọn ít nhất một khách hàng');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await assignVoucherToAccounts(voucher.id, selectedAccounts);
+            toast.success('Đã thêm voucher cho khách hàng thành công');
+            onClose();
+        } catch (error: any) {
+            toast.error(error.response?.data || 'Có lỗi xảy ra khi thêm voucher');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
+                <h2 className="text-xl font-semibold mb-4">Thêm voucher cho khách hàng</h2>
+                
+                <div className="mb-4 p-3 bg-gray-50 rounded">
+                    <p><span className="font-medium">Mã voucher:</span> {voucher.code}</p>
+                    <p><span className="font-medium">Tên voucher:</span> {voucher.name}</p>
+                    <p><span className="font-medium">Số lượng còn lại:</span> {voucher.quantity}</p>
+                </div>
+
+                {loading ? (
+                    <div className="text-center py-4">Đang tải...</div>
+                ) : (
+                    <>
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="selectAll"
+                                    checked={selectedAccounts.length === accounts.length}
+                                    onChange={handleSelectAll}
+                                    className="rounded"
+                                />
+                                <label htmlFor="selectAll">Chọn tất cả</label>
+                            </div>
+                            <span className="text-sm text-gray-600">
+                                Đã chọn: {selectedAccounts.length} khách hàng
+                            </span>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto">
+    {loading ? (
+        <div className="text-center py-4">Đang tải dữ liệu...</div>
+    ) : accounts.length === 0 ? (
+        <div className="text-center py-4 text-gray-500">
+            Không tìm thấy khách hàng nào
+        </div>
+    ) : (
+        <table className="w-full">
+            <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                    <th className="p-3 text-left w-10"></th>
+                    <th className="p-3 text-left">Mã KH</th>
+                    <th className="p-3 text-left">Tên</th>
+                    <th className="p-3 text-left">Email</th>
+                    <th className="p-3 text-left">Số điện thoại</th>
+                    <th className="p-3 text-left">Vai trò</th>
+                </tr>
+            </thead>
+            <tbody>
+                {accounts.map(account => (
+                    <tr key={account.id} className="border-t">
+                        <td className="p-3">
+                            <input
+                                type="checkbox"
+                                checked={selectedAccounts.includes(account.id)}
+                                onChange={() => handleSelectAccount(account.id)}
+                                className="rounded"
+                            />
+                        </td>
+                        <td className="p-3">{account.code}</td>
+                        <td className="p-3">{account.fullName}</td>
+                        <td className="p-3">{account.email}</td>
+                        <td className="p-3">{account.phone || 'N/A'}</td>
+                        <td className="p-3">
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                {account.idRole?.name || 'N/A'}
+                            </span>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    )}
+</div>
+
+                    </>
+                )}
+
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
+                    <button
+                        className="px-4 py-2 border rounded hover:bg-gray-50"
+                        onClick={onClose}
+                        disabled={loading}
+                    >
+                        Hủy
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                        onClick={handleAssign}
+                        disabled={loading || selectedAccounts.length === 0}
+                    >
+                        {loading ? 'Đang xử lý...' : 'Thêm voucher'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};

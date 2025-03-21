@@ -1,6 +1,7 @@
 package com.example.be.core.admin.voucher.controller;
 
 
+import com.example.be.core.admin.voucher.dto.request.VoucherAssignRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.service.VoucherService;
@@ -96,5 +97,13 @@ public class VoucherController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Có lỗi xảy ra khi tìm kiếm: " + e.getMessage());
         }
     }
-
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignVoucherToCustomers(@RequestBody VoucherAssignRequest request) {
+        try {
+            voucherService.assignVoucherToCustomers(request.getVoucherId(), request.getCustomerIds());
+            return ResponseEntity.ok("Đã thêm voucher cho khách hàng thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

@@ -56,4 +56,7 @@ public class Voucher extends AuditEntity {
     @Enumerated(EnumType.STRING)
     private StatusVoucher status;
 
+    @Column(name = "moTa")
+    private String moTa;
+
 }

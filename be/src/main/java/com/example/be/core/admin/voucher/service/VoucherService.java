@@ -18,4 +18,5 @@ public interface VoucherService {
     List<VoucherResponse> findByDate(String startTime, String endTime);
     Page<VoucherResponse> phanTrang(Pageable pageable);
     List<VoucherResponse> findByCodeAndDate(String code, String startTime, String endTime);
+    void assignVoucherToCustomers(Integer voucherId, List<Integer> customerIds);
 }

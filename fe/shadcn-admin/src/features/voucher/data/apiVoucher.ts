@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export const getVouchers = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/voucher`);
+    const response = await axios.get(`${API_BASE_URL}/admin/voucher`);
     return response.data;
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -14,12 +14,12 @@ export const getVouchers = async () => {
 
 export const searchVoucherByCode = async (code: string) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/voucher/search`, {
+    const response = await axios.get(`${API_BASE_URL}/admin/voucher/search`, {
       params: { code }
     });
     return response.data;
   } catch (error) {
-    console.error('Error searching vouchers:', error);
+    console.error('Error searching by code:', error);
     throw error;
   }
 };
@@ -39,7 +39,7 @@ export const searchVoucherByDate = async (startTime: string, endTime: string) =>
 
     console.log('Sending dates:', { formattedStartTime, formattedEndTime }); // Debug log
 
-    const response = await axios.get(`${API_BASE_URL}/voucher/date`, {
+    const response = await axios.get(`${API_BASE_URL}/admin/voucher/date`, {
       params: {
         startTime: formattedStartTime,
         endTime: formattedEndTime
@@ -81,7 +81,7 @@ export const searchVoucherByDateRange = async (startTime: string, endTime: strin
     const formattedStartTime = formatDate(startTime);
     const formattedEndTime = formatDate(endTime);
 
-    const response = await axios.get(`${API_BASE_URL}/voucher/date`, {
+    const response = await axios.get(`${API_BASE_URL}/admin/voucher/date`, {
       params: {
         startTime: formattedStartTime,
         endTime: formattedEndTime
@@ -113,7 +113,7 @@ export const searchVoucherByCodeAndDate = async (code: string, startTime: string
     // Log để debug
     console.log('Formatted dates:', { formattedStartTime, formattedEndTime });
 
-    const response = await axios.get(`${API_BASE_URL}/voucher/searchByCodeAndDate`, {
+    const response = await axios.get(`${API_BASE_URL}/admin/voucher/searchByCodeAndDate`, {
       params: {
         code,
         startTime: formattedStartTime,
@@ -143,4 +143,69 @@ export const searchVoucherByCodeAndDate = async (code: string, startTime: string
     }
     throw error;
   }
+};
+
+// Thêm interface Role
+interface Role {
+    id: number;
+    code: string;
+    name: string;
+}
+
+// Thêm interface ResponseData
+interface ResponseData<T> {
+    status: number;
+    message: string;
+    data: T;
+}
+
+// Cập nhật lại interface Account
+interface Account {
+    id: number;
+    fullName: string;
+    code: string;
+    email: string;
+    phone?: string;
+    address?: string;
+    imageAvatar?: string;
+    status: string;
+    idRole: {
+        id: number;
+        code: string;
+        name: string;
+    };
+}
+
+// Sửa lại function getAccounts
+export const getAccounts = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/account/list-khach-hang`);
+        console.log('API Response:', response.data);
+
+        // Kiểm tra và lọc dữ liệu
+        if (response.data && response.data.data) {
+            return response.data.data.filter((account: Account) => 
+                account.status === 'ACTIVE'
+            );
+        }
+
+        throw new Error('Invalid response format');
+    } catch (error) {
+        console.error('Error in getAccounts:', error);
+        throw new Error('Không thể tải danh sách khách hàng');
+    }
+};
+
+// Cập nhật hàm assignVoucherToAccounts
+export const assignVoucherToAccounts = async (voucherId: number, customerIds: number[]) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
+            voucherId,
+            customerIds
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error('Error assigning voucher:', error);
+        throw error;
+    }
 };
