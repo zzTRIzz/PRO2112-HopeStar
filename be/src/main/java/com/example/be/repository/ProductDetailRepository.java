@@ -1,8 +1,10 @@
 package com.example.be.repository;
 
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
+import com.example.be.entity.Product;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.ProductDetailStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +38,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
   @Query("SELECT pd FROM ProductDetail pd " +
           "where pd.inventoryQuantity > 0 and pd.status =  :status")
   List<ProductDetail> getAllProductDetail( @Param("status") ProductDetailStatus status);
+
+
+  List<ProductDetail> findAllByProduct(Product product);
   }

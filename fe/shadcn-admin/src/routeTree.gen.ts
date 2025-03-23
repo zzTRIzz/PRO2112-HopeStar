@@ -36,6 +36,7 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as authProductIdImport } from './routes/(auth)/product.$id'
 import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
@@ -467,6 +468,12 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const authProductIdRoute = authProductIdImport.update({
+  id: '/(auth)/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthenticatedProductIdProductDetailRoute =
   AuthenticatedProductIdProductDetailImport.update({
     id: '/product/$id/product-detail',
@@ -574,6 +581,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof authIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/product/$id': {
+      id: '/(auth)/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof authProductIdImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/product/battery': {
@@ -931,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -980,6 +995,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1032,6 +1048,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
   '/(auth)/': typeof authIndexLazyRoute
+  '/(auth)/product/$id': typeof authProductIdRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1084,6 +1101,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1132,6 +1150,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1182,6 +1201,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/(auth)/'
+    | '/(auth)/product/$id'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1233,6 +1253,7 @@ export interface RootRouteChildren {
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
+  authProductIdRoute: typeof authProductIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1249,6 +1270,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
+  authProductIdRoute: authProductIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -1273,7 +1295,8 @@ export const routeTree = rootRoute
         "/(errors)/404",
         "/(errors)/500",
         "/(errors)/503",
-        "/(auth)/"
+        "/(auth)/",
+        "/(auth)/product/$id"
       ]
     },
     "/_authenticated": {
@@ -1357,6 +1380,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/": {
       "filePath": "(auth)/index.lazy.tsx"
+    },
+    "/(auth)/product/$id": {
+      "filePath": "(auth)/product.$id.tsx"
     },
     "/_authenticated/product/battery": {
       "filePath": "_authenticated/product/battery.tsx",

@@ -3,6 +3,7 @@ package com.example.be.entity;
 import com.example.be.entity.base.AuditEntity;
 import com.example.be.entity.status.StatusCommon;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,7 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "product")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
