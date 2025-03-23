@@ -36,8 +36,7 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
-import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
-import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
+import { Route as authProductIdImport } from './routes/(auth)/product.$id'
 import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
@@ -469,19 +468,11 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
-const AuthenticatedTaikhoanNhanvienIndexRoute =
-  AuthenticatedTaikhoanNhanvienIndexImport.update({
-    id: '/taikhoan/nhanvien/',
-    path: '/taikhoan/nhanvien/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-
-const AuthenticatedTaikhoanKhachhangIndexRoute =
-  AuthenticatedTaikhoanKhachhangIndexImport.update({
-    id: '/taikhoan/khachhang/',
-    path: '/taikhoan/khachhang/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const authProductIdRoute = authProductIdImport.update({
+  id: '/(auth)/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthenticatedProductIdProductDetailRoute =
   AuthenticatedProductIdProductDetailImport.update({
@@ -590,6 +581,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof authIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/product/$id': {
+      id: '/(auth)/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof authProductIdImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/product/battery': {
@@ -830,20 +828,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/taikhoan/khachhang/': {
-      id: '/_authenticated/taikhoan/khachhang/'
-      path: '/taikhoan/khachhang'
-      fullPath: '/taikhoan/khachhang'
-      preLoaderRoute: typeof AuthenticatedTaikhoanKhachhangIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/taikhoan/nhanvien/': {
-      id: '/_authenticated/taikhoan/nhanvien/'
-      path: '/taikhoan/nhanvien'
-      fullPath: '/taikhoan/nhanvien'
-      preLoaderRoute: typeof AuthenticatedTaikhoanNhanvienIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
   }
 }
 
@@ -906,8 +890,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
   AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
-  AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
-  AuthenticatedTaikhoanNhanvienIndexRoute: typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -944,10 +926,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
   AuthenticatedProductIdProductDetailRoute:
     AuthenticatedProductIdProductDetailRoute,
-  AuthenticatedTaikhoanKhachhangIndexRoute:
-    AuthenticatedTaikhoanKhachhangIndexRoute,
-  AuthenticatedTaikhoanNhanvienIndexRoute:
-    AuthenticatedTaikhoanNhanvienIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -967,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1001,8 +980,6 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
-  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
-  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -1018,6 +995,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1052,8 +1030,6 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
-  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
-  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesById {
@@ -1072,6 +1048,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
   '/(auth)/': typeof authIndexLazyRoute
+  '/(auth)/product/$id': typeof authProductIdRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1106,8 +1083,6 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
   '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
-  '/_authenticated/taikhoan/khachhang/': typeof AuthenticatedTaikhoanKhachhangIndexRoute
-  '/_authenticated/taikhoan/nhanvien/': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -1126,6 +1101,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1160,8 +1136,6 @@ export interface FileRouteTypes {
     | '/users'
     | '/voucher'
     | '/product/$id/product-detail'
-    | '/taikhoan/khachhang'
-    | '/taikhoan/nhanvien'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -1176,6 +1150,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1210,8 +1185,6 @@ export interface FileRouteTypes {
     | '/users'
     | '/voucher'
     | '/product/$id/product-detail'
-    | '/taikhoan/khachhang'
-    | '/taikhoan/nhanvien'
   id:
     | '__root__'
     | '/_authenticated'
@@ -1228,6 +1201,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/(auth)/'
+    | '/(auth)/product/$id'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1262,8 +1236,6 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/voucher/'
     | '/_authenticated/product/$id/product-detail'
-    | '/_authenticated/taikhoan/khachhang/'
-    | '/_authenticated/taikhoan/nhanvien/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1281,6 +1253,7 @@ export interface RootRouteChildren {
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
+  authProductIdRoute: typeof authProductIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1297,6 +1270,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
+  authProductIdRoute: authProductIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -1321,7 +1295,8 @@ export const routeTree = rootRoute
         "/(errors)/404",
         "/(errors)/500",
         "/(errors)/503",
-        "/(auth)/"
+        "/(auth)/",
+        "/(auth)/product/$id"
       ]
     },
     "/_authenticated": {
@@ -1356,9 +1331,7 @@ export const routeTree = rootRoute
         "/_authenticated/tasks/",
         "/_authenticated/users/",
         "/_authenticated/voucher/",
-        "/_authenticated/product/$id/product-detail",
-        "/_authenticated/taikhoan/khachhang/",
-        "/_authenticated/taikhoan/nhanvien/"
+        "/_authenticated/product/$id/product-detail"
       ]
     },
     "/(auth)/500": {
@@ -1407,6 +1380,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/": {
       "filePath": "(auth)/index.lazy.tsx"
+    },
+    "/(auth)/product/$id": {
+      "filePath": "(auth)/product.$id.tsx"
     },
     "/_authenticated/product/battery": {
       "filePath": "_authenticated/product/battery.tsx",
@@ -1542,14 +1518,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/$id/product-detail": {
       "filePath": "_authenticated/product/$id.product-detail.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/taikhoan/khachhang/": {
-      "filePath": "_authenticated/taikhoan/khachhang/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/taikhoan/nhanvien/": {
-      "filePath": "_authenticated/taikhoan/nhanvien/index.tsx",
       "parent": "/_authenticated"
     }
   }

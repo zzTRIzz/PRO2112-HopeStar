@@ -2,6 +2,7 @@ package com.example.be.repository;
 
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.Product;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.base.BaseRepository;
 
 import org.springframework.data.jpa.repository.Query;
@@ -36,5 +37,6 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND (:#{#searchRequest.status} IS NULL OR p.status = :#{#searchRequest.getStatusCommon()})")
     List<Product> findAllMatching(@Param("searchRequest") SearchProductRequest searchRequest);
 
+    List<Product> findTop10ByStatusOrderByCreatedAtDesc(StatusCommon status);
 
   }
