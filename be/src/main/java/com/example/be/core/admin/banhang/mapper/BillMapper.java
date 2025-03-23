@@ -1,6 +1,7 @@
 package com.example.be.core.admin.banhang.mapper;
 
 import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.entity.*;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.DeliveryMethodRepository;
@@ -108,6 +109,47 @@ public class BillMapper {
       );
     }
 
+
+
+
+
+    public SearchBill getAllBillMapperDto(Bill bill) {
+        return new SearchBill(
+                bill.getId(),
+                bill.getNameBill(),
+                (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
+                (bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null,
+                (bill.getIdAccount() != null) ? bill.getIdAccount().getPhone() : null,
+                (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
+                (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null,
+                (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
+                (bill.getIdVoucher() != null) ? bill.getIdVoucher().getName() : null,
+                bill.getTotalPrice(),
+                bill.getCustomerPayment(),
+                bill.getAmountChange(),
+                bill.getDeliveryFee(),
+                bill.getTotalDue(),
+                bill.getCustomerRefund(),
+                bill.getDiscountedTotal(),
+                bill.getDeliveryDate(),
+                bill.getCustomerPreferredDate(),
+                bill.getCustomerAppointmentDate(),
+                bill.getReceiptDate(),
+                bill.getPaymentDate(),
+                bill.getBillType(),
+                bill.getStatus(),
+                bill.getAddress(),
+                bill.getEmail(),
+                bill.getNote(),
+                bill.getPhone(),
+                bill.getName(),
+                bill.getCreatedBy(),
+                bill.getUpdatedBy(),
+                (bill.getPayment() != null) ? bill.getPayment().getId() : null,
+                (bill.getPayment() != null) ? bill.getPayment().getMethod() : null,
+                (bill.getDelivery() != null) ? bill.getDelivery().getId() : null
+        );
+    }
 
 
 }

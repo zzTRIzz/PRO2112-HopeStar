@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { BillDetailSchema } from './BillDetailSchema';
 import { ImeiSoldSchema } from './ImeiSoldSchema';
+import { BillSchema } from './BillSchema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -198,6 +199,18 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         throw error;
     }
 }
+
+// Thêm hóa đơn vào cơ sở dữ liệu
+export const thanhToan = async (bill: BillSchema) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/thanh_toan`, bill);
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    }
+};
+
 
 // Lấy mã voucher đang sử dụng 
 export const getVoucherDangSuDung = async (idBillHienTai: number) => {

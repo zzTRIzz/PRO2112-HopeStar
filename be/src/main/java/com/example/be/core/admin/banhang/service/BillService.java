@@ -2,15 +2,15 @@ package com.example.be.core.admin.banhang.service;
 
 
 import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
-import com.example.be.entity.Account;
 import com.example.be.entity.Bill;
 
 import java.util.List;
 
 public interface BillService {
 
-    List<BillDto> getAllBill();
+    List<SearchBill> getAllBill();
 
     List<BillDto> listTaiQuay();
 

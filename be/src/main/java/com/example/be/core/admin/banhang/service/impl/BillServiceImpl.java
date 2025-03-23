@@ -1,9 +1,8 @@
 package com.example.be.core.admin.banhang.service.impl;
 
-import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
-import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
@@ -70,9 +69,9 @@ public class BillServiceImpl implements BillService {
     ImeiSoldService imeiSoldService;
 
     @Override
-    public List<BillDto> getAllBill() {
+    public List<SearchBill> getAllBill() {
         List<Bill> bills = billRepository.findAll();
-        return bills.stream().map(billMapper::dtoBillMapper).
+        return bills.stream().map(billMapper::getAllBillMapperDto).
                 collect(Collectors.toList());
     }
 
@@ -107,15 +106,9 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto createHoaDonTaiQuay(BillDto billDto) {
         try {
-            // Kiểm tra nhân viên có tồn tại không
-            Account account = accountRepository.findById(billDto.getIdNhanVien())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên " + billDto.getIdNhanVien()));
-
             // Cài đặt thông tin hóa đơn
-            Instant now = Instant.now();
             billDto.setBillType((byte) 0);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
-            billDto.setPaymentDate(now);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
             System.out.println(billRepository.getNewCode());
 //            Chuyển DTO sang Entity
@@ -243,17 +236,17 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto saveBillDto(BillDto billDto) {
         try {
+            Instant now = Instant.now();
+            billDto.setPaymentDate(now);
+            billDto.setStatus(StatusBill.DA_THANH_TOAN);
             Bill bill = billMapper.entityBillMapper(billDto);
-
             Bill saveBill = billRepository.save(bill);
-
             return billMapper.dtoBillMapper(saveBill);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi cập nhật luu hóa đơn: " + e.getMessage());
         }
     }
-
 
     @Override
     public BillDto getByIdHoaDon(Integer id) {

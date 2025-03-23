@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const billSchema = z.object({
+    id : z.number().int().positive().nullable(),
     idAccount: z.number().int().positive().nullable(),
     idNhanVien: z.number().int().positive().nullable(),
     idVoucher: z.number().int().positive().nullable(),

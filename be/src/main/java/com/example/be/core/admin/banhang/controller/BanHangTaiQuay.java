@@ -79,7 +79,7 @@ public class BanHangTaiQuay {
     }
     @GetMapping("/getAllBill")
     public ResponseEntity<List<?>> getALlBill() {
-        List<BillDto> billDtos = billService.getAllBill();
+        List<SearchBill> billDtos = billService.getAllBill();
         return ResponseEntity.ok(billDtos);
     }
     @GetMapping("/listBill")
@@ -141,11 +141,8 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDto1);
     }
 
-    @PutMapping("/thanh-toan")
+    @PutMapping("/thanh_toan")
     public ResponseEntity<?> thanhToan(@RequestBody BillDto billDto) {
-        BigDecimal tienThua = billDto.getCustomerPayment().subtract(billDto.getTotalDue());
-        billDto.setAmountChange(tienThua);
-        billDto.setStatus(StatusBill.DA_THANH_TOAN);
         BillDto saveBillDto = billService.saveBillDto(billDto);
         return ResponseEntity.ok(saveBillDto);
     }

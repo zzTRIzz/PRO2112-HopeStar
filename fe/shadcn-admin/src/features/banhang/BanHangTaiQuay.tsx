@@ -4,40 +4,32 @@ import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import TasksProvider from '../tasks/context/tasks-context';
-import { FaTimes } from "react-icons/fa";
-import { CgAdd } from "react-icons/cg";
 import { Main } from '@/components/layout/main';
 import { Button } from '@/components/ui/button';
-import { DataTablePagination } from './attribute/data-table-pagination'
 import {
   getData, findImeiByIdProductDaBan, findBill,
   findKhachHang, addKhachHang, addHoaDon, findImeiById,
   createImeiSold, deleteProduct, getImei, getAccountKhachHang,
-  getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung
-  , findVoucherByAccount, huyHoaDon, getDataChoThanhToan, updateImeiSold
-  , updateVoucher
+  getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
+  findVoucherByAccount, huyHoaDon, getDataChoThanhToan, updateImeiSold,
+  updateVoucher, thanhToan
 }
   from './service/BanHangTaiQuayService';
 import "./custom-toast.css"; // Thêm CSS tùy chỉnh
 // import "./custom-toast.css"; // Thêm CSS tùy chỉnh
-import { ImCart } from "react-icons/im";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+// import Paper from '@mui/material/Paper';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import useVietnamAddress from './service/ApiTichHopDiaChi';
 import {
   Dialog,
   DialogContent,
-  // DialogDescription,
-  // DialogFooter,
-  // DialogHeader,
-  // DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 
@@ -49,9 +41,7 @@ import {
   zodResolver
 } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import {
-  cn
-} from "@/lib/utils"
+
 
 import {
   Form,
@@ -85,6 +75,9 @@ import {
 } from "@/components/ui/textarea"
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import HoaDonCho from './components/HoaDonCho';
+import ThemSanPham from './components/ThemSanPham';
+import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 
 interface Bill {
   id: number;
@@ -196,7 +189,6 @@ function BanHangTaiQuay() {
   const [product, setProduct] = useState<SearchBillDetail[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-  const [hoveredBillId, setHoveredBillId] = useState<number | null>(null);
   const [isKhachHang, setIsKhachHang] = useState(false);
   const [isVoucher, setIsVoucher] = useState(false);
   const [isCapNhatImei, setIsCapNhatImei] = useState(false);
@@ -206,7 +198,10 @@ function BanHangTaiQuay() {
   const handleBanGiaoHangChange = () => {
     setIsBanGiaoHang((prev) => !prev);
   };
+  const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
   const [customerPayment, setCustomerPayment] = useState<number>(0);
+  const tienThua = Math.max(customerPayment - (searchBill?.totalDue ?? 0));
+  const [isPTThanhToan, setIsPTThanhToan] = useState(false);
 
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
@@ -341,7 +336,7 @@ function BanHangTaiQuay() {
   const deleteBillDetail = async (idBillDetail: number) => {
     try {
       console.log(idBillDetail);
-      const data = await deleteProduct(idBillDetail, idBill);
+      await deleteProduct(idBillDetail, idBill);
       // console.log("Xoa san pham:", data);
       await loadProductDet();
       await loadImei(idProductDetail);
@@ -351,7 +346,6 @@ function BanHangTaiQuay() {
       console.error('Error fetching data:', error);
     }
   }
-
 
   // Thêm hóa đơn mới
   const handleAddBill = async () => {
@@ -477,6 +471,73 @@ function BanHangTaiQuay() {
       console.error("Lỗi khi cập nhật voucher:", error);
     }
   }
+  // Thêm khách hàng vào hóa đơn
+  const handleAddKhachHang = async (idAccount: number) => {
+    if (idBill == 0 || idBill == null) {
+      fromThatBai("Vui lòng chọn hóa đơn");
+      setIsKhachHang(false);
+      return;
+    }
+    try {
+      const data = await addKhachHang(idBill, idAccount);
+      console.log("Khách hàng mới:", data);
+      await loadAccountKH();
+      setIsKhachHang(false);
+      const khachHang = await findKhachHang(idBill);
+      hienThiKhachHang(khachHang);
+      await findBillById(idBill);
+      // Hiển thị thông báo
+      const voucher = await getVoucherDangSuDung(idBill);
+      setDuLieuVoucherDangDung(voucher);
+      await loadVoucherByAcount(idBill);
+      fromThanhCong("Thêm khách hàng thành công");
+    } catch (error) {
+      console.error("Lỗi khi thêm khách hàng:", error);
+    }
+  }
+
+  const handlePTThanhToan = async () => {
+    try {
+      if (idBill == 0 || idBill == null) {
+        fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+        setIsPTThanhToan(false);
+        return;
+      }
+      setPaymentMethod(2);
+      setCustomerPayment(searchBill?.totalDue || 0);
+      setIsPTThanhToan(false);
+    } catch (error) {
+      console.error("Lỗi khi thanh toán:", error);
+    }
+  }
+
+
+  // const handleThanhToan = async () => {
+  //   try {
+  //     if (idBill == 0 || idBill == null) {
+  //       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+  //       return;
+  //     }
+  //     if (tienThua < 0 || tienThua == null) {
+  //       fromThatBai("Số tiền thanh toán không đủ");
+  //       return;
+  //     }
+  //     const data = await thanhToan({
+  //       id: idBill,
+  //       paymentMethod: paymentMethod,
+  //       customerPayment: customerPayment
+  //     });
+  //     console.log("Thanh toán thành công:", data);
+  //     await loadBill();
+  //     await loadProductDet();
+  //     setProduct([]);
+  //     await loadBillChoThanhToan();
+  //     setIdBill(0);
+  //     fromThanhCong("Thanh toán thành công");
+  //   } catch (error) {
+  //     console.error("Lỗi khi thanh toán:", error);
+  //   }
+  // }
 
   const fromThanhCong = (message: string) => {
     toast.success(message, {
@@ -503,52 +564,12 @@ function BanHangTaiQuay() {
     });
   };
 
-  // Thêm khách hàng vào hóa đơn
-  const handleAddKhachHang = async (idAccount: number) => {
-    if (idBill == 0 || idBill == null) {
-      fromThatBai("Vui lòng chọn hóa đơn");
-      setIsKhachHang(false);
-      return;
-    }
-    try {
-      const data = await addKhachHang(idBill, idAccount);
-      console.log("Khách hàng mới:", data);
-      await loadAccountKH();
-      setIsKhachHang(false);
-      const khachHang = await findKhachHang(idBill);
-      hienThiKhachHang(khachHang);
-      await findBillById(idBill);
-      // Hiển thị thông báo
-      const voucher = await getVoucherDangSuDung(idBill);
-      setDuLieuVoucherDangDung(voucher);
-      await loadVoucherByAcount(idBill);
-      fromThanhCong("Thêm khách hàng thành công");
-    } catch (error) {
-      console.error("Lỗi khi thêm khách hàng:", error);
-    }
-  }
-  const CartEmpty = () => {
-    return (
-      <>
-        <div className="flex flex-col items-center justify-center mt-4" style={{ height: "260px" }}>
-          <img
-            src="https://media.istockphoto.com/vectors/shopping-cart-line-icon-fast-buy-vector-logo-vector-id1184670036?k=20&m=1184670036&s=170667a&w=0&h=HHWDur4nWsS7zTgNKJLPi4JiEW42MlWs2rC_SCgfcf4="
-            style={{ width: "300px", height:"250px" }}
-          />
-          <p className="text-dark font-semibold text-center text-lg">
-            Chưa có sản phẩm nào trong giỏ hàng!
-          </p>
-        </div>
-
-      </>
-    );
-  };
-
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log(values);
@@ -565,9 +586,6 @@ function BanHangTaiQuay() {
 
   const { provinces, districts, wards, fetchDistricts, fetchWards } = useVietnamAddress();
 
-  // const form = useForm({ resolver: zodResolver(formSchema) });
-  const [open, setOpen] = React.useState(false)
-  const [valueID, setValue] = React.useState("")
 
   return (
     <>
@@ -582,275 +600,59 @@ function BanHangTaiQuay() {
           </Header>
         </TasksProvider>
       </div><br />
-      <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5" style={{ paddingTop: '18px', margin: '0 13px' }}>
-        <div className="grid grid-cols-9 gap-4">
-          <div className='col-span-7'>
-            <div className="flex space-x-1" style={{ paddingLeft: '13px', paddingRight: '10px' }}>
-              {listBill.map((b) => (
-                <div key={b.id}
-                  className={`flex items-center space-x-1 p-2 border-b-2 text-sm rounded-[5%] shadow-sm
-              ${idBill === b.id ? 'border-blue-600 bg-gray-300' : 'border-transparent'}
-              ${hoveredBillId === b.id ? 'bg-gray-200' : ''}`}
-                  onClick={() => getById(b.id)}
-                  onMouseEnter={() => setHoveredBillId(b.id)}
-                  onMouseLeave={() => setHoveredBillId(null)}
-                >
-                  <button className="flex items-center space-x-1"
-                    onClick={() => setValue("")} >
-                    {b.nameBill}
-                    <div className="relative">
-                      <ImCart size={20} />
-                      {b.itemCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
-                          {b.itemCount}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => void huyHoaDonTheoId(b.id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <FaTimes size={16} />
-                  </button>
-
-                </div>
-              ))}
-              <button onClick={handleAddBill} ><CgAdd size={26} /></button>
-            </div>
-          </div>
-          <div className='col-span-2'>
-            {/* <div className="transform -translate-x-[-145px]"> */}
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-[180px] justify-between"
-                >
-                  {valueID
-                    ? billChoThanhToan.find((bill) => bill.nameBill === valueID)?.nameBill
-                    : "Hóa đơn"}
-
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search bill" className="h-9" />
-                  <CommandList>
-                    <CommandEmpty>No bill</CommandEmpty>
-                    <CommandGroup>
-                      {billChoThanhToan.map((b) => (
-                        <CommandItem
-                          key={b.id}
-                          value={b.nameBill}
-                          onSelect={(currentValue) => {
-                            setValue(currentValue === valueID ? "" : currentValue)
-                            setOpen(false),
-                              getById(b.id); // Gọi API lấy sản phẩm
-
-                          }}
-                        >
-                          {b.nameBill}
-                          <Check
-                            className={cn(
-                              "ml-auto",
-                              valueID === b.nameBill ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-
+      <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5"
+        style={{ paddingTop: '18px', margin: '0 13px' }}>
+        {/* Thêm hóa đơn chờ tại quầy */}
+        <HoaDonCho
+          listBill={listBill}
+          billChoThanhToan={billChoThanhToan}
+          huyHoaDonTheoId={huyHoaDonTheoId}
+          getById={getById}
+          handleAddBill={handleAddBill}
+          idBill={idBill} />
         <hr />
 
         <Main>
           <div className="mb-2 flex items-center justify-between">
             <h1 className="font-bold tracking-tight">Giỏ hàng</h1>
             <div className="flex space-x-2">
-              <Button className="bg-white-500 border border-black rounded-sm border-opacity-50 text-black hover:bg-gray-300">
+              {/* Quét Barcode để check sản phẩm */}
+              <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300">
                 Quét Barcode
               </Button>
 
-              {/* // Hiển thi nút thêm sản phẩm và trang của sản phẩm   */}
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="bg-black text-white hover:bg-gray-400" onClick={() => setDialogContent('product')}>
-                    Thêm sản phẩm
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px]">
-                  <Input
-                    placeholder="Tìm mã sản phẩm, tên sản phẩm  "
-                    className="max-w-sm"
-                  />
-                  {dialogContent === 'product' ? (
-                    <TableContainer>
-                      {/* <h2>Sản phẩm </h2>   */}
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Stt</TableCell>
-                            <TableCell>Mã code</TableCell>
-                            <TableCell>Tên sản phẩm</TableCell>
-                            <TableCell>Giá tiền </TableCell>
-                            <TableCell>Số lượng tồn kho</TableCell>
-                            <TableCell>Thao Tác</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {listProduct.map((product, index) => (
-                            <TableRow key={product.id}>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{product.code}</TableCell>
-                              <TableCell>{product.name + " " + product.ram + "/" + product.rom + "GB (" + product.color + ")"}</TableCell>
-                              <TableCell>{product.priceSell.toLocaleString('vi-VN')}</TableCell>
-                              <TableCell align="center">{product.inventoryQuantity}</TableCell>
-                              <TableCell>
-                                <Button color="primary" onClick={() => handleAddProduct(product)}>
-                                  Chọn
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
 
-                  ) : (
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>Stt</TableCell>
-                            <TableCell>Imei code</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {listImei.map((im, index) => (
-                            <TableRow key={im.id}>
-                              <TableCell>
-                                <div className="flex items-center space-x-2">
-                                  <Checkbox
-                                    checked={selectedImei.includes(im.id)}
-                                    onCheckedChange={() => handleCheckboxChange(im.id)}
-                                  />
-                                </div>
-                              </TableCell>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{im.imeiCode}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                      <Button className="bg-black text-white hover:bg-gray-600" onClick={() => handleAddImei(idBillDetail)}>
-                        Chọn
-                      </Button>
-                    </TableContainer>
-                  )}
-                </DialogContent>
-              </Dialog>
-              {/* <DataTablePagina tion/> */}
+              {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
+              <ThemSanPham
+                listProduct={listProduct}
+                listImei={listImei}
+                idBillDetail={idBillDetail}
+                selectedImei={selectedImei}
+                handleAddImei={handleAddImei}
+                handleAddProduct={handleAddProduct}
+                handleCheckboxChange={handleCheckboxChange}
+                dialogContent={dialogContent}
+                setDialogContent={setDialogContent}
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+              />
+
             </div>
-          </div>  <hr className="border-t-1.5 border-gray-600" />
+          </div>
+          <hr className="border-t-1.5 border-gray-600" />
 
           {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
+          <TableHoaDonChiTiet
+            product={product}
+            listImei={listImei}
+            selectedImei={selectedImei}
+            isCapNhatImei={isCapNhatImei}
+            setIsCapNhatImei={setIsCapNhatImei}
+            handleUpdateProduct={handleUpdateProduct}
+            handleCheckboxChange={handleCheckboxChange}
+            updateHandleImeiSold={updateHandleImeiSold}
+            deleteBillDetail={deleteBillDetail} />
 
-          {product.length === 0 ? (
-            <CartEmpty />
-          ) : (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="right">Stt</TableCell>
-                    <TableCell align="center">Sản phẩm</TableCell>
-                    <TableCell align="right">Đơn giá</TableCell>
-                    <TableCell align="right">Số lượng</TableCell>
-                    <TableCell align="right">Thành tiền</TableCell>
-                    <TableCell align="center">Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {product.map((pr, index) => (
-                    <TableRow
-                      key={pr.id}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell align="right">{index + 1}</TableCell>
-                      <TableCell component="th" scope="row" align="center">
-                        {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
-                      </TableCell>
-                      <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
-                      <TableCell align="right">{pr.quantity}</TableCell>
-                      <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
-                      <TableCell align="center" style={{}}>
-                        <div className="right space-x-2">
-                          <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
-                            <DialogTrigger asChild>
-                              <Button className="bg-white-500 border border-black rounded-sm border-opacity-50
-                           text-black hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
-                                Cập nhật
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px]">
-                              <TableContainer>
-                                <Table>
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableCell></TableCell>
-                                      <TableCell>Stt</TableCell>
-                                      <TableCell>Imei code</TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {listImei.map((im, index) => (
-                                      <TableRow key={im.id}>
-                                        <TableCell>
-                                          <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                              checked={selectedImei.includes(im.id)}
-                                              onCheckedChange={() => handleCheckboxChange(im.id)}
-                                            />
-                                          </div>
-                                        </TableCell>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{im.imeiCode}</TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
-                              <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
-                                Chọn
-                              </Button>
-                            </DialogContent>
-                          </Dialog>
-
-                          <Button className="bg-black text-white hover:bg-gray-600" onClick={() => deleteBillDetail(pr.id)}>
-                            Xóa
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
         </Main>
       </div>
       <br />
@@ -866,7 +668,7 @@ function BanHangTaiQuay() {
             <Dialog open={isKhachHang} onOpenChange={setIsKhachHang}>
               <DialogTrigger asChild>
                 <Button variant="outline"
-                  className="bg-black text-white hover:bg-gray-400">
+                  className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600">
                   Chọn khách hàng
                 </Button>
               </DialogTrigger>
@@ -917,7 +719,7 @@ function BanHangTaiQuay() {
                           <TableCell>{ac.email}</TableCell>
                           <TableCell>{ac.address}</TableCell>
                           <TableCell>
-                            <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
+                            <Button className='bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600' color="primary" onClick={() => handleAddKhachHang(ac.id)}>
                               Chọn
                             </Button>
 
@@ -967,74 +769,17 @@ function BanHangTaiQuay() {
         }}>
         <div className="mb-2 flex items-center justify-between ">
           <h1 className=" font-bold tracking-tight">Thông tin đơn hàng </h1>
-          <div className="flex space-x-2">
-            {/* <Button variant="outline"
-              className="border border-gray-500 rounded-lg
-             hover:border-orange-600 hover:text-orange-600 px-3 text-2xs">
-              <Checkbox id="terms" />
-              Bán giao hàng
-            </Button> */}
-            <div className="flex space-x-2">
-              <Button variant="outline"
-                className="border border-gray-500 rounded-lg hover:border-orange-600
+          <div className="flex space-x-2 mr-[40px]">
+            <Button variant="outline"
+              className="border border-blue-500 text-blue-600 rounded-lg hover:border-orange-600
                  hover:text-orange-600 px-3 text-2xs">
-                <Checkbox id="ban-giao-hang" checked={isBanGiaoHang} onCheckedChange={handleBanGiaoHangChange} />
-                Bán giao hàng
-              </Button>
-            </div>
+              <Checkbox id="ban-giao-hang" className='text-blue-600'
+                checked={isBanGiaoHang}
+                onCheckedChange={handleBanGiaoHangChange} />
+              Bán giao hàng
+            </Button>
 
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline"
-                  className="text-blue-600 border border-blue-500 
-             rounded-lg px-3  text-2xs
-             hover:text-red-700 hover:border-red-700 ">
-                  Thanh toán
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[700px]">
-                <div className="space-y-1" >
-                  <h2 className=' font-bold tracking-tight'>Thanh toán tổng tiền</h2>
-                  <div className="bg-white p-6 ">
-                    <div className="space-y-4">
-
-                      <div className="flex justify-between pb-2">
-                        <p className="text-gray-700 text-base">Khách cần trả:</p>
-                        <p className="font-semibold">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
-                      </div>
-                     
-                      <div className="flex justify-between pb-2 items-center">
-                        <p className="text-gray-700 text-base">Phương thức thanh toán:</p>
-                        <div className="flex gap-x-2">
-                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-yellow-700 hover:text-yellow-700 px-3 text-2xs">
-                            Tiền mặt
-                          </Button>
-                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-red-600 hover:text-red-600 px-3 text-2xs">
-                            Chuyển khoản
-                          </Button>
-                          <Button variant="outline" className="border border-gray-500 rounded-lg hover:border-blue-600 hover:text-blue-600 px-3 text-2xs">
-                            Ví VNPAY
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex justify-between pb-2">
-                        <p className="text-gray-700 text-base"> Khách thanh toán:</p>
-                        <p className="font-semibold text-green-600"> <Input type="number" placeholder="Nhập số tiền" value={customerPayment}
-                          onChange={(e) => setCustomerPayment(Number(e.target.value))} /></p>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
-                      <p className='text-base'>Tiền thừa trả khách:</p>
-                      <p>{Math.max(customerPayment - (searchBill?.totalDue ?? 0)).toLocaleString('vi-VN')} đ</p>
-                      </div>
-                  </div>
-                  <div className='ml-[420px]'>
-                    <Button className="w-[135px] h-[47px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] ">
-                      Xác nhận</Button></div>
-                </div>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
         <hr className=" border-gray-600" /><br />
@@ -1107,22 +852,6 @@ function BanHangTaiQuay() {
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
                                 <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
                                   {field.value ? provinces.find((p) => p.code === field.value)?.name : "Chọn tỉnh/thành phố"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
@@ -1135,25 +864,6 @@ function BanHangTaiQuay() {
                                 <CommandList>
                                   <CommandEmpty>No language found.</CommandEmpty>
                                   <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("province", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
                                     {provinces.map((p) => (
                                       <CommandItem key={p.code} onSelect={() => {
                                         form.setValue("province", p.code);
@@ -1185,22 +895,6 @@ function BanHangTaiQuay() {
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
                                 <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
                                   {field.value ? districts.find((d) => d.code === field.value)?.name : "Chọn quận/huyện"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
@@ -1213,25 +907,6 @@ function BanHangTaiQuay() {
                                 <CommandList>
                                   <CommandEmpty>No language found.</CommandEmpty>
                                   <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("district", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
                                     {districts.map((d) => (
                                       <CommandItem key={d.code} onSelect={() => {
                                         form.setValue("district", d.code);
@@ -1266,22 +941,6 @@ function BanHangTaiQuay() {
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
                                 <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
                                   {field.value ? wards.find((w) => w.code === field.value)?.name : "Chọn phường/xã"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4" />
@@ -1294,25 +953,6 @@ function BanHangTaiQuay() {
                                 <CommandList>
                                   <CommandEmpty>No language found.</CommandEmpty>
                                   <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("ward", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
                                     {wards.map((w) => (
                                       <CommandItem key={w.code} onSelect={() => form.setValue("ward", w.code)}>
                                         <Check className={w.code === field.value ? "opacity-100" : "opacity-0"} />
@@ -1370,7 +1010,6 @@ function BanHangTaiQuay() {
                     </FormItem>
                   )}
                 />
-                {/* <Button type="submit">Submit</Button> */}
               </form>
             </Form>
           )}
@@ -1447,21 +1086,74 @@ function BanHangTaiQuay() {
                       <p className="text-gray-700 text-base">Khách cần trả:</p>
                       <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
                     </div>
+                    <div className="flex gap-x-2 justify-between border-b pb-2 pl-[45px] pr-[40px]">
+
+                      <Button
+                        variant="outline"
+                        className={`border border-emerald-500 text-emerald-600 rounded-lg hover:border-orange-700 hover:text-orange-700 px-3 text-2xs
+                           ${paymentMethod === 1 ? 'border-yellow-700 text-yellow-700 bg-slate-300' : 'border-emerald-500 text-emerald-600'}`}
+                        onClick={() => setPaymentMethod(1)}
+                      >
+                        Tiền mặt
+                      </Button>
+
+
+                      {/* Mã qr để chuyển khoản */}
+                      <Dialog open={isPTThanhToan} onOpenChange={setIsPTThanhToan}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={`border rounded-lg px-3 hover:border-orange-700 hover:text-orange-700 text-2xs 
+                              ${paymentMethod === 2 ? 'border-red-600 text-red-600 bg-slate-300' : 'border-blue-500 text-blue-600'}`}
+                          >
+                            Chuyển khoản
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px]">
+                          <h2 className='font-semibold '>Mã QR chuyển khoản</h2>
+                          <div className="flex justify-left pb-2">
+                            <p className="text-gray-700 text-base">Mã đơn hàng: </p>
+                            <p className="font-semibold text-stone-600 ml-[20px]">
+                              {searchBill?.nameBill == null ? "" : searchBill?.nameBill}</p>
+                          </div>
+                          <div className="flex justify-left pb-2">
+                            <p className="text-gray-700 text-base">Tổng tiền khách cần trả:</p>
+                            <p className="font-semibold text-green-600 ml-[20px]">
+                              {searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
+                          </div>
+                          <div >
+                            <img src="/images/MaQR.jpg" alt="Mã QR" className='w-[300px] h-[340px] ml-[95px] bg-white p-1 rounded-lg shadow' />
+                          </div>
+                          <Button variant="outline"
+                            className='bg-blue-600 text-white w-[100px] h-[40px] ml-[340px] hover:bg-sky-600 hover:text-white '
+                            onClick={() => {
+                              handlePTThanhToan();
+                            }}
+                          >Xác nhận</Button>
+                        </DialogContent>
+                      </Dialog>
+
+                    </div>
                     <div className="flex justify-between border-b pb-2">
                       <p className="text-gray-700 text-base"> Khách thanh toán:</p>
-                      <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment.toLocaleString('vi-VN')} đ</p>
+                      <p className="font-semibold text-green-600">
+                        <Input type="number" className='w-[150px]' value={paymentMethod == 2 ? customerPayment : ""} placeholder="Nhập số tiền"
+                          onChange={(e) => setCustomerPayment(Number(e.target.value))} /></p>
+                    </div>
+
+
+                    {/* Tổng tiền */}
+                    <div className="mt-4 flex justify-between border-b  pb-2 items-center font-bold text-lg text-red-600">
+                      <p className='text-base'>Tiền thừa trả khách:</p>
+                      <p>{tienThua.toLocaleString('vi-VN')} đ</p>
+
+                    </div>
+
+                    <div className="flex items-center  space-x-2 ">
+                      <Switch id="airplane-mode" />
+                      <Label htmlFor="airplane-mode">Thanh toán khi nhận hàng </Label>
                     </div>
                   </div>
-
-                  {/* Tổng tiền */}
-                  <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
-                    <p className='text-base'>Tiền thừa trả khách:</p>
-                    <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange.toLocaleString('vi-VN')} đ</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 ">
-                  <Switch id="airplane-mode" />
-                  <Label htmlFor="airplane-mode">Thanh toán khi nhận hàng </Label>
                 </div>
                 <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] ">
                   Xác nhận thanh toán</Button>

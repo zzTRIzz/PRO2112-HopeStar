@@ -37,6 +37,7 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authenticated/hoadon/hoadonchitiet'
 
 // Create Virtual Routes
 
@@ -473,6 +474,13 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedHoadonHoadonchitietRoute =
+  AuthenticatedHoadonHoadonchitietImport.update({
+    id: '/hoadon/hoadonchitiet',
+    path: '/hoadon/hoadonchitiet',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -581,6 +589,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof authIndexLazyImport
       parentRoute: typeof rootRoute
+    }
+    '/_authenticated/hoadon/hoadonchitiet': {
+      id: '/_authenticated/hoadon/hoadonchitiet'
+      path: '/hoadon/hoadonchitiet'
+      fullPath: '/hoadon/hoadonchitiet'
+      preLoaderRoute: typeof AuthenticatedHoadonHoadonchitietImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/battery': {
       id: '/_authenticated/product/battery'
@@ -847,6 +862,7 @@ const AuthenticatedSettingsRouteLazyRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedHoadonHoadonchitietRoute: typeof AuthenticatedHoadonHoadonchitietRoute
   AuthenticatedProductBatteryRoute: typeof AuthenticatedProductBatteryRoute
   AuthenticatedProductBluetoothRoute: typeof AuthenticatedProductBluetoothRoute
   AuthenticatedProductBrandRoute: typeof AuthenticatedProductBrandRoute
@@ -881,6 +897,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteLazyRoute:
     AuthenticatedSettingsRouteLazyRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedHoadonHoadonchitietRoute: AuthenticatedHoadonHoadonchitietRoute,
   AuthenticatedProductBatteryRoute: AuthenticatedProductBatteryRoute,
   AuthenticatedProductBluetoothRoute: AuthenticatedProductBluetoothRoute,
   AuthenticatedProductBrandRoute: AuthenticatedProductBrandRoute,
@@ -929,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -976,6 +994,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1028,6 +1047,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503LazyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/(auth)/': typeof authIndexLazyRoute
+  '/_authenticated/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1079,6 +1099,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1125,6 +1146,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/503'
     | '/'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1175,6 +1197,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/'
     | '/(auth)/'
+    | '/_authenticated/hoadon/hoadonchitiet'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1273,6 +1296,7 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/settings",
         "/_authenticated/",
+        "/_authenticated/hoadon/hoadonchitiet",
         "/_authenticated/product/battery",
         "/_authenticated/product/bluetooth",
         "/_authenticated/product/brand",
@@ -1353,6 +1377,10 @@ export const routeTree = rootRoute
     },
     "/(auth)/": {
       "filePath": "(auth)/index.lazy.tsx"
+    },
+    "/_authenticated/hoadon/hoadonchitiet": {
+      "filePath": "_authenticated/hoadon/hoadonchitiet.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/product/battery": {
       "filePath": "_authenticated/product/battery.tsx",

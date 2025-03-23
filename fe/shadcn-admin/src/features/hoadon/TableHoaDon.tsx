@@ -9,43 +9,13 @@ import Paper from '@mui/material/Paper';
 import { Button } from '@/components/ui/button';
 import { getAllBill } from './service/HoaDonService';
 import { cn } from '@/lib/utils';
-const product = [
-    {
-        id: 1,
-        nameProduct: "iPhone 14 Pro Max",
-        ram: "6GB",
-        rom: 128,
-        mauSac: "Đen",
-        price: 29990000,
-        quantity: 2,
-        totalPrice: 59980000
-    },
-    {
-        id: 2,
-        nameProduct: "iPhone 13",
-        ram: "4GB",
-        rom: 256,
-        mauSac: "Trắng",
-        price: 20990000,
-        quantity: 1,
-        totalPrice: 20990000
-    },
-    {
-        id: 3,
-        nameProduct: "iPhone 15 Pro",
-        ram: "8GB",
-        rom: 512,
-        mauSac: "Titan",
-        price: 36990000,
-        quantity: 1,
-        totalPrice: 36990000
-    }
-];
 
 interface Bill {
     id: number;
     nameBill: string;
     idAccount?: number | null;
+    tenKhachHang?: string | null;
+    soDienThoai?: string | null;
     idNhanVien?: number | null;
     idVoucher?: number | null;
     totalPrice: number | null;
@@ -66,12 +36,13 @@ interface Bill {
     phone?: string | null;
     name: string;
     paymentId?: number | null;
+    namePayment?: number | null;
     deliveryId?: number | null;
     itemCount: number;
     billType: number | null;
-    status: string ;
+    status: string;
 }
-const statusStyles : Record<string, string> = {
+const statusStyles: Record<string, string> = {
     "CHO_THANH_TOAN": "bg-slate-500 text-white",
     "DA_HUY": "bg-sky-500 text-white",
     "CHO_XAC_NHAN": "bg-blue-500 text-white",
@@ -83,7 +54,10 @@ const TableHoaDon: React.FC = () => {
     useEffect(() => {
         loadHoaDon();
     }, []);
-
+    // Chuyển trang hóa đơn chi tiết
+    // const goToPage = () => {
+    //     window.location.assign("/hoadon/hoadonchitiet");
+    //   };
 
     const loadHoaDon = async () => {
         try {
@@ -93,6 +67,16 @@ const TableHoaDon: React.FC = () => {
             console.error('Error fetching data:', error);
         }
     }
+
+
+    const getPaymentMethod = (method: number | null) => {
+        switch (method) {
+            case 1: return "Tiền mặt";
+            case 2: return "Chuyển khoản";
+            case 3: return "Ví VNPAY";
+            default: return "";
+        }
+    };
     return (
         <>
             <TableContainer component={Paper}>
@@ -101,10 +85,11 @@ const TableHoaDon: React.FC = () => {
                         <TableRow>
                             <TableCell align="right">STT</TableCell>
                             <TableCell align="center">Mã đơn hàng</TableCell>
-                            <TableCell align="right">Khách hàng</TableCell>
-                            <TableCell align="right">Loại hóa đơn </TableCell>
+                            <TableCell align="right" className='w-[160px]'>Khách hàng</TableCell>
+                            <TableCell align="right" className='w-[110px]'>Loại hóa đơn </TableCell>
                             <TableCell align="center">Trạng thái</TableCell>
                             <TableCell align="center">Tổng tiền</TableCell>
+                            <TableCell align="center">Thanh toán</TableCell>
                             <TableCell align="center">Ngày tạo</TableCell>
                             <TableCell align="center">Thao tác</TableCell>
                         </TableRow>
@@ -115,8 +100,8 @@ const TableHoaDon: React.FC = () => {
                                 key={hd.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                 <TableCell align="right">{index + 1}</TableCell>
-                                <TableCell component="th" scope="row" align="left">{hd.nameBill}</TableCell>
-                                <TableCell align="right" >{hd.idAccount}</TableCell>
+                                <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd.nameBill}</p> </TableCell>
+                                <TableCell align="right" >{hd.idAccount == null ? "" : hd.tenKhachHang + ' ' + hd.soDienThoai}</TableCell>
                                 <TableCell align="center">
                                     <span className={cn(
                                         "px-4 py-2 text-white font-medium rounded-full text-xs",
@@ -124,15 +109,18 @@ const TableHoaDon: React.FC = () => {
                                     )}>{hd.billType == 0 ? "Tại quầy" : "Giao hàng"}</span>
                                 </TableCell>
                                 <TableCell align="center"
-                                 ><span className={cn(
-                                    "px-4 py-2 font-medium rounded-full text-xs",
+                                ><span className={cn(
+                                    "px-3 py-2 font-medium rounded-full text-xs",
                                     statusStyles[hd.status] || "bg-gray-500 text-white"
                                 )}>{hd.status}</span></TableCell>
                                 <TableCell align="right">{hd.totalDue == null ? 0 : hd.totalDue.toLocaleString('vi-VN')} VND</TableCell>
+                                <TableCell align="right">{hd.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
                                 <TableCell align="right">{hd.paymentDate}</TableCell>
                                 <TableCell align="center" style={{}}>
-                                    <Button className="bg-blue-600 text-white hover:bg-green-600" >
-                                        Cập nhật
+                                    <Button className="bg-blue-600 text-white hover:bg-green-600">
+                                        <a href={`/hoadon/hoadonchitiet?id=${hd.id}`} >
+                                        Chi tiết
+                                        </a>
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -140,7 +128,7 @@ const TableHoaDon: React.FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            
+
         </>
     );
 };
