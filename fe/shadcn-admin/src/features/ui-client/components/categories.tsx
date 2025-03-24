@@ -28,21 +28,21 @@ const categories = [
   {
     id: 4,
     name: 'Oppo',
-    imageUrl: 'https://example.com/oppo-logo.png', // Thay URL này bằng URL hình ảnh thực tế
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/OPPO_LOGO_2019.png', // Thay URL này bằng URL hình ảnh thực tế
     color: 'bg-blue-50 text-blue-600',
     href: '/category/oppo',
   },
   {
     id: 5,
     name: 'Oneplus',
-    imageUrl: 'https://example.com/oneplus-logo.png', // Thay URL này bằng URL hình ảnh thực tế
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm7zidwWSDtHxxGlFkH-oCDM3bVRlH5sSXVg&s', // Thay URL này bằng URL hình ảnh thực tế
     color: 'bg-blue-50 text-blue-600',
     href: '/category/oneplus',
   },
   {
     id: 6,
     name: 'Realme',
-    imageUrl: 'https://example.com/realme-logo.png', // Thay URL này bằng URL hình ảnh thực tế
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Realme-realme-_logo_box-RGB-01.svg/2560px-Realme-realme-_logo_box-RGB-01.svg.png', // Thay URL này bằng URL hình ảnh thực tế
     color: 'bg-blue-50 text-blue-600',
     href: '/category/realme',
   },

@@ -17,6 +17,7 @@ import { ProductReviews } from '../components/product-reviews'
 import { RelatedProducts } from '../components/related-products'
 import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
+import Navbar from '../components/navbar'
 
 export default function ProductDetail() {
   const { id } = Route.useParams() // Lấy id từ URL
@@ -111,6 +112,8 @@ export default function ProductDetail() {
   } = productDetail
 
   return (
+    <>
+    <Navbar />
     <div className='container mx-auto px-4 py-8'>
       {/* Breadcrumb */}
       <nav className='mb-6 flex items-center gap-2 text-sm text-gray-600'>
@@ -388,5 +391,6 @@ export default function ProductDetail() {
         <RelatedProducts />
       </div>
     </div>
+    </>
   )
 }

@@ -7,8 +7,9 @@ import { productViewResponse } from '../data/schema'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
+import BoLocDienThoai from './bo-loc-dien-thoai'
 
-export default function FeaturedProducts() {
+export default function TatCaDienThoai() {
   const [products, setProducts] = useState<productViewResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -42,12 +43,13 @@ export default function FeaturedProducts() {
 
   return (
     <section className='container py-10'>
-      <div className='mb-8 flex items-center justify-between'>
+      {/* <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
           <Link to='/'>Xem tất cả</Link>
         </Button>
-      </div>
+      </div> */}
+      <BoLocDienThoai />
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
         {products?.length > 0 ? (
           products.map((product) => (

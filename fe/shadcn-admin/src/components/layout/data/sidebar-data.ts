@@ -21,7 +21,7 @@ import {
   IconSubtask,
   IconDiscount,
   IconPointFilled,
-  IconUser
+  IconUser,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -37,7 +37,7 @@ export const sidebarData: SidebarData = {
       name: 'HopeStar',
       logo: Command,
       plan: 'pro2112-nganct4',
-    }
+    },
   ],
   navGroups: [
     {
@@ -47,14 +47,12 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/dashboard',
           icon: IconLayoutDashboard,
-        }
-        ,
-         {
+        },
+        {
           title: 'Bán Hàng',
           url: '/banhang',
           icon: IconShoppingCart,
-        }
-        ,
+        },
         {
           title: 'Quản lý sản phẩm',
           icon: IconDeviceMobile,
@@ -149,7 +147,7 @@ export const sidebarData: SidebarData = {
               url: '/product/os',
               icon: IconPointFilled,
             },
-          ]
+          ],
         },
         {
           title: 'Quản lý tài khoản',
@@ -163,36 +161,21 @@ export const sidebarData: SidebarData = {
               title: 'Nhân viên',
               url: '/taikhoan/nhanvien',
             },
-          ]
-        }
-        ,
-        {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: IconSubtask,
+          ],
         },
 
-        {
-          title: 'Counter',
-          url: '/apps',
-          icon: IconShoppingCart,
-        },
         {
           title: 'Chats',
           url: '/chats',
           badge: '3',
           icon: IconMessages,
         },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: IconUsers,
-        },
+
         {
           title: 'Voucher',
           url: '/voucher',
-          icon: IconDiscount
-        }
+          icon: IconDiscount,
+        },
       ],
     },
     {
