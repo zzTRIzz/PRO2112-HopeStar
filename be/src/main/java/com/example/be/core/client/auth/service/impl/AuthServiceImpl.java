@@ -3,6 +3,7 @@ package com.example.be.core.client.auth.service.impl;
 import com.example.be.config.JwtProvider;
 import com.example.be.core.client.auth.dto.request.LoginRequest;
 import com.example.be.core.client.auth.dto.request.SignupRequest;
+import com.example.be.core.client.auth.dto.response.AccountResponse;
 import com.example.be.core.client.auth.dto.response.AuthResponse;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.Account;
@@ -134,14 +135,13 @@ public class AuthServiceImpl implements AuthService {
 
         String email = loginRequest.getEmail();
         String password = loginRequest .getPassword();
-        String otp = loginRequest.getOtp();
         AuthResponse authResponse = new AuthResponse();
         if (email == null || email.isEmpty() || password == null || password.isEmpty()){
             throw new Exception("email and password not null");
         }else {
             Account account = accountRepository.findByEmail(email);
             if (account != null && passwordEncoder.matches(password,account.getPassword())){
-                Authentication authentication = authentication(email,otp);
+                Authentication authentication = authentication(email);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 String token = jwtProvider.generateToken(authentication);
@@ -151,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
                 String roleName = authorities.isEmpty()?null:authorities.iterator().next().getAuthority();
                 authResponse.setRole(roleName);
             }else {
-                throw new Exception("Invalid email or password");
+                throw new Exception("Thông tin tài khoản không chính xác");
             }
         }
 
@@ -159,13 +159,29 @@ public class AuthServiceImpl implements AuthService {
         return authResponse;
     }
 
-    private Authentication authentication(String email, String otp) throws Exception {
-        UserDetails userDetails = customUser.loadUserByUsername(email);
-        Verification verification = verificationRepository.findByEmail(email);
+    @Override
+    public AccountResponse getAccountProfile(String jwt) throws Exception {
 
-        if (verification == null || !verification.getOtp().equals(otp)){
-            throw new Exception("Wrong otp");
+        String email = jwtProvider.getEmailFromJwtToken(jwt);
+        Account account = accountRepository.findByEmail(email);
+        if (account == null){
+            throw new Exception("account not found");
         }
+        AccountResponse accountResponse = new AccountResponse();
+        accountResponse.setId(account.getId());
+        accountResponse.setName(account.getFullName());
+        accountResponse.setEmail(account.getEmail());
+        accountResponse.setPhone(account.getPhone());
+        accountResponse.setAddress(account.getAddress());
+        accountResponse.setAvatar(account.getImageAvatar());
+        accountResponse.setIdRole(account.getIdRole().getId());
+        accountResponse.setGender(account.getGender());
+        return accountResponse;
+    }
+
+
+    private Authentication authentication(String email) throws Exception {
+        UserDetails userDetails = customUser.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
     }
 }

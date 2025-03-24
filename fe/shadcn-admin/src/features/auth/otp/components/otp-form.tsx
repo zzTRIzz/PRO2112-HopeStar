@@ -1,5 +1,6 @@
 import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
+import Cookies from 'js-cookie'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
@@ -16,11 +17,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { PinInput, PinInputField } from '@/components/pin-input'
+import { signup } from '../../sign-up/data/api-service'
 
 type OtpFormProps = HTMLAttributes<HTMLDivElement>
 
 const formSchema = z.object({
-  otp: z.string().min(1, { message: 'Please enter your otp code.' }),
+  otp: z.string().min(1, { message: 'Vui lòng nhập mã OTP.' }),
 })
 
 export function OtpForm({ className, ...props }: OtpFormProps) {
@@ -33,21 +35,42 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
     defaultValues: { otp: '' },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+    try {
+      // Lấy dữ liệu đăng ký từ localStorage
+      const signupData = JSON.parse(localStorage.getItem('signupData') || '{}')
 
-    setTimeout(() => {
-      setIsLoading(false)
+      // Gọi API đăng ký với dữ liệu đã lưu và mã OTP
+      const response = await signup({ ...signupData, otp: data.otp })
+      console.log('Đăng ký thành công:', response)
+
+      // Lưu JWT token vào cookie
+      if (response.jwt) {
+        Cookies.set('jwt', response.jwt, { expires: 1 }) // Lưu cookie trong 1 ngày
+      }
+
+      // Xóa dữ liệu đăng ký khỏi localStorage
+      localStorage.removeItem('signupData')
+
+      // Hiển thị thông báo thành công
+      toast({
+        title: 'Đăng ký thành công!',
+        description: 'Bạn đã tạo tài khoản thành công.',
+      })
+
+      // Chuyển hướng về trang chủ
       navigate({ to: '/' })
-    }, 1000)
+    } catch (error) {
+      console.error('Lỗi khi đăng ký:', error)
+      toast({
+        title: 'Lỗi',
+        description: 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -85,7 +108,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
               )}
             />
             <Button className='mt-2' disabled={disabledBtn || isLoading}>
-              Verify
+              {isLoading ? 'Đang xử lý...' : 'Xác thực'}
             </Button>
           </div>
         </form>

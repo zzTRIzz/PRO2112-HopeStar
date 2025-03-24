@@ -20,7 +20,7 @@ import {
   IconUsers,
   IconSubtask,
   IconDiscount,
-  IconPointFilled
+  IconPointFilled,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -36,7 +36,7 @@ export const sidebarData: SidebarData = {
       name: 'HopeStar',
       logo: Command,
       plan: 'pro2112-nganct4',
-    }
+    },
   ],
   navGroups: [
     {
@@ -46,14 +46,12 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/dashboard',
           icon: IconLayoutDashboard,
-        }
-        ,
-         {
+        },
+        {
           title: 'Bán Hàng',
           url: '/banhang',
           icon: IconShoppingCart,
-        }
-        ,
+        },
         {
           title: 'Quản lý sản phẩm',
           icon: IconDeviceMobile,
@@ -148,9 +146,8 @@ export const sidebarData: SidebarData = {
               url: '/product/os',
               icon: IconPointFilled,
             },
-          ]
-        }
-        ,
+          ],
+        },
         {
           title: 'Tasks',
           url: '/tasks',
@@ -176,8 +173,8 @@ export const sidebarData: SidebarData = {
         {
           title: 'Voucher',
           url: '/voucher',
-          icon: IconDiscount
-        }
+          icon: IconDiscount,
+        },
       ],
     },
     {
@@ -190,10 +187,6 @@ export const sidebarData: SidebarData = {
             {
               title: 'Sign In',
               url: '/sign-in',
-            },
-            {
-              title: 'Sign In (2 Col)',
-              url: '/sign-in-2',
             },
             {
               title: 'Sign Up',

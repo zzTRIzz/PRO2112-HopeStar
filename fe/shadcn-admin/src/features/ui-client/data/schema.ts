@@ -1,5 +1,17 @@
 import { z } from 'zod'
 
+// Schema cho Profile
+export const accountResponseSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  address: z.string(),
+  avatar: z.string(),
+  idRole: z.number(),
+  gender: z.boolean(),
+})
+
 // Schema cho ColorOption
 const colorOptionSchema = z.object({
   id: z.number(),
@@ -59,6 +71,7 @@ export const productDetailViewResponseSchema = z.object({
   defaultProductDetail: productDetailInfoSchema.optional(),
 })
 
+export type Profile = z.infer<typeof accountResponseSchema>
 export type productViewResponse = z.infer<typeof productViewResponseSchema>
 export type productDetailViewResponse = z.infer<
   typeof productDetailViewResponseSchema
