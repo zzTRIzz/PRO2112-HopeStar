@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 import { Link } from '@tanstack/react-router'
 import {
   Dropdown,
@@ -10,6 +11,8 @@ import {
 } from '@heroui/react'
 import { ShoppingCart, Search, Menu, X } from 'lucide-react'
 import { cn } from '../../../lib/utils'
+import { getProfile } from '../data/api-service'
+import { Profile } from '../data/schema'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -25,11 +28,93 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    loadProfile()
+  }, [])
+
+  const loadProfile = async () => {
+    try {
+      const jwt = Cookies.get('jwt')
+      if (!jwt) {
+        setIsLoading(false)
+        return
+      }
+
+      const data = await getProfile()
+      if (data) {
+        setProfile(data)
+        localStorage.setItem('profile', JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const renderUserMenu = () => {
+    if (isLoading) {
+      return <div className='h-8 w-8 animate-pulse rounded-full bg-muted' />
+    }
+
+    if (!profile) {
+      return (
+        <Button asChild>
+          <Link to='/sign-in'>Đăng nhập</Link>
+        </Button>
+      )
+    }
+
+    return (
+      <Dropdown placement='bottom-start'>
+        <DropdownTrigger>
+          <User
+            as='button'
+            avatarProps={{
+              isBordered: true,
+              src: profile.avatar || 'https://i.pravatar.cc/150',
+            }}
+            className='transition-transform'
+            description={profile.email}
+            name={profile.name}
+          />
+        </DropdownTrigger>
+        <DropdownMenu aria-label='User Actions' variant='flat'>
+          <DropdownItem key='profile'>Thông tin cá nhân</DropdownItem>
+          <DropdownItem key='orders'>Đơn hàng của tôi</DropdownItem>
+
+          {profile?.idRole === 2 ? (
+            <DropdownItem key='admin' asChild>
+              <Link to='/dashboard'>Quản trị viên</Link>
+            </DropdownItem>
+          ) : profile?.idRole === 3 ? (
+            <DropdownItem key='staff' asChild>
+              <Link to='/banhang'>Nhân viên</Link>
+            </DropdownItem>
+          ) : null}
+          <DropdownItem
+            key='logout'
+            color='danger'
+            onClick={() => {
+              Cookies.remove('jwt')
+              localStorage.removeItem('profile')
+              window.location.href = '/sign-in'
+            }}
+          >
+            Đăng xuất
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+    )
+  }
 
   return (
     <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container flex h-16 items-center justify-between'>
-        <div className='flex items-center gap-6 md:gap-10'>
+        <div className='flex items-center gap-4 md:gap-10'>
           <Link to='/' className='flex items-center space-x-2'>
             <span className='text-2xl font-bold'>HopeStar</span>
           </Link>
@@ -74,7 +159,7 @@ export default function Navbar() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-              <NavigationMenuItem>
+              {/* <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
                     to='/'
@@ -83,7 +168,7 @@ export default function Navbar() {
                     Cửa hàng (Shop)
                   </Link>
                 </NavigationMenuLink>
-              </NavigationMenuItem>
+              </NavigationMenuItem> */}
               {/* <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link 
@@ -153,43 +238,9 @@ export default function Navbar() {
               <Badge className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center'>
                 2
               </Badge>
-              <span className='sr-only'>Giỏ hàng (Shopping cart)</span>
             </Link>
           </Button>
-          {/* <Button asChild>
-            <Link to='/'>Tài khoản</Link>
-          </Button> */}
-          <Dropdown placement='bottom-start'>
-            <DropdownTrigger>
-              <User
-                as='button'
-                avatarProps={{
-                  isBordered: true,
-                  src: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
-                }}
-                className='transition-transform'
-                description='@tonyreichert'
-                name='Tony Reichert'
-              />
-            </DropdownTrigger>
-            <DropdownMenu aria-label='User Actions' variant='flat'>
-              <DropdownItem key='profile' className='h-14 gap-2'>
-                <p className='font-bold'>Signed in as</p>
-                <p className='font-bold'>@tonyreichert</p>
-              </DropdownItem>
-              <DropdownItem key='settings'>My Settings</DropdownItem>
-              <DropdownItem key='team_settings'>Team Settings</DropdownItem>
-              <DropdownItem key='analytics'>Analytics</DropdownItem>
-              <DropdownItem key='system'>System</DropdownItem>
-              <DropdownItem key='configurations'>Configurations</DropdownItem>
-              <DropdownItem key='help_and_feedback'>
-                Help & Feedback
-              </DropdownItem>
-              <DropdownItem key='logout' color='danger'>
-                Log Out
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          {renderUserMenu()}
         </div>
 
         {/* Mobile Menu Trigger */}

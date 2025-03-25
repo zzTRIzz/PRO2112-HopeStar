@@ -112,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
             accountNew.setEmail(signupRequest.getEmail());
             accountNew.setFullName(signupRequest.getFullName());
             accountNew.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-            accountNew.setIdRole(roleRepository.findById(2).orElse(null));
+            accountNew.setIdRole(roleRepository.findById(4).orElse(null));
             accountNew.setCode("USER_"+ accountRepository.getNewCode());
             accountNew.setStatus(StatusCommon.ACTIVE);
             accountRepository.save(accountNew);
@@ -180,7 +180,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    private Authentication authentication(String email) throws Exception {
+    private Authentication authentication(String email){
         UserDetails userDetails = customUser.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
     }

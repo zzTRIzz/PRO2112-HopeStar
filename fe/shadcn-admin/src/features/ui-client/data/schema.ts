@@ -53,6 +53,11 @@ export const productViewResponseSchema = z.object({
   hex: z.array(z.string()),
 })
 
+export const productViewResponseAllSchema = z.object({
+  newestProducts: z.array(productViewResponseSchema),
+  bestSellingProducts: z.array(productViewResponseSchema),
+})
+
 export const productDetailViewResponseSchema = z.object({
   id: z.number(),
   productName: z.string(),
@@ -75,4 +80,7 @@ export type Profile = z.infer<typeof accountResponseSchema>
 export type productViewResponse = z.infer<typeof productViewResponseSchema>
 export type productDetailViewResponse = z.infer<
   typeof productDetailViewResponseSchema
+>
+export type ProductViewResponseAll = z.infer<
+  typeof productViewResponseAllSchema
 >
