@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface VoucherService {
     List<VoucherResponse> getAll();
@@ -23,4 +24,14 @@ public interface VoucherService {
     Page<VoucherResponse> phanTrang(Pageable pageable);
 
     List<VoucherResponse> findByCodeAndDate(String code, String startTime, String endTime);
+
+    boolean isCodeExists(String code);
+
+    boolean isCodeExistsForUpdate(String code, Integer id);
+
+    Map<String, Object> assignVoucherToCustomers(Integer voucherId, List<Integer> customerIds);
+
+    VoucherResponse findById(Integer id);
+
+
 }

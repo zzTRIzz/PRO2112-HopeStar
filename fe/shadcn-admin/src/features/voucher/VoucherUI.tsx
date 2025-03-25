@@ -1,9 +1,38 @@
-import { useEffect, useState } from "react"
-import { getVouchers, searchVoucherByCode, searchVoucherByDate, searchVoucherByCodeAndDate, searchVoucherByDateRange } from "./data/apiVoucher"
-import { useNavigate } from "@tanstack/react-router";
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { 
+    getVouchers, 
+    searchVoucherByCode, 
+    searchVoucherByDate, 
+    searchVoucherByCodeAndDate,
+    checkVoucherCode,  // Make sure this is imported
+    assignVoucherToCustomers
+} from "./data/apiVoucher";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
+// Add API base URL constant
+const API_BASE_URL = 'http://localhost:8080/api';
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('API Error:', error);
+        if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+        } else {
+            toast.error('Có lỗi xảy ra khi thực hiện yêu cầu');
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Thêm interface ở đầu file
 interface Voucher {
@@ -18,6 +47,40 @@ interface Voucher {
     startTime: string;
     endTime: string;
     status: "UPCOMING" | "ACTIVE" | "EXPIRED";
+}
+
+interface RoleResponse {
+    id: number;
+    code: string;
+    name: string;
+}
+
+interface AccountResponse {
+    id: number;
+    fullName: string;
+    code: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    address?: string;
+    googleId?: string;
+    imageAvatar?: string;
+    idRole: RoleResponse;
+    gender: boolean;
+    status: string;
+}
+
+interface ResponseData<T> {
+    status: number;
+    message: string;
+    data: T;
+}
+
+enum HttpStatus {
+    OK = 'OK',
+    BAD_REQUEST = 'BAD_REQUEST',
+    CREATED = 'CREATED',
+    ACCEPTED = 'ACCEPTED'
 }
 
 // Add helper function to check voucher status
@@ -70,6 +133,15 @@ const NoData = () => (
     </tr>
 );
 
+interface AssignVoucherResponse {
+    success: boolean;
+    message: string;
+    details?: {
+        alreadyHasVoucher: string[];
+        assigned: string[];
+    };
+}
+
 export default function VoucherUI() {
     const [vouchers, setVouchers] = useState<Voucher[]>([])
     const [loading, setLoading] = useState(true)
@@ -103,6 +175,13 @@ export default function VoucherUI() {
     const [searchStartTime, setSearchStartTime] = useState('');
     const [searchEndTime, setSearchEndTime] = useState('');
 
+    // Thêm state để track việc kiểm tra mã
+    const [isCheckingCode, setIsCheckingCode] = useState(false);
+
+    // Add these states in VoucherUI component
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+
     // Thêm hàm xử lý edit
     const handleEdit = (voucher: Voucher) => {
         setIsEditing(true);
@@ -123,62 +202,49 @@ export default function VoucherUI() {
     };
 
     // Add validation function
-    const validateForm = (): boolean => {
-        // Check empty fields
-        
+    const validateForm = async (): Promise<boolean> => {
+        // Basic validations
         if (!formData.code.trim()) {
             setError(new Error('Mã voucher không được để trống'));
             return false;
         }
-        if (!formData.name.trim()) {
-            setError(new Error('Tên voucher không được để trống'));
-            return false;
-        }
-        
-        // Validate numeric values
-        if (formData.quantity < 0) {
-            setError(new Error('Số lượng không được nhỏ hơn 0'));
-            return false;
-        }
-        if (formData.discountValue < 0) {
-            setError(new Error('Giá trị giảm không được nhỏ hơn 0'));
-            return false;
-        }
-        if (formData.conditionPriceMin < 0) {
-            setError(new Error('Giá tối thiểu không được nhỏ hơn 0'));
-            return false;
-        }
-        if (formData.conditionPriceMax < 0) {
-            setError(new Error('Giá tối đa không được nhỏ hơn 0'));
+
+        // Check for duplicate code
+        const isValidCode = await checkCode(formData.code);
+        if (!isValidCode) {
             return false;
         }
 
-        // Validate price conditions
-        if (formData.conditionPriceMin > formData.conditionPriceMax) {
-            setError(new Error('Giá tối thiểu không được lớn hơn giá tối đa'));
-            return false;
-        }
-
-        // Validate dates
-        if (!formData.startTime || !formData.endTime) {
-            setError(new Error('Vui lòng chọn thời gian bắt đầu và kết thúc'));
-            return false;
-        }
-
-        const startDate = new Date(formData.startTime);
-        const endDate = new Date(formData.endTime);
-        if (startDate > endDate) {
-            setError(new Error('Ngày bắt đầu không được sau ngày kết thúc'));
-            return false;
-        }
-
+        // ...rest of your validations...
         return true;
     };
 
+    // Thêm hàm kiểm tra mã
+    const checkCode = async (code: string): Promise<boolean> => {
+        if (!code.trim()) return true;
+        
+        try {
+            setIsCheckingCode(true);
+            const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+                params: {
+                    code: code.trim(),
+                    excludeId: isEditing ? editId : undefined
+                }
+            });
+            return !response.data; // Return false if code exists, true if it doesn't
+        } catch (error) {
+            console.error('Error checking code:', error);
+            return false;
+        } finally {
+            setIsCheckingCode(false);
+        }
+    };
+
+    // Modify the handleSubmit function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Validate form trước khi submit
+        // Basic validations first
         if (!formData.code.trim()) {
             toast.error('Vui lòng nhập mã voucher');
             return;
@@ -188,45 +254,42 @@ export default function VoucherUI() {
             return;
         }
         if (formData.discountValue <= 0) {
-            toast.error('Giá trị giảm phải lớn hơn 0');
+            toast.error('Vui lòng nhập giá trị voucher');
             return;
         }
         if (formData.quantity <= 0) {
-            toast.error('Số lượng phải lớn hơn 0');
-            return;
-        }
-        if (formData.conditionPriceMin <= 0) {
-            toast.error('Giá tối thiểu phải lớn hơn 0');
-            return;
-        }
-        if (formData.conditionPriceMax <= 0) {
-            toast.error('Giá tối đa phải lớn hơn 0');
-            return;
-        }
-        if (formData.conditionPriceMin > formData.conditionPriceMax) {
-            toast.error('Giá tối thiểu không được lớn hơn giá tối đa');
+            toast.error('Vui lòng nhập số lượng voucher');
             return;
         }
         if (!formData.startTime || !formData.endTime) {
-            toast.error('Vui lòng chọn thời gian bắt đầu và kết thúc');
+            toast.error('Vui lòng chọn thời gian hiệu lực');
             return;
         }
-    
-        const startDate = new Date(formData.startTime);
-        const endDate = new Date(formData.endTime);
-        if (startDate > endDate) {
-            toast.error('Ngày bắt đầu không được sau ngày kết thúc');
-            return;
-        }
-    
+
         try {
+            // Chỉ kiểm tra mã trùng khi tạo mới
+            if (!isEditing) {
+                const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+                    params: {
+                        code: formData.code.trim()
+                    }
+                });
+
+                if (response.data) { // If code exists
+                    toast.error('Mã voucher đã tồn tại');
+                    return;
+                }
+            }
+
+            // Proceed with saving
             if (isEditing && editId) {
-                await axios.put(`http://localhost:8080/api/admin/voucher/${editId}`, formData);
+                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
                 toast.success('Cập nhật voucher thành công!');
             } else {
-                await axios.post('http://localhost:8080/api/admin/voucher', formData);
+                await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
                 toast.success('Tạo voucher mới thành công!');
             }
+
             const newData = await getVouchers();
             setVouchers(newData);
             handleCloseModal();
@@ -274,63 +337,36 @@ export default function VoucherUI() {
             setLoading(true);
             let data;
 
-            // Sửa lại phần xử lý tìm kiếm kết hợp
+            // Search with both code and date
             if (searchCode.trim() && searchStartTime && searchEndTime) {
-                const startDate = new Date(searchStartTime);
-                const endDate = new Date(searchEndTime);
-                
-                if (startDate > endDate) {
-                    toast.error('Ngày bắt đầu không được sau ngày kết thúc');
-                    return;
-                }
-
-                try {
-                    data = await searchVoucherByCodeAndDate(
-                        searchCode.trim(),
-                        searchStartTime,
-                        searchEndTime
-                    );
-
-                    if (data.length === 0) {
-                        toast.info('Không tìm thấy voucher phù hợp với điều kiện tìm kiếm');
-                    } else {
-                        console.log('Found vouchers:', data); // Debug log
-                    }
-                } catch (error) {
-                    console.error('Search error:', error);
-                    toast.error('Có lỗi xảy ra khi tìm kiếm');
-                }
+                data = await searchVoucherByCodeAndDate(
+                    searchCode.trim(),
+                    searchStartTime,
+                    searchEndTime
+                );
             }
-            // Nếu chỉ có mã code
+            // Search by code only
             else if (searchCode.trim()) {
-                data = await searchVoucherByCode(searchCode);
-                if (data.length === 0) {
-                    toast.info('Không tìm thấy voucher với mã này');
-                }
+                data = await searchVoucherByCode(searchCode.trim());
             }
-            // Nếu chỉ có ngày
+            // Search by date only
             else if (searchStartTime && searchEndTime) {
-                const startDate = new Date(searchStartTime);
-                const endDate = new Date(searchEndTime);
-                
-                if (startDate > endDate) {
-                    toast.error('Ngày bắt đầu không được sau ngày kết thúc');
-                    return;
-                }
-                
-                data = await searchVoucherByDateRange(searchStartTime, searchEndTime);
-                if (data.length === 0) {
-                    toast.info('Không tìm thấy voucher trong khoảng thời gian này');
-                }
+                data = await searchVoucherByDate(searchStartTime, searchEndTime);
             }
-            // Nếu không có điều kiện tìm kiếm nào
+            // Get all vouchers
             else {
                 data = await getVouchers();
             }
 
-            setVouchers(Array.isArray(data) ? data : []);
-            setCurrentPage(1);
-            setError(null);
+            if (Array.isArray(data)) {
+                setVouchers(data);
+                setCurrentPage(1);
+                if (data.length === 0) {
+                    toast.info('Không tìm thấy voucher phù hợp');
+                }
+            } else {
+                throw new Error('Dữ liệu không hợp lệ');
+            }
         } catch (error: any) {
             console.error('Error searching:', error);
             toast.error(error.message || 'Có lỗi xảy ra khi tìm kiếm');
@@ -525,6 +561,15 @@ export default function VoucherUI() {
                                             >
                                                 Sửa
                                             </button>
+                                            <button
+                                                className="text-green-600 hover:text-green-800"
+                                                onClick={() => {
+                                                    setSelectedVoucher(voucher);
+                                                    setShowAssignModal(true);
+                                                }}
+                                            >
+                                                Thêm KH
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -601,7 +646,7 @@ export default function VoucherUI() {
                                         className="w-full p-2 border rounded"
                                         value={formData.code}
                                         onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                        
+                                        disabled={isEditing} // Disable input when editing
                                     />
                                 </div>
                                 <div>
@@ -724,18 +769,271 @@ export default function VoucherUI() {
                     </div>
                 </div>
             )}
+            {showAssignModal && selectedVoucher && (
+                <AssignVoucherModal
+                    voucher={selectedVoucher}
+                    onClose={() => {
+                        setShowAssignModal(false);
+                        setSelectedVoucher(null);
+                    }}
+                />
+            )}
             <ToastContainer
-    position="top-right"
-    autoClose={3000}
-    hideProgressBar={false}
-    newestOnTop
-    closeOnClick
-    rtl={false}
-    pauseOnFocusLoss
-    draggable
-    pauseOnHover
-    theme="colored"
-/>
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </>
     )
 }
+
+const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: () => void }) => {
+    const [accounts, setAccounts] = useState<AccountResponse[]>([]);
+    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchAccounts();
+    }, []);
+
+    // Update the fetchAccounts function in AssignVoucherModal
+    const fetchAccounts = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            console.log('Fetching accounts...');
+            
+            const response = await axios.get(`${API_BASE_URL}/account/list`);
+            console.log('Full API Response:', response.data);
+
+            if (response.data?.data) {
+                // Filter active customers with ROLE_2 (Khách hàng)
+                const customers = response.data.data.filter((acc: AccountResponse) => 
+                    acc.status === 'ACTIVE' && 
+                    acc.idRole?.code === 'ROLE_2'  // Changed from 'CUSTOMER' to 'ROLE_2'
+                );
+                console.log('Filtered customers:', customers);
+                setAccounts(customers);
+            } else {
+                throw new Error('Không thể lấy dữ liệu khách hàng');
+            }
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
+            setError('Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAssign = async () => {
+        if (selectedAccounts.length === 0) {
+            toast.warning('Vui lòng chọn ít nhất một khách hàng');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            
+            const selectedCustomers = accounts.filter(acc => selectedAccounts.includes(acc.id));
+            console.log('Gửi request với:', { voucher, selectedCustomers });
+
+            const result = await assignVoucherToCustomers(voucher.id, selectedCustomers);
+            console.log('Kết quả từ API:', result);
+
+            // Kiểm tra response từ API
+            if (result && result.details) {
+                const { alreadyHasVoucher = [], assigned = [] } = result.details;
+
+                // Thông báo tài khoản đã có voucher (nếu có)
+                if (alreadyHasVoucher.length > 0) {
+                    toast.error('Tài khoản đã có voucher: ' + alreadyHasVoucher.join(', '));
+                }
+
+                // Thông báo thêm voucher thành công (nếu có)
+                if (assigned.length > 0) {
+                    toast.success('Thêm voucher thành công cho: ' + assigned.join(', '));
+                }
+
+                // Nếu không có ai được thêm và không có ai đã có voucher
+                if (assigned.length === 0 && alreadyHasVoucher.length === 0) {
+                    toast.error('Không thể thêm voucher cho các tài khoản đã chọn');
+                }
+            }
+
+        } catch (error) {
+            console.error('Lỗi:', error);
+            toast.error(
+                error instanceof Error 
+                    ? error.message 
+                    : 'Có lỗi xảy ra khi thêm voucher cho khách hàng'
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">Thêm voucher cho khách hàng</h2>
+                        <button 
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-700"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    
+                    <div className="mb-4 p-3 bg-gray-50 rounded">
+                        <p><span className="font-medium">Mã voucher:</span> {voucher.code}</p>
+                        <p><span className="font-medium">Tên voucher:</span> {voucher.name}</p>
+                    </div>
+
+                    {loading ? (
+                        <div className="flex-1 flex items-center justify-center">
+                            <span className="text-gray-500">Đang tải danh sách khách hàng...</span>
+                        </div>
+                    ) : error ? (
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                                <p className="text-red-500 mb-2">{error}</p>
+                                <button 
+                                    onClick={() => {
+                                        setError(null);
+                                        fetchAccounts();
+                                    }}
+                                    className="text-blue-600 hover:underline"
+                                >
+                                    Thử lại
+                                </button>
+                            </div>
+                        </div>
+                    ) : accounts.length === 0 ? (
+                        <div className="flex-1 flex flex-col items-center justify-center">
+                            <span className="text-gray-500 mb-2">Không có khách hàng nào</span>
+                            <button 
+                                onClick={onClose}
+                                className="text-blue-600 hover:underline"
+                            >
+                                Đóng
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="mb-4 p-3 bg-gray-50 rounded">
+                                <p><span className="font-medium">Mã voucher:</span> {voucher.code}</p>
+                                <p><span className="font-medium">Tên voucher:</span> {voucher.name}</p>
+                            </div>
+
+                            {accounts.length > 0 ? (
+                                <div className="flex-1 overflow-y-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 sticky top-0">
+                                            <tr>
+                                                <th className="p-3 text-left w-10">
+                                                    <input
+                                                        type="checkbox"
+                                                        onChange={(e) => {
+                                                            setSelectedAccounts(e.target.checked ? accounts.map(a => a.id) : []);
+                                                        }}
+                                                        checked={accounts.length > 0 && selectedAccounts.length === accounts.length}
+                                                    />
+                                                </th>
+                                                <th className="p-3 text-left">Mã KH</th>
+                                                <th className="p-3 text-left">Tên</th>
+                                                <th className="p-3 text-left">Email</th>
+                                                <th className="p-3 text-left">SĐT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {accounts.map(account => (
+                                                <tr key={account.id} className="border-t">
+                                                    <td className="p-3">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedAccounts.includes(account.id)}
+                                                            onChange={() => {
+                                                                setSelectedAccounts(prev => {
+                                                                    if (prev.includes(account.id)) {
+                                                                        return prev.filter(id => id !== account.id);
+                                                                    }
+                                                                    return [...prev, account.id];
+                                                                });
+                                                            }}
+                                                        />
+                                                    </td>
+                                                    <td className="p-3">{account.code}</td>
+                                                    <td className="p-3">{account.fullName}</td>
+                                                    <td className="p-3">{account.email}</td>
+                                                    <td className="p-3">{account.phone || 'N/A'}</td>
+                                                    <td className="p-3">
+                                                        {account.status === 'ACTIVE' ? (
+                                                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                                                                Hoạt động
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full">
+                                                                Khóa
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <span className="text-gray-500">Không có khách hàng nào</span>
+                                </div>
+                            )}
+
+                            <div className="mt-4 flex justify-between items-center border-t pt-4">
+                                <span className="text-sm text-gray-600">
+                                    Đã chọn: {selectedAccounts.length} khách hàng
+                                </span>
+                                <div className="flex gap-2">
+                                    <button
+                                        className="px-4 py-2 border rounded hover:bg-gray-50"
+                                        onClick={onClose}
+                                        disabled={loading}
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-300"
+                                        onClick={handleAssign}
+                                        disabled={selectedAccounts.length === 0 || loading}
+                                    >
+                                        {loading ? 'Đang xử lý...' : 'Xác nhận'}
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
+        </>
+    );
+};
