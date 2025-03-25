@@ -172,7 +172,6 @@ interface EmailRequest {
 
 interface RoleResponse {
     id: number;
-    code: string;
     name: string;
 }
 
@@ -181,11 +180,18 @@ interface AccountResponse {
     fullName: string;
     code: string;
     email: string;
-    phone?: string;
-    address?: string;
-    imageAvatar?: string;
-    idRole: RoleResponse;
+    phone: string;
+    address: string;
+    imageAvatar: string;
+    idRole: {
+        id: number;  // Using id instead of code
+        name: string;
+    };
     status: string;
+    createdAt: string;
+    updatedAt: string;
+    birthday: string;
+    // ...other fields
 }
 
 interface VoucherResponse {
@@ -218,39 +224,15 @@ export const assignVoucherToCustomers = async (
     customers: AccountResponse[]
 ): Promise<AssignVoucherResponse> => {
     try {
-        console.log('Gửi request với:', {
-            voucherId,
-            customerIds: customers.map(c => c.id)
-        });
-
         const response = await axios.post(`${API_BASE_URL}/voucher/assign`, {
             voucherId,
-            customerIds: customers.map(c => c.id)
+            customerIds: customers.map(customer => customer.id)
         });
         
-        console.log('Response từ server:', response.data);
-
-        // Đảm bảo response đúng format
-        const result: AssignVoucherResponse = {
-            success: response.data.success,
-            message: response.data.message,
-            details: {
-                alreadyHasVoucher: response.data.details?.alreadyHasVoucher || [],
-                assigned: response.data.details?.assigned || []
-            }
-        };
-
-        return result;
+        return response.data;
     } catch (error) {
-        console.error('❌ Chi tiết lỗi:', {
-            error,
-            response: axios.isAxiosError(error) ? error.response?.data : null
-        });
-        throw new Error(
-            axios.isAxiosError(error)
-                ? error.response?.data?.message || 'Có lỗi xảy ra khi gán voucher'
-                : 'Có lỗi không xác định xảy ra'
-        );
+        console.error('Error:', error);
+        throw error;
     }
 };
 
@@ -302,3 +284,29 @@ const formatDateTime = (dateStr: string): string => {
 type BigDecimal = {
     toString(): string;
 } | number;
+
+// Add a new function to get only customers (role_4)
+export const getCustomers = async (): Promise<AccountResponse[]> => {
+    try {
+        // Update API endpoint to match your backend controller
+        const response = await axios.get(`http://localhost:8080/api/account/list`);
+        
+        // Log the raw response for debugging
+        console.log('Raw API response:', response.data);
+
+        // Get data from ResponseData wrapper
+        const data = response.data.data;
+        console.log('Extracted data:', data);
+
+        // Filter customers with role_4 and ACTIVE status
+        const customers = data.filter((account: AccountResponse) => 
+            account.idRole?.id === 4 && account.status === 'ACTIVE'
+        );
+
+        console.log('Filtered customers:', customers);
+        return customers;
+    } catch (error) {
+        console.error('Error fetching customers:', error);
+        throw new Error('Không thể tải danh sách khách hàng');
+    }
+};

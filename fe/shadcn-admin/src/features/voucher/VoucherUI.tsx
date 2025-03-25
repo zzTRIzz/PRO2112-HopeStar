@@ -795,43 +795,33 @@ export default function VoucherUI() {
 
 const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: () => void }) => {
     const [accounts, setAccounts] = useState<AccountResponse[]>([]);
-    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
 
+    // Fetch customers when component mounts
     useEffect(() => {
-        fetchAccounts();
-    }, []);
-
-    // Update the fetchAccounts function in AssignVoucherModal
-    const fetchAccounts = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            console.log('Fetching accounts...');
-            
-            const response = await axios.get(`${API_BASE_URL}/account/list`);
-            console.log('Full API Response:', response.data);
-
-            if (response.data?.data) {
-                // Filter active customers with ROLE_2 (Khách hàng)
-                const customers = response.data.data.filter((acc: AccountResponse) => 
-                    acc.status === 'ACTIVE' && 
-                    acc.idRole?.code === 'ROLE_2'  // Changed from 'CUSTOMER' to 'ROLE_2'
+        const fetchCustomers = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`${API_BASE_URL}/account/list`);
+                const customers = response.data.data.filter((account: AccountResponse) => 
+                    account.idRole?.id === 4 && account.status === 'ACTIVE'
                 );
                 console.log('Filtered customers:', customers);
                 setAccounts(customers);
-            } else {
-                throw new Error('Không thể lấy dữ liệu khách hàng');
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+                setError('Không thể tải danh sách khách hàng');
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching accounts:', error);
-            setError('Không thể tải danh sách khách hàng');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
 
+        fetchCustomers();
+    }, []);
+
+    // Handle assign button click
     const handleAssign = async () => {
         if (selectedAccounts.length === 0) {
             toast.warning('Vui lòng chọn ít nhất một khách hàng');
@@ -841,199 +831,173 @@ const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: (
         try {
             setLoading(true);
             
-            const selectedCustomers = accounts.filter(acc => selectedAccounts.includes(acc.id));
-            console.log('Gửi request với:', { voucher, selectedCustomers });
+            // Tạo mảng chứa thông tin khách hàng đã chọn
+            const selectedCustomers = accounts.filter(account => selectedAccounts.includes(account.id));
+            
+            // Gọi API để gán voucher - Sửa lại endpoint
+            const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
+                voucherId: voucher.id,
+                customerIds: selectedCustomers.map(customer => customer.id)
+            });
 
-            const result = await assignVoucherToCustomers(voucher.id, selectedCustomers);
-            console.log('Kết quả từ API:', result);
+            const result = response.data;
+            console.log('Kết quả:', result);
 
-            // Kiểm tra response từ API
-            if (result && result.details) {
-                const { alreadyHasVoucher = [], assigned = [] } = result.details;
-
-                // Thông báo tài khoản đã có voucher (nếu có)
-                if (alreadyHasVoucher.length > 0) {
-                    toast.error('Tài khoản đã có voucher: ' + alreadyHasVoucher.join(', '));
+            // Xử lý kết quả từ API
+            if (result.success) {
+                // Thành công
+                toast.success('Thêm voucher và gửi mail thành công');
+            } else {
+                // Kiểm tra các trường hợp thất bại
+                if (result.details?.alreadyHasVoucher?.length > 0) {
+                    toast.warning(
+                        `Các tài khoản sau đã có voucher: ${result.details.alreadyHasVoucher.join(', ')}`
+                    );
                 }
-
-                // Thông báo thêm voucher thành công (nếu có)
-                if (assigned.length > 0) {
-                    toast.success('Thêm voucher thành công cho: ' + assigned.join(', '));
+                if (result.details?.assigned?.length > 0) {
+                    toast.success(
+                        `Đã thêm voucher và gửi mail thành công cho: ${result.details.assigned.join(', ')}`
+                    );
                 }
-
-                // Nếu không có ai được thêm và không có ai đã có voucher
-                if (assigned.length === 0 && alreadyHasVoucher.length === 0) {
-                    toast.error('Không thể thêm voucher cho các tài khoản đã chọn');
+                if (result.message && !result.details?.alreadyHasVoucher?.length) {
+                    toast.warning(result.message);
                 }
             }
 
         } catch (error) {
-            console.error('Lỗi:', error);
-            toast.error(
-                error instanceof Error 
-                    ? error.message 
-                    : 'Có lỗi xảy ra khi thêm voucher cho khách hàng'
-            );
+            console.error('Lỗi khi thêm voucher:', error);
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi thêm voucher');
+            } else {
+                toast.error('Có lỗi xảy ra khi thêm voucher');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <>
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold">Thêm voucher cho khách hàng</h2>
-                        <button 
-                            onClick={onClose}
-                            className="text-gray-500 hover:text-gray-700"
-                        >
-                            ✕
-                        </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold">Thêm Voucher cho Khách Hàng</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h3 className="font-medium text-blue-800 mb-2">Chi tiết voucher</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                        <div>
+                            <span className="text-sm text-blue-600">Mã voucher:</span>
+                            <p className="font-medium">{voucher.code}</p>
+                        </div>
+                        <div>
+                            <span className="text-sm text-blue-600">Tên voucher:</span>
+                            <p className="font-medium">{voucher.name}</p>
+                        </div>
+                        <div>
+                            <span className="text-sm text-blue-600">Giá trị:</span>
+                            <p className="font-medium">
+                                {voucher.discountValue.toLocaleString('vi-VN')}{voucher.voucherType ? '%' : 'đ'}
+                            </p>
+                        </div>
                     </div>
-                    
-                    <div className="mb-4 p-3 bg-gray-50 rounded">
-                        <p><span className="font-medium">Mã voucher:</span> {voucher.code}</p>
-                        <p><span className="font-medium">Tên voucher:</span> {voucher.name}</p>
+                </div>
+
+                {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     </div>
-
-                    {loading ? (
-                        <div className="flex-1 flex items-center justify-center">
-                            <span className="text-gray-500">Đang tải danh sách khách hàng...</span>
+                ) : error ? (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
+                        {error}
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-lg border">
+                        <div className="p-4 border-b">
+                            <h3 className="font-medium">Danh sách khách hàng</h3>
                         </div>
-                    ) : error ? (
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center">
-                                <p className="text-red-500 mb-2">{error}</p>
-                                <button 
-                                    onClick={() => {
-                                        setError(null);
-                                        fetchAccounts();
-                                    }}
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    Thử lại
-                                </button>
-                            </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="w-16 px-4 py-3 text-left">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded"
+                                                checked={selectedAccounts.length === accounts.length}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedAccounts(accounts.map(acc => acc.id));
+                                                    } else {
+                                                        setSelectedAccounts([]);
+                                                    }
+                                                }}
+                                            />
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y">
+                                    {accounts.map((account) => (
+                                        <tr key={account.id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-3">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`customer-${account.id}`}
+                                                    checked={selectedAccounts.includes(account.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedAccounts([...selectedAccounts, account.id]);
+                                                        } else {
+                                                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                        }
+                                                    }}
+                                                    className="rounded"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-3">{account.fullName}</td>
+                                            <td className="px-4 py-3">{account.email}</td>
+                                            <td className="px-4 py-3">{account.phone || '-'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    ) : accounts.length === 0 ? (
-                        <div className="flex-1 flex flex-col items-center justify-center">
-                            <span className="text-gray-500 mb-2">Không có khách hàng nào</span>
-                            <button 
-                                onClick={onClose}
-                                className="text-blue-600 hover:underline"
-                            >
-                                Đóng
-                            </button>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="mb-4 p-3 bg-gray-50 rounded">
-                                <p><span className="font-medium">Mã voucher:</span> {voucher.code}</p>
-                                <p><span className="font-medium">Tên voucher:</span> {voucher.name}</p>
+                        {accounts.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                Không có khách hàng nào
                             </div>
+                        )}
+                    </div>
+                )}
 
-                            {accounts.length > 0 ? (
-                                <div className="flex-1 overflow-y-auto">
-                                    <table className="w-full">
-                                        <thead className="bg-gray-50 sticky top-0">
-                                            <tr>
-                                                <th className="p-3 text-left w-10">
-                                                    <input
-                                                        type="checkbox"
-                                                        onChange={(e) => {
-                                                            setSelectedAccounts(e.target.checked ? accounts.map(a => a.id) : []);
-                                                        }}
-                                                        checked={accounts.length > 0 && selectedAccounts.length === accounts.length}
-                                                    />
-                                                </th>
-                                                <th className="p-3 text-left">Mã KH</th>
-                                                <th className="p-3 text-left">Tên</th>
-                                                <th className="p-3 text-left">Email</th>
-                                                <th className="p-3 text-left">SĐT</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {accounts.map(account => (
-                                                <tr key={account.id} className="border-t">
-                                                    <td className="p-3">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedAccounts.includes(account.id)}
-                                                            onChange={() => {
-                                                                setSelectedAccounts(prev => {
-                                                                    if (prev.includes(account.id)) {
-                                                                        return prev.filter(id => id !== account.id);
-                                                                    }
-                                                                    return [...prev, account.id];
-                                                                });
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td className="p-3">{account.code}</td>
-                                                    <td className="p-3">{account.fullName}</td>
-                                                    <td className="p-3">{account.email}</td>
-                                                    <td className="p-3">{account.phone || 'N/A'}</td>
-                                                    <td className="p-3">
-                                                        {account.status === 'ACTIVE' ? (
-                                                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                                                                Hoạt động
-                                                            </span>
-                                                        ) : (
-                                                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full">
-                                                                Khóa
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <div className="flex-1 flex items-center justify-center">
-                                    <span className="text-gray-500">Không có khách hàng nào</span>
-                                </div>
-                            )}
-
-                            <div className="mt-4 flex justify-between items-center border-t pt-4">
-                                <span className="text-sm text-gray-600">
-                                    Đã chọn: {selectedAccounts.length} khách hàng
-                                </span>
-                                <div className="flex gap-2">
-                                    <button
-                                        className="px-4 py-2 border rounded hover:bg-gray-50"
-                                        onClick={onClose}
-                                        disabled={loading}
-                                    >
-                                        Hủy
-                                    </button>
-                                    <button
-                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-300"
-                                        onClick={handleAssign}
-                                        disabled={selectedAccounts.length === 0 || loading}
-                                    >
-                                        {loading ? 'Đang xử lý...' : 'Xác nhận'}
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
+                <div className="flex justify-end items-center space-x-3 mt-6 pt-4 border-t">
+                    <span className="text-sm text-gray-600">
+                        Đã chọn {selectedAccounts.length} khách hàng
+                    </span>
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                        disabled={loading}
+                    >
+                        Hủy
+                    </button>
+                    <button
+                        onClick={handleAssign}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+                        disabled={loading || selectedAccounts.length === 0}
+                    >
+                        {loading ? 'Đang xử lý...' : 'Thêm voucher'}
+                    </button>
                 </div>
             </div>
-            <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={true}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
-        </>
+        </div>
     );
 };
