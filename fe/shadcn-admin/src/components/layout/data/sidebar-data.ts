@@ -21,6 +21,7 @@ import {
   IconSubtask,
   IconDiscount,
   IconPointFilled,
+  IconUser,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -149,27 +150,27 @@ export const sidebarData: SidebarData = {
           ],
         },
         {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: IconSubtask,
+          title: 'Quản lý tài khoản',
+          icon: IconUser,
+          items: [
+            {
+              title: 'Khách hàng',
+              url: '/taikhoan/khachhang',
+            },
+            {
+              title: 'Nhân viên',
+              url: '/taikhoan/nhanvien',
+            },
+          ],
         },
 
-        {
-          title: 'Counter',
-          url: '/apps',
-          icon: IconShoppingCart,
-        },
         {
           title: 'Chats',
           url: '/chats',
           badge: '3',
           icon: IconMessages,
         },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: IconUsers,
-        },
+
         {
           title: 'Voucher',
           url: '/voucher',

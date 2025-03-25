@@ -27,5 +27,5 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
             "where a.id = (select b.idAccount.id from Bill b where b.id = :idBill)")
     Account getByAccount(@Param("idBill") Integer idBill);
 
-    Optional<Account> findAccountsByIdRole(Role idRole);
+    List<Account> findAccountsByIdRole(Role idRole);
 }
