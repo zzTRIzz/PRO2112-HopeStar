@@ -9,36 +9,36 @@ export default function SignUp() {
       <Card className='p-6'>
         <div className='mb-2 flex flex-col space-y-2 text-left'>
           <h1 className='text-lg font-semibold tracking-tight'>
-            Create an account
+            Tạo tài khoản
           </h1>
           <p className='text-sm text-muted-foreground'>
-            Enter your email and password to create an account. <br />
-            Already have an account?{' '}
+            Nhập email và mật khẩu của bạn để tạo tài khoản. <br />
+            Đã có tài khoản?{' '}
             <Link
               to='/sign-in'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Sign In
+              Đăng nhập
             </Link>
           </p>
         </div>
         <SignUpForm />
         <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
-          By creating an account, you agree to our{' '}
+          Bằng việc tạo tài khoản, bạn đồng ý với{' '}
           <a
             href='/terms'
             className='underline underline-offset-4 hover:text-primary'
           >
-            Terms of Service
+            Điều khoản dịch vụ
           </a>{' '}
-          and{' '}
+          và{' '}
           <a
             href='/privacy'
             className='underline underline-offset-4 hover:text-primary'
           >
-            Privacy Policy
+            Chính sách bảo mật
           </a>
-          .
+          của chúng tôi.
         </p>
       </Card>
     </AuthLayout>

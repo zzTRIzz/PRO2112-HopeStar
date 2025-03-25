@@ -3,6 +3,7 @@ package com.example.be.core.client.home.service.impl;
 
 import com.example.be.core.client.home.dto.response.ProductDetailViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponse;
+import com.example.be.core.client.home.dto.response.ProductViewResponseAll;
 import com.example.be.core.client.home.service.HomeService;
 import com.example.be.entity.Product;
 import com.example.be.entity.ProductDetail;
@@ -22,10 +23,13 @@ public class HomeServiceImpl implements HomeService {
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
     @Override
-    public List<ProductViewResponse> getProductView() {
+    public ProductViewResponseAll getProductView() {
 
         List<Product> products = productRepository.findTop10ByStatusOrderByCreatedAtDesc(StatusCommon.ACTIVE);
-        List<ProductViewResponse> productViewResponseList = new ArrayList<>();
+        List<Product> products2 = productRepository.findTop10SellingProducts(StatusCommon.ACTIVE);
+
+        List<ProductViewResponse> newestProducts = new ArrayList<>();
+        List<ProductViewResponse> bestSellingProducts = new ArrayList<>();
         for (Product product:products) {
             ProductViewResponse productViewResponse = new ProductViewResponse();
             productViewResponse.setIdProduct(product.getId());
@@ -69,10 +73,60 @@ public class HomeServiceImpl implements HomeService {
             }
 
 
-            productViewResponseList.add(productViewResponse);
+            newestProducts.add(productViewResponse);
         }
 
-        return productViewResponseList;
+
+        for (Product product:products2) {
+            ProductViewResponse productViewResponse = new ProductViewResponse();
+            productViewResponse.setIdProduct(product.getId());
+            productViewResponse.setName(product.getName());
+
+            List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
+
+            ProductDetail productDetail = new ProductDetail();
+            if (productDetailList.size() !=0){
+                productDetail = productDetailList.get(0);
+                productViewResponse.setIdProductDetail(productDetail.getId());
+                productViewResponse.setPrice(productDetail.getPrice());
+                productViewResponse.setPriceSeller(productDetail.getPriceSell());
+                productViewResponse.setImage(productDetail.getImageUrl());
+                // Lấy danh sách capacity duy nhất
+                List<Integer> uniqueRamCapacities = productDetailList.stream()
+                        .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
+                        .map(pd -> pd.getRam().getCapacity())      // Lấy capacity từ Ram
+                        .filter(Objects::nonNull)                  // Loại bỏ capacity null
+                        .distinct()                                // Chỉ giữ giá trị duy nhất
+                        .collect(Collectors.toList());
+
+                List<Integer> uniqueRomCapacities = productDetailList.stream()
+                        .filter(pd -> pd.getRom() != null)
+                        .map(pd -> pd.getRom().getCapacity())
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                List<String> uniqueColorHex = productDetailList.stream()
+                        .filter(pd -> pd.getColor() != null)
+                        .map(pd -> pd.getColor().getHex())
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+
+                productViewResponse.setRam(uniqueRamCapacities);
+                productViewResponse.setRom(uniqueRomCapacities);
+                productViewResponse.setHex(uniqueColorHex);
+            }
+
+
+            bestSellingProducts.add(productViewResponse);
+        }
+
+        ProductViewResponseAll productViewResponseAll = new ProductViewResponseAll();
+        productViewResponseAll.setNewestProducts(newestProducts);
+        productViewResponseAll.setBestSellingProducts(bestSellingProducts);
+        return productViewResponseAll;
     }
 
     @Override

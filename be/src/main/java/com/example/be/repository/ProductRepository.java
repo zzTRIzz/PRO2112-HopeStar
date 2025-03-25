@@ -39,4 +39,13 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
 
     List<Product> findTop10ByStatusOrderByCreatedAtDesc(StatusCommon status);
 
+    @Query("SELECT p FROM Product p " +
+            "JOIN p.productDetails pd " +
+            "JOIN BillDetail bd ON bd.idProductDetail = pd " +
+            "WHERE p.status = :status " +
+            "GROUP BY p " +
+            "ORDER BY SUM(bd.quantity) DESC " +
+            "LIMIT 10")
+    List<Product> findTop10SellingProducts(@Param("status") StatusCommon status);
+
   }
