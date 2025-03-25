@@ -177,7 +177,7 @@ export default function MyForm() {
           address: account.address,
           googleId: 'string',
           imageAvatar: account.imageAvatar,
-          idRole: 2,
+          idRole: 4,
           gender: genderValue, // Send as boolean instead of string
           birthDate: account.birthDate,
           status: newStatus ? 'ACTIVE' : 'IN_ACTIVE',
@@ -223,7 +223,7 @@ export default function MyForm() {
       const payload = {
         ...values,
         birthDate: formattedBirthDate.split('T')[0],
-        idRole: 2,
+        idRole: 4,
         gender: genderValue, // Send as boolean instead of string
         googleId: 'string',
         imageAvatar: 'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg'
