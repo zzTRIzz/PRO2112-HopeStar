@@ -203,7 +203,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
 // Thêm hóa đơn vào cơ sở dữ liệu
 export const thanhToan = async (bill: BillSchema) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/thanh_toan`, bill);
+        const response = await axios.put(`${API_BASE_URL}/thanh_toan`, bill);
         return response.data;
     } catch (error) {
         console.error('Error them hoa don data:', error);

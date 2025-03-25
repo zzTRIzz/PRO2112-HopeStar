@@ -1,5 +1,7 @@
 package com.example.be.repository;
 
+import com.example.be.core.admin.banhang.dto.SearchBill;
+import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.entity.Account;
 import com.example.be.entity.Bill;
 import com.example.be.entity.status.StatusBill;
@@ -33,7 +35,15 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
                                            @Param("status")StatusBill statusBill);
 
 
-
-
+    @Query("SELECT b FROM Bill b " +
+            "LEFT JOIN b.idAccount tk " +
+            "LEFT JOIN b.idNhanVien nv " +
+            "WHERE (:#{#searchRequest.key} IS NULL OR b.nameBill LIKE %:#{#searchRequest.key}% " +
+            "   OR tk.phone LIKE %:#{#searchRequest.key}% OR tk.fullName LIKE %:#{#searchRequest.key}%) " +
+            "AND (:#{#searchRequest.startDate} IS NULL OR b.paymentDate >= :#{#searchRequest.startDate}) " +
+            "AND (:#{#searchRequest.endDate} IS NULL OR b.paymentDate <= :#{#searchRequest.endDate}) " +
+            "AND (:#{#searchRequest.loaiHoaDon} IS NULL OR b.billType = :#{#searchRequest.loaiHoaDon}) " +
+            "AND (:#{#searchRequest.trangThai} IS NULL OR b.status = :#{#searchRequest.trangThai})" )
+            List<Bill> searchBills(@Param("searchRequest") SearchBillRequest searchRequest);
 
 }

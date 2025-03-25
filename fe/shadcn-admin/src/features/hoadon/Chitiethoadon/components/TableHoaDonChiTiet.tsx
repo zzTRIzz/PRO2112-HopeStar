@@ -12,9 +12,11 @@ import {
     DialogContent,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from '@/components/ui/input';
 import Paper from '@mui/material/Paper';
-import { DataTablePagination } from './PhanTrang/data-table-pagination';
+import { DataTablePagination } from '../../service/PhanTrang/data-table-pagination';
+import { BillSchema } from '@/features/banhang/service/BillSchema';
+import TrangThaiDonHang, { OrderStatus } from './TrangThaiDonHang';
+
 
 interface SearchBillDetail {
     id: number
@@ -39,6 +41,7 @@ interface imei {
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
+    searchBill: BillSchema | null;
     selectedImei: number[];
     isCapNhatImei: boolean; // Nhận từ file tổng
     setIsCapNhatImei: (open: boolean) => void;
@@ -46,7 +49,6 @@ interface TableHoaDonChiTietProps {
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
     deleteBillDetail: (id: number) => void;
-
 }
 
 const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
@@ -59,7 +61,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         handleUpdateProduct,
         handleCheckboxChange,
         updateHandleImeiSold,
-        deleteBillDetail
+        searchBill
     }) => {
         const CartEmpty = () => {
             return (
@@ -85,6 +87,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
         return (
             <>
+
+              
                 {product.length === 0 ? (
                     <CartEmpty />
                 ) : (
@@ -114,55 +118,54 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="center" style={{}}>
                                             <div className="right space-x-2">
-                                                <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
-                                                    <DialogTrigger asChild>
-                                                        <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50
-                                   text-blue-600 hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
-                                                            Cập nhật
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[500px]">
-                                                        <TableContainer>
-                                                            <Table>
-                                                                <TableHead>
-                                                                    <TableRow>
-                                                                        <TableCell></TableCell>
-                                                                        <TableCell>Stt</TableCell>
-                                                                        <TableCell>Imei code</TableCell>
-                                                                    </TableRow>
-                                                                </TableHead>
-                                                                <TableBody>
-                                                                    {listImei.map((im, index) => (
-                                                                        <TableRow key={im.id}>
-                                                                            <TableCell>
-                                                                                <div className="flex items-center space-x-2">
-                                                                                    <Checkbox
-                                                                                        checked={selectedImei.includes(im.id)}
-                                                                                        onCheckedChange={() => handleCheckboxChange(im.id)}
-                                                                                    />
-                                                                                </div>
-                                                                            </TableCell>
-                                                                            <TableCell>{index + 1}</TableCell>
-                                                                            <TableCell>{im.imeiCode}</TableCell>
-                                                                        </TableRow>
-                                                                    ))}
-                                                                </TableBody>
-                                                            </Table>
-                                                        </TableContainer>
-                                                        <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
-                                                            Chọn
-                                                        </Button>
-                                                    </DialogContent>
-                                                </Dialog>
 
-                                                <Button className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600" onClick={() => deleteBillDetail(pr.id)}>
-                                                    Xóa
-                                                </Button>
+                                                {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
+                                                    <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
+                                                        <DialogTrigger asChild>
+
+                                                            <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50
+                                   text-blue-600 hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
+                                                                Cập nhật
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent className="sm:max-w-[500px]">
+                                                            <TableContainer>
+                                                                <Table>
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell></TableCell>
+                                                                            <TableCell>Stt</TableCell>
+                                                                            <TableCell>Imei code</TableCell>
+                                                                        </TableRow>
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        {listImei.map((im, index) => (
+                                                                            <TableRow key={im.id}>
+                                                                                <TableCell>
+                                                                                    <div className="flex items-center space-x-2">
+                                                                                        <Checkbox
+                                                                                            checked={selectedImei.includes(im.id)}
+                                                                                            onCheckedChange={() => handleCheckboxChange(im.id)}
+                                                                                        />
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell>{index + 1}</TableCell>
+                                                                                <TableCell>{im.imeiCode}</TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </TableContainer>
+                                                            <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
+                                                                Chọn
+                                                            </Button>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
-
                             </TableBody>
                         </Table>
                     </TableContainer>

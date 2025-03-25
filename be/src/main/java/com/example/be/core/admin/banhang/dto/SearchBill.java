@@ -4,7 +4,7 @@ import com.example.be.entity.status.StatusBill;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,15 +43,15 @@ public class SearchBill {
 
     private BigDecimal discountedTotal;
 
-    private Instant deliveryDate;
+    private LocalDateTime deliveryDate;
 
-    private Instant customerPreferredDate;
+    private LocalDateTime customerPreferredDate;
 
-    private Instant customerAppointmentDate;
+    private LocalDateTime customerAppointmentDate;
 
-    private Instant receiptDate;
+    private LocalDateTime receiptDate;
 
-    private Instant paymentDate;
+    private LocalDateTime paymentDate;
 
     private Byte billType;
 

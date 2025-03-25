@@ -6,47 +6,15 @@ import { ThemeSwitch } from '@/components/theme-switch';
 import { Main } from '@/components/layout/main';
 import { Button } from '@/components/ui/button';
 import {
-    getData, findImeiByIdProductDaBan, findBill,
-    findKhachHang, addKhachHang, addHoaDon, findImeiById,
-    createImeiSold, deleteProduct, getImei, getAccountKhachHang,
+    findImeiByIdProductDaBan, findBill,
+    findKhachHang, findImeiById,
+    createImeiSold, deleteProduct, getImei,
     getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
-    findVoucherByAccount, huyHoaDon, getDataChoThanhToan, updateImeiSold,
-    updateVoucher
-} from '@/features/banhang/service/BanHangTaiQuayService';
-import * as z from "zod"
+    updateImeiSold,
+
+} from '@/features/hoadon/service/HoaDonService';
 import { toast } from 'react-toastify';
-interface Bill {
-    id: number;
-    nameBill: string;
-    idAccount?: number | null;
-    tenKhachHang?: string | null;
-    soDienThoai?: string | null;
-    idNhanVien?: number | null;
-    idVoucher?: number | null;
-    totalPrice: number | null;
-    customerPayment: number | null;
-    amountChange: number | null;
-    deliveryFee: number | null;
-    totalDue: number;
-    customerRefund: number | null;
-    discountedTotal: number | null;
-    deliveryDate?: string | null;
-    customerPreferred_date?: string | null;
-    customerAppointment_date?: string | null;
-    receiptDate?: string | null;
-    paymentDate?: string | null;
-    address?: string | null;
-    email?: string | null;
-    note?: string | null;
-    phone?: string | null;
-    name: string;
-    paymentId?: number | null;
-    namePayment?: number | null;
-    deliveryId?: number | null;
-    itemCount: number;
-    billType: number | null;
-    status: string;
-}
+
 
 interface SearchBillDetail {
     id: number
@@ -104,34 +72,21 @@ interface Voucher {
     status: string;
 }
 
-const formSchema = z.object({
-    fullName: z.string().min(1),
-    phone: z.string().min(1),
-    province: z.string().min(1),
-    district: z.string().min(1),
-    ward: z.string().min(1),
-    address: z.string().min(1),
-    note: z.string().optional()
-});
 
-import TrangThaiDonHang from './TrangThaiDonHang';
+import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHang';
 import TasksProvider from '@/features/tasks/context/tasks-context';
 import ThemSanPham from '@/features/banhang/components/ThemSanPham';
-import TableHoaDonChiTiet from '@/features/banhang/components/TableHoaDonChiTiet';
-export type OrderStatus =
-    | "pending_payment"
-    | "processing"
-    | "shipping"
-    | "delivered"
-    | "completed";
+import { BillSchema } from '@/features/banhang/service/BillSchema';
+
+import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
+import ThongTinDonHang from './components/ThongTinDonHang';
 
 
 const ChiTietHoaDon: React.FC = () => {
 
 
-    const [searchBill, setSearchBill] = useState<Bill>();
+    const [searchBill, setSearchBill] = useState<BillSchema | null>(null);
     const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
-    const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
     const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
     const [listImei, setListImei] = useState<imei[]>([]);
     const [idBill, setIdBill] = useState<number>(0);
@@ -141,12 +96,8 @@ const ChiTietHoaDon: React.FC = () => {
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-    // const [hoveredBillId, setHoveredBillId] = useState<number | null>(null);
-    const [isKhachHang, setIsKhachHang] = useState(false);
-    const [isVoucher, setIsVoucher] = useState(false);
     const [isCapNhatImei, setIsCapNhatImei] = useState(false);
     const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
-    const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
     const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
     const handleBanGiaoHangChange = () => {
         setIsBanGiaoHang((prev) => !prev);
@@ -160,7 +111,7 @@ const ChiTietHoaDon: React.FC = () => {
     }, []);
 
 
-    const loadTongBill = async() => {
+    const loadTongBill = async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = Number(urlParams.get("id")); // Chuyển thành số
 
@@ -173,7 +124,7 @@ const ChiTietHoaDon: React.FC = () => {
         hienThiKhachHang(khachHang);
     }
 
-    
+
     // Tìm kiêm bill theo id
     const findBillById = async (id: number) => {
         try {
@@ -184,19 +135,19 @@ const ChiTietHoaDon: React.FC = () => {
         }
     }
 
- // Lấy hóa đơn chi tiet theo ID bill 
- const getById = async (id: number) => {
-    try {
-        const data = await getByIdBillDetail(id);
-        setProduct(data);
-        const voucher = await getVoucherDangSuDung(id);
-        setDuLieuVoucherDangDung(voucher);
-    } catch (error) {
-        setProduct([]); // Xóa danh sách cũ
-        setIdBill(0);
-        console.error("Error fetching data:", error);
-    }
-};
+    // Lấy hóa đơn chi tiet theo ID bill 
+    const getById = async (id: number) => {
+        try {
+            const data = await getByIdBillDetail(id);
+            setProduct(data);
+            const voucher = await getVoucherDangSuDung(id);
+            setDuLieuVoucherDangDung(voucher);
+        } catch (error) {
+            setProduct([]); // Xóa danh sách cũ
+            setIdBill(0);
+            console.error("Error fetching data:", error);
+        }
+    };
 
 
     // Lấy danh sách sản phẩm chi tiết
@@ -383,81 +334,48 @@ const ChiTietHoaDon: React.FC = () => {
                 </TasksProvider>
             </div>
             <Main>
+
                 <div >
-                    <TrangThaiDonHang />
+                    {searchBill!=null && (
+                    <TrangThaiDonHang
+                        trangThai={searchBill.status as OrderStatus}
+                        searchBill={searchBill}
+                    />
+                )}
                 </div> <br />
-                <div className='bg-white rounded-xl shadow-xl p-4'>
-                    <h1 className='font-bold text-lg text-gray-600 ml-[15px]'>Thông tin đơn hàng</h1>
-                    <hr className=" border-gray-600 mt-[6px]" /><br />
 
-                    <div className="grid grid-cols-2 gap-x-10 ml-[8px]">
-                        {/* Cột bên trái */}
-                        <div className="space-y-2">
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
-                                <p className="ml-[14px]">{searchBill?.nameBill}</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[23px]">
-                                <span className="text-base text-gray-700 font-bold">Khách hàng:</span>
-                                <p className="ml-[14px]">{listKhachHang?.fullName}</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Số điện thoại:</span>
-                                <p className="ml-[14px]">{listKhachHang?.phone}</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Địa chỉ:</span>
-                                <p className="ml-[14px]">{listKhachHang?.address}</p>
-                            </div>
-                        </div>
-
-                        {/* Cột bên phải */}
-                        <div className="space-y-2">
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Ngày đặt hàng:</span>
-                                <p className="ml-[14px]">{searchBill?.paymentDate}</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>
-                                <p className="ml-[14px]">{searchBill?.totalDue.toLocaleString('vi-VN')} VND</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Phương thức thanh toán:</span>
-                                <p className="ml-[14px]">{searchBill?.paymentId}</p>
-                            </div>
-                            <div className="flex  pb-2 mt-[13px]">
-                                <span className="text-base text-gray-700 font-bold">Trạng thái:</span>
-                                <p className="ml-[14px] text-green-600 font-semibold">{searchBill?.status}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ThongTinDonHang
+                    searchBill={searchBill}
+                    listKhachHang={listKhachHang}
+                />
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">
                     <div className="mb-2 flex items-center justify-between">
                         <h1 className="font-bold tracking-tight">Giỏ hàng</h1>
                         <div className="flex space-x-2">
                             {/* Quét Barcode để check sản phẩm */}
-                            <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300">
-                                Quét Barcode
-                            </Button>
-
+                            {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
+                                <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300">
+                                    Quét Barcode
+                                </Button>
+                            )}
 
                             {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
-                            <ThemSanPham
-                                listProduct={listProduct}
-                                listImei={listImei}
-                                idBillDetail={idBillDetail}
-                                selectedImei={selectedImei}
-                                handleAddImei={handleAddImei}
-                                handleAddProduct={handleAddProduct}
-                                handleCheckboxChange={handleCheckboxChange}
-                                dialogContent={dialogContent}
-                                setDialogContent={setDialogContent}
-                                isDialogOpen={isDialogOpen}
-                                setIsDialogOpen={setIsDialogOpen}
-                            />
-
+                            {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
+                                <ThemSanPham
+                                    listProduct={listProduct}
+                                    listImei={listImei}
+                                    idBillDetail={idBillDetail}
+                                    selectedImei={selectedImei}
+                                    handleAddImei={handleAddImei}
+                                    handleAddProduct={handleAddProduct}
+                                    handleCheckboxChange={handleCheckboxChange}
+                                    dialogContent={dialogContent}
+                                    setDialogContent={setDialogContent}
+                                    isDialogOpen={isDialogOpen}
+                                    setIsDialogOpen={setIsDialogOpen}
+                                />
+                            )}
                         </div>
                     </div>
                     <hr className="border-t-1.5 border-gray-600" />
@@ -472,11 +390,37 @@ const ChiTietHoaDon: React.FC = () => {
                         handleUpdateProduct={handleUpdateProduct}
                         handleCheckboxChange={handleCheckboxChange}
                         updateHandleImeiSold={updateHandleImeiSold}
-                        deleteBillDetail={deleteBillDetail} />
+                        deleteBillDetail={deleteBillDetail}
+                        searchBill={searchBill} />
                     <br />
+                    <div className="bg-white p-4 ml-auto mr-5 w-fit text-lg mb-2">
+                        <div className="w-[380px] min-w-[380px] ">
+                            <div className="space-y-4">
+                                {[
+                                    { label: "Tổng tiền hàng:", value: searchBill?.totalPrice },
+                                    { label: "Giảm giá:", value: searchBill?.discountedTotal },
+                                    { label: "Khách cần trả:", value: searchBill?.totalDue },
+                                    { label: "Khách đã trả:", value: searchBill?.customerPayment },
+                                    { label: "Đã trả khách:", value: searchBill?.amountChange, highlight: true },
+                                ].map((item, index) => (
+                                    <div key={index} className="flex justify-between border-b pb-2">
+                                        <span className={`text-gray-700 text-base ${item.highlight ? "text-red-500 font-semibold" : ""}`}>
+                                            {item.label}
+                                        </span>
+                                        <p className={`font-semibold ${item.highlight ? "text-red-500" : ""}`}>
+                                            {item.value == null ? "0 đ" : item.value.toLocaleString('vi-VN') + " đ"}
+                                        </p>
+                                    </div>
+                                ))}
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+
             </Main >
+
         </>
     );
 };

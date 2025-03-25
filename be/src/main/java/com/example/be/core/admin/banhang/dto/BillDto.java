@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -38,15 +38,15 @@ public class BillDto {
 
     private BigDecimal discountedTotal;
 
-    private Instant deliveryDate;
+    private LocalDateTime deliveryDate;
 
-    private Instant customerPreferredDate;
+    private LocalDateTime customerPreferredDate;
 
-    private Instant customerAppointmentDate;
+    private LocalDateTime customerAppointmentDate;
 
-    private Instant receiptDate;
+    private LocalDateTime receiptDate;
 
-    private Instant paymentDate;
+    private LocalDateTime paymentDate;
 
     private Byte billType;
 

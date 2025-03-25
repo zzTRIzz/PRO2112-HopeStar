@@ -18,40 +18,45 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CgAdd } from "react-icons/cg";
+import { BillSchema } from "../service/BillSchema";
 // Định nghĩa kiểu dữ liệu cho sản phẩm trong giỏ hàng
 
 interface Bill {
     id: number;
     nameBill: string;
-    idAccount?: number | null;
-    idNhanVien?: number | null;
-    idVoucher?: number | null;
-    totalPrice: number | null;
-    customerPayment: number | null;
-    amountChange: number | null;
-    deliveryFee: number | null;
-    totalDue: number | null;
-    customerRefund: number | null;
-    discountedTotal: number | null;
-    deliveryDate?: string | null;
-    customerPreferred_date?: string | null;
-    customerAppointment_date?: string | null;
-    receiptDate?: string | null;
-    paymentDate?: string | null;
-    address?: string | null;
-    email?: string | null;
-    note?: string | null;
-    phone?: string | null;
+    idAccount: number | null;
+    idNhanVien: number | null;
+    idVoucher: number | null;
+    totalPrice: number;
+    customerPayment: number;
+    amountChange: number;
+    deliveryFee: number;
+    totalDue: number;
+    customerRefund: number;
+    discountedTotal: number;
+    deliveryDate: string | null;
+    customerPreferred_date: string | null;
+    customerAppointment_date: string | null;
+    receiptDate: string | null;
+    paymentDate: string | null;
+    billType: number;
+    status: number;
+    address: string | null;
+    email: string | null;
+    note: string | null;
+    phone: string | null;
     name: string;
-    paymentId?: number | null;
-    deliveryId?: number | null;
+    paymentId: number | null;
+    deliveryId: number | null;
     itemCount: number;
-}
+
+  }
+  
 
 // Định nghĩa kiểu dữ liệu cho props của Cart
 interface pendingInvoiceList {
-    listBill: Bill[]; // Danh sách hóa đơn
-    billChoThanhToan: Bill[]; // Danh sách hóa đơn
+    listBill: BillSchema[]; // Danh sách hóa đơn
+    billChoThanhToan: BillSchema[]; // Danh sách hóa đơn
     // onSelectBill: (id: number) => void; // Hàm chọn hóa đơn
     huyHoaDonTheoId: (id: number) => void; // Hàm hủy hóa đơn
     getById: (id: number) => void; // 

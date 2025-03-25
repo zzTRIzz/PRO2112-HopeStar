@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.service.impl;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
@@ -21,8 +22,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,8 +75,21 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<SearchBill> getAllBill() {
         List<Bill> bills = billRepository.findAll();
-        return bills.stream().map(billMapper::getAllBillMapperDto).
-                collect(Collectors.toList());
+        return bills.stream().map(billMapper::getAllBillMapperDto)
+                .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SearchBill> searchBillList(SearchBillRequest searchBillRequest) {
+        List<Bill> bills = billRepository.searchBills(searchBillRequest);
+        if (bills.isEmpty()){
+            return new ArrayList<>();
+        }else {
+            return bills.stream().map(billMapper::getAllBillMapperDto)
+                    .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -106,7 +123,8 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto createHoaDonTaiQuay(BillDto billDto) {
         try {
-            // Cài đặt thông tin hóa đơn
+            LocalDateTime now = LocalDateTime.now();
+            billDto.setPaymentDate(now);
             billDto.setBillType((byte) 0);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
@@ -115,6 +133,7 @@ public class BillServiceImpl implements BillService {
             Bill bill = billMapper.entityBillMapper(billDto);
             // Lưu vào database
             Bill savedBill = billRepository.save(bill);
+
 
             // Trả về DTO
             return billMapper.dtoBillMapper(savedBill);
@@ -193,7 +212,6 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher) {
         try {
-            LocalDateTime now = LocalDateTime.now();
             // Kiểm tra hóa đơn có tồn tại không
             Bill bill = billRepository.findById(idBill)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
@@ -204,7 +222,7 @@ public class BillServiceImpl implements BillService {
                 bill.setIdVoucher(null); // Không áp dụng voucher
                 billRepository.save(bill);
                 return billMapper.dtoBillMapper(bill);
-            }else {
+            } else {
                 Voucher voucher = voucherRepository.findById(idVoucher).
                         orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
                 // Nếu idVoucher == null không áp dụng voucher
@@ -236,9 +254,6 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto saveBillDto(BillDto billDto) {
         try {
-            Instant now = Instant.now();
-            billDto.setPaymentDate(now);
-            billDto.setStatus(StatusBill.DA_THANH_TOAN);
             Bill bill = billMapper.entityBillMapper(billDto);
             Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
@@ -282,14 +297,10 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto createHoaDonTaiWeb(BillDto billDto) {
         try {
-            Account account = accountRepository.findById(billDto.getIdNhanVien())
-                    .orElseThrow(() -> new RuntimeException("Khong tim thay nhan vien " + billDto.getIdNhanVien()));
-
-//            BillDto newBill = new BillDto();
-            Instant now = Instant.now();
+            LocalDateTime now = LocalDateTime.now();
+            billDto.setPaymentDate(now);
             billDto.setBillType((byte) 1);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
-            billDto.setPaymentDate(now);
             Bill bill = billMapper.entityBillMapper(billDto);
             Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);

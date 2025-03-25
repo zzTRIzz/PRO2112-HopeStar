@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -123,9 +125,8 @@ public class CartDetailServiceImpl implements CartDetailService {
         Account account = accountRepository.findById(shoppingCart.getIdAccount().getId())
                 .orElseThrow(()->new RuntimeException("Không tìm thấy Account"));
 
-        Instant now = Instant.now();
         Bill bill = new Bill();
-//        bill.setIdAccount(account);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         bill.setPaymentDate(now);
         bill.setBillType((byte) 1);
         bill.setStatus(StatusBill.CHO_XAC_NHAN);
@@ -160,9 +161,8 @@ public class CartDetailServiceImpl implements CartDetailService {
         if (cartDetails.isEmpty()){
             throw new RuntimeException("Không tìm thấy giỏ hàng chi tiết ");
         }
-        Instant now = Instant.now();
         Bill bill = new Bill();
-//        bill.setIdAccount(account);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         bill.setPaymentDate(now);
         bill.setBillType((byte) 2);
         bill.setStatus(StatusBill.CHO_THANH_TOAN);

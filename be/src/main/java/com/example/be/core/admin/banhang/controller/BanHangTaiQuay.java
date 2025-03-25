@@ -7,6 +7,7 @@ import com.example.be.core.admin.account.service.impl.AccountService;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.core.admin.banhang.dto.*;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -77,11 +79,22 @@ public class BanHangTaiQuay {
         List<BillDto> billDtos = billService.listBillTop6();
         return ResponseEntity.ok(billDtos);
     }
+
     @GetMapping("/getAllBill")
     public ResponseEntity<List<?>> getALlBill() {
         List<SearchBill> billDtos = billService.getAllBill();
         return ResponseEntity.ok(billDtos);
     }
+
+    @GetMapping("/searchBillList")
+    public ResponseEntity<List<?>> searchBillList(@ModelAttribute SearchBillRequest searchBillRequest) {
+        List<SearchBill> billDtos = billService.searchBillList(searchBillRequest);
+//        if (billDtos.isEmpty()){
+//            new
+//        }
+        return ResponseEntity.ok(billDtos);
+    }
+
     @GetMapping("/listBill")
     public ResponseEntity<List<?>> getListHoaDonAll() {
         List<BillDto> billDtos = billService.listTaiQuay();
@@ -143,9 +156,13 @@ public class BanHangTaiQuay {
 
     @PutMapping("/thanh_toan")
     public ResponseEntity<?> thanhToan(@RequestBody BillDto billDto) {
+        LocalDateTime now = LocalDateTime.now();
+        billDto.setPaymentDate(now);
         BillDto saveBillDto = billService.saveBillDto(billDto);
         return ResponseEntity.ok(saveBillDto);
     }
+
+
 
     @PostMapping("/addHDCT")
     public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
+import { BillSchema } from "@/features/banhang/service/BillSchema";
 
 interface StepProps {
     status: OrderStatus;
@@ -12,11 +13,12 @@ interface StepProps {
 }
 
 export type OrderStatus =
-    | "pending_payment"
-    | "processing"
-    | "shipping"
-    | "delivered"
-    | "completed";
+    | "CHO_XAC_NHAN"
+    | "DANG_CHUAN_BI_HANG"
+    | "DANG_GIAO_HANG"
+    | "DA_GIAO_HANG"
+    | "HOAN_THANH"
+    ;
 
 interface OrderStepperProps {
     currentStatus: OrderStatus;
@@ -87,11 +89,11 @@ const Step: React.FC<StepProps> = ({
 
 function getStepValue(status: OrderStatus): number {
     const statusMap: Record<OrderStatus, number> = {
-        pending_payment: 1,
-        processing: 2,
-        shipping: 3,
-        delivered: 4,
-        completed: 5
+        CHO_XAC_NHAN: 1,
+        DANG_CHUAN_BI_HANG: 2,
+        DANG_GIAO_HANG: 3,
+        DA_GIAO_HANG: 4,
+        HOAN_THANH: 5
     };
 
     return statusMap[status];
@@ -108,7 +110,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
         )}>
             <Step
                 status={currentStatus}
-                step="pending_payment"
+                step="CHO_XAC_NHAN"
                 title="Đặt hàng thành công"
                 description="Đang chờ xác nhận"
                 icon={<CreditCard className="w-4 h-4" />}
@@ -116,15 +118,15 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
             <Step
                 status={currentStatus}
-                step="processing"
-                title="Đang xử lý"
-                description="Đơn hàng đã xác nhận"
+                step="DANG_CHUAN_BI_HANG"
+                title="Đang chuẩn bị hàng"
+                description="Đơn hàng đang xử lý"
                 icon={<Clock className="w-4 h-4" />}
             />
 
             <Step
                 status={currentStatus}
-                step="shipping"
+                step="DANG_GIAO_HANG"
                 title="Đang vận chuyển"
                 description="Đơn hàng đang giao"
                 icon={<Truck className="w-4 h-4" />}
@@ -132,7 +134,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
             <Step
                 status={currentStatus}
-                step="delivered"
+                step="DA_GIAO_HANG"
                 title="Đã giao hàng"
                 description="Đơn hàng đã giao"
                 icon={<Package className="w-4 h-4" />}
@@ -140,7 +142,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
             <Step
                 status={currentStatus}
-                step="completed"
+                step="HOAN_THANH"
                 title="Hoàn thành"
                 description="Đơn hàng hoàn tất"
                 icon={<CheckCircle className="w-4 h-4" />}
@@ -150,91 +152,90 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
     );
 };
 
-const TrangThaiDonHang: React.FC = () => {
-    const [currentStatus, setCurrentStatus] = useState<OrderStatus>("pending_payment");
+interface TrangThaiDonHangProps {
+    trangThai: OrderStatus;
+    searchBill: BillSchema|null;
+}
+const TrangThaiDonHang: React.FC<TrangThaiDonHangProps> =
+    ({
+        trangThai,
+        searchBill
+    }) => {
 
-    // Mảng các trạng thái theo thứ tự
-    const statusOrder: OrderStatus[] = [
-        "pending_payment",
-        "processing",
-        "shipping",
-        "delivered",
-        "completed"
-    ];
+        const [currentStatus, setCurrentStatus] = useState<OrderStatus>(trangThai);
 
-    const handleNextStatus = () => {
-        const currentIndex = statusOrder.indexOf(currentStatus);
-        if (currentIndex < statusOrder.length - 1) {
-            setCurrentStatus(statusOrder[currentIndex + 1]);
-        }
-    };
+        // Mảng các trạng thái theo thứ tự
+        const statusOrder: OrderStatus[] = [
+            "CHO_XAC_NHAN",
+            "DANG_CHUAN_BI_HANG",
+            "DANG_GIAO_HANG",
+            "DA_GIAO_HANG",
+            "HOAN_THANH"
+        ];
 
-    const handlePrevStatus = () => {
-        const currentIndex = statusOrder.indexOf(currentStatus);
-        if (currentIndex > 0) {
-            setCurrentStatus(statusOrder[currentIndex - 1]);
-        }
-    };
-
-    const getStatusText = (status: OrderStatus): string => {
-        const statusTextMap: Record<OrderStatus, string> = {
-            pending_payment: "Chờ thanh toán",
-            processing: "Đang xử lý",
-            shipping: "Đang vận chuyển",
-            delivered: "Đã giao hàng",
-            completed: "Hoàn thành"
+        const handleNextStatus = () => {
+            const currentIndex = statusOrder.indexOf(currentStatus);
+            if (currentIndex < statusOrder.length - 1) {
+                setCurrentStatus(statusOrder[currentIndex + 1]);
+            }
+            console.log(currentStatus);
         };
-        return statusTextMap[status];
-5};
-    return (
-        <div className="w-[985px]">
-            {/* <div className="bg-white rounded-lg shadow-lg "> */}
-            <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">
-                {/* Header */}
-                <div className="p-2 border-b border-gray-100 ml-[10px]">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
-                        <span className="text-sm text-black font-medium">Mã đơn hàng: </span>
-                    </div>
-                </div>
 
-                {/* Stepper */}
-                <div className="p-6">
-                    <OrderStepper currentStatus={currentStatus} />
-
-                    {/* Buttons */}
-                    <div className="flex justify-center gap-4 mt-8">
-                        <button
-                            onClick={handlePrevStatus}
-                            disabled={currentStatus === "pending_payment"}
-                            className={cn(
-                                "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                "flex items-center gap-2",
-                                currentStatus === "pending_payment"
-                                    ? "bg-gray-300 cursor-not-allowed"
-                                    : "bg-orange-500 hover:bg-orange-600"
-                            )}
-                        >
-                            Hủy
-                        </button>
-                        <button
-                            onClick={handleNextStatus}
-                            disabled={currentStatus === "completed"}
-                            className={cn(
-                                "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                "flex items-center gap-2",
-                                currentStatus === "completed"
-                                    ? "bg-gray-300 cursor-not-allowed"
-                                    : "bg-orange-500 hover:bg-orange-600"
-                            )}
-                        >
-                            Xác nhận
-                        </button>
+        const handlePrevStatus = () => {
+            const currentIndex = statusOrder.indexOf(currentStatus);
+            if (currentIndex > 0) {
+                setCurrentStatus(statusOrder[currentIndex - 1]);
+            }
+        };
+        return (
+            <div className="w-[985px]">
+                {/* <div className="bg-white rounded-lg shadow-lg "> */}
+                <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">
+                    {/* Header */}
+                    <div className="p-2 border-b border-gray-100 ml-[10px]">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
+                            <span className="text-sm text-black font-medium">Mã đơn hàng:{searchBill!=null?searchBill.nameBill:""}</span>
+                        </div>
                     </div>
+
+                    {/* Stepper */}
+                    <div className="p-6">
+                        <OrderStepper currentStatus={currentStatus} />
+
+                        {/* Buttons */}
+                        {currentStatus != "HOAN_THANH" && (
+                            <div className="flex justify-center gap-4 mt-8">
+                                <button
+                                    onClick={handlePrevStatus}
+                                    disabled={currentStatus === "CHO_XAC_NHAN"}
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2",
+                                        currentStatus === "CHO_XAC_NHAN"
+                                            ? "bg-gray-300 cursor-not-allowed"
+                                            : "bg-orange-500 hover:bg-orange-600"
+                                    )}
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={handleNextStatus}
+                                    // disabled={currentStatus === "HOAN_THANH"}
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                                    )}
+                                >
+                                    Xác nhận
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    }
 
 export default TrangThaiDonHang;

@@ -97,7 +97,6 @@ public class GioHang {
 
     @PostMapping("/muaHangOnline")
     public ResponseEntity<?> muaHangOnline(@RequestParam Integer idCart){
-//        System.out.println("idAcounnt là gì " + idAccount);
         if (idCart == null){
             throw new RuntimeException("Vui long dien idAccount");
         }

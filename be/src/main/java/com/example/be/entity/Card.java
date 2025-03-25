@@ -27,9 +27,6 @@ public class Card extends AuditEntity {
     @Column(name = "type")
     private String type;
 
-//    @Column(name = "capacity")
-//    private Integer capacity;
-
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private StatusCommon status;
