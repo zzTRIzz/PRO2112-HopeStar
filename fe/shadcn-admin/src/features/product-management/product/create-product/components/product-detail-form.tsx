@@ -988,7 +988,7 @@ export function ProductDetailForm({
       </div>
       <div className='mx-auto rounded border px-4 py-4 shadow'>
         <h1 className='mb-4 text-center text-2xl font-semibold'>
-          Upload hình ảnh
+          Tải hình ảnh
         </h1>
         <div className='grid grid-cols-1 gap-4 py-4 md:grid-cols-3'>
           {uniqueColors.map((idColor) => {

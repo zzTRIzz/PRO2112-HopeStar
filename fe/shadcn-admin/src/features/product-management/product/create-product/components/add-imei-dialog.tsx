@@ -162,7 +162,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Upload IMEI File</DialogTitle>
+          <DialogTitle>Tải tệp IMEI</DialogTitle>
           <DialogDescription>
             Vui lòng chọn một tệp chứa số IMEI. Mỗi IMEI phải có 15 chữ số.
           </DialogDescription>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { IconLoader2 } from '@tabler/icons-react'
+import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -49,7 +50,7 @@ const columns: ColumnDef<ProductResponse>[] = [
           await productDetailById(product.id)
           navigate({
             to: '/product/$id/product-detail',
-            params: { id: product.id.toString() },
+            params: { id: product.id },
           })
         } catch (error) {
           toast({

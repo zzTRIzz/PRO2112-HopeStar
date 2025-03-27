@@ -295,10 +295,10 @@ export default function CreateProduct() {
                 onClick={() => navigate({ to: '/product' })}
                 disabled={isLoading} // Vô hiệu hóa nút Cancel khi đang loading
               >
-                Cancel
+                Hủy
               </Button>
               <Button type='submit' disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Product'}
+                {isLoading ? 'Tạo...' : 'Hoàn tất'}
               </Button>
             </div>
           </form>

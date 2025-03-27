@@ -15,8 +15,11 @@ import { getBrand } from '../../attribute/brand/data/api-service'
 import { getCard } from '../../attribute/card/data/api-service'
 import { getCategory } from '../../attribute/category/data/api-service'
 import { getChip } from '../../attribute/chip/data/api-service'
+import { getFrontCamera } from '../../attribute/front-camera/data/api-service'
 import { getOs } from '../../attribute/os/data/api-service'
+import { getRearCamera } from '../../attribute/rear-camera/data/api-service'
 import { getScreen } from '../../attribute/screen/data/api-service'
+import { getSim } from '../../attribute/sim/data/api-service'
 import { getWifi } from '../../attribute/wifi/data/api-service'
 import { STATUS } from '../../product/data/schema'
 
@@ -39,6 +42,9 @@ interface AttributeData {
   os: AttributeItem[]
   screens: AttributeItem[]
   wifis: AttributeItem[]
+  frontCameras: AttributeItem[]
+  rearCameras: AttributeItem[]
+  sims: AttributeItem[]
 }
 
 export const useFetchData = () => {
@@ -55,6 +61,9 @@ export const useFetchData = () => {
         os,
         screens,
         wifis,
+        frontCameras,
+        rearCameras,
+        sims,
       ] = await Promise.all([
         getBattery(),
         getBluetooth(),
@@ -65,6 +74,9 @@ export const useFetchData = () => {
         getOs(),
         getScreen(),
         getWifi(),
+        getFrontCamera(),
+        getRearCamera(),
+        getSim(),
       ])
 
       return {
@@ -77,6 +89,9 @@ export const useFetchData = () => {
         os: os || [],
         screens: screens || [],
         wifis: wifis || [],
+        frontCameras: frontCameras || [],
+        rearCameras: rearCameras || [],
+        sims: sims || [],
       }
     },
   })
@@ -92,6 +107,9 @@ export const useFetchData = () => {
       os: [],
       screens: [],
       wifis: [],
+      frontCameras: [],
+      rearCameras: [],
+      sims: [],
     }
   )
 }
