@@ -17,6 +17,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as authDatHangIndexImport } from './routes/(auth)/dat-hang/index'
 import { Route as AuthenticatedVoucherCreateImport } from './routes/_authenticated/voucher/create'
 import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated/product/wifi'
 import { Route as AuthenticatedProductSimImport } from './routes/_authenticated/product/sim'
@@ -77,6 +78,7 @@ const AuthenticatedChatsIndexLazyImport = createFileRoute(
 const AuthenticatedBanhangIndexLazyImport = createFileRoute(
   '/_authenticated/banhang/',
 )()
+const authGioHangIndexLazyImport = createFileRoute('/(auth)/gio-hang/')()
 const authDienthoaiIndexLazyImport = createFileRoute('/(auth)/dienthoai/')()
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
   '/_authenticated/settings/notifications',
@@ -256,6 +258,16 @@ const AuthenticatedBanhangIndexLazyRoute =
     import('./routes/_authenticated/banhang/index.lazy').then((d) => d.Route),
   )
 
+const authGioHangIndexLazyRoute = authGioHangIndexLazyImport
+  .update({
+    id: '/(auth)/gio-hang/',
+    path: '/gio-hang/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/gio-hang/index.lazy').then((d) => d.Route),
+  )
+
 const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
   .update({
     id: '/(auth)/dienthoai/',
@@ -265,6 +277,12 @@ const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
   .lazy(() =>
     import('./routes/(auth)/dienthoai/index.lazy').then((d) => d.Route),
   )
+
+const authDatHangIndexRoute = authDatHangIndexImport.update({
+  id: '/(auth)/dat-hang/',
+  path: '/dat-hang/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthenticatedSettingsNotificationsLazyRoute =
   AuthenticatedSettingsNotificationsLazyImport.update({
@@ -725,11 +743,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsNotificationsLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
+    '/(auth)/dat-hang/': {
+      id: '/(auth)/dat-hang/'
+      path: '/dat-hang'
+      fullPath: '/dat-hang'
+      preLoaderRoute: typeof authDatHangIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/(auth)/dienthoai/': {
       id: '/(auth)/dienthoai/'
       path: '/dienthoai'
       fullPath: '/dienthoai'
       preLoaderRoute: typeof authDienthoaiIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/gio-hang/': {
+      id: '/(auth)/gio-hang/'
+      path: '/gio-hang'
+      fullPath: '/gio-hang'
+      preLoaderRoute: typeof authGioHangIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/banhang/': {
@@ -942,7 +974,9 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/dat-hang': typeof authDatHangIndexRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
+  '/gio-hang': typeof authGioHangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
@@ -991,7 +1025,9 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/dat-hang': typeof authDatHangIndexRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
+  '/gio-hang': typeof authGioHangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
@@ -1043,7 +1079,9 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/(auth)/dat-hang/': typeof authDatHangIndexRoute
   '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
+  '/(auth)/gio-hang/': typeof authGioHangIndexLazyRoute
   '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
@@ -1095,7 +1133,9 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/dat-hang'
     | '/dienthoai'
+    | '/gio-hang'
     | '/banhang'
     | '/chats'
     | '/dashboard'
@@ -1143,7 +1183,9 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/dat-hang'
     | '/dienthoai'
+    | '/gio-hang'
     | '/banhang'
     | '/chats'
     | '/dashboard'
@@ -1193,7 +1235,9 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/(auth)/dat-hang/'
     | '/(auth)/dienthoai/'
+    | '/(auth)/gio-hang/'
     | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
     | '/_authenticated/dashboard/'
@@ -1221,7 +1265,9 @@ export interface RootRouteChildren {
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
   authProductIdRoute: typeof authProductIdRoute
+  authDatHangIndexRoute: typeof authDatHangIndexRoute
   authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
+  authGioHangIndexLazyRoute: typeof authGioHangIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1238,7 +1284,9 @@ const rootRouteChildren: RootRouteChildren = {
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
   authProductIdRoute: authProductIdRoute,
+  authDatHangIndexRoute: authDatHangIndexRoute,
   authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
+  authGioHangIndexLazyRoute: authGioHangIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1264,7 +1312,9 @@ export const routeTree = rootRoute
         "/(errors)/503",
         "/(auth)/",
         "/(auth)/product/$id",
-        "/(auth)/dienthoai/"
+        "/(auth)/dat-hang/",
+        "/(auth)/dienthoai/",
+        "/(auth)/gio-hang/"
       ]
     },
     "/_authenticated": {
@@ -1440,8 +1490,14 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/settings/notifications.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
+    "/(auth)/dat-hang/": {
+      "filePath": "(auth)/dat-hang/index.tsx"
+    },
     "/(auth)/dienthoai/": {
       "filePath": "(auth)/dienthoai/index.lazy.tsx"
+    },
+    "/(auth)/gio-hang/": {
+      "filePath": "(auth)/gio-hang/index.lazy.tsx"
     },
     "/_authenticated/banhang/": {
       "filePath": "_authenticated/banhang/index.lazy.tsx",

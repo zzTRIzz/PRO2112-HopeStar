@@ -26,10 +26,11 @@ export default function FeaturedProducts() {
       try {
         setLoading(true)
         const response = await getHome()
-
+        console.log(response);
         // Validate the response with Zod schema
         const parsedData = productViewResponseAllSchema.parse(response)
 
+        
         setNewestProducts(parsedData.newestProducts)
         setBestSellingProducts(parsedData.bestSellingProducts)
       } catch (error) {

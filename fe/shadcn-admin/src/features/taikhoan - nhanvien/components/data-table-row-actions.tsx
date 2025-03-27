@@ -86,7 +86,7 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
         {
           fullName: values.fullName,
           email: values.email,
-          password: "string",
+          //password: "string",
           phone: values.phone,
           address: values.address,
           googleId: "string",
