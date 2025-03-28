@@ -210,6 +210,34 @@ export default function CreateProduct() {
       console.log('Form data:', data)
       console.log('Table rows:', tableRows)
 
+      // Kiểm tra IMEI trùng lặp
+      const allImeis = tableRows.reduce((acc: string[], row) => {
+        const imeis =
+          row.productImeiRequests?.map((imei) => imei.imeiCode) || []
+        return [...acc, ...imeis]
+      }, [])
+
+      // Tìm các IMEI trùng lặp
+      const duplicateMap = allImeis.reduce(
+        (acc: { [key: string]: number }, imei) => {
+          acc[imei] = (acc[imei] || 0) + 1
+          return acc
+        },
+        {}
+      )
+
+      const duplicateImeis = Object.entries(duplicateMap)
+        .filter(([_, count]) => count > 1)
+        .map(([imei]) => imei)
+
+      if (duplicateImeis.length > 0) {
+        toast({
+          title: 'Lỗi',
+          description: `Phát hiện IMEI trùng lặp: ${duplicateImeis.join(', ')}`,
+          variant: 'destructive',
+        })
+        return
+      }
       // Xử lý dữ liệu từ bảng
       const processedData = {
         ...data,

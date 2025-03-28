@@ -25,7 +25,7 @@ const columns: ColumnDef<Rom>[] = [
     header: 'Dung lượng',
     cell: ({ row }) => {
       const rom = row.original as Rom
-      return <div>{rom.capacity} GB</div>
+      return <div>{rom.capacity}</div>
     },
     filterFn: (row, id, value) => {
       return row.getValue(id) === Number(value)
@@ -33,7 +33,7 @@ const columns: ColumnDef<Rom>[] = [
   },
   {
     accessorKey: 'description',
-    header: 'Mô tả',
+    header: 'Loại',
   },
   {
     accessorKey: 'status',

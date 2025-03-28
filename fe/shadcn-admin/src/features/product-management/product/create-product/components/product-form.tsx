@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { Control } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
+import AddIcon from '@mui/icons-material/Add'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -24,6 +27,18 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { BatteryMutateDialog } from '@/features/product-management/attribute/battery/components/battery-mutate-dialog'
+import { BluetoothMutateDialog } from '@/features/product-management/attribute/bluetooth/components/bluetooth-mutate-dialog'
+import { BrandMutateDialog } from '@/features/product-management/attribute/brand/components/brand-mutate-dialog'
+import { CardMutateDialog } from '@/features/product-management/attribute/card/components/card-mutate-dialog'
+import { CategoryMutateDialog } from '@/features/product-management/attribute/category/components/category-mutate-dialog'
+import { ChipMutateDialog } from '@/features/product-management/attribute/chip/components/chip-mutate-dialog'
+import { FrontCameraMutateDialog } from '@/features/product-management/attribute/front-camera/components/front-camera-mutate-dialog'
+import { OsMutateDialog } from '@/features/product-management/attribute/os/components/os-mutate-dialog'
+import { RearCameraMutateDialog } from '@/features/product-management/attribute/rear-camera/components/rear-camera-mutate-dialog'
+import { ScreenMutateDialog } from '@/features/product-management/attribute/screen/components/screen-mutate-dialog'
+import { SimMutateDialog } from '@/features/product-management/attribute/sim/components/sim-mutate-dialog'
+import { WifiMutateDialog } from '@/features/product-management/attribute/wifi/components/wifi-mutate-dialog'
 import { CHARGER_TYPES, ProductConfigRequest } from '../../data/schema'
 
 interface ProductFormProps {
@@ -57,6 +72,81 @@ export function ProductForm({
   sims,
   wifis,
 }: ProductFormProps) {
+  const [isBrandDialogOpen, setIsBrandDialogOpen] = useState(false)
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
+  const [isSimDialogOpen, setIsSimDialogOpen] = useState(false)
+  const [isScreenDialogOpen, setIsScreenDialogOpen] = useState(false)
+  const [isBatteryDialogOpen, setIsBatteryDialogOpen] = useState(false)
+  const [isChipDialogOpen, setIsChipDialogOpen] = useState(false)
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false)
+  const [isBluetoothDialogOpen, setIsBluetoothDialogOpen] = useState(false)
+  const [isWifiDialogOpen, setIsWifiDialogOpen] = useState(false)
+  const [isOsDialogOpen, setIsOsDialogOpen] = useState(false)
+  const [isCameraFDialogOpen, setIsCameraFDialogOpen] = useState(false)
+  const [isCameraRDialogOpen, setIsCameraRDialogOpen] = useState(false)
+
+  const queryClient = useQueryClient()
+  const handleBrandDialogClose = async () => {
+    // Invalidate and refetch brands data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsBrandDialogOpen(false)
+  }
+  const handleCategoryDialogClose = async () => {
+    // Invalidate and refetch categories data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsCategoryDialogOpen(false)
+  }
+  const handleSimDialogClose = async () => {
+    // Invalidate and refetch sims data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsSimDialogOpen(false)
+  }
+  const handleScreenDialogClose = async () => {
+    // Invalidate and refetch screens data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsScreenDialogOpen(false)
+  }
+  const handleBatteryDialogClose = async () => {
+    // Invalidate and refetch batteries data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsBatteryDialogOpen(false)
+  }
+  const handleChipDialogClose = async () => {
+    // Invalidate and refetch chips data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsChipDialogOpen(false)
+  }
+  const handleCardDialogClose = async () => {
+    // Invalidate and refetch cards data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsCardDialogOpen(false)
+  }
+  const handleBluetoothDialogClose = async () => {
+    // Invalidate and refetch bluetooths data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsBluetoothDialogOpen(false)
+  }
+  const handleWifiDialogClose = async () => {
+    // Invalidate and refetch wifis data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsWifiDialogOpen(false)
+  }
+  const handleOsDialogClose = async () => {
+    // Invalidate and refetch os data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsOsDialogOpen(false)
+  }
+  const handleCameraFDialogClose = async () => {
+    // Invalidate and refetch cameras data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsCameraFDialogOpen(false)
+  }
+  const handleCameraRDialogClose = async () => {
+    // Invalidate and refetch cameras data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsCameraRDialogOpen(false)
+  }
+
   return (
     <div className='mx-auto space-y-4 rounded border px-4 py-6 shadow'>
       <h1 className='text-center text-2xl font-semibold'>Tạo Sản Phẩm</h1>
@@ -148,13 +238,33 @@ export function ProductForm({
                         </div>
                       ))}
                     </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsCategoryDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          <CategoryMutateDialog
+            open={isCategoryDialogOpen}
+            onOpenChange={handleCategoryDialogClose}
+          />
         </div>
+
         {/* weight */}
         <div className=''>
           <FormField
@@ -187,7 +297,7 @@ export function ProductForm({
                 <FormLabel>Thương hiệu</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
-                  defaultValue={field.value?.toString()}
+                  value={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -195,16 +305,37 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {brands?.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.id.toString()}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {brands?.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id.toString()}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsBrandDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+
+          <BrandMutateDialog
+            open={isBrandDialogOpen}
+            onOpenChange={handleBrandDialogClose}
           />
         </div>
         {/* chip */}
@@ -225,16 +356,36 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {chips?.map((chip) => (
-                      <SelectItem key={chip.id} value={chip.id.toString()}>
-                        {chip.name}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {chips?.map((chip) => (
+                        <SelectItem key={chip.id} value={chip.id.toString()}>
+                          {chip.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsChipDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <ChipMutateDialog
+            open={isChipDialogOpen}
+            onOpenChange={handleChipDialogClose}
           />
         </div>
         {/* battery */}
@@ -255,19 +406,39 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {batteries?.map((battery) => (
-                      <SelectItem
-                        key={battery.id}
-                        value={battery.id.toString()}
+                    <ScrollArea className='h-40'>
+                      {batteries?.map((battery) => (
+                        <SelectItem
+                          key={battery.id}
+                          value={battery.id.toString()}
+                        >
+                          {battery.type} - {battery.capacity}mAh
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsBatteryDialogOpen(true)
+                        }}
                       >
-                        {battery.type} - {battery.capacity}mAh
-                      </SelectItem>
-                    ))}
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <BatteryMutateDialog
+            open={isBatteryDialogOpen}
+            onOpenChange={handleBatteryDialogClose}
           />
         </div>
         {/* man hinh */}
@@ -288,16 +459,39 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {screens?.map((screen) => (
-                      <SelectItem key={screen.id} value={screen.id.toString()}>
-                        {screen.type}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {screens?.map((screen) => (
+                        <SelectItem
+                          key={screen.id}
+                          value={screen.id.toString()}
+                        >
+                          {screen.type}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsScreenDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <ScreenMutateDialog
+            open={isScreenDialogOpen}
+            onOpenChange={handleScreenDialogClose}
           />
         </div>
         {/* bluetooth */}
@@ -318,19 +512,39 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {bluetooths?.map((bluetooth) => (
-                      <SelectItem
-                        key={bluetooth.id}
-                        value={bluetooth.id.toString()}
+                    <ScrollArea className='h-40'>
+                      {bluetooths?.map((bluetooth) => (
+                        <SelectItem
+                          key={bluetooth.id}
+                          value={bluetooth.id.toString()}
+                        >
+                          {bluetooth.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsBluetoothDialogOpen(true)
+                        }}
                       >
-                        {bluetooth.name}
-                      </SelectItem>
-                    ))}
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <BluetoothMutateDialog
+            open={isBluetoothDialogOpen}
+            onOpenChange={handleBluetoothDialogClose}
           />
         </div>
         {/* card */}
@@ -351,16 +565,36 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {cards?.map((card) => (
-                      <SelectItem key={card.id} value={card.id.toString()}>
-                        {card.type}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {cards?.map((card) => (
+                        <SelectItem key={card.id} value={card.id.toString()}>
+                          {card.type}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsCardDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <CardMutateDialog
+            open={isCardDialogOpen}
+            onOpenChange={handleCardDialogClose}
           />
         </div>
         {/* os */}
@@ -381,16 +615,36 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {os?.map((os) => (
-                      <SelectItem key={os.id} value={os.id.toString()}>
-                        {os.name}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {os?.map((os) => (
+                        <SelectItem key={os.id} value={os.id.toString()}>
+                          {os.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsOsDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <OsMutateDialog
+            open={isOsDialogOpen}
+            onOpenChange={handleOsDialogClose}
           />
         </div>
         {/* wifi */}
@@ -411,16 +665,36 @@ export function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {wifis?.map((wifi) => (
-                      <SelectItem key={wifi.id} value={wifi.id.toString()}>
-                        {wifi.name}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className='h-40'>
+                      {wifis?.map((wifi) => (
+                        <SelectItem key={wifi.id} value={wifi.id.toString()}>
+                          {wifi.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsWifiDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <WifiMutateDialog
+            open={isWifiDialogOpen}
+            onOpenChange={handleWifiDialogClose}
           />
         </div>
         {/* charger */}
@@ -501,7 +775,7 @@ export function ProductForm({
                               )
                               .map((sim) => sim.type)
                               .join(', ')
-                          : 'Chọn loại SIM'}
+                          : 'Chọn loại sim'}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -530,11 +804,29 @@ export function ProductForm({
                         </div>
                       ))}
                     </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsSimDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <SimMutateDialog
+            open={isSimDialogOpen}
+            onOpenChange={handleSimDialogClose}
           />
         </div>
 
@@ -590,11 +882,29 @@ export function ProductForm({
                         </div>
                       ))}
                     </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsCameraFDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <FrontCameraMutateDialog
+            open={isCameraFDialogOpen}
+            onOpenChange={handleCameraFDialogClose}
           />
         </div>
 
@@ -650,11 +960,29 @@ export function ProductForm({
                         </div>
                       ))}
                     </ScrollArea>
+                    <div className='relative border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full justify-center text-sm font-normal'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          setIsCameraRDialogOpen(true)
+                        }}
+                      >
+                        <AddIcon className='h-6 w-6' />
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
               </FormItem>
             )}
+          />
+          <RearCameraMutateDialog
+            open={isCameraRDialogOpen}
+            onOpenChange={handleCameraRDialogClose}
           />
         </div>
       </div>

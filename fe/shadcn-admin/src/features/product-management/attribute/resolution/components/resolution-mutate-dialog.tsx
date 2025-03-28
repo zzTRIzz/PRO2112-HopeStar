@@ -147,6 +147,7 @@ export function ResolutionMutateDialog({
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập chiều cao'
                     />
@@ -166,6 +167,7 @@ export function ResolutionMutateDialog({
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập chiều rộng'
                     />

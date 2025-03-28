@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { Bluetooth, bluetoothSchema } from '../data/schema'
 import { useBluetoothMutation } from '../hooks/use-bluetooth-mutation'
 
@@ -44,7 +43,7 @@ export function BluetoothMutateDialog({
     resolver: zodResolver(bluetoothSchema.omit({ id: true })),
     defaultValues: currentRow || {
       name: '',
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -52,7 +51,7 @@ export function BluetoothMutateDialog({
     if (currentRow) {
       form.reset({
         name: currentRow.name,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -103,7 +102,11 @@ export function BluetoothMutateDialog({
         <Form {...form}>
           <form
             id='bluetooth-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -115,26 +118,6 @@ export function BluetoothMutateDialog({
                   <FormControl>
                     <Input {...field} placeholder='Nhập tên' />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

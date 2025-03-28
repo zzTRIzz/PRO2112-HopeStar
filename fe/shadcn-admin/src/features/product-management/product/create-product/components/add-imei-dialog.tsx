@@ -46,12 +46,11 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
   }
 
   const handleUpload = (e: React.MouseEvent) => {
-    // This is critical to prevent form submission in the parent
     e.preventDefault()
     e.stopPropagation()
 
     if (!file) {
-      setErrorMessage('Please select a file to upload')
+      setErrorMessage('Vui lòng chọn tệp để tải lên')
       return
     }
 
@@ -81,7 +80,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
           const invalidImeis = imeis.filter((imei) => !validateImei(imei))
           if (invalidImeis.length > 0) {
             setErrorMessage(
-              `Found ${invalidImeis.length} invalid IMEI format(s). IMEI must be 15 digits.`
+              `Có ${invalidImeis.length} IMEI không hợp lệ. IMEI phải có 15 chữ số.`
             )
             setIsUploading(false)
             return
@@ -91,7 +90,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
           const uniqueImeis = new Set(imeis)
           if (uniqueImeis.size !== imeis.length) {
             setErrorMessage(
-              `Found ${imeis.length - uniqueImeis.size} duplicate IMEI(s) in the file.`
+              `Phát hiện ${imeis.length - uniqueImeis.size} IMEI trùng lặp trong tệp.`
             )
             setIsUploading(false)
             return
@@ -122,16 +121,16 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
           }, 100)
         }
       } catch (error) {
-        console.error('Error parsing file:', error)
+        console.error('Lỗi xử lý tệp:', error)
         setErrorMessage(
-          'Error parsing file. Please ensure it is a valid Excel or CSV file.'
+          'Lỗi xử lý tệp. Vui lòng đảm bảo tệp có định dạng Excel hoặc CSV hợp lệ.'
         )
         setIsUploading(false)
       }
     }
 
     reader.onerror = () => {
-      setErrorMessage('Error reading file. Please try again.')
+      setErrorMessage('Lỗi đọc tệp. Vui lòng thử lại.')
       setIsUploading(false)
     }
 
@@ -188,7 +187,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
               onClick={handleCancel}
               disabled={isUploading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type='button'
@@ -196,7 +195,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
               disabled={!file || isUploading}
               className='bg-blue-500 hover:bg-blue-600'
             >
-              {isUploading ? 'Processing...' : 'Upload'}
+              {isUploading ? 'Đang xử lý...' : 'Tải lên'}
             </Button>
           </div>
         </div>

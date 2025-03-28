@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { Battery, batterySchema } from '../data/schema'
 import { useBatteryMutation } from '../hooks/use-battery-mutation'
 
@@ -41,7 +40,7 @@ export function BatteryMutateDialog({ open, onOpenChange, currentRow }: Props) {
     defaultValues: currentRow || {
       type: '',
       capacity: 0,
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -50,7 +49,7 @@ export function BatteryMutateDialog({ open, onOpenChange, currentRow }: Props) {
       form.reset({
         type: currentRow.type,
         capacity: currentRow.capacity,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -102,7 +101,11 @@ export function BatteryMutateDialog({ open, onOpenChange, currentRow }: Props) {
         <Form {...form}>
           <form
             id='battery-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -129,30 +132,11 @@ export function BatteryMutateDialog({ open, onOpenChange, currentRow }: Props) {
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập dung lượng'
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}
