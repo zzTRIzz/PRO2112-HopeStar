@@ -1,6 +1,8 @@
 package com.example.be.core.admin.voucher.controller;
 
 
+import com.example.be.core.admin.account.dto.response.AccountResponse;
+import com.example.be.core.admin.account.dto.response.ResponseData;
 import com.example.be.core.admin.voucher.dto.request.EmailRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherAssignRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
@@ -198,5 +200,9 @@ public class VoucherController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+    @GetMapping("{voucherId}/accounts")
+    public ResponseData<List<AccountResponse>> getAccountsWithVoucher(@PathVariable Integer voucherId) {
+        List<AccountResponse> accounts = voucherService.getAccountsWithVoucher(voucherId);
+        return new ResponseData<>(HttpStatus.OK, "Success", accounts);
+    }
 }

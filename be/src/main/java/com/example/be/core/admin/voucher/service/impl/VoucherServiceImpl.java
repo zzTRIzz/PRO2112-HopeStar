@@ -1,5 +1,7 @@
 package com.example.be.core.admin.voucher.service.impl;
 
+import com.example.be.core.admin.account.dto.response.AccountResponse;
+import com.example.be.core.admin.account.dto.response.RoleResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
@@ -299,5 +301,28 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher với id: " + id));
         return voucherMapper.toResponse(voucher);
+    }
+
+    @Override
+    public List<AccountResponse> getAccountsWithVoucher(Integer voucherId) {
+        List<VoucherAccount> voucherAccounts = voucherAccountRepository
+                .findByIdVoucherId(voucherId);
+
+        return voucherAccounts.stream()
+                .map(voucherAccount -> {
+                    Account account = voucherAccount.getIdAccount();
+                    return AccountResponse.builder()
+                            .id(account.getId())
+                            .fullName(account.getFullName())
+                            .email(account.getEmail())
+                            .phone(account.getPhone())
+                            .status(account.getStatus().toString())
+                            .idRole(RoleResponse.builder()
+                                    .id(account.getIdRole().getId())
+                                    .name(account.getIdRole().getName())
+                                    .build())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

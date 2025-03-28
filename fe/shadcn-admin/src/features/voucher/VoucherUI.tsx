@@ -804,11 +804,26 @@ const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: (
         const fetchCustomers = async () => {
             try {
                 setLoading(true);
+                // First get all customers with role_4
                 const response = await axios.get(`${API_BASE_URL}/account/list`);
-                const customers = response.data.data.filter((account: AccountResponse) => 
-                    account.idRole?.id === 4 && account.status === 'ACTIVE'
+                
+                // Get list of accounts that already have this voucher
+                const voucherAccountsResponse = await axios.get(
+                    `${API_BASE_URL}/admin/voucher/${voucher.id}/accounts`
                 );
-                console.log('Filtered customers:', customers);
+                
+                const existingAccountIds = voucherAccountsResponse.data.data.map(
+                    (account: AccountResponse) => account.id
+                );
+
+                // Filter customers: role_4, active, and don't have the voucher yet
+                const customers = response.data.data.filter((account: AccountResponse) => 
+                    account.idRole?.id === 4 && 
+                    account.status === 'ACTIVE' &&
+                    !existingAccountIds.includes(account.id)
+                );
+
+                console.log('Available customers:', customers);
                 setAccounts(customers);
             } catch (error) {
                 console.error('Error fetching customers:', error);
@@ -819,7 +834,7 @@ const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: (
         };
 
         fetchCustomers();
-    }, []);
+    }, [voucher.id]);
 
     // Handle assign button click
     const handleAssign = async () => {

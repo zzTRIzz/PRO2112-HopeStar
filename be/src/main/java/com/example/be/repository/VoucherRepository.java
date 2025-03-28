@@ -30,4 +30,5 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
   );
   boolean existsByCode(String code);
   boolean existsByCodeAndIdNot(String code, Integer id);
+
 }

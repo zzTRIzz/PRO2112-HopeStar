@@ -2,6 +2,7 @@ package com.example.be.core.admin.account.dto.response;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
  * DTO for {@link com.example.be.entity.Role}
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleResponse {
