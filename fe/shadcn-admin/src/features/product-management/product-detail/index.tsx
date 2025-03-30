@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { IconLoader2 } from '@tabler/icons-react'
+import { IconLoader2, IconQuestionMark } from '@tabler/icons-react'
 import { Route } from '@/routes/_authenticated/route'
 import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
@@ -12,7 +12,9 @@ import { Breadcrumb } from '../breadcrumb'
 import { productDetailById } from '../product/data/api-service'
 import { DataTable } from './components/data-table'
 import { ImeiDialog } from './components/imei-dialog'
-import { TasksPrimaryButtons } from './components/product-detail-primary-buttons'
+import { ProductDetailDialogs } from './components/product-detail-dialogs'
+import { ProductDetailPrimaryButtons } from './components/product-detail-primary-buttons'
+import { StatusSwitch } from './components/status-switch'
 import { DialogProvider, useDialog } from './context/dialog-context'
 import { ProductDetailResponse } from './data/schema'
 
@@ -35,11 +37,11 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
           <img
             src={row.original.imageUrl}
             alt={`${row.original.colorName}`}
-            className='h-full w-full rounded-lg object-cover'
+            className='h-full w-full rounded-sm object-cover'
           />
         ) : (
           <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
-            Không có ảnh
+            <IconQuestionMark className='h-6 w-6' />
           </div>
         )}
       </div>
@@ -89,6 +91,10 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
   {
     accessorKey: 'status',
     header: 'Trạng thái',
+    cell: ({ row }) => {
+      const productDetail = row.original as ProductDetailResponse
+      return <StatusSwitch productDetail={productDetail} />
+    },
   },
 ]
 
@@ -161,7 +167,7 @@ export default function ProductDetail() {
               Danh sách các phiên bản của sản phẩm
             </p>
           </div>
-          <TasksPrimaryButtons />
+          <ProductDetailPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
           <DataTable columns={columns} data={productDetails} />
@@ -169,6 +175,7 @@ export default function ProductDetail() {
       </Main>
 
       <ImeiDialog />
+      <ProductDetailDialogs />
     </DialogProvider>
   )
 }

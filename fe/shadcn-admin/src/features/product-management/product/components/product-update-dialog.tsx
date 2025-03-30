@@ -59,7 +59,7 @@ export function ProductResponsesUpdateDialog({
         title: 'Thành công',
         description: 'Cập nhật sản phẩm thành công',
       })
-      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['products', currentRow.id] })
       onOpenChange(false)
     },
     onError: (error: any) => {

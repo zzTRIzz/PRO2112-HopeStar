@@ -1,23 +1,32 @@
 import { createContext, useContext, useState } from 'react'
 import { ProductDetailResponse } from '../data/schema'
 
-type DialogState = {
-  type: 'imei' | null
-  data?: ProductDetailResponse
-}
+type DialogType = 'imei' | 'update' | 'import' | null
 
 interface DialogContextType {
-  open: DialogState | null
-  setOpen: (state: DialogState | null) => void
+  open: DialogType
+  setOpen: (type: DialogType) => void
+  currentRow: ProductDetailResponse | null
+  setCurrentRow: (row: ProductDetailResponse | null) => void
 }
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined)
 
 export function DialogProvider({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState<DialogState | null>(null)
+  const [open, setOpen] = useState<DialogType>(null)
+  const [currentRow, setCurrentRow] = useState<ProductDetailResponse | null>(
+    null
+  )
 
   return (
-    <DialogContext.Provider value={{ open, setOpen }}>
+    <DialogContext.Provider
+      value={{
+        open,
+        setOpen,
+        currentRow,
+        setCurrentRow,
+      }}
+    >
       {children}
     </DialogContext.Provider>
   )

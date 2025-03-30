@@ -2,6 +2,7 @@ package com.example.be.core.admin.products_management.controller;
 
 import com.example.be.core.admin.account.dto.response.ResponseData;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
+import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,15 @@ public class ProductDetailController {
         try {
             productDetailService.updateStatus(id);
             return new ResponseData<>(HttpStatus.ACCEPTED,"update status product-detail successfully");
+        }catch (Exception e){
+            return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+    @PutMapping("/{id}")
+    public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest){
+        try {
+            productDetailService.updateProductDetail(id,productDetailRequest);
+            return new ResponseData<>(HttpStatus.ACCEPTED,"update product-detail successfully");
         }catch (Exception e){
             return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
         }

@@ -90,7 +90,7 @@ public class AccountService {
     }
 
     public List<AccountResponse> getAllGuest(){
-        Role role = roleRepository.findById(2).orElseThrow(() -> new RuntimeException(">>>>Role not found khách hàng"));
+        Role role = roleRepository.findById(4).orElseThrow(() -> new RuntimeException(">>>>Role not found khách hàng"));
         return accountRepository.findAccountsByIdRole(role)
                 .stream()
                 .map(this::convertToResponse)

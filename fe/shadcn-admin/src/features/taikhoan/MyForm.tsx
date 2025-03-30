@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import * as z from 'zod'
+import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarDate } from '@internationalized/date'
 import { CalendarIcon } from 'lucide-react'
-import axios from 'axios'
 import {
   Button as Buttons,
   DatePicker,
@@ -38,11 +38,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { TaiKhoan } from './schema/schema'
+import { AddressSelect } from '../tinhthanh/components/AddressSelect'
 import { createColumns } from './components/taikhoan-columns'
 import { TaiKhoanTable } from './components/taikhoan-table'
-import { AddressSelect } from '../tinhthanh/components/AddressSelect'
-
+import { TaiKhoan } from './schema/schema'
 
 // Hàm tạo mật khẩu ngẫu nhiên
 // function generateRandomPassword(length = 12) {
@@ -70,8 +69,6 @@ import { AddressSelect } from '../tinhthanh/components/AddressSelect'
 //   return password
 // }
 
-
-
 const formSchema = z.object({
   fullName: z
     .string()
@@ -95,26 +92,27 @@ const formSchema = z.object({
     .string()
     .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
     .max(200, 'Địa chỉ không được quá 200 ký tự'),
-  birthDate: z.string().refine(
-    (date) => {
-      if (!date) return false
-      const birthDate = new Date(date)
-      const today = new Date()
-      let age = today.getFullYear() - birthDate.getFullYear()
-      const monthDiff = today.getMonth() - birthDate.getMonth()
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--
-      }
-      return age >= 15
-    },
-    'Người dùng phải đủ 15 tuổi'
-  ),
+  birthDate: z.string().refine((date) => {
+    if (!date) return false
+    const birthDate = new Date(date)
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--
+    }
+    return age >= 15
+  }, 'Người dùng phải đủ 15 tuổi'),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
   googleId: z.string().default('string'),
-  imageAvatar: z.string().default('https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',),
+  imageAvatar: z
+    .string()
+    .default(
+      'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg'
+    ),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -143,7 +141,9 @@ export default function MyForm() {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/account/list-khach-hang')
+      const response = await axios.get(
+        'http://localhost:8080/api/account/list-khach-hang'
+      )
       if (response.status === 200) {
         const accountsData = response.data.data.map((acc: any) => ({
           ...acc,
@@ -162,9 +162,9 @@ export default function MyForm() {
   const handleStatusChange = async (account: TaiKhoan, newStatus: boolean) => {
     try {
       // Convert gender string to boolean
-      let genderValue = false;
+      let genderValue = false
       if (account.gender === 'Nam') {
-        genderValue = true;
+        genderValue = true
       }
 
       const response = await axios.put(
@@ -177,7 +177,7 @@ export default function MyForm() {
           address: account.address,
           googleId: 'string',
           imageAvatar: account.imageAvatar,
-          idRole: 2,
+          idRole: 4,
           gender: genderValue, // Send as boolean instead of string
           birthDate: account.birthDate,
           status: newStatus ? 'ACTIVE' : 'IN_ACTIVE',
@@ -198,7 +198,8 @@ export default function MyForm() {
       return false
     } catch (error: any) {
       console.error('Status update error:', error)
-      const errorMessage = error.response?.data?.message || 'Không thể cập nhật trạng thái'
+      const errorMessage =
+        error.response?.data?.message || 'Không thể cập nhật trạng thái'
       toast.error(errorMessage)
       return false
     }
@@ -211,22 +212,23 @@ export default function MyForm() {
   async function onSubmit(values: FormData) {
     setIsSubmitting(true)
     try {
-      // Format lại ngày sinh sang ISO 8601 
-      const formattedBirthDate = new Date(values.birthDate).toISOString();
+      // Format lại ngày sinh sang ISO 8601
+      const formattedBirthDate = new Date(values.birthDate).toISOString()
 
       // Convert gender string to boolean expected by backend
-      let genderValue = false;
+      let genderValue = false
       if (values.gender === 'Nam') {
-        genderValue = true;
+        genderValue = true
       }
 
       const payload = {
         ...values,
         birthDate: formattedBirthDate.split('T')[0],
-        idRole: 2,
+        idRole: 4,
         gender: genderValue, // Send as boolean instead of string
         googleId: 'string',
-        imageAvatar: 'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg'
+        imageAvatar:
+          'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
       }
 
       console.log('Sending payload:', payload)
@@ -234,11 +236,11 @@ export default function MyForm() {
       const config = {
         headers: {
           'Content-Type': 'application/json',
-        }
-      };
+        },
+      }
 
       const response = await axios.post(
-        'http://localhost:8080/api/account/add', 
+        'http://localhost:8080/api/account/add',
         payload,
         config
       )
@@ -263,18 +265,20 @@ export default function MyForm() {
       }
     } catch (error: any) {
       console.error('Form submission error:', error)
-      
+
       // Xử lý các loại lỗi cụ thể
       if (error.response) {
         // Lỗi từ server
-        const message = error.response.data?.message || 'Lỗi server';
-        toast.error(`Lỗi: ${message}`);
+        const message = error.response.data?.message || 'Lỗi server'
+        toast.error(`Lỗi: ${message}`)
       } else if (error.request) {
         // Lỗi kết nối
-        toast.error('Không thể kết nối đến server. Vui lòng kiểm tra lại kết nối.');
+        toast.error(
+          'Không thể kết nối đến server. Vui lòng kiểm tra lại kết nối.'
+        )
       } else {
         // Lỗi khác
-        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.');
+        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.')
       }
     } finally {
       setIsSubmitting(false)
@@ -284,17 +288,24 @@ export default function MyForm() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-3xl space-y-8 py-10">
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='mx-auto max-w-3xl space-y-8 py-10'
+        >
+          <div className='grid grid-cols-12 gap-4'>
+            <div className='col-span-6'>
               <FormField
                 control={form.control}
-                name="fullName"
+                name='fullName'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Họ và tên</FormLabel>
                     <FormControl>
-                      <Input placeholder="VD: Nguyễn Văn A" type="text" {...field} />
+                      <Input
+                        placeholder='VD: Nguyễn Văn A'
+                        type='text'
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>Nhập đẩy đủ họ và tên</FormDescription>
                     <FormMessage />
@@ -303,23 +314,26 @@ export default function MyForm() {
               />
             </div>
 
-            <div className="col-span-6">
+            <div className='col-span-6'>
               <FormField
                 control={form.control}
-                name="gender"
+                name='gender'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Giới tính</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Vui lòng chọn giới tính" />
+                          <SelectValue placeholder='Vui lòng chọn giới tính' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Nam">Nam</SelectItem>
-                        <SelectItem value="Nữ">Nữ</SelectItem>
-                        <SelectItem value="Khác">Khác</SelectItem>
+                        <SelectItem value='Nam'>Nam</SelectItem>
+                        <SelectItem value='Nữ'>Nữ</SelectItem>
+                        <SelectItem value='Khác'>Khác</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>Vui lòng chọn giới tính</FormDescription>
@@ -330,16 +344,20 @@ export default function MyForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-4">
+          <div className='grid grid-cols-12 gap-4'>
+            <div className='col-span-4'>
               <FormField
                 control={form.control}
-                name="email"
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="nguyenvana@gmail.com" type="email" {...field} />
+                      <Input
+                        placeholder='nguyenvana@gmail.com'
+                        type='email'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -347,15 +365,19 @@ export default function MyForm() {
               />
             </div>
 
-            <div className="col-span-4">
+            <div className='col-span-4'>
               <FormField
                 control={form.control}
-                name="phone"
+                name='phone'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Số điện thoại</FormLabel>
                     <FormControl>
-                      <Input placeholder="0912345678" type="string" {...field} />
+                      <Input
+                        placeholder='0912345678'
+                        type='string'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -363,10 +385,10 @@ export default function MyForm() {
               />
             </div>
 
-            <div className="col-span-4">
+            <div className='col-span-4'>
               <FormField
                 control={form.control}
-                name="birthDate"
+                name='birthDate'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Ngày sinh</FormLabel>
@@ -374,14 +396,18 @@ export default function MyForm() {
                       value={
                         field.value
                           ? (() => {
-                              const [year, month, day] = field.value.split('-').map(Number)
+                              const [year, month, day] = field.value
+                                .split('-')
+                                .map(Number)
                               return new CalendarDate(year, month, day)
                             })()
                           : null
                       }
                       onChange={(date) => {
                         if (date) {
-                          const formattedDate = `${date.year}-${String(date.month).padStart(
+                          const formattedDate = `${date.year}-${String(
+                            date.month
+                          ).padStart(
                             2,
                             '0'
                           )}-${String(date.day).padStart(2, '0')}`
@@ -391,16 +417,16 @@ export default function MyForm() {
                         }
                       }}
                     >
-                      <div className="flex">
-                        <Group className="w-full">
-                          <DateInput className="pe-9" />
+                      <div className='flex'>
+                        <Group className='w-full'>
+                          <DateInput className='pe-9' />
                         </Group>
-                        <Buttons className="data-focus-visible:border-ring data-focus-visible:ring-ring/50 data-focus-visible:ring-[3px] z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground">
+                        <Buttons className='data-focus-visible:border-ring data-focus-visible:ring-ring/50 data-focus-visible:ring-[3px] z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground'>
                           <CalendarIcon size={16} />
                         </Buttons>
                       </div>
-                      <Popover className="data-entering:animate-in data-exiting:animate-out outline-hidden z-50 rounded-lg border bg-background text-popover-foreground shadow-lg data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2">
-                        <Dialog className="max-h-[inherit] overflow-auto p-2">
+                      <Popover className='data-entering:animate-in data-exiting:animate-out outline-hidden z-50 rounded-lg border bg-background text-popover-foreground shadow-lg data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2'>
+                        <Dialog className='max-h-[inherit] overflow-auto p-2'>
                           <Calendar />
                         </Dialog>
                       </Popover>
@@ -417,10 +443,10 @@ export default function MyForm() {
 
           <FormField
             control={form.control}
-            name="status"
+            name='status'
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
+              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                <div className='space-y-0.5'>
                   <FormLabel>Trạng thái</FormLabel>
                   <FormDescription>
                     Bật để kích hoạt tài khoản (Mặc định: Hoạt động)
@@ -440,21 +466,21 @@ export default function MyForm() {
           />
 
           <Toaster />
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type='submit' disabled={isSubmitting}>
             {isSubmitting ? 'Đang xử lý...' : 'Thêm mới tài khoản'}
           </Button>
         </form>
       </Form>
 
-      <div className="mx-auto my-8 w-full max-w-full space-y-4 p-5">
+      <div className='mx-auto my-8 w-full max-w-full space-y-4 p-5'>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Danh sách tài khoản</h2>
-          <p className="text-muted-foreground">
-            Quản lý danh sách tài khoản và phân quyền người dùng.
-          </p>
+          <h2 className='text-2xl font-bold tracking-tight'>
+            Danh sách khách hàng
+          </h2>
+          <p className='text-muted-foreground'>Quản lý danh sách khách hàng.</p>
         </div>
         {isLoading ? (
-          <div className="text-center py-4">Đang tải dữ liệu...</div>
+          <div className='py-4 text-center'>Đang tải dữ liệu...</div>
         ) : (
           <TaiKhoanTable
             data={accounts}

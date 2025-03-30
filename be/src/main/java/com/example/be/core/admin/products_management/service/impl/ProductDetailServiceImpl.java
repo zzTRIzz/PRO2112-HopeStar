@@ -1,5 +1,6 @@
 package com.example.be.core.admin.products_management.service.impl;
 
+import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
 import com.example.be.core.admin.products_management.mapper.ProductDetailMapper;
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
@@ -58,6 +59,19 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .map(productDetail -> productDetailMapper.dtoToResponse(productDetailMapper.entityToDTO(productDetail)))
                 .collect(Collectors.toList());
         return detailResponseList;
+    }
+
+    @Override
+    public void updateProductDetail(Integer idProductDetail, ProductDetailRequest productDetailRequest) throws Exception {
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(()->
+                new Exception("Product detail not found"+ idProductDetail)
+        );
+        System.out.println(productDetailRequest.getPriceSell());
+        productDetail.setPrice(productDetailRequest.getPriceSell());
+        productDetail.setPriceSell(productDetailRequest.getPriceSell());
+        productDetail.setImageUrl(productDetailRequest.getImageUrl());
+
+        productDetailRepository.save(productDetail);
     }
 
     @Override
