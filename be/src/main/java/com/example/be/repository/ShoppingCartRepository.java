@@ -1,5 +1,6 @@
 package com.example.be.repository;
 
+import com.example.be.entity.Account;
 import com.example.be.entity.ShoppingCart;
 import com.example.be.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +22,6 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
 
   @Query("SELECT sc FROM ShoppingCart sc WHERE sc.idAccount.id= :idAccount")
   List<ShoppingCart> findByIdShoppingCart(@Param("idAccount") Integer idAccount);
+
+  ShoppingCart findShoppingCartByIdAccount(Account account);
 }

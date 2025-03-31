@@ -3,16 +3,16 @@ import Cookies from 'js-cookie'
 import { Link } from '@tanstack/react-router'
 import {
   Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
   DropdownItem,
-  Avatar,
+  DropdownMenu,
+  DropdownTrigger,
   User,
 } from '@heroui/react'
-import { ShoppingCart, Search, Menu, X } from 'lucide-react'
+import { Menu, Search, ShoppingCart, X } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import { getProfile } from '../data/api-service'
 import { Profile } from '../data/schema'
+import { useCart } from '../hooks/use-cart'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -29,6 +29,7 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const { cart } = useCart()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -236,7 +237,7 @@ export default function Navbar() {
             <Link to='/gio-hang' className='relative'>
               <ShoppingCart className='h-5 w-5' />
               <Badge className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center'>
-                2
+                {cart?.quantityCartDetail}
               </Badge>
             </Link>
           </Button>

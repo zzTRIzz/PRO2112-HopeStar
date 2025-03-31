@@ -15,17 +15,17 @@ export const getProfile = async () => {
   }
 }
 
-// export const getCartItems = async () => {
-//   const jwt = Cookies.get('jwt')
-//   if (!jwt) return []
+export const getCart = async () => {
+  const jwt = Cookies.get('jwt')
+  if (!jwt) return []
 
-//   const response = await axios.get(`${API_BASE_URL}/cart`, {
-//     headers: {
-//       Authorization: `Bearer ${jwt}`,
-//     },
-//   })
-//   return response.data?.items || []
-// }
+  const response = await axios.get(`${API_BASE_URL}/api/client/cart`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  })
+  return response.data.data
+}
 
 export const getHome = async () => {
   try {

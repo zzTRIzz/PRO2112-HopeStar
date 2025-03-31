@@ -76,6 +76,8 @@ export const productDetailViewResponseSchema = z.object({
   defaultProductDetail: productDetailInfoSchema.optional(),
 })
 
+
+// Types
 export type Profile = z.infer<typeof accountResponseSchema>
 export type productViewResponse = z.infer<typeof productViewResponseSchema>
 export type productDetailViewResponse = z.infer<
@@ -84,3 +86,27 @@ export type productDetailViewResponse = z.infer<
 export type ProductViewResponseAll = z.infer<
   typeof productViewResponseAllSchema
 >
+
+
+// Schema cho CartDetail
+export const cartDetailResponseSchema = z.object({
+  id: z.number(),
+  productName: z.string(),
+  quantity: z.number(),
+  ram: z.string(),
+  rom: z.string(),
+  color: z.string(),
+  price: z.number(),
+  image:z.string(),
+  priceSell: z.number()
+})
+
+// Schema cho Cart
+export const cartResponseSchema = z.object({
+  quantityCartDetail: z.number(),
+  cartDetailResponseList: z.array(cartDetailResponseSchema)
+})
+export type CartDetailResponse = z.infer<typeof cartDetailResponseSchema>
+export type CartResponse = z.infer<typeof cartResponseSchema>
+
+
