@@ -59,18 +59,18 @@ export function StatusSwitch({ product }: StatusSwitchProps) {
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+            <AlertDialogTitle>Xác nhận thay đổi trạng thái</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to change the status to{' '}
-              {pendingStatus ? 'Active' : 'Inactive'}?
+              Bạn có chắc chắn muốn thay đổi trạng thái thành{' '}
+              {pendingStatus ? 'Hoạt động' : 'Không hoạt động'}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>
-              Cancel
+              Hủy
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
-              Confirm
+              Xác nhận
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

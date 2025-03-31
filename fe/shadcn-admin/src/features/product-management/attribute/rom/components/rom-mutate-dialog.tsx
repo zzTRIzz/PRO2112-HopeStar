@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { Rom, romSchema } from '../data/schema'
 import { useRomMutation } from '../hooks/use-rom-mutation'
 
@@ -41,7 +40,7 @@ export function RomMutateDialog({ open, onOpenChange, currentRow }: Props) {
     defaultValues: currentRow || {
       capacity: 0,
       description: '',
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -50,7 +49,7 @@ export function RomMutateDialog({ open, onOpenChange, currentRow }: Props) {
       form.reset({
         capacity: currentRow.capacity,
         description: currentRow.description,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -102,7 +101,11 @@ export function RomMutateDialog({ open, onOpenChange, currentRow }: Props) {
         <Form {...form}>
           <form
             id='rom-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -110,11 +113,12 @@ export function RomMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='capacity'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dung lượng (GB)</FormLabel>
+                  <FormLabel>Dung lượng</FormLabel>
                   <FormControl>
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập dung lượng'
                     />
@@ -129,30 +133,10 @@ export function RomMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='description'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mô tả</FormLabel>
+                  <FormLabel>Loại (GB/TB)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Nhập mô tả' />
+                    <Input {...field} placeholder='Nhập loại' />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

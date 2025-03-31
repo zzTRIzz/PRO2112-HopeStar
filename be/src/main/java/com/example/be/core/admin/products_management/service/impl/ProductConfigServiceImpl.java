@@ -55,6 +55,17 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
         Product product = productMapper.dtoToEntity(productDTO);
 
+        if (productConfigRequest.getProductDetailRequests() !=null){
+            for (ProductDetailRequest item:productConfigRequest.getProductDetailRequests()) {
+                for (ProductImeiRequest imeiRequest: item.getProductImeiRequests()){
+                    Imei imei = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
+                    if (imei != null){
+                        throw new Exception("Imei đã tồn tại:"+imeiRequest.getImeiCode());
+                    }
+                }
+            }
+        }
+        // check imei
         Product createProduct = productRepository.save(product);
 
         productDTO.getFrontCamera().forEach((item) -> {

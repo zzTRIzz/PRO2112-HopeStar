@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { Category, categorySchema } from '../data/schema'
 import { useCategoryMutation } from '../hooks/use-category-mutation'
 
@@ -44,7 +43,7 @@ export function CategoryMutateDialog({
     resolver: zodResolver(categorySchema.omit({ id: true })),
     defaultValues: currentRow || {
       name: '',
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -52,7 +51,7 @@ export function CategoryMutateDialog({
     if (currentRow) {
       form.reset({
         name: currentRow.name,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -104,7 +103,11 @@ export function CategoryMutateDialog({
         <Form {...form}>
           <form
             id='category-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -116,26 +119,6 @@ export function CategoryMutateDialog({
                   <FormControl>
                     <Input {...field} placeholder='Nhập tên danh mục' />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Ngừng hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

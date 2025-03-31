@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { IconDownload, IconTrash } from '@tabler/icons-react'
+import AddIcon from '@mui/icons-material/Add'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -32,6 +34,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { ColorMutateDialog } from '@/features/product-management/attribute/color/components/color-mutate-dialog'
+import { RamMutateDialog } from '@/features/product-management/attribute/ram/components/ram-mutate-dialog'
+import { RomMutateDialog } from '@/features/product-management/attribute/rom/components/rom-mutate-dialog'
 import { ProductConfigRequest } from '../../data/schema'
 import { ProductImeiRequest } from '../../data/schema'
 import { AddImeiDialog } from './add-imei-dialog'
@@ -39,7 +44,16 @@ import { ImageUploader } from './upload-image'
 
 // Hàm định dạng số với dấu phẩy ngăn cách hàng nghìn
 const formatNumberWithCommas = (value: number | string): string => {
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const str = value.toString()
+  if (str === '-' || str === '') return str // Giữ nguyên dấu "-" hoặc chuỗi rỗng
+
+  // Xử lý số âm
+  const isNegative = str.startsWith('-')
+  const numStr = isNegative ? str.slice(1) : str
+
+  return isNegative
+    ? `-${numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+    : numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 // Hàm loại bỏ dấu phẩy và chuyển đổi thành số
@@ -52,6 +66,7 @@ interface Option {
   capacity?: number
   name?: string
   hex?: string
+  description?: string
 }
 
 interface ProductDetailFormProps {
@@ -85,11 +100,13 @@ const OptionSelector: React.FC<{
           <Button variant='outline' className='w-full justify-between'>
             {selected.length > 0
               ? selected
-                  .map(
-                    (id) =>
-                      options.find((o) => o.id === id)?.capacity ||
-                      options.find((o) => o.id === id)?.name
-                  )
+                  .map((id) => {
+                    const option = options.find((o) => o.id === id)
+                    return option
+                      ? `${option.capacity}${option.description}`
+                      : ''
+                  })
+                  .filter(Boolean) // Lọc bỏ các giá trị undefined/empty
                   .join(', ')
               : label}
           </Button>
@@ -103,9 +120,7 @@ const OptionSelector: React.FC<{
                 onClick={() => onSelect(option.id)}
               >
                 <Checkbox checked={selected.includes(option.id)} />
-                <span>
-                  {option.capacity ? `${option.capacity}GB` : option.name}
-                </span>
+                <span>{`${option.capacity} ${option.description}`}</span>
               </div>
             ))}
           </ScrollArea>
@@ -141,6 +156,7 @@ const ColorSelector: React.FC<{
     onSelect(tempSelected)
     setIsDialogOpen(false)
   }
+  const [searchTerm, setSearchTerm] = useState('')
 
   return (
     <FormItem>
@@ -155,38 +171,55 @@ const ColorSelector: React.FC<{
               : label}
           </Button>
         </DialogTrigger>
-        <DialogContent className='sm:max-w-[425px]'>
+        <DialogContent className='sm:max-w-[515px]'>
           <DialogHeader>
             <DialogTitle>Chọn {label}</DialogTitle>
             <DialogDescription>
-              Click save khi bạn đã hoàn tất.
+              Chọn xác nhận khi bạn đã hoàn tất.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className='w-full'>
-            <div className='flex space-x-4 pb-4'>
-              {options.map((option) => (
-                <div
-                  key={option.id}
-                  className='flex cursor-pointer flex-col items-center space-y-2 p-2 hover:bg-gray-100'
-                  onClick={() => handleSelectColor(option.id)}
-                >
+
+          {/* Thêm ô tìm kiếm */}
+          <div className='relative mb-4'>
+            <Input
+              type='text'
+              placeholder='Tìm kiếm...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='pl-8'
+            />
+            {/* <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' /> */}
+          </div>
+
+          <ScrollArea className='h-60 w-full'>
+            <div className='grid grid-cols-5 space-x-4 pb-1'>
+              {options
+                .filter((option) =>
+                  option.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((option) => (
                   <div
-                    className='h-12 w-12 rounded-full'
-                    style={{
-                      backgroundColor: option.hex,
-                      border:
-                        option.name?.toLowerCase() === 'white'
-                          ? '2px solid #ccc'
-                          : 'none',
-                    }}
-                  ></div>
-                  <span>{option.name}</span>
-                  <Checkbox checked={tempSelected.includes(option.id)} />
-                </div>
-              ))}
+                    key={option.id}
+                    className='flex cursor-pointer flex-col items-center space-y-2 p-2 hover:bg-gray-100'
+                    onClick={() => handleSelectColor(option.id)}
+                  >
+                    <div
+                      className='h-12 w-12 rounded-full'
+                      style={{
+                        backgroundColor: option.hex,
+                        border:
+                          option.name?.toLowerCase() === 'white'
+                            ? '2px solid #ccc'
+                            : 'none',
+                      }}
+                    ></div>
+                    <span>{option.name}</span>
+                    <Checkbox checked={tempSelected.includes(option.id)} />
+                  </div>
+                ))}
             </div>
           </ScrollArea>
-          <div className='mt-4 flex justify-end'>
+          <div className='mt-1 flex justify-end'>
             <Button onClick={handleConfirm}>Xác nhận</Button>
           </div>
         </DialogContent>
@@ -259,7 +292,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
   const [isGeneralPriceDialogOpen, setIsGeneralPriceDialogOpen] =
     useState(false)
   const [generalPrice, setGeneralPrice] = useState<string>('')
-
+  const [priceError, setPriceError] = useState<string>('')
   //xu ly color them
   const [isAddColorDialogOpen, setIsAddColorDialogOpen] = useState(false)
   const [selectedColorsForTable, setSelectedColorsForTable] = useState<
@@ -294,14 +327,28 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
   const handleGeneralPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/,/g, '')
-    const numericValue = Number(rawValue)
-    if (!isNaN(numericValue)) {
-      setGeneralPrice(formatNumberWithCommas(rawValue))
+
+    // Cho phép: số âm, số dương, hoặc chuỗi rỗng (khi xóa)
+    if (rawValue === '' || /^-?\d*$/.test(rawValue)) {
+      setGeneralPrice(rawValue === '-' ? '-' : formatNumberWithCommas(rawValue))
+      setPriceError('') // Clear error khi người dùng sửa
     }
   }
 
   const handleSetGeneralPrice = () => {
     const numericValue = parseFormattedNumber(generalPrice)
+
+    if (generalPrice === '' || generalPrice === '-') {
+      setPriceError('Vui lòng nhập giá trị')
+      return
+    }
+
+    if (numericValue <= 0) {
+      setPriceError('Giá trị phải lớn hơn 0') // Báo lỗi nếu ≤ 0 (bao gồm số âm)
+      return
+    }
+
+    // Hợp lệ -> Lưu giá
     onSetGeneralPrice(idRam, idRom, numericValue)
     setIsGeneralPriceDialogOpen(false)
   }
@@ -360,7 +407,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 onCheckedChange={() => setIsChecked(!isChecked)}
               />
               Phiên bản {rams.find((r) => r.id === idRam)?.capacity} /{' '}
-              {roms.find((r) => r.id === idRom)?.capacity}GB
+              {roms.find((r) => r.id === idRom)?.capacity}
+              {roms.find((r) => r.id === idRom)?.description}
             </TableHead>
             {isChecked && (
               <TableHead colSpan={4} className='space-x-2 py-2 text-right'>
@@ -451,16 +499,17 @@ const ProductTable: React.FC<ProductTableProps> = ({
           <DialogHeader>
             <DialogTitle>Giá chung</DialogTitle>
             <DialogDescription>
-              Click save khi bạn đã hoàn tất.
+              Chọn xác nhận khi bạn đã hoàn tất.
             </DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <Input
               type='text'
-              placeholder='Nhập giá chung'
+              placeholder='Nhập giá...'
               value={generalPrice}
               onChange={handleGeneralPriceChange}
             />
+            {priceError && <p className='text-sm text-red-500'>{priceError}</p>}
             <Button onClick={handleSetGeneralPrice}>Xác nhận</Button>
           </div>
         </DialogContent>
@@ -477,15 +526,15 @@ const ProductTable: React.FC<ProductTableProps> = ({
           }
         }}
       >
-        <DialogContent className='sm:max-w-[425px]'>
+        <DialogContent className='sm:max-w-[515px]'>
           <DialogHeader>
             <DialogTitle>Thêm màu</DialogTitle>
             <DialogDescription>
               Chọn màu và nhấn Lưu khi hoàn tất.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className='w-full'>
-            <div className='flex flex-wrap gap-4 pb-4'>
+          <ScrollArea className='h-60 w-full'>
+            <div className='grid grid-cols-5 space-x-4 pb-1'>
               {colors.map((color) => {
                 const isExistingColor = existingColorIds.includes(color.id)
 
@@ -920,6 +969,25 @@ export function ProductDetailForm({
     [colorImages, deletedVersions, tableRows]
   )
 
+  const [isRamDialogOpen, setIsRamDialogOpen] = useState(false)
+  const [isRomDialogOpen, setIsRomDialogOpen] = useState(false)
+  const [isColorDialogOpen, setIsColorDialogOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const handleRamDialogClose = async () => {
+    // Invalidate and refetch brands data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsRamDialogOpen(false)
+  }
+  const handleRomDialogClose = async () => {
+    // Invalidate and refetch brands data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsRomDialogOpen(false)
+  }
+  const handleColorDialogClose = async () => {
+    // Invalidate and refetch brands data
+    await queryClient.invalidateQueries({ queryKey: ['productAttributes'] })
+    setIsColorDialogOpen(false)
+  }
   return (
     <>
       <div className='mx-auto rounded border px-4 py-4 shadow'>
@@ -927,41 +995,108 @@ export function ProductDetailForm({
           Thông số sản phẩm
         </h1>
         <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-          <OptionSelector
-            label='RAM'
-            options={rams}
-            selected={selections.rams}
-            onSelect={(id) => toggleSelection('rams', id)}
-          />
-          <OptionSelector
-            label='ROM'
-            options={roms}
-            selected={selections.roms}
-            onSelect={(id) => toggleSelection('roms', id)}
-          />
-          <ColorSelector
-            label='Màu sắc'
-            options={colors}
-            selected={selections.colors}
-            onSelect={(ids) => {
-              // Tìm các màu mới được thêm vào
-              const newColors = ids.filter(
-                (id) => !selections.colors.includes(id)
-              )
+          <div className='grid grid-cols-6 items-center'>
+            <div className='col-span-5'>
+              <OptionSelector
+                label='RAM'
+                options={rams}
+                selected={selections.rams}
+                onSelect={(id) => toggleSelection('rams', id)}
+              />
+            </div>
+            <div className='col-span-1 flex items-center pt-8'>
+              <Button
+                type='button'
+                variant='ghost'
+                className='w-4 justify-center text-sm font-normal'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  setIsRamDialogOpen(true)
+                }}
+              >
+                <AddIcon className='h-6 w-6' />
+              </Button>
+            </div>
+            <RamMutateDialog
+              open={isRamDialogOpen}
+              onOpenChange={handleRamDialogClose}
+            />
+          </div>
 
-              // Cập nhật selections
-              setSelections((prev) => ({ ...prev, colors: ids }))
-
-              // Cập nhật deletedVersions nếu có màu mới
-              if (newColors.length > 0) {
-                setTimeout(() => {
-                  setDeletedVersions((prev) =>
-                    prev.filter((v) => !newColors.includes(v.color || -1))
+          <div className='grid grid-cols-6 items-center'>
+            <div className='col-span-5'>
+              <OptionSelector
+                label='ROM'
+                options={roms}
+                selected={selections.roms}
+                onSelect={(id) => toggleSelection('roms', id)}
+              />
+            </div>
+            <div className='col-span-1 flex items-center pt-8'>
+              <Button
+                type='button'
+                variant='ghost'
+                className='w-4 justify-center text-sm font-normal'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  setIsRomDialogOpen(true)
+                }}
+              >
+                <AddIcon className='h-6 w-6' />
+              </Button>
+            </div>
+            <RomMutateDialog
+              open={isRomDialogOpen}
+              onOpenChange={handleRomDialogClose}
+            />
+          </div>
+          <div className='grid grid-cols-6 items-center'>
+            <div className='col-span-5'>
+              <ColorSelector
+                label='Màu sắc'
+                options={colors}
+                selected={selections.colors}
+                onSelect={(ids) => {
+                  // Tìm các màu mới được thêm vào
+                  const newColors = ids.filter(
+                    (id) => !selections.colors.includes(id)
                   )
-                }, 0)
-              }
-            }}
-          />
+
+                  // Cập nhật selections
+                  setSelections((prev) => ({ ...prev, colors: ids }))
+
+                  // Cập nhật deletedVersions nếu có màu mới
+                  if (newColors.length > 0) {
+                    setTimeout(() => {
+                      setDeletedVersions((prev) =>
+                        prev.filter((v) => !newColors.includes(v.color || -1))
+                      )
+                    }, 0)
+                  }
+                }}
+              />
+            </div>
+            <div className='col-span-1 flex items-center pt-8'>
+              <Button
+                type='button'
+                variant='ghost'
+                className='w-4 justify-center text-sm font-normal'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  setIsColorDialogOpen(true)
+                }}
+              >
+                <AddIcon className='h-6 w-6' />
+              </Button>
+            </div>
+            <ColorMutateDialog
+              open={isColorDialogOpen}
+              onOpenChange={handleColorDialogClose}
+            />
+          </div>
         </div>
         {selections.rams.map((idRam) =>
           selections.roms.map((idRom) => (
@@ -988,7 +1123,7 @@ export function ProductDetailForm({
       </div>
       <div className='mx-auto rounded border px-4 py-4 shadow'>
         <h1 className='mb-4 text-center text-2xl font-semibold'>
-          Upload hình ảnh
+          Tải hình ảnh
         </h1>
         <div className='grid grid-cols-1 gap-4 py-4 md:grid-cols-3'>
           {uniqueColors.map((idColor) => {

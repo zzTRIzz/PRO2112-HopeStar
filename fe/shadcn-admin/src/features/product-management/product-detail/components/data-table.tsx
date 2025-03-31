@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -41,6 +40,11 @@ export function DataTable<TData, TValue>({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
+  // Add pagination state
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 5, // Set initial page size to 5
+  })
 
   const table = useReactTable({
     data,
@@ -49,13 +53,15 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       columnFilters,
+      pagination, // Add pagination state
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination, // Add pagination change handler
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),

@@ -25,7 +25,7 @@ const columns: ColumnDef<Ram>[] = [
     header: 'Dung lượng',
     cell: ({ row }) => {
       const ram = row.original as Ram
-      return <div>{ram.capacity} GB</div>
+      return <div>{ram.capacity}</div>
     },
     filterFn: (row, id, value) => {
       return row.getValue(id) === Number(value)
@@ -33,7 +33,7 @@ const columns: ColumnDef<Ram>[] = [
   },
   {
     accessorKey: 'description',
-    header: 'Mô tả',
+    header: 'Loại',
   },
   {
     accessorKey: 'status',

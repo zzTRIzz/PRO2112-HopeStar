@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { getResolution } from '../../resolution/data/api-service'
 import { Screen, screenSchema } from '../data/schema'
 import { useScreenMutation } from '../hooks/use-screen-mutation'
@@ -60,7 +59,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
         height: 0,
         resolutionType: '',
       },
-      status: '',
+      status: 'ACTIVE',
       refreshRate: 0,
     },
   })
@@ -71,7 +70,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
         type: currentRow.type,
         displaySize: currentRow.displaySize,
         resolution: currentRow.resolution,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
         refreshRate: currentRow.refreshRate,
       })
     }
@@ -121,7 +120,11 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
         <Form {...form}>
           <form
             id='screen-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -149,6 +152,7 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
                       type='number'
                       step='0.1'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập kích thước màn hình'
                     />
@@ -208,30 +212,11 @@ export function ScreenMutateDialog({ open, onOpenChange, currentRow }: Props) {
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập tần số quét'
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

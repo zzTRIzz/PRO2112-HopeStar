@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { FrontCamera, frontCameraSchema } from '../data/schema'
 import { useFrontCameraMutation } from '../hooks/use-front-camera-mutation'
 
@@ -45,7 +44,7 @@ export function FrontCameraMutateDialog({
     defaultValues: currentRow || {
       type: '',
       resolution: 0,
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -54,7 +53,7 @@ export function FrontCameraMutateDialog({
       form.reset({
         type: currentRow.type,
         resolution: currentRow.resolution,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -105,7 +104,11 @@ export function FrontCameraMutateDialog({
         <Form {...form}>
           <form
             id='frontCamera-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -132,30 +135,11 @@ export function FrontCameraMutateDialog({
                     <Input
                       type='number'
                       {...field}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder='Nhập độ phân giải'
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

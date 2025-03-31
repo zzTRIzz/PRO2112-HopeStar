@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { IconLoader2 } from '@tabler/icons-react'
+import { IconLoader2, IconQuestionMark } from '@tabler/icons-react'
 import { Route } from '@/routes/_authenticated/route'
 import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
@@ -12,7 +12,9 @@ import { Breadcrumb } from '../breadcrumb'
 import { productDetailById } from '../product/data/api-service'
 import { DataTable } from './components/data-table'
 import { ImeiDialog } from './components/imei-dialog'
-import { TasksPrimaryButtons } from './components/product-detail-primary-buttons'
+import { ProductDetailDialogs } from './components/product-detail-dialogs'
+import { ProductDetailPrimaryButtons } from './components/product-detail-primary-buttons'
+import { StatusSwitch } from './components/status-switch'
 import { DialogProvider, useDialog } from './context/dialog-context'
 import { ProductDetailResponse } from './data/schema'
 
@@ -35,11 +37,11 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
           <img
             src={row.original.imageUrl}
             alt={`${row.original.colorName}`}
-            className='h-full w-full rounded-lg object-cover'
+            className='h-full w-full rounded-sm object-cover'
           />
         ) : (
           <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
-            Không có ảnh
+            <IconQuestionMark className='h-6 w-6' />
           </div>
         )}
       </div>
@@ -68,7 +70,7 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
     accessorKey: 'inventoryQuantity',
     header: 'Số lượng tồn',
     cell: ({ row }) => {
-      const { setOpen } = useDialog() // Sử dụng context
+      const { setOpen } = useDialog()
       const productDetail = row.original
 
       return (
@@ -89,41 +91,45 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
   {
     accessorKey: 'status',
     header: 'Trạng thái',
+    cell: ({ row }) => {
+      const productDetail = row.original as ProductDetailResponse
+      return <StatusSwitch productDetail={productDetail} />
+    },
   },
 ]
 
 export default function ProductDetail() {
-  const [loading, setLoading] = useState(true)
-  const [productDetails, setProductDetails] = useState<ProductDetailResponse[]>(
-    []
-  )
-
   const { id } = Route.useParams()
 
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true)
-        const data = await productDetailById(Number(id))
-        setProductDetails(data)
-      } catch (error) {
-        toast({
-          title: 'Lỗi',
-          description: 'Không thể tải thông tin chi tiết sản phẩm',
-          variant: 'destructive',
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Sử dụng useQuery để fetch dữ liệu
+  const {
+    data: productDetails,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['product-details', id], // Query key với id sản phẩm
+    queryFn: () => productDetailById(Number(id)),
+  })
 
-    fetchProductDetails()
-  }, [id])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='flex h-full items-center justify-center'>
         <IconLoader2 className='h-8 w-8 animate-spin' />
+      </div>
+    )
+  }
+
+  if (isError) {
+    toast({
+      title: 'Lỗi',
+      description:
+        error?.message || 'Không thể tải thông tin chi tiết sản phẩm',
+      variant: 'destructive',
+    })
+    return (
+      <div className='flex h-full items-center justify-center text-red-500'>
+        Đã xảy ra lỗi khi tải dữ liệu
       </div>
     )
   }
@@ -161,14 +167,15 @@ export default function ProductDetail() {
               Danh sách các phiên bản của sản phẩm
             </p>
           </div>
-          <TasksPrimaryButtons />
+          <ProductDetailPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
-          <DataTable columns={columns} data={productDetails} />
+          <DataTable columns={columns} data={productDetails || []} />
         </div>
       </Main>
 
       <ImeiDialog />
+      <ProductDetailDialogs />
     </DialogProvider>
   )
 }

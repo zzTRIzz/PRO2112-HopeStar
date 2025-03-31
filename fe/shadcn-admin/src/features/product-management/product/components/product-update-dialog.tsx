@@ -24,11 +24,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
@@ -38,11 +34,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { updateProduct } from '../data/api-service'
-import {
-  ProductRequest,
-  ProductResponse,
-  productRequestSchema,
-} from '../data/schema'
+import { ProductResponse, ProductUpdate, productUpdate } from '../data/schema'
 import { useFetchData } from './data-table-toolbar'
 
 interface Props {
@@ -61,7 +53,7 @@ export function ProductResponsesUpdateDialog({
   const attributes = useFetchData()
 
   const { mutate: updateProductMutation, isPending } = useMutation({
-    mutationFn: (data: ProductRequest) => updateProduct(currentRow!.id!, data),
+    mutationFn: (data: ProductUpdate) => updateProduct(currentRow!.id!, data),
     onSuccess: () => {
       toast({
         title: 'Thành công',
@@ -81,8 +73,8 @@ export function ProductResponsesUpdateDialog({
     },
   })
 
-  const form = useForm<ProductRequest>({
-    resolver: zodResolver(productRequestSchema),
+  const form = useForm<ProductUpdate>({
+    resolver: zodResolver(productUpdate),
     defaultValues: {
       name: '',
       description: '',
@@ -98,10 +90,6 @@ export function ProductResponsesUpdateDialog({
       idBattery: 0,
       chargerType: '',
       content: '',
-      frontCamera: [],
-      rearCamera: [],
-      category: [],
-      sim: [],
     },
   })
 
@@ -138,15 +126,11 @@ export function ProductResponsesUpdateDialog({
         chargerType: currentRow.chargerType,
         nfc: currentRow.nfc,
         content: currentRow.content,
-        frontCamera: currentRow.frontCamera,
-        rearCamera: currentRow.rearCamera,
-        category: currentRow.category,
-        sim: currentRow.sim,
       })
     }
   }, [currentRow, attributes, form.reset])
 
-  const onSubmit = (data: ProductRequest) => {
+  const onSubmit = (data: ProductUpdate) => {
     if (!isUpdate || !currentRow?.id) return
 
     const formData = {
@@ -164,10 +148,6 @@ export function ProductResponsesUpdateDialog({
       idBattery: data.idBattery,
       chargerType: data.chargerType,
       content: data.content,
-      frontCamera: data.frontCamera,
-      rearCamera: data.rearCamera,
-      category: data.category,
-      sim: data.sim,
     }
 
     updateProductMutation(formData)
@@ -507,6 +487,96 @@ export function ProductResponsesUpdateDialog({
                 />
               </div>
 
+              {/* sim */}
+              {/* <div className='grid grid-cols-3 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='sim'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>SIM</FormLabel>
+                      <FormControl>
+                        <div className='flex min-h-10 flex-wrap gap-1 rounded-md border p-2'>
+                          {field.value?.length ? (
+                            attributes.sims
+                              ?.filter((sim) => field.value.includes(sim.id))
+                              .map((sim) => (
+                                <span key={sim.id} className='text-sm'>
+                                  {sim.type}
+                                </span>
+                              ))
+                          ) : (
+                            <span className='text-sm text-muted-foreground'>
+                              Không có thông tin
+                            </span>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='frontCamera'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Camera trước</FormLabel>
+                      <FormControl>
+                        <div className='flex min-h-10 flex-wrap gap-1 rounded-md border p-2'>
+                          {field.value?.length ? (
+                            attributes.frontCameras
+                              ?.filter((camera) =>
+                                field.value.includes(camera.id)
+                              )
+                              .map((camera) => (
+                                <span key={camera.id} className='text-sm'>
+                                  {camera.resolution}
+                                </span>
+                              ))
+                          ) : (
+                            <span className='text-sm text-muted-foreground'>
+                              Không có thông tin
+                            </span>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='rearCamera'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Camera sau</FormLabel>
+                      <FormControl>
+                        <div className='flex min-h-10 flex-wrap gap-1 rounded-md border p-2'>
+                          {field.value?.length ? (
+                            attributes.rearCameras
+                              ?.filter((camera) =>
+                                field.value.includes(camera.id)
+                              )
+                              .map((camera) => (
+                                <span key={camera.id} className='text-sm'>
+                                  {camera.resolution}
+                                </span>
+                              ))
+                          ) : (
+                            <span className='text-sm text-muted-foreground'>
+                              Không có thông tin
+                            </span>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div> */}
+
               <FormField
                 control={form.control}
                 name='nfc'
@@ -541,238 +611,6 @@ export function ProductResponsesUpdateDialog({
                   </FormItem>
                 )}
               />
-
-              {/* Multiple select with checkboxes */}
-              <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='category'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Danh mục</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant='outline'
-                              className='w-full justify-between'
-                            >
-                              {field.value.length > 0
-                                ? `${field.value.length} đã chọn`
-                                : 'Chọn danh mục'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[200px] p-0'>
-                          <ScrollArea className='h-[200px] p-2'>
-                            {attributes?.categories?.map((category) => (
-                              <div
-                                key={category.id}
-                                className='flex items-center space-x-2 p-2'
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(
-                                    category.id.toString()
-                                  )}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([
-                                        ...field.value,
-                                        category.id.toString(),
-                                      ])
-                                    } else {
-                                      field.onChange(
-                                        field.value.filter(
-                                          (value) =>
-                                            value !== category.id.toString()
-                                        )
-                                      )
-                                    }
-                                  }}
-                                />
-                                <label>{category.name}</label>
-                              </div>
-                            ))}
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='sim'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SIM</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant='outline'
-                              className='w-full justify-between'
-                            >
-                              {field.value.length > 0
-                                ? `${field.value.length} đã chọn`
-                                : 'Chọn loại SIM'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[200px] p-0'>
-                          <ScrollArea className='h-[200px] p-2'>
-                            {attributes?.sims?.map((sim) => (
-                              <div
-                                key={sim.id}
-                                className='flex items-center space-x-2 p-2'
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(
-                                    sim.id.toString()
-                                  )}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([
-                                        ...field.value,
-                                        sim.id.toString(),
-                                      ])
-                                    } else {
-                                      field.onChange(
-                                        field.value.filter(
-                                          (value) => value !== sim.id.toString()
-                                        )
-                                      )
-                                    }
-                                  }}
-                                />
-                                <label>{sim.type}</label>
-                              </div>
-                            ))}
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='frontCamera'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Camera trước</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant='outline'
-                              className='w-full justify-between'
-                            >
-                              {field.value.length > 0
-                                ? `${field.value.length} đã chọn`
-                                : 'Chọn camera trước'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[200px] p-0'>
-                          <ScrollArea className='h-[200px] p-2'>
-                            {attributes?.cameras?.map((camera) => (
-                              <div
-                                key={camera.id}
-                                className='flex items-center space-x-2 p-2'
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(
-                                    camera.id.toString()
-                                  )}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([
-                                        ...field.value,
-                                        camera.id.toString(),
-                                      ])
-                                    } else {
-                                      field.onChange(
-                                        field.value.filter(
-                                          (value) =>
-                                            value !== camera.id.toString()
-                                        )
-                                      )
-                                    }
-                                  }}
-                                />
-                                <label>{camera.resolution}</label>
-                              </div>
-                            ))}
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='rearCamera'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Camera sau</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant='outline'
-                              className='w-full justify-between'
-                            >
-                              {field.value.length > 0
-                                ? `${field.value.length} đã chọn`
-                                : 'Chọn camera sau'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[200px] p-0'>
-                          <ScrollArea className='h-[200px] p-2'>
-                            {attributes?.cameras?.map((camera) => (
-                              <div
-                                key={camera.id}
-                                className='flex items-center space-x-2 p-2'
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(
-                                    camera.id.toString()
-                                  )}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([
-                                        ...field.value,
-                                        camera.id.toString(),
-                                      ])
-                                    } else {
-                                      field.onChange(
-                                        field.value.filter(
-                                          (value) =>
-                                            value !== camera.id.toString()
-                                        )
-                                      )
-                                    }
-                                  }}
-                                />
-                                <label>{camera.resolution}</label>
-                              </div>
-                            ))}
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </form>
           </Form>
         </ScrollArea>

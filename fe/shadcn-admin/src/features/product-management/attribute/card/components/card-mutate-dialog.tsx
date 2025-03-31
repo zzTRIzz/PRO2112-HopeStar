@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SelectDropdown } from '@/components/select-dropdown'
 import { Card, cardSchema } from '../data/schema'
 import { useCardMutation } from '../hooks/use-card-mutation'
 
@@ -40,7 +39,7 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
     resolver: zodResolver(cardSchema.omit({ id: true })),
     defaultValues: currentRow || {
       type: '',
-      status: '',
+      status: 'ACTIVE',
     },
   })
 
@@ -48,7 +47,7 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
     if (currentRow) {
       form.reset({
         type: currentRow.type,
-        status: currentRow.status,
+        status: currentRow.status || 'ACTIVE',
       })
     }
   }, [currentRow, form.reset])
@@ -98,7 +97,11 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
         <Form {...form}>
           <form
             id='card-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation() // Ngăn sự kiện bubbling
+              form.handleSubmit(onSubmit)(e)
+            }}
             className='space-y-4'
           >
             <FormField
@@ -110,26 +113,6 @@ export function CardMutateDialog({ open, onOpenChange, currentRow }: Props) {
                   <FormControl>
                     <Input {...field} placeholder='Nhập loại thẻ' />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trạng thái</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Chọn trạng thái'
-                    items={[
-                      { label: 'Hoạt động', value: 'ACTIVE' },
-                      { label: 'Ngừng hoạt động', value: 'IN_ACTIVE' },
-                    ]}
-                  />
                   <FormMessage />
                 </FormItem>
               )}

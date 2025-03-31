@@ -23,34 +23,33 @@ export const productResponseSchema = z.object({
   status: z.enum(['ACTIVE', 'IN_ACTIVE']),
   content: z.string(),
   totalNumber: z.number(),
-  totalVersion: z.number()
+  totalVersion: z.number(),
 })
 
 export const productRequestSchema = z.object({
-  name: z.string().min(1, "Tên sản phẩm là bắt buộc"),
-  description: z.string().min(1, "Mô tả là bắt buộc"),
-  weight: z.number().min(1, "Khối lượng phải lớn hơn 0"),
-  idChip: z.number().min(1, "Chip là bắt buộc"),
-  idBrand: z.number().min(1, "Thương hiệu là bắt buộc"),
-  idScreen: z.number().min(1, "Màn hình là bắt buộc"),
-  idCard: z.number().min(1, "Card đồ họa là bắt buộc"),
-  idOs: z.number().min(1, "Hệ điều hành là bắt buộc"),
-  idWifi: z.number().min(1, "WiFi là bắt buộc"),
-  idBluetooth: z.number().min(1, "Bluetooth là bắt buộc"),
+  name: z.string().min(1, 'Tên sản phẩm là bắt buộc'),
+  description: z.string().min(1, 'Mô tả là bắt buộc'),
+  weight: z.number().min(1, 'Khối lượng phải lớn hơn 0'),
+  idChip: z.number().min(1, 'Chip là bắt buộc'),
+  idBrand: z.number().min(1, 'Thương hiệu là bắt buộc'),
+  idScreen: z.number().min(1, 'Màn hình là bắt buộc'),
+  idCard: z.number().min(1, 'Card đồ họa là bắt buộc'),
+  idOs: z.number().min(1, 'Hệ điều hành là bắt buộc'),
+  idWifi: z.number().min(1, 'WiFi là bắt buộc'),
+  idBluetooth: z.number().min(1, 'Bluetooth là bắt buộc'),
   nfc: z.boolean(),
-  idBattery: z.number().min(1, "Pin là bắt buộc"),
-  chargerType: z.string().min(1, "Loại sạc là bắt buộc"),
+  idBattery: z.number().min(1, 'Pin là bắt buộc'),
+  chargerType: z.string().min(1, 'Loại sạc là bắt buộc'),
   content: z.string(),
-  frontCamera: z.array(z.string()).min(1, "Phải có ít nhất một camera trước"),
-  rearCamera: z.array(z.string()).min(1, "Phải có ít nhất một camera sau"),
-  category: z.array(z.string()).min(1, "Phải có ít nhất một danh mục"),
-  sim: z.array(z.string()).min(1, "Phải có ít nhất một khe SIM"),
-});
-
+  frontCamera: z.array(z.string()).min(1, 'Phải có ít nhất một camera trước'),
+  rearCamera: z.array(z.string()).min(1, 'Phải có ít nhất một camera sau'),
+  category: z.array(z.string()).min(1, 'Phải có ít nhất một danh mục'),
+  sim: z.array(z.string()).min(1, 'Phải có ít nhất một khe SIM'),
+})
 
 // First, define the IMEI request schema
 export const productImeiRequestSchema = z.object({
-  imeiCode: z.string()
+  imeiCode: z.string(),
 })
 
 // Update the product detail request schema
@@ -61,12 +60,12 @@ export const productDetailRequestSchema = z.object({
   idRom: z.number(),
   idColor: z.number(),
   productImeiRequests: z.array(productImeiRequestSchema),
-  imageUrl: z.string()
+  imageUrl: z.string(),
 })
 
 export const productConfigRequestSchema = z.object({
   productDetailRequests: z.array(productDetailRequestSchema),
-  productRequest: productRequestSchema
+  productRequest: productRequestSchema,
 })
 
 export type ProductResponse = z.infer<typeof productResponseSchema>
@@ -86,25 +85,43 @@ interface StatusOption {
 export const STATUS: StatusOption[] = [
   {
     value: 'ACTIVE',
-    name: 'Hoạt động'
+    name: 'Hoạt động',
   },
   {
     value: 'IN_ACTIVE',
-    name: 'Không hoạt động'
-  }
+    name: 'Không hoạt động',
+  },
 ]
 
 // Interface cho SearchProductRequest
 export interface SearchProductRequest {
-  key?: string;
-  idChip?: number;
-  idBrand?: number;
-  idScreen?: number;
-  idCard?: number;
-  idOs?: number;
-  idWifi?: number;
-  idBluetooth?: number;
-  idBattery?: number;
-  idCategory?: number;
-  status?: string;
+  key?: string
+  idChip?: number
+  idBrand?: number
+  idScreen?: number
+  idCard?: number
+  idOs?: number
+  idWifi?: number
+  idBluetooth?: number
+  idBattery?: number
+  idCategory?: number
+  status?: string
 }
+
+export const productUpdate = z.object({
+  name: z.string().min(1, 'Tên sản phẩm là bắt buộc'),
+  description: z.string().min(1, 'Mô tả là bắt buộc'),
+  weight: z.number().min(1, 'Khối lượng phải lớn hơn 0'),
+  idChip: z.number().min(1, 'Chip là bắt buộc'),
+  idBrand: z.number().min(1, 'Thương hiệu là bắt buộc'),
+  idScreen: z.number().min(1, 'Màn hình là bắt buộc'),
+  idCard: z.number().min(1, 'Card đồ họa là bắt buộc'),
+  idOs: z.number().min(1, 'Hệ điều hành là bắt buộc'),
+  idWifi: z.number().min(1, 'WiFi là bắt buộc'),
+  idBluetooth: z.number().min(1, 'Bluetooth là bắt buộc'),
+  nfc: z.boolean(),
+  idBattery: z.number().min(1, 'Pin là bắt buộc'),
+  chargerType: z.string().min(1, 'Loại sạc là bắt buộc'),
+  content: z.string(),
+})
+export type ProductUpdate = z.infer<typeof productUpdate>

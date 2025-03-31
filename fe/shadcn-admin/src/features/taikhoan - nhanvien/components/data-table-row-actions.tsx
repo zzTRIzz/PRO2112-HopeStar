@@ -1,25 +1,24 @@
-import { Row } from "@tanstack/react-table"
-import { MoreHorizontal, Pen } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { useState } from 'react'
+import * as z from 'zod'
+import axios from 'axios'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Row } from '@tanstack/react-table'
+import { MoreHorizontal, Pen } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { TaiKhoan } from "../schema/schema"
-import { useState } from "react"
-import { toast } from "sonner"
-import axios from "axios"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Form,
   FormControl,
@@ -27,15 +26,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/select'
+import { TaiKhoan } from '../schema/schema'
 
 interface DataTableRowActionsProps {
   row: Row<TaiKhoan>
@@ -55,12 +55,15 @@ const updateFormSchema = z.object({
   address: z.string().min(10, 'Địa chỉ phải có ít nhất 10 ký tự'),
   gender: z.enum(['Nam', 'Nữ']),
   birthDate: z.string(),
-  status: z.enum(['ACTIVE', 'IN_ACTIVE'])
+  status: z.enum(['ACTIVE', 'IN_ACTIVE']),
 })
 
 type UpdateFormValues = z.infer<typeof updateFormSchema>
 
-export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowActionsProps) {
+export function DataTableRowActions({
+  row,
+  onUpdateSuccess,
+}: DataTableRowActionsProps) {
   const account = row.original
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -73,9 +76,9 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
       phone: account.phone,
       address: account.address,
       gender: account.gender ? 'Nam' : 'Nữ',
-      birthDate: account.birthDate || "",
-      status: account.status
-    }
+      birthDate: account.birthDate || '',
+      status: account.status,
+    },
   })
 
   const handleUpdate = async (values: UpdateFormValues) => {
@@ -89,12 +92,12 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
           //password: "string",
           phone: values.phone,
           address: values.address,
-          googleId: "string",
+          googleId: 'string',
           imageAvatar: account.imageAvatar,
           idRole: account.idRole.id,
           gender: values.gender === 'Nam',
           birthDate: values.birthDate,
-          status: values.status
+          status: values.status,
         }
       )
 
@@ -109,7 +112,9 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
       }
     } catch (error: any) {
       console.error('Update error:', error)
-      toast.error(error.response?.data?.message || 'Không thể cập nhật tài khoản')
+      toast.error(
+        error.response?.data?.message || 'Không thể cập nhật tài khoản'
+      )
     } finally {
       setIsUpdating(false)
     }
@@ -120,30 +125,33 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+            variant='ghost'
+            className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'
           >
-            <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Mở menu</span>
+            <MoreHorizontal className='h-4 w-4' />
+            <span className='sr-only'>Mở menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuContent align='end' className='w-[160px]'>
           <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
-            <Pen className="mr-2 h-4 w-4" />
+            <Pen className='mr-2 h-4 w-4' />
             Cập nhật thông tin
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>Cập nhật thông tin tài khoản</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleUpdate)}
+            className='space-y-4'
+          >
             <FormField
               control={form.control}
-              name="fullName"
+              name='fullName'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Họ và tên</FormLabel>
@@ -156,7 +164,7 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="email"
+              name='email'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -169,7 +177,7 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="phone"
+              name='phone'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Số điện thoại</FormLabel>
@@ -182,7 +190,7 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="address"
+              name='address'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Địa chỉ</FormLabel>
@@ -195,19 +203,22 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="gender"
+              name='gender'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Giới tính</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn giới tính" />
+                        <SelectValue placeholder='Chọn giới tính' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Nam">Nam</SelectItem>
-                      <SelectItem value="Nữ">Nữ</SelectItem>
+                      <SelectItem value='Nam'>Nam</SelectItem>
+                      <SelectItem value='Nữ'>Nữ</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -216,12 +227,12 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="birthDate"
+              name='birthDate'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ngày sinh</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type='date' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -229,35 +240,38 @@ export function DataTableRowActions({ row, onUpdateSuccess }: DataTableRowAction
             />
             <FormField
               control={form.control}
-              name="status"
+              name='status'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Trạng thái</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn trạng thái" />
+                        <SelectValue placeholder='Chọn trạng thái' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Hoạt động</SelectItem>
-                      <SelectItem value="IN_ACTIVE">Không hoạt động</SelectItem>
+                      <SelectItem value='ACTIVE'>Hoạt động</SelectItem>
+                      <SelectItem value='IN_ACTIVE'>Không hoạt động</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex justify-end space-x-4 pt-4">
+            <div className='flex justify-end space-x-4 pt-4'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => setIsDialogOpen(false)}
                 disabled={isUpdating}
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? "Đang cập nhật..." : "Lưu thay đổi"}
+              <Button type='submit' disabled={isUpdating}>
+                {isUpdating ? 'Đang cập nhật...' : 'Lưu thay đổi'}
               </Button>
             </div>
           </form>

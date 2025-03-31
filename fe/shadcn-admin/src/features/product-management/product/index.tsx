@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { IconLoader2 } from '@tabler/icons-react'
+import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -25,7 +27,6 @@ const columns: ColumnDef<ProductResponse>[] = [
     accessorKey: 'id',
     header: 'STT',
     cell: ({ row }) => {
-      // Lấy index của row và cộng thêm 1 vì index bắt đầu từ 0
       return <div>{row.index + 1}</div>
     },
   },
@@ -49,7 +50,7 @@ const columns: ColumnDef<ProductResponse>[] = [
           await productDetailById(product.id)
           navigate({
             to: '/product/$id/product-detail',
-            params: { id: product.id.toString() },
+            params: { id: product.id },
           })
         } catch (error) {
           toast({
@@ -103,21 +104,24 @@ export default function Product() {
   const [idCategory, setIdCategory] = useState<number | undefined>(undefined)
   const [status, setStatus] = useState<string | undefined>(undefined)
 
-  // Gọi API getProducts khi vào trang
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts()
-        setProducts(data)
-      } catch (error) {
-        setError(error as Error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Sử dụng useQuery để fetch dữ liệu ban đầu
+  const { data: initialData, isError: isQueryError, error: queryError } = useQuery({
+    queryKey: ['products', 'initial'],
+    queryFn: getProducts,
+    refetchOnWindowFocus: false
+  })
 
-    fetchProducts()
-  }, [])
+  // Cập nhật state khi dữ liệu từ useQuery thay đổi
+  useEffect(() => {
+    if (initialData) {
+      setProducts(initialData)
+      setLoading(false)
+    }
+    if (isQueryError && queryError) {
+      setError(queryError)
+      setLoading(false)
+    }
+  }, [initialData, isQueryError, queryError])
 
   // Gọi API searchProducts khi có thay đổi trong filter
   useEffect(() => {
@@ -178,19 +182,22 @@ export default function Product() {
     status,
   ])
 
-  if (loading)
+  // Chỉ hiển thị loading khi chưa có dữ liệu và đang loading
+  if (loading && products.length === 0) {
     return (
       <div className='flex h-full items-center justify-center'>
         <IconLoader2 className='h-8 w-8 animate-spin' />
       </div>
     )
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className='mt-9 flex h-screen items-center justify-center text-2xl'>
         Lỗi: {error.message}
       </div>
     )
+  }
 
   return (
     <ProductProvider>
