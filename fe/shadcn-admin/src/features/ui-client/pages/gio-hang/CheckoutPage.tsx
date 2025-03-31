@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Link, useSearch } from '@tanstack/react-router'
 import { Card, Input, RadioGroup, Radio, Button, Switch } from '@heroui/react'
-import { Icon } from '@iconify/react'
+import { Icon, setCustomIconsLoader } from '@iconify/react'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
 import type { CartItem } from '../../components/gio-hang/types/cart'
+import { AccountKhachHang } from '../../service/Schema'
+import { getByIdAccount } from '../../service/CartDetail'
 
 interface CheckoutData {
   customerInfo: {
@@ -24,6 +26,7 @@ interface CheckoutData {
 }
 
 export function CheckoutPage() {
+  const [khachHang, setKhachHang] = useState<AccountKhachHang>();
   const { selectedProducts: productsJson } = useSearch({ strict: false })
   const selectedProducts = React.useMemo(() => {
     try {
@@ -33,6 +36,45 @@ export function CheckoutPage() {
       return []
     }
   }, [productsJson])
+
+  // Lấy id account
+  const userId = useMemo(() => {
+    try {
+      const profile = localStorage.getItem('profile')
+      return profile ? JSON.parse(profile)?.id : null
+    } catch (error) {
+      console.error("Lỗi parse profile:", error)
+      return null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (userId) {
+      getByIdAcount();
+    }
+  }, [userId]);
+
+  const getByIdAcount = async () => {
+    try {
+      // Kiểm tra userId hợp lệ
+      if (!userId) {
+        console.error("User ID không tồn tại");
+        return;
+      }
+      const response = await getByIdAccount(userId);
+      if (response.status === 200) {
+        setKhachHang(response);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tìm kiếm khách hàng:", error);
+    }
+  };
+  // Hàm log thông tin khách hàng
+  const logKhachHangInfo = async () => {
+    console.log("Thông tin khách hàng:", khachHang);
+    console.log("Tên khách hàng:", khachHang?.fullName);
+  };
+
 
   const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({
     customerInfo: {
@@ -113,7 +155,7 @@ export function CheckoutPage() {
                     label="Họ và tên"
                     placeholder="Nhập họ và tên"
                     variant="bordered"
-                    value={checkoutData.customerInfo.name}
+                    value={khachHang?.fullName != null ? khachHang.fullName : "ddd"}
                     onChange={(e) =>
                       handleCustomerInfoChange('name', e.target.value)
                     }
@@ -122,7 +164,7 @@ export function CheckoutPage() {
                     label="Số điện thoại"
                     placeholder="Nhập số điện thoại"
                     variant="bordered"
-                    value={checkoutData.customerInfo.phone}
+                    value={khachHang?.phone != null ? khachHang.phone : ""}
                     onChange={(e) =>
                       handleCustomerInfoChange('phone', e.target.value)
                     }
@@ -131,7 +173,7 @@ export function CheckoutPage() {
                     label="Email (Không bắt buộc)"
                     placeholder="Nhập email"
                     variant="bordered"
-                    value={checkoutData.customerInfo.email}
+                    value={khachHang?.email != null ? khachHang.email : ""}
                     onChange={(e) =>
                       handleCustomerInfoChange('email', e.target.value)
                     }
@@ -139,7 +181,7 @@ export function CheckoutPage() {
                 </div>
               </div>
             </Card>
-
+            <button onClick={logKhachHangInfo}>xemxem</button>
             <LocationSelector onSubmit={handleLocationSubmit} />
 
             <Card>

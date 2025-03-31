@@ -15,18 +15,6 @@ export const getProfile = async () => {
   }
 }
 
-// export const getCartItems = async () => {
-//   const jwt = Cookies.get('jwt')
-//   if (!jwt) return []
-
-//   const response = await axios.get(`${API_BASE_URL}/cart`, {
-//     headers: {
-//       Authorization: `Bearer ${jwt}`,
-//     },
-//   })
-//   return response.data?.items || []
-// }
-
 export const getHome = async () => {
   try {
     const response = await axios.get(API_BASE_URL)

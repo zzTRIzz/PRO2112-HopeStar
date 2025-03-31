@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,18 +74,28 @@ public class CartDetailServiceImpl implements CartDetailService {
 
 
     @Override
-    public List<CartDetailDto> getByIdGH(Integer idGH) {
-        List<CartDetail> cartDetail = cartDetailRepository.findByIdGH(idGH);
+    public List<CartDetailDto> getByidAccount(Integer idAccount) {
+        List<CartDetail> cartDetail = cartDetailRepository.findByIdGH(idAccount);
         return cartDetail.stream().map(cartDetailMapper::mapperCartDetailDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CartDetailDto createGHCT(CartDetailDto cartDetailDto) {
-        CartDetail cartDetail = cartDetailMapper.entityCartDetail(cartDetailDto);
-        cartDetail.setStatus(StatusCartDetail.pending);
-        CartDetail saveCartDetail = cartDetailRepository.save(cartDetail);
-        return cartDetailMapper.mapperCartDetailDto(saveCartDetail);
+        Optional<CartDetail> optionalCartDetail  = cartDetailRepository.timKiemIdCartByIdProductDetail
+                (cartDetailDto.getIdShoppingCart(), cartDetailDto.getIdProductDetail());
+        if (optionalCartDetail.isPresent()){
+            CartDetail cartDetail = optionalCartDetail.get();
+            Integer soLuong = cartDetail.getQuantity() + cartDetail.getQuantity();
+            cartDetail.setQuantity(soLuong);
+            cartDetailRepository.save(cartDetail);
+            return cartDetailMapper.mapperCartDetailDto(cartDetail);
+        }else {
+            CartDetail savecartDetail = cartDetailMapper.entityCartDetail(cartDetailDto);
+            savecartDetail.setStatus(StatusCartDetail.pending);
+            CartDetail saveCartDetail = cartDetailRepository.save(savecartDetail);
+            return cartDetailMapper.mapperCartDetailDto(saveCartDetail);
+        }
     }
 
     @Override
