@@ -713,24 +713,24 @@ function BanHangTaiQuay() {
       }
 
       console.log("id bill trước luc chạy " + idHoaDon)
-      // const newBillDetail = await addHDCT({
-      //   idBill: idHoaDon,
-      //   idProductDetail: productDetail.id
-      // });
+      const newBillDetail = await addHDCT({
+        idBill: idHoaDon,
+        idProductDetail: productDetail.id
+      });
 
-      // if (!newBillDetail?.id) {
-      //   fromThatBai('Tạo hóa đơn chi tiết thất bại');
-      //   return;
-      // }
-      // console.log("id bill luc chạy " + idHoaDon)
-      // await createImeiSold(
-      //   {
-      //     id_Imei: [productDetail.idImei],
-      //     idBillDetail: newBillDetail.id
-      //   },
-      //   idHoaDon,
-      //   productDetail.id
-      // );
+      if (!newBillDetail?.id) {
+        fromThatBai('Tạo hóa đơn chi tiết thất bại');
+        return;
+      }
+      console.log("id bill luc chạy " + idHoaDon)
+      await createImeiSold(
+        {
+          id_Imei: [productDetail.idImei],
+          idBillDetail: newBillDetail.id
+        },
+        idHoaDon,
+        productDetail.id
+      );
 
       setProduct((prev) => prev.filter((p) => p.idProductDetail !== productDetail.id));
 

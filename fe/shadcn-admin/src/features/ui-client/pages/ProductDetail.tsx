@@ -77,7 +77,7 @@ export default function ProductDetail() {
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change
-    if (newQuantity >= 1 && newQuantity <= 10) {
+    if (newQuantity >= 1 && newQuantity <= 5) {
       setQuantity(newQuantity)
     }
   }
@@ -282,6 +282,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Action Buttons */}
+
           <div className='flex gap-4 pt-4'>
             <Button
               color='primary'
