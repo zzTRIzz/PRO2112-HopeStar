@@ -233,7 +233,7 @@ export default function Navbar() {
             </Button>
           )}
           <Button variant='ghost' size='icon' asChild>
-            <Link to='/' className='relative'>
+            <Link to='/gio-hang' className='relative'>
               <ShoppingCart className='h-5 w-5' />
               <Badge className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center'>
                 2
