@@ -1,8 +1,7 @@
-import React from 'react'
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@/components/ui/badge'
+
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,7 @@ import {
 import { useDialog } from '../context/dialog-context'
 import { ProductImeiResponse } from '../data/schema'
 import { DataTable } from './data-table'
+import { Badge } from '@/components/ui/badge'
 
 const columns: ColumnDef<ProductImeiResponse>[] = [
   {
@@ -49,22 +49,30 @@ const columns: ColumnDef<ProductImeiResponse>[] = [
       return (
         <Badge
           variant={
-            status === 'ACTIVE'
+            status === 'NOT_SOLD'
               ? 'default'
-              : status === 'INACTIVE'
+              : status === 'IN_ACTIVE'
                 ? 'secondary'
-                : status === 'PENDING'
+                : status === 'PENDING_DELIVERY'
                   ? 'outline'
-                  : 'destructive'
+                  : status === 'IN_THE_CART'
+                    ? 'warning'
+                    : status === 'CANCELLED'
+                      ? 'destructive'
+                      : 'success'
           }
         >
-          {status === 'ACTIVE'
-            ? 'Hoạt động'
-            : status === 'INACTIVE'
+          {status === 'NOT_SOLD'
+            ? 'Chưa bán'
+            : status === 'IN_ACTIVE'
               ? 'Không hoạt động'
-              : status === 'PENDING'
-                ? 'Chờ xử lý'
-                : 'Đã bán'}
+              : status === 'PENDING_DELIVERY'
+                ? 'Chờ giao hàng'
+                : status === 'IN_THE_CART'
+                  ? 'Trong giỏ hàng'
+                  : status === 'CANCELLED'
+                    ? 'Đã hủy'
+                    : 'Đã bán'}
         </Badge>
       )
     },
@@ -74,22 +82,29 @@ const columns: ColumnDef<ProductImeiResponse>[] = [
 export function ImeiDialog() {
   const { open, setOpen } = useDialog()
 
+  // Return null if dialog shouldn't be shown
   if (!open || open.type !== 'imei' || !open.data) return null
+
+  const productDetail = open.data
 
   return (
     <Dialog open={true} onOpenChange={() => setOpen(null)}>
       <DialogContent className='max-w-4xl'>
         <DialogHeader>
           <DialogTitle>
-            Chi tiết IMEI - {open.data.colorName} ({open.data.ramCapacity}GB/
-            {open.data.romCapacity}GB)
+            Chi tiết IMEI - {productDetail.colorName} (
+            {productDetail.ramCapacity}GB/
+            {productDetail.romCapacity}GB)
           </DialogTitle>
           <DialogDescription>
-            Thông tin chi tiết tất cả các imei
+            Thông tin chi tiết tất cả các IMEI
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className='h-[400px] pr-4'>
-          <DataTable columns={columns} data={open.data.productImeiResponses} />
+          <DataTable
+            columns={columns}
+            data={productDetail.productImeiResponses}
+          />
         </ScrollArea>
       </DialogContent>
     </Dialog>

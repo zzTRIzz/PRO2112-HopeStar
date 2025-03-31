@@ -80,9 +80,9 @@ export function ProductDetailImportDialog({ open, onOpenChange }: Props) {
     >
       <DialogContent className='gap-2 sm:max-w-sm'>
         <DialogHeader className='text-left'>
-          <DialogTitle>Import ProductDetail</DialogTitle>
+          <DialogTitle>Tải tệp sản phẩm các phiên bản</DialogTitle>
           <DialogDescription>
-            Import tasks quickly from a CSV file.
+            Tệp các phiên bản của sản phẩm theo ram, rom, màu sắc
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -92,7 +92,7 @@ export function ProductDetailImportDialog({ open, onOpenChange }: Props) {
               name='file'
               render={() => (
                 <FormItem className='mb-2 space-y-1'>
-                  <FormLabel>File</FormLabel>
+                  <FormLabel>Tệp</FormLabel>
                   <FormControl>
                     <Input type='file' {...fileRef} className='h-8' />
                   </FormControl>
@@ -104,10 +104,10 @@ export function ProductDetailImportDialog({ open, onOpenChange }: Props) {
         </Form>
         <DialogFooter className='gap-2 sm:gap-0'>
           <DialogClose asChild>
-            <Button variant='outline'>Close</Button>
+            <Button variant='outline'>Hủy</Button>
           </DialogClose>
           <Button type='submit' form='task-import-form'>
-            Import
+            Hoàn tất
           </Button>
         </DialogFooter>
       </DialogContent>

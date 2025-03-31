@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react'
 import { ProductDetailResponse } from '../data/schema'
 
-type DialogType = 'imei' | 'update' | 'import' | null
+type DialogType = 'imei' | 'update' | 'import' | 'add' | null
 
 interface DialogContextType {
   open: DialogType

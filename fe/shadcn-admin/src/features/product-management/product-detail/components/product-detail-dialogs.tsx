@@ -1,4 +1,5 @@
 import { useDialog } from '../context/dialog-context'
+import ImeiImportDialog from './imei-import-dialog'
 import { ProductDetailImportDialog } from './product-detail-import-dialog'
 import { ProductDetailUpdateDialog } from './product-detail-update-dialog'
 
@@ -7,6 +8,7 @@ export const DialogType = {
   IMEI: 'imei',
   UPDATE: 'update',
   IMPORT: 'import',
+  ADD: 'add',
 } as const
 
 export function ProductDetailDialogs() {
@@ -21,10 +23,10 @@ export function ProductDetailDialogs() {
     <>
       {/* Import Dialog */}
       <ProductDetailImportDialog
-        key='product-details-import'
-        open={open === DialogType.IMPORT}
+        key='product-details-add'
+        open={open === DialogType.ADD}
         onOpenChange={(isOpen) => {
-          setOpen(isOpen ? DialogType.IMPORT : null)
+          setOpen(isOpen ? DialogType.ADD : null)
           if (!isOpen) handleDialogClose()
         }}
       />
@@ -36,6 +38,16 @@ export function ProductDetailDialogs() {
             open={open === DialogType.UPDATE}
             onOpenChange={(isOpen) => {
               setOpen(isOpen ? DialogType.UPDATE : null)
+              if (!isOpen) handleDialogClose()
+            }}
+            currentRow={currentRow}
+          />
+
+          <ImeiImportDialog
+            key='product-details-import'
+            open={open === DialogType.IMPORT}
+            onOpenChange={(isOpen) => {
+              setOpen(isOpen ? DialogType.IMPORT : null)
               if (!isOpen) handleDialogClose()
             }}
             currentRow={currentRow}

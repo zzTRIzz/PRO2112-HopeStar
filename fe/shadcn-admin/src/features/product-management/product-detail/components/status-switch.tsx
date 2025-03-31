@@ -13,7 +13,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { updateStatus } from '../data/api-service'
 import type { ProductDetailResponse } from '../data/schema'
-
+import { Route } from '@/routes/_authenticated/route'
 interface StatusSwitchProps {
   productDetail: ProductDetailResponse
 }
@@ -23,7 +23,7 @@ export function StatusSwitch({ productDetail }: StatusSwitchProps) {
   const [isChecked, setIsChecked] = useState(productDetail.status === 'ACTIVE')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [pendingStatus, setPendingStatus] = useState<boolean | null>(null)
-
+  const { id } = Route.useParams()
   useEffect(() => {
     setIsChecked(productDetail.status === 'ACTIVE')
   }, [productDetail.status])
@@ -31,7 +31,7 @@ export function StatusSwitch({ productDetail }: StatusSwitchProps) {
   const { mutate } = useMutation({
     mutationFn: updateStatus,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productdetails'] })
+      queryClient.invalidateQueries({ queryKey: ['product-details',id] })
     },
   })
 

@@ -41,19 +41,22 @@ export function DataTable<TData, TValue>({
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
   // Add pagination state
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
+  const [{ pageSize, pageIndex }, setPagination] = React.useState({
     pageSize: 5, // Set initial page size to 5
+    pageIndex: 0,
   })
 
   const table = useReactTable({
-    data,
+    data, // Use the data prop directly
     columns,
     state: {
       sorting,
       columnVisibility,
       columnFilters,
-      pagination, // Add pagination state
+      pagination: {
+        pageSize,
+        pageIndex,
+      },
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -61,7 +64,7 @@ export function DataTable<TData, TValue>({
     onPaginationChange: setPagination, // Add pagination change handler
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -114,7 +117,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length + 1}
                   className='h-24 text-center'
                 >
-                  Không có kết quả
+                  No results.
                 </TableCell>
               </TableRow>
             )}

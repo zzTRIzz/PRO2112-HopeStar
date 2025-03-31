@@ -2,6 +2,7 @@ package com.example.be.repository;
 
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.Product;
+import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.base.BaseRepository;
 
@@ -47,5 +48,7 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "ORDER BY SUM(bd.quantity) DESC " +
             "LIMIT 10")
     List<Product> findTop10SellingProducts(@Param("status") StatusCommon status);
+
+    Product findByProductDetails(ProductDetail productDetail);
 
   }

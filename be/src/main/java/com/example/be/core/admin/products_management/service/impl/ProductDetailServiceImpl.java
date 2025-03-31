@@ -1,6 +1,8 @@
 package com.example.be.core.admin.products_management.service.impl;
 
+import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
 import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
 import com.example.be.core.admin.products_management.mapper.ProductDetailMapper;
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
@@ -10,7 +12,10 @@ import com.example.be.entity.ProductDetail;
 import com.example.be.entity.Voucher;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
+import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ProductDetailRepository;
+import com.example.be.utils.BarcodeGenerator;
+import com.google.zxing.BarcodeFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +31,8 @@ import java.util.stream.Collectors;
 public class ProductDetailServiceImpl implements ProductDetailService {
     private final ProductDetailRepository productDetailRepository;
     private final ProductDetailMapper productDetailMapper;
+    private final ImeiRepository imeiRepository;
+    private final BarcodeGenerator barcodeGenerator;
 
     @Override
     public void updateStatus(Integer id) throws Exception {
@@ -72,6 +79,33 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setImageUrl(productDetailRequest.getImageUrl());
 
         productDetailRepository.save(productDetail);
+    }
+
+    @Override
+    public void addQuantityProductDetail(Integer idProductDetail, List<ProductImeiRequest> listImeiRequest) throws Exception {
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(()->
+                new Exception("product detail not found"+ idProductDetail));
+        for (ProductImeiRequest imeiRequest :listImeiRequest) {
+            Imei imei = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
+            if (imei !=null){
+                throw new Exception("Imei đã tồn tại:"+imeiRequest.getImeiCode());
+            }
+        }
+        Integer count = 0;
+        for (ProductImeiRequest imeiRequest :listImeiRequest){
+            Imei imei = new Imei();
+            imei.setImeiCode(imeiRequest.getImeiCode());
+            imei.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
+            imei.setStatus(StatusImei.NOT_SOLD);
+            imei.setProductDetail(productDetail);
+            imeiRepository.save(imei);
+            count ++;
+        }
+            productDetail.setStatus(ProductDetailStatus.ACTIVE);
+            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+count);
+            productDetailRepository.save(productDetail);
+
+
     }
 
     @Override

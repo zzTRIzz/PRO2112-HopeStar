@@ -2,11 +2,12 @@ import { z } from 'zod'
 
 // Define the StatusImei enum
 export const StatusImeiEnum = z.enum([
-  'ACTIVE',
   'IN_ACTIVE',
-  'PENDING',
   'SOLD',
   'NOT_SOLD',
+  'PENDING_DELIVERY',
+  'CANCELLED',
+  'IN_THE_CART',
 ])
 
 // Define the ProductImeiResponse schema

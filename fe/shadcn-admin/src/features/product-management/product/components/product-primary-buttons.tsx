@@ -19,10 +19,10 @@ export function ProductPrimaryButtons() {
         className='space-x-1'
         onClick={() => setOpen('import')}
       >
-        <span>Import</span> <IconDownload size={18} />
+        <span>Tải tệp</span> <IconDownload size={18} />
       </Button>
       <Button className='space-x-1' onClick={addNewProduct}>
-        <span>Create</span> <IconPlus size={18} />
+        <span>Tạo</span> <IconPlus size={18} />
       </Button>
     </div>
   )

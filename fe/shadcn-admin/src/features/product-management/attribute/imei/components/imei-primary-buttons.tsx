@@ -1,13 +1,13 @@
 import { IconPlus } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
-import { useTasks } from '../context/roms-context'
+import { useImeis} from '../context/imeis-context'
 
-export function TasksPrimaryButtons() {
-  const { setOpen } = useTasks()
+export function ImeiPrimaryButtons() {
+  const { setOpen } = useImeis()
   return (
     <div className='flex gap-2'>
       <Button className='space-x-1' onClick={() => setOpen('create')}>
-        <span>Tạo</span> <IconPlus size={18} />
+        <span>Create</span> <IconPlus size={18} />
       </Button>
     </div>
   )

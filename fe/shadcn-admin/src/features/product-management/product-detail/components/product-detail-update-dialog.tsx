@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconLoader2 } from '@tabler/icons-react'
 import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
@@ -25,11 +25,11 @@ import { Input } from '@/components/ui/input'
 import { ImageUploader } from '../../product/create-product/components/upload-image'
 import { updateProductDetail } from '../data/api-service'
 import {
+  ProductDetailResponse,
   ProductDetailUpdate,
   productDetailUpdateSchema,
-  ProductDetailResponse,
 } from '../data/schema'
-
+import { Route } from '@/routes/_authenticated/route'
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -42,14 +42,14 @@ export function ProductDetailUpdateDialog({
   currentRow,
 }: Props) {
   const queryClient = useQueryClient()
-
+  const { id } = Route.useParams()
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ProductDetailUpdate) =>
       updateProductDetail(currentRow.id, data),
     onSuccess: async () => {
       // Invalidate cả product-details query để load lại dữ liệu
       await queryClient.invalidateQueries({
-        queryKey: ['product-details', currentRow.productId],
+        queryKey: ['product-details',id],
       })
 
       onOpenChange(false)

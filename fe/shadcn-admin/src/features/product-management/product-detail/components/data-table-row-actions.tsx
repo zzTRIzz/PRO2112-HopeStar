@@ -1,5 +1,5 @@
 import { Row } from '@tanstack/react-table'
-import { IconPencil } from '@tabler/icons-react'
+import { IconDownload, IconPencil } from '@tabler/icons-react'
 import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { useDialog } from '../context/dialog-context'
@@ -41,15 +41,50 @@ export function DataTableRowActions<TData>({
     }
   }
 
+  const handleAddClick = () => {
+    try {
+      // Thêm logging để debug
+      console.log('Row data:', row.original)
+
+      // Kiểm tra dữ liệu trước khi parse
+      if (!row.original) {
+        throw new Error('Không có dữ liệu hàng')
+      }
+
+      const productDetail = ProductDetailResponseSchema.parse(row.original)
+
+      // Log kết quả parse
+      console.log('Parsed data:', productDetail)
+
+      setCurrentRow(productDetail)
+      setOpen('import')
+    } catch (error) {
+      console.error('Lỗi xử lý dữ liệu:', error)
+      toast({
+        title: 'Lỗi',
+        description: 'Dữ liệu không hợp lệ hoặc thiếu thông tin',
+        variant: 'destructive',
+      })
+    }
+  }
+
   return (
-    <div>
+    <div className='flex items-center gap-2'>
       <Button
-        className='h-8 w-8 bg-yellow-500 p-0 hover:bg-yellow-600'
+        className='h-10 w-10 bg-yellow-500 hover:bg-gray-500'
         onClick={handleUpdateClick}
         // Disable nút nếu không có dữ liệu hợp lệ
         disabled={!row.original}
       >
-        <IconPencil stroke={3.5} />
+        <IconPencil size={18} />
+      </Button>
+
+      <Button
+        variant='outline'
+        className='h-10 w-10 bg-blue-600 hover:bg-gray-500'
+        onClick={handleAddClick}
+      >
+        <IconDownload size={18} />
       </Button>
     </div>
   )

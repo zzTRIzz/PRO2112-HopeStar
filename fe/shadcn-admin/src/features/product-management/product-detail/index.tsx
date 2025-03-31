@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { IconLoader2, IconQuestionMark } from '@tabler/icons-react'
 import { Route } from '@/routes/_authenticated/route'
@@ -70,7 +70,7 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
     accessorKey: 'inventoryQuantity',
     header: 'Số lượng tồn',
     cell: ({ row }) => {
-      const { setOpen } = useDialog() // Sử dụng context
+      const { setOpen } = useDialog()
       const productDetail = row.original
 
       return (
@@ -99,37 +99,37 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
 ]
 
 export default function ProductDetail() {
-  const [loading, setLoading] = useState(true)
-  const [productDetails, setProductDetails] = useState<ProductDetailResponse[]>(
-    []
-  )
-
   const { id } = Route.useParams()
 
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true)
-        const data = await productDetailById(Number(id))
-        setProductDetails(data)
-      } catch (error) {
-        toast({
-          title: 'Lỗi',
-          description: 'Không thể tải thông tin chi tiết sản phẩm',
-          variant: 'destructive',
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Sử dụng useQuery để fetch dữ liệu
+  const {
+    data: productDetails,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['product-details', id], // Query key với id sản phẩm
+    queryFn: () => productDetailById(Number(id)),
+  })
 
-    fetchProductDetails()
-  }, [id])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='flex h-full items-center justify-center'>
         <IconLoader2 className='h-8 w-8 animate-spin' />
+      </div>
+    )
+  }
+
+  if (isError) {
+    toast({
+      title: 'Lỗi',
+      description:
+        error?.message || 'Không thể tải thông tin chi tiết sản phẩm',
+      variant: 'destructive',
+    })
+    return (
+      <div className='flex h-full items-center justify-center text-red-500'>
+        Đã xảy ra lỗi khi tải dữ liệu
       </div>
     )
   }
@@ -170,7 +170,7 @@ export default function ProductDetail() {
           <ProductDetailPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
-          <DataTable columns={columns} data={productDetails} />
+          <DataTable columns={columns} data={productDetails || []} />
         </div>
       </Main>
 

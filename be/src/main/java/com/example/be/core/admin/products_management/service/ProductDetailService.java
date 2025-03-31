@@ -1,6 +1,7 @@
 package com.example.be.core.admin.products_management.service;
 
 import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,8 @@ public interface ProductDetailService {
     List<ProductDetailResponse> searchProductDetails(SearchProductDetailRequest searchProductDetailRequest, Integer id);
 
     void updateProductDetail(Integer idProductDetail, ProductDetailRequest productDetailRequest) throws Exception;
+
+    void addQuantityProductDetail(Integer idProductDetail, List<ProductImeiRequest> listImeiRequest) throws Exception;
 
     void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity);
 
