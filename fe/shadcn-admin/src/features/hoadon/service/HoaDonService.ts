@@ -1,6 +1,4 @@
-import { BillDetailSchema } from "@/features/banhang/service/BillDetailSchema";
-import { BillSchema } from "@/features/banhang/service/BillSchema";
-import { ImeiSoldSchema } from "@/features/banhang/service/ImeiSoldSchema";
+import { BillDetailSchema, BillSchema, ImeiSoldSchema } from "@/features/banhang/service/Schema";
 import axios from "axios";
 import { SearchBillRequest } from "./HoaDonSchema";
 
@@ -19,7 +17,7 @@ export const getAllBill = async () => {
 export const searchBillList = async (searchHoaDon: SearchBillRequest) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/searchBillList`, { params: searchHoaDon });
-        return response.data;
+        return response.data || [];
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
@@ -36,6 +34,18 @@ export const findBill = async (idBill: number) => {
         throw error;
     }
 }
+
+// Cập nhật trạng thái 
+export const updateStatus = async (idBill: number, status:string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/updateStatus/${idBill}/${status}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
 // Lấy dữ liệu data của product
 export const getByIdBillDetail = async (id: number) => {
     try {

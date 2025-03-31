@@ -62,17 +62,17 @@ export function OsMutateDialog({ open, onOpenChange, currentRow }: Props) {
         onOpenChange(false)
         form.reset()
         toast({
-          title: 'Success',
-          description: `${isUpdate ? 'Updated' : 'Created'} successfully`,
+          title: 'Thành công',
+          description: `${isUpdate ? 'Cập nhật' : 'Tạo mới'} thành công`,
           className: 'fixed top-4 right-4 md:max-w-[300px] bg-white',
           duration: 2000,
         })
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description:
-            error.message || `Failed to ${isUpdate ? 'update' : 'create'}`,
+            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,
@@ -85,12 +85,14 @@ export function OsMutateDialog({ open, onOpenChange, currentRow }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>{isUpdate ? 'Update' : 'Create'} Os</DialogTitle>
+          <DialogTitle>
+            {isUpdate ? 'Cập nhật' : 'Tạo mới'} Hệ điều hành
+          </DialogTitle>
           <DialogDescription>
             {isUpdate
-              ? 'Update the os by providing necessary info.'
-              : 'Add a new os by providing necessary info.'}
-            Click save when you're done.
+              ? 'Cập nhật thông tin hệ điều hành bằng cách điền các thông tin cần thiết.'
+              : 'Thêm hệ điều hành mới bằng cách điền các thông tin cần thiết.'}
+            Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,9 +107,9 @@ export function OsMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter a name' />
+                    <Input {...field} placeholder='Nhập tên' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,14 +121,14 @@ export function OsMutateDialog({ open, onOpenChange, currentRow }: Props) {
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select status'
+                    placeholder='Chọn trạng thái'
                     items={[
-                      { label: 'Active', value: 'ACTIVE' },
-                      { label: 'Inactive', value: 'IN_ACTIVE' },
+                      { label: 'Hoạt động', value: 'ACTIVE' },
+                      { label: 'Không hoạt động', value: 'IN_ACTIVE' },
                     ]}
                   />
                   <FormMessage />
@@ -138,10 +140,10 @@ export function OsMutateDialog({ open, onOpenChange, currentRow }: Props) {
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button form='os-form' type='submit' disabled={isPending}>
-            {isPending ? 'Saving...' : `${isUpdate ? 'Update' : 'Save'}`}
+            {isPending ? 'Đang lưu...' : `${isUpdate ? 'Cập nhật' : 'Lưu'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

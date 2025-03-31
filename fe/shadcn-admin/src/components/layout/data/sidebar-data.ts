@@ -20,7 +20,8 @@ import {
   IconUsers,
   IconSubtask,
   IconDiscount,
-  IconPointFilled
+  IconPointFilled,
+  IconUser,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -36,7 +37,7 @@ export const sidebarData: SidebarData = {
       name: 'HopeStar',
       logo: Command,
       plan: 'pro2112-nganct4',
-    }
+    },
   ],
   navGroups: [
     {
@@ -44,7 +45,7 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Dashboard',
-          url: '/',
+          url: '/dashboard',
           icon: IconLayoutDashboard,
         }
         ,
@@ -52,8 +53,7 @@ export const sidebarData: SidebarData = {
           title: 'Bán hàng tại quầy',
           url: '/banhang',
           icon: IconShoppingCart,
-        }
-        ,
+        },
         {
           title: 'Quản lý sản phẩm',
           icon: IconDeviceMobile,
@@ -157,32 +157,32 @@ export const sidebarData: SidebarData = {
         }
         ,
         {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: IconSubtask,
+          title: 'Quản lý tài khoản',
+          icon: IconUser,
+          items: [
+            {
+              title: 'Khách hàng',
+              url: '/taikhoan/khachhang',
+            },
+            {
+              title: 'Nhân viên',
+              url: '/taikhoan/nhanvien',
+            },
+          ],
         },
 
-        {
-          title: 'Counter',
-          url: '/apps',
-          icon: IconShoppingCart,
-        },
         {
           title: 'Chats',
           url: '/chats',
           badge: '3',
           icon: IconMessages,
         },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: IconUsers,
-        },
+
         {
           title: 'Voucher',
           url: '/voucher',
-          icon: IconDiscount
-        }
+          icon: IconDiscount,
+        },
       ],
     },
     {
@@ -195,10 +195,6 @@ export const sidebarData: SidebarData = {
             {
               title: 'Sign In',
               url: '/sign-in',
-            },
-            {
-              title: 'Sign In (2 Col)',
-              url: '/sign-in-2',
             },
             {
               title: 'Sign Up',

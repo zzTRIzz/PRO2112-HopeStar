@@ -8,23 +8,22 @@ import * as React from "react"
 import TableHoaDon from './components/TableHoaDon';
 import { getAllBill } from './service/HoaDonService';
 import { Bill } from './service/HoaDonSchema';
+import TimKiemHoaDon from './components/TimKiemHoaDon';
 
 const QuanLyHoaDon: React.FC = () => {
-     const [listHoaDon, setListHoaDon] = React.useState<Bill[]>([]);
-        React.useEffect(() => {
-            loadHoaDon();
-        }, []);
-    
-    
-        const loadHoaDon = async () => {
-            try {
-                const data = await getAllBill();
-                setListHoaDon(data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+    const [listHoaDon, setListHoaDon] = React.useState<Bill[]>([]);
+    React.useEffect(() => {
+        loadHoaDon();
+    }, []);
+    const loadHoaDon = async () => {
+        try {
+            const data = await getAllBill();
+            setListHoaDon(data || []); // Luôn set thành mảng
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setListHoaDon([]); // Xử lý lỗi bằng mảng rỗng
         }
-    
+    }
     return (
         <>
             <div>
@@ -43,7 +42,7 @@ const QuanLyHoaDon: React.FC = () => {
                     <div className='mb-[8px]'>
                         <h2 className='text-2xl font-bold tracking-tight'>Quản lý sản phẩm</h2>
                     </div>
-                    {/* <TimKiemHoaDon listHoaDon={listHoaDon} setListHoaDon={setListHoaDon} /> <br /> */}
+                    <TimKiemHoaDon setListHoaDon={setListHoaDon} /> <br />
                     <TableHoaDon listHoaDon={listHoaDon} />
                 </div> <br />
             </Main>

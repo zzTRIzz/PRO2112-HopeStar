@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { BillDetailSchema } from './BillDetailSchema';
-import { ImeiSoldSchema } from './ImeiSoldSchema';
-import { BillSchema } from './BillSchema';
+
+import { BillDetailSchema, BillSchema, ImeiSoldSchema } from './Schema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -238,6 +237,17 @@ export const findVoucherByAccount = async (idBillHienTai: number) => {
 export const huyHoaDon = async (idBillCanHuy: number) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+// Quét barcode để lấy sản phẩm chi tiết 
+export const quetBarCode = async (barCode: String) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/product-detail/barcode/${barCode}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);

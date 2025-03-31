@@ -40,7 +40,7 @@
 }
 
 .custom-thatBai .Toastify__toast-body::before {
-  content: "✔";
+  content: "⚠️";
   font-size: 20px;
   margin-right: 8px;
   /* background-color: rgb(243, 246, 247);

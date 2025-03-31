@@ -7,17 +7,23 @@ import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
 import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
+import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.entity.Bill;
 import com.example.be.entity.BillDetail;
+import com.example.be.entity.Imei;
 import com.example.be.entity.ProductDetail;
 
 import com.example.be.entity.status.ProductDetailStatus;
+import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.BillDetailRepository;
 import com.example.be.repository.BillRepository;
+import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ProductDetailRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,6 +47,9 @@ public class BillDetailServiceImpl implements BillDetailService {
 
     @Autowired
     BillRepository billRepository;
+
+    @Autowired
+    ImeiRepository imeiRepository;
 
 
     @Override
@@ -76,7 +85,7 @@ public class BillDetailServiceImpl implements BillDetailService {
     public BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong) {
         Optional<BillDetail> optionalBillDetail = billDetailRepository.
                 findFirstByIdBillAndIdProductDetail(idBill, idProductDetail);
-
+    
         if (optionalBillDetail.isPresent()) {
             BillDetail billDetail = optionalBillDetail.get();
             Integer soLuongTong = billDetail.getQuantity() + SoLuong;
@@ -91,9 +100,6 @@ public class BillDetailServiceImpl implements BillDetailService {
     }
 
 
-
-
-
     @Override
     public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
         List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
@@ -103,22 +109,25 @@ public class BillDetailServiceImpl implements BillDetailService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public BigDecimal tongTienBill(Integer idBill) {
-        BigDecimal tongTien = BigDecimal.ZERO; // Khởi tạo đúng cách là zero
+        // Lấy hóa đơn theo ID
         Bill bill = billRepository.findById(idBill)
-                .orElseThrow(()->new RuntimeException("Khong tim thay bill"+idBill));
-        for (BillDetail billDetail : billDetailRepository.findAll()) {
-            if (billDetail.getIdBill().getId().equals(idBill)) {
-                tongTien = tongTien.add(
-                        billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())));
-            }else {
-                tongTien=BigDecimal.ZERO;
-            }
-        }
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn: " + idBill));
+
+        // Lấy tổng tiền hàng từ database
+        BigDecimal tongTien = billDetailRepository.getTotalAmountByBillId(idBill);
+
+        // Lấy phí ship (nếu null thì mặc định 0)
+//        BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+
+        // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
+//        BigDecimal tongTienFinal = tongTien.add(phiShip);
+
+        // Cập nhật lại tổng tiền vào hóa đơn
         bill.setTotalPrice(tongTien);
         billRepository.save(bill);
+
         return tongTien;
     }
 
@@ -132,10 +141,10 @@ public class BillDetailServiceImpl implements BillDetailService {
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
         billDetailRepository.deleteById(idBillDetail);
     }
-//lấy danh sách product ra để hiển thị lên
 
 
-    public ProductDetailDto productDetailDto(ProductDetail productDetail){
+    //lấy danh sách product ra để hiển thị lên
+    public ProductDetailDto productDetailDto(ProductDetail productDetail) {
         return new ProductDetailDto(
                 productDetail.getId(),
                 productDetail.getCode(),
@@ -146,14 +155,42 @@ public class BillDetailServiceImpl implements BillDetailService {
                 productDetail.getColor().getName(),
                 productDetail.getRam().getCapacity(),
                 productDetail.getRom().getCapacity(),
-                productDetail.getImageUrl()
+                productDetail.getImageUrl(),
+                null
         );
     }
 
     @Override
-    public List<ProductDetailDto> getAllProductDetailDto(){
+    public List<ProductDetailDto> getAllProductDetailDto() {
         List<ProductDetail> productDetails = productDetailRepository.getAllProductDetail(ProductDetailStatus.ACTIVE);
-            return productDetails.stream().map(this::productDetailDto)
-                    .collect(Collectors.toList());
+        return productDetails.stream().map(this::productDetailDto)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public ProductDetailDto quetBarCodeCHoProductTheoImei(String barCode) {
+        // Tìm IMEI chưa bán
+        Imei imei = imeiRepository.findImeiByImeiCode(barCode, StatusImei.NOT_SOLD);
+
+        // Xử lý trường hợp không tìm thấy
+        if (imei == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Không tìm thấy sản phẩm hoặc IMEI đã được sử dụng"
+            );
+        }
+        // Kiểm tra ràng buộc dữ liệu
+        if (imei.getProductDetail() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Thông tin sản phẩm không tồn tại cho IMEI: " + barCode
+            );
+        }
+        // Map sang DTO và trả về
+        ProductDetailDto dto = productDetailDto(imei.getProductDetail());
+        dto.setIdImei(imei.getId());
+
+        return dto;
     }
 }

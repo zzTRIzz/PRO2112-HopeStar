@@ -13,10 +13,5 @@ public class SearchBillRequest {
 
     private Byte loaiHoaDon;
     private StatusBill trangThai;
-//    private Integer idTaiKhoan; // ID tài khoản khách hàng
-//    private Integer idNhanVien; // ID nhân viên xử lý
-//    private Integer idVoucher; // ID voucher
-//
-//    private Integer idPhuongThucThanhToan; // ID phương thức thanh toán
-//    private Integer idPhuongThucGiaoHang; // ID phương thức giao hàng
+
 }

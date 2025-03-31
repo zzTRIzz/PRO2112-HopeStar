@@ -1,4 +1,4 @@
-import { BillSchema } from '@/features/banhang/service/BillSchema';
+import { BillSchema } from '@/features/banhang/service/Schema';
 import React from 'react';
 import { format } from "date-fns";
 
@@ -33,7 +33,7 @@ const ThongTinDonHang: React.FC<Posp> = (
                         </div>
                         <div className="flex  pb-2 mt-[13px]">
                             <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
-                            <p className="ml-[14px]">{searchBill?.billType ? "Tại quầy" : "Giao hàng"}</p>
+                            <p className="ml-[14px]">{searchBill?.billType == 0 ? "Tại quầy" : "Giao hàng"}</p>
                         </div>
                         <div className="flex  pb-2 mt-[23px]">
                             <span className="text-base text-gray-700 font-bold">Khách hàng:</span>
@@ -56,7 +56,7 @@ const ThongTinDonHang: React.FC<Posp> = (
                             </p>                        </div>
                         <div className="flex  pb-2 mt-[13px]">
                             <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>
-                            <p className="ml-[14px]">{searchBill?.totalDue.toLocaleString('vi-VN')} VND</p>
+                            <p className="ml-[14px]">{searchBill?.totalDue != null ? searchBill?.totalDue.toLocaleString('vi-VN') : 0} VND</p>
                         </div>
                         <div className="flex  pb-2 mt-[13px]">
                             <span className="text-base text-gray-700 font-bold w-[100px]">Địa chỉ:</span>

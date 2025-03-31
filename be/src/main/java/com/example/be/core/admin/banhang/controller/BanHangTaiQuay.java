@@ -11,6 +11,7 @@ import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
+import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
@@ -32,6 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -87,12 +89,10 @@ public class BanHangTaiQuay {
     }
 
     @GetMapping("/searchBillList")
-    public ResponseEntity<List<?>> searchBillList(@ModelAttribute SearchBillRequest searchBillRequest) {
+    public ResponseEntity<List<SearchBill>> searchBillList(@ModelAttribute SearchBillRequest searchBillRequest) {
         List<SearchBill> billDtos = billService.searchBillList(searchBillRequest);
-//        if (billDtos.isEmpty()){
-//            new
-//        }
-        return ResponseEntity.ok(billDtos);
+        // Luôn trả về list kể cả rỗng
+        return ResponseEntity.ok(billDtos != null ? billDtos : Collections.emptyList());
     }
 
     @GetMapping("/listBill")
@@ -113,9 +113,17 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDetailDtos);
     }
 
+    @GetMapping("/updateStatus/{idBill}/{status}")
+    public ResponseEntity<?> getByHDCT(
+                                        @PathVariable("idBill") Integer idBill,
+                                        @PathVariable("status") StatusBill status) {
+        BillDto billDto = billService.updateStatus(idBill, status);
+        return ResponseEntity.ok(billDto);
+    }
+
     @GetMapping("/huyHoaDon/{idBill}")
     public ResponseEntity<?> huyHoaDon(@PathVariable("idBill") Integer idBill) {
-       billService.updateHuyHoaDon(idBill);
+        billService.updateHuyHoaDon(idBill);
         return ResponseEntity.ok("Hủy hóa đơn thành công");
     }
 
@@ -162,8 +170,6 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(saveBillDto);
     }
 
-
-
     @PostMapping("/addHDCT")
     public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {
         ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
@@ -187,9 +193,8 @@ public class BanHangTaiQuay {
         } else {
             savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
         }
-        BigDecimal tongTienBill = billDetailService.tongTienBill(bill.getId());
+        billDetailService.tongTienBill(bill.getId());
         BillDto billDto = billMapper.dtoBillMapper(bill);
-        billDto.setTotalPrice(tongTienBill);
         billService.saveBillDto(billDto);
         productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
@@ -228,12 +233,11 @@ public class BanHangTaiQuay {
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
         Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
-//        System.out.println("hhhhhhhhhhhhhhhh"+quantyti);
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
-        if (-quantyti ==billDetail.getQuantity()){
+        if (-quantyti == billDetail.getQuantity()) {
             billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
-        }else {
+        } else {
             billDetailService.thayDoiSoLuongKhiCungSPVaHD(
                     idBill, idProduct, quantyti);
         }
@@ -256,6 +260,13 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(productDetailDto);
     }
 
+    @GetMapping("/product-detail/barcode/{barCode}")
+    public ResponseEntity<ProductDetailDto> quetBarCodeCHoProductTheoImei(@PathVariable String barCode) {
+        System.out.println("Imei đã tìm được : "+barCode);
+        ProductDetailDto productDetailDto = billDetailService.quetBarCodeCHoProductTheoImei(barCode);
+        return ResponseEntity.ok(productDetailDto);
+    }
+
     @GetMapping("/account")
     public ResponseEntity<List<?>> getAllAccount() {
         List<AccountResponse> accountResponses = accountService.getAllKhachHang();
@@ -271,14 +282,14 @@ public class BanHangTaiQuay {
     @GetMapping("/findImeiById/{idProductDetail}/{idBillDetail}")
     public ResponseEntity<List<?>> findImeiByIdProductDetail(@PathVariable("idProductDetail") Integer idProductDetail,
                                                              @PathVariable("idBillDetail") Integer idBillDetail) {
-        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail,idBillDetail);
+        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail, idBillDetail);
         return ResponseEntity.ok(accountResponses);
     }
 
     @GetMapping("/findImeiByIdProductDetailDaBan/{idProductDetail}/{idBillDetail}")
     public ResponseEntity<List<?>> findImeiByIdProductDetailDaBan(@PathVariable("idProductDetail") Integer idProductDetail,
                                                                   @PathVariable("idBillDetail") Integer idBillDetail) {
-        List<ImeiDto> accountResponses = imeiService.findImeiByIdProDaBan(idProductDetail,idBillDetail);
+        List<ImeiDto> accountResponses = imeiService.findImeiByIdProDaBan(idProductDetail, idBillDetail);
         return ResponseEntity.ok(accountResponses);
     }
 
@@ -297,7 +308,7 @@ public class BanHangTaiQuay {
     @PostMapping("/updateVoucher/{idBill}/{idVoucher}")
     public ResponseEntity<?> updateVoucher(@PathVariable("idBill") Integer idBill,
                                            @PathVariable("idVoucher") Integer idVoucher) {
-        BillDto billDto = billService.capNhatVoucherKhiChon(idBill,idVoucher);
+        BillDto billDto = billService.capNhatVoucherKhiChon(idBill, idVoucher);
         return ResponseEntity.ok(billDto);
     }
 

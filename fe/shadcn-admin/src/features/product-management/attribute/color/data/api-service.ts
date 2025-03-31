@@ -13,15 +13,7 @@ export const getColor = async () => {
   }
 };
 
-export const getColorActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/color/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
+
 
 export const addColor = async (color: Color) => {
   try {

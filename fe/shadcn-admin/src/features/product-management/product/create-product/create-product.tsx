@@ -7,21 +7,23 @@ import { BeatLoader } from 'react-spinners'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { getBatteryActive } from '../../attribute/battery/data/api-service'
-import { getBluetoothActive } from '../../attribute/bluetooth/data/api-service'
-import { getBrandActive } from '../../attribute/brand/data/api-service'
-import { getCardActive } from '../../attribute/card/data/api-service'
-import { getCategoryActive } from '../../attribute/category/data/api-service'
-import { getChipActive } from '../../attribute/chip/data/api-service'
-import { getColorActive } from '../../attribute/color/data/api-service'
-import { getFrontCameraActive } from '../../attribute/front-camera/data/api-service'
-import { getOsActive } from '../../attribute/os/data/api-service'
-import { getRamActive } from '../../attribute/ram/data/api-service'
-import { getRearCameraActive } from '../../attribute/rear-camera/data/api-service'
-import { getRomActive } from '../../attribute/rom/data/api-service'
-import { getScreenActive } from '../../attribute/screen/data/api-service'
-import { getSimActive } from '../../attribute/sim/data/api-service'
-import { getWifiActive } from '../../attribute/wifi/data/api-service'
+import {
+  getBatteryActive,
+  getBluetoothActive,
+  getBrandActive,
+  getCardActive,
+  getCategoryActive,
+  getChipActive,
+  getFrontCameraActive,
+  getOsActive,
+  getRearCameraActive,
+  getSimActive,
+  getWifiActive,
+  getScreenActive,
+  getColorActive,
+  getRamActive,
+  getRomActive,
+} from '.././data/api-service'
 import { createProduct } from '.././data/api-service'
 import {
   ProductConfigRequest,
@@ -153,15 +155,15 @@ export default function CreateProduct() {
         name: '',
         description: '',
         weight: 0,
-        idChip: undefined,
-        idBrand: undefined,
-        idScreen: undefined,
-        idCard: undefined,
-        idOs: undefined,
-        idWifi: undefined,
-        idBluetooth: undefined,
+        idChip: 0,
+        idBrand: 0,
+        idScreen: 0,
+        idCard: 0,
+        idOs: 0,
+        idWifi: 0,
+        idBluetooth: 0,
         nfc: false,
-        idBattery: undefined,
+        idBattery: 0,
         chargerType: '',
         content: '',
         frontCamera: [],
@@ -222,29 +224,27 @@ export default function CreateProduct() {
         })),
       }
 
-      form.reset(processedData)
-      setIsLoading(true) // Bật trạng thái loading
+      setIsLoading(true)
 
       try {
         await createProduct(processedData)
         await queryClient.invalidateQueries({ queryKey: ['products'] })
         toast({
-          title: 'Success',
-          description: 'Product created successfully',
+          title: 'Thành công',
+          description: 'Tạo sản phẩm thành công',
           className: 'bg-white',
         })
         navigate({ to: '/product' })
       } catch (error: any) {
-        console.error('Error:', error)
         const errorMessage =
-          error.response?.data?.message || 'Failed to create product'
+          error.response?.data?.message || 'Lỗi khi tạo sản phẩm'
         toast({
-          title: 'Error',
+          title: 'Lỗi',
           description: errorMessage,
           variant: 'destructive',
         })
       } finally {
-        setIsLoading(false) // Tắt trạng thái loading dù thành công hay thất bại
+        setIsLoading(false)
       }
     },
     [queryClient, navigate, tableRows, form.formState.errors]
@@ -252,7 +252,7 @@ export default function CreateProduct() {
 
   return (
     <div className='h-full'>
-      <div className='mx-auto w-11/12 py-4 pt-10'>
+      <div className='mx-auto w-11/12 py-4 pt-2'>
         <Form {...form}>
           <form
             onSubmit={(e) => {
@@ -263,7 +263,7 @@ export default function CreateProduct() {
             }}
             className='space-y-4'
           >
-            {/* <ProductForm
+            <ProductForm
               control={form.control}
               batteries={batteries}
               bluetooths={bluetooths}
@@ -277,7 +277,7 @@ export default function CreateProduct() {
               screens={screens}
               sims={sims}
               wifis={wifis}
-            /> */}
+            />
 
             <FormProvider {...form}>
               <ProductDetailForm

@@ -22,4 +22,6 @@ public class ProductDetailDto {
     private Integer Ram;
     private Integer Rom;
     private String imageUrl;
+    private Integer idImei;
+
 }

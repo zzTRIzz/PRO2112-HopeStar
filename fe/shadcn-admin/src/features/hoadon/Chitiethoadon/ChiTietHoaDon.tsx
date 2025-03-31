@@ -73,13 +73,16 @@ interface Voucher {
 }
 
 
-import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHang';
+import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
+import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
 import ThemSanPham from '@/features/banhang/components/ThemSanPham';
-import { BillSchema } from '@/features/banhang/service/BillSchema';
+import { BillSchema } from '@/features/banhang/service/Schema';
 
 import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
+import TrangThaiDonHangGiaoHang from './components/TrangThaiDonHangGiaoHang';
+import TrangThaiDonHangTaiQuay from './components/TrangThaiDonHangTaiQuay';
 
 
 const ChiTietHoaDon: React.FC = () => {
@@ -97,12 +100,7 @@ const ChiTietHoaDon: React.FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
     const [isCapNhatImei, setIsCapNhatImei] = useState(false);
-    const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
-    const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
-    const handleBanGiaoHangChange = () => {
-        setIsBanGiaoHang((prev) => !prev);
-    };
-    const [customerPayment, setCustomerPayment] = useState<number>(0);
+    const [voucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
 
     // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
     useEffect(() => {
@@ -113,7 +111,7 @@ const ChiTietHoaDon: React.FC = () => {
 
     const loadTongBill = async () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const id = Number(urlParams.get("id")); // Chuyển thành số
+        const id = Number(urlParams.get("id"));
 
         if (!isNaN(id) && id > 0) {
             setIdBill(id); // Chỉ cập nhật nếu ID hợp lệ
@@ -130,6 +128,7 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             const data = await findBill(id);
             setSearchBill(data);
+            console.log(searchBill?.totalPrice)
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -231,7 +230,7 @@ const ChiTietHoaDon: React.FC = () => {
     };
 
     // Them imei vao hoa don chi tiet
-    const handleAddImei = async (idBillDetail: number) => {
+    const handleAddImei = async () => {
         try {
             const newImei = await createImeiSold({
                 id_Imei: selectedImei,
@@ -321,7 +320,7 @@ const ChiTietHoaDon: React.FC = () => {
         <>
             <div>
                 <div className='ml-[18px] mt-[10px]'>
-                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý sản phẩm</a><a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
+                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý hóa đơn</a><a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
                 </div>
                 <TasksProvider>
                     <Header>
@@ -336,12 +335,24 @@ const ChiTietHoaDon: React.FC = () => {
             <Main>
 
                 <div >
-                    {searchBill!=null && (
-                    <TrangThaiDonHang
-                        trangThai={searchBill.status as OrderStatus}
-                        searchBill={searchBill}
-                    />
-                )}
+                    {searchBill ? (
+                        searchBill.billType === 1 ? (
+                            <TrangThaiDonHangGiaoHang
+                                findBillById={findBillById}
+                                loadTongBill={loadTongBill}
+                                trangThai={searchBill.status as OrderStatus}
+                                searchBill={searchBill}
+                            />
+                        ) : (
+                            <TrangThaiDonHangTaiQuay
+                                findBillById={findBillById}
+                                loadTongBill={loadTongBill}
+                                trangThai={searchBill.status as OrderStatusTaiQuay}
+                                searchBill={searchBill}
+                            />
+                        )
+                    ) : null}
+
                 </div> <br />
 
                 <ThongTinDonHang
@@ -393,30 +404,38 @@ const ChiTietHoaDon: React.FC = () => {
                         deleteBillDetail={deleteBillDetail}
                         searchBill={searchBill} />
                     <br />
-                    <div className="bg-white p-4 ml-auto mr-5 w-fit text-lg mb-2">
-                        <div className="w-[380px] min-w-[380px] ">
-                            <div className="space-y-4">
-                                {[
-                                    { label: "Tổng tiền hàng:", value: searchBill?.totalPrice },
-                                    { label: "Giảm giá:", value: searchBill?.discountedTotal },
-                                    { label: "Khách cần trả:", value: searchBill?.totalDue },
-                                    { label: "Khách đã trả:", value: searchBill?.customerPayment },
-                                    { label: "Đã trả khách:", value: searchBill?.amountChange, highlight: true },
-                                ].map((item, index) => (
-                                    <div key={index} className="flex justify-between border-b pb-2">
-                                        <span className={`text-gray-700 text-base ${item.highlight ? "text-red-500 font-semibold" : ""}`}>
-                                            {item.label}
-                                        </span>
-                                        <p className={`font-semibold ${item.highlight ? "text-red-500" : ""}`}>
-                                            {item.value == null ? "0 đ" : item.value.toLocaleString('vi-VN') + " đ"}
-                                        </p>
-                                    </div>
-                                ))}
+                    
+                    {product.length > 0 && (
+                        <div className="bg-white p-4 ml-auto mr-5 w-fit text-lg mb-2">
+                            <div className="w-[380px] min-w-[380px] ">
+                                <div className="space-y-4">
+                                    {[
+                                        { label: "Tổng tiền hàng:", value: searchBill?.totalPrice },
+                                        {
+                                            label: `Giảm giá: ${searchBill?.idVoucher == null ? '' : (voucherDangDung?.code)}`,
+                                            value: searchBill?.discountedTotal
+                                        },
+                                        { label: "Phí ship:", value: searchBill?.deliveryFee },
+                                        { label: "Khách cần trả:", value: searchBill?.totalDue },
+                                        { label: "Khách đã trả:", value: searchBill?.customerPayment },
+                                        { label: "Đã trả khách:", value: searchBill?.amountChange, highlight: true },
+                                    ].map((item, index) => (
+                                        <div key={index} className="flex justify-between border-b pb-2">
+                                            <span className={`text-gray-700 text-base ${item.highlight ? "text-red-500 font-semibold" : ""}`}>
+                                                {item.label}
+                                            </span>
+                                            <p className={`font-semibold ${item.highlight ? "text-red-500" : ""}`}>
+                                                {item.value == null ? "0 đ" : item.value.toLocaleString('vi-VN') + " đ"}
+                                            </p>
+                                        </div>
+                                    ))}
 
+                                </div>
                             </div>
                         </div>
-                    </div>
+                       )}
                 </div>
+              
 
 
             </Main >

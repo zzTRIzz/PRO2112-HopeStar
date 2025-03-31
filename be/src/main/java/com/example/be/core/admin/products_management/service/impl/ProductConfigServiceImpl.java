@@ -148,6 +148,7 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 //                productDetailDTO.setStatus(ProductDetailStatus.ACTIVE);
 
                 ProductDetail productDetail = productDetailMapper.dtoToEntity(productDetailDTO);
+                productDetail.setPrice(productDetailDTO.getPriceSell());
                 productDetail.setProduct(createProduct);
                 ProductDetail createProductDetail = productDetailRepository.save(productDetail);
 

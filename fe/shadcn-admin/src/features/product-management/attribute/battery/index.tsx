@@ -23,7 +23,7 @@ const columns: ColumnDef<Battery>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Loại',
+    header: 'Loại pin',
   },
   {
     accessorKey: 'capacity',

@@ -6,6 +6,7 @@ import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Bill;
+import com.example.be.entity.status.StatusBill;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ public interface BillService {
     List<BillDto> listBillTop6();
 
     BillDto getByIdBill(Integer idBill);
+
+    BillDto updateStatus(Integer idBill, StatusBill status);
 
     BillDto createHoaDonTaiQuay(BillDto billDto);
 

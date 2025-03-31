@@ -18,7 +18,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CgAdd } from "react-icons/cg";
-import { BillSchema } from "../service/BillSchema";
+import { BillSchema } from "../service/Schema";
 // Định nghĩa kiểu dữ liệu cho sản phẩm trong giỏ hàng
 
 interface Bill {
@@ -57,7 +57,6 @@ interface Bill {
 interface pendingInvoiceList {
     listBill: BillSchema[]; // Danh sách hóa đơn
     billChoThanhToan: BillSchema[]; // Danh sách hóa đơn
-    // onSelectBill: (id: number) => void; // Hàm chọn hóa đơn
     huyHoaDonTheoId: (id: number) => void; // Hàm hủy hóa đơn
     getById: (id: number) => void; // 
     handleAddBill: () => void; // Hàm thêm hóa đơn mới
@@ -96,7 +95,7 @@ const HoaDonCho: React.FC<pendingInvoiceList> =
                                         onClick={() => setValue("")} >
                                         {b.nameBill}
                                         <div className="relative">
-                                            <ImCart size={20} />
+                                            <ImCart size={20}  className="text-blue-600"/>
                                             {b.itemCount > 0 && (
                                                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
                                                     {b.itemCount}

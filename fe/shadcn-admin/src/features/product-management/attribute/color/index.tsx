@@ -27,15 +27,15 @@ const columns: ColumnDef<Color>[] = [
   // },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Tên',
   },
   {
     accessorKey: 'description',
-    header: 'Description',
+    header: 'Mô tả',
   },
   {
     accessorKey: 'hex',
-    header: 'Hex',
+    header: 'Mã màu',
     cell: ({ row }) => {
       const color = row.original as Color
       return (
@@ -51,7 +51,7 @@ const columns: ColumnDef<Color>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: 'Trạng thái',
     cell: ({ row }) => {
       const color = row.original as Color
       return <StatusSwitch color={color} />
@@ -73,10 +73,8 @@ export default function Color() {
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Color</h2>
-            <p className='text-muted-foreground'>
-              Here&apos;s a list of your colors!
-            </p>
+            <h2 className='text-2xl font-bold tracking-tight'>Màu sắc</h2>
+            <p className='text-muted-foreground'>Danh sách màu sắc của bạn!</p>
           </div>
           <TasksPrimaryButtons />
         </div>

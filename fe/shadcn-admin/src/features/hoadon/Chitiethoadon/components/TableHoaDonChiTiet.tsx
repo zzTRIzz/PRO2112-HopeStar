@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
 import { DataTablePagination } from '../../service/PhanTrang/data-table-pagination';
-import { BillSchema } from '@/features/banhang/service/BillSchema';
-import TrangThaiDonHang, { OrderStatus } from './TrangThaiDonHang';
+import { BillSchema } from '@/features/banhang/service/Schema';
 
 
 interface SearchBillDetail {

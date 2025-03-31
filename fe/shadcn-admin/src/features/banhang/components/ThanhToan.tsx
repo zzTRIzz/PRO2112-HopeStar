@@ -14,12 +14,12 @@ import TableRow from '@mui/material/TableRow';
 import { Input } from "@/components/ui/input"
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { BillSchema, Voucher } from '../service/BillSchema';
-
+import { BillSchema, Voucher } from '../service/Schema';
+import InHoaDon from './InHoaDon';
 interface ThanhToanProps {
-    searchBill: BillSchema;
+    searchBill: BillSchema | undefined;
     setPaymentMethod: any;
-    paymentMethod: number;
+    paymentMethod: number | null;
     customerPayment: number;
     setCustomerPayment: any;
     handleThanhToan: any;
@@ -32,6 +32,11 @@ interface ThanhToanProps {
     isVoucher: boolean;
     setIsVoucher: any;
     tienThua: number;
+    isBanGiaoHang: boolean;
+    phiShip: number;
+    printData: any; 
+    printRef: React.RefObject<HTMLDivElement | null>;
+
 }
 
 
@@ -51,8 +56,14 @@ const ThanhToan: React.FC<ThanhToanProps> =
         updateVoucherKhiChon,
         isVoucher,
         setIsVoucher,
-        tienThua
+        tienThua,
+        isBanGiaoHang,
+        phiShip,
+        printData,
+        printRef
     }) => {
+
+
         return (
             <>
                 <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
@@ -120,22 +131,25 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <p className="text-gray-700 text-base">Giảm giá:</p>
                                         <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal.toLocaleString('vi-VN')} đ</p>
                                     </div>
+                                    {isBanGiaoHang == true && (
+                                        <div className="flex justify-between border-b pb-2">
+                                            <p className="text-gray-700 text-base">Phí ship:</p>
+                                            <p className="font-semibold">{phiShip.toLocaleString('vi-VN')} đ</p>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between border-b pb-2">
                                         <p className="text-gray-700 text-base">Khách cần trả:</p>
-                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
+                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0 : (searchBill?.totalDue + phiShip).toLocaleString('vi-VN')} đ</p>
                                     </div>
-                                    <div className="flex gap-x-2 justify-between border-b pb-2 pl-[45px] pr-[40px]">
 
+                                    <div className="flex gap-x-2 justify-between border-b pb-2 pl-[45px] pr-[40px]">
                                         <Button
                                             variant="outline"
                                             className={`border border-emerald-500 text-emerald-600 rounded-lg hover:border-orange-700 hover:text-orange-700 px-3 text-2xs
                            ${paymentMethod === 1 ? 'border-yellow-700 text-yellow-700 bg-slate-300' : 'border-emerald-500 text-emerald-600'}`}
-                                            onClick={() => setPaymentMethod(1)}
-                                        >
+                                            onClick={() => setPaymentMethod(1)} >
                                             Tiền mặt
                                         </Button>
-
-
                                         {/* Mã qr để chuyển khoản */}
                                         <Dialog open={isPTThanhToan} onOpenChange={setIsPTThanhToan}>
                                             <DialogTrigger asChild>
@@ -157,7 +171,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                 <div className="flex justify-left pb-2">
                                                     <p className="text-gray-700 text-base">Tổng tiền khách cần trả:</p>
                                                     <p className="font-semibold text-green-600 ml-[20px]">
-                                                        {searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue.toLocaleString('vi-VN')} đ</p>
+                                                        {searchBill?.totalDue == null ? 0 : (searchBill?.totalDue + phiShip - customerPayment).toLocaleString('vi-VN')}  đ</p>
                                                 </div>
                                                 <div >
                                                     <img src="/images/MaQR.jpg" alt="Mã QR" className='w-[300px] h-[340px] ml-[95px] bg-white p-1 rounded-lg shadow' />
@@ -170,13 +184,10 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                 >Xác nhận</Button>
                                             </DialogContent>
                                         </Dialog>
-
                                     </div>
                                     <div className="flex justify-between border-b pb-2">
                                         <p className="text-gray-700 text-base"> Khách thanh toán:</p>
                                         <p className="font-semibold text-green-600">
-                                            {/* <Input type="number" className='w-[150px]' value={paymentMethod == 2 ? customerPayment : 0} placeholder="Nhập số tiền"
-                          onChange={(e) => setCustomerPayment(Number(e.target.value))} /> */}
                                             <Input
                                                 type="number"
                                                 className="customer-payment w-[150px]"
@@ -184,7 +195,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                 value={paymentMethod === 2 && customerPayment === 0 ? searchBill?.totalDue ?? 0 : customerPayment}
                                                 onChange={(e) => setCustomerPayment(Number(e.target.value))}
                                             />
-
                                         </p>
 
                                     </div>
@@ -203,12 +213,22 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     </div>
                                 </div>
                             </div>
-                            <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] "
-                                onClick={() => handleThanhToan()}>
-                                Xác nhận thanh toán</Button>
+
+                            {isBanGiaoHang == false ? (
+                                <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] "
+                                    onClick={() => handleThanhToan("DA_THANH_TOAN", 0)}>
+                                    Xác nhận thanh toán</Button>
+                            ) : (
+                                <Button className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px] "
+                                    onClick={() => handleThanhToan("CHO_XAC_NHAN", 1)}>
+                                    Xác nhận thanh toán</Button>
+                            )}
+
+                            
                         </div>
                     </div>
-                </div>        </>
+                </div>
+            </>
         );
     };
 

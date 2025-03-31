@@ -32,12 +32,186 @@ export const createProduct = async (productData: ProductConfigRequest) => {
   }
 };
 
+export const updateProduct = async (product:ProductResponse) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/product/${product.id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
 export const updateStatus = async (product:ProductResponse) => {
   try {
     const response = await axios.patch(`${API_BASE_URL}/product/${product.id}`);
     return response.data;
   } catch (error) {
     console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
+export const productDetailById = async (id: number) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/product/${id}/product-detail`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching product-details:', error);
+    throw error;
+  }
+}
+
+
+
+// api thuoc tinh active 
+export const getWifiActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/wifi/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getSimActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/sim/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getScreenActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/screen/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getRomActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/rom/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getRearCameraActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/rear-camera/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+
+export const getRamActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/ram/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getOsActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/os/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getFrontCameraActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/front-camera/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getColorActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/color/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getChipActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/chip/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getCategoryActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/category/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getCardActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/card/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getBrandActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/brand/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getBluetoothActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/bluetooth/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
+    throw error;
+  }
+};
+
+export const getBatteryActive = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/battery/active`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching batteries:', error);
     throw error;
   }
 };

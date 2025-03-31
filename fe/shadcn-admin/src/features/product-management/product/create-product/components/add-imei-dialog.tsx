@@ -164,8 +164,7 @@ export const AddImeiDialog: React.FC<AddImeiDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Upload IMEI File</DialogTitle>
           <DialogDescription>
-            Please select a file containing IMEI numbers. Each IMEI should be 15
-            digits.
+            Vui lòng chọn một tệp chứa số IMEI. Mỗi IMEI phải có 15 chữ số.
           </DialogDescription>
         </DialogHeader>
         {/* Isolate dialog content from parent form */}

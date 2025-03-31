@@ -83,9 +83,9 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<SearchBill> searchBillList(SearchBillRequest searchBillRequest) {
         List<Bill> bills = billRepository.searchBills(searchBillRequest);
-        if (bills.isEmpty()){
+        if (bills.isEmpty()) {
             return new ArrayList<>();
-        }else {
+        } else {
             return bills.stream().map(billMapper::getAllBillMapperDto)
                     .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
                     .collect(Collectors.toList());
@@ -118,6 +118,16 @@ public class BillServiceImpl implements BillService {
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
         return billMapper.dtoBillMapper(bill);
+    }
+
+    @Override
+    public BillDto updateStatus(Integer idBill, StatusBill status) {
+        // Kiểm tra hóa đơn có tồn tại không
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+        bill.setStatus(status);
+        Bill saveBill = billRepository.save(bill);
+        return billMapper.dtoBillMapper(saveBill);
     }
 
     @Override
@@ -199,7 +209,11 @@ public class BillServiceImpl implements BillService {
             // Cập nhật lại hóa đơn với khách hàng và voucher
             bill.setIdAccount(accountKhachHang);
             bill.setIdVoucher(voucher);
-            bill.setTotalDue(tongSauKhiGiam);
+            // Lấy phí ship (nếu null thì mặc định 0)
+            BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+            // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
+            BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
+            bill.setTotalDue(tongTienFinal);
             bill.setDiscountedTotal(tongTienGiamGia);
             billRepository.save(bill);
             return billMapper.dtoBillMapper(bill);
@@ -240,7 +254,11 @@ public class BillServiceImpl implements BillService {
                 BigDecimal tongTienGiamGia = bill.getTotalPrice().subtract(tongSauKhiGiam);
                 // Cập nhật lại hóa đơn với khách hàng và voucher
                 bill.setIdVoucher(voucher);
-                bill.setTotalDue(tongSauKhiGiam);
+                // Lấy phí ship (nếu null thì mặc định 0)
+                BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+                // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
+                BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
+                bill.setTotalDue(tongTienFinal);
                 bill.setDiscountedTotal(tongTienGiamGia);
                 billRepository.save(bill);
                 return billMapper.dtoBillMapper(bill);
@@ -331,7 +349,11 @@ public class BillServiceImpl implements BillService {
             }
             System.out.println("voucher da tim duoc la :" + voucher);
             bill.setIdVoucher(voucher);
-            bill.setTotalDue(tongSauKhiGiam);
+            // Lấy phí ship (nếu null thì mặc định 0)
+            BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+            // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
+            BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
+            bill.setTotalDue(tongTienFinal);
             billRepository.save(bill);
         } catch (Exception e) {
             e.printStackTrace();

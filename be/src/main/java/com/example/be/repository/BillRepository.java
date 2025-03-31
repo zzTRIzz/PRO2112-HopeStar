@@ -35,6 +35,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
                                            @Param("status")StatusBill statusBill);
 
 
+
     @Query("SELECT b FROM Bill b " +
             "LEFT JOIN b.idAccount tk " +
             "LEFT JOIN b.idNhanVien nv " +

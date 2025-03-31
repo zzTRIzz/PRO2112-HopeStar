@@ -14,7 +14,6 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
@@ -38,6 +37,10 @@ import { Route as AuthenticatedProductBrandImport } from './routes/_authenticate
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
 import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authenticated/hoadon/hoadonchitiet'
+import { Route as authProductIdImport } from './routes/(auth)/product.$id'
+import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
+import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
+import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
 
@@ -48,7 +51,6 @@ const errors404LazyImport = createFileRoute('/(errors)/404')()
 const errors403LazyImport = createFileRoute('/(errors)/403')()
 const errors401LazyImport = createFileRoute('/(errors)/401')()
 const authSignUpLazyImport = createFileRoute('/(auth)/sign-up')()
-const authSignIn2LazyImport = createFileRoute('/(auth)/sign-in-2')()
 const authForgotPasswordLazyImport = createFileRoute(
   '/(auth)/forgot-password',
 )()
@@ -57,12 +59,6 @@ const AuthenticatedSettingsRouteLazyImport = createFileRoute(
 )()
 const AuthenticatedVoucherIndexLazyImport = createFileRoute(
   '/_authenticated/voucher/',
-)()
-const AuthenticatedUsersIndexLazyImport = createFileRoute(
-  '/_authenticated/users/',
-)()
-const AuthenticatedTasksIndexLazyImport = createFileRoute(
-  '/_authenticated/tasks/',
 )()
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
@@ -76,15 +72,16 @@ const AuthenticatedHoadonIndexLazyImport = createFileRoute(
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
   '/_authenticated/help-center/',
 )()
+const AuthenticatedDashboardIndexLazyImport = createFileRoute(
+  '/_authenticated/dashboard/',
+)()
 const AuthenticatedChatsIndexLazyImport = createFileRoute(
   '/_authenticated/chats/',
 )()
 const AuthenticatedBanhangIndexLazyImport = createFileRoute(
   '/_authenticated/banhang/',
 )()
-const AuthenticatedAppsIndexLazyImport = createFileRoute(
-  '/_authenticated/apps/',
-)()
+const authDienthoaiIndexLazyImport = createFileRoute('/(auth)/dienthoai/')()
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
   '/_authenticated/settings/notifications',
 )()
@@ -112,12 +109,6 @@ const authIndexLazyRoute = authIndexLazyImport
     getParentRoute: () => rootRoute,
   } as any)
   .lazy(() => import('./routes/(auth)/index.lazy').then((d) => d.Route))
-
-const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 
 const errors503LazyRoute = errors503LazyImport
   .update({
@@ -167,14 +158,6 @@ const authSignUpLazyRoute = authSignUpLazyImport
   } as any)
   .lazy(() => import('./routes/(auth)/sign-up.lazy').then((d) => d.Route))
 
-const authSignIn2LazyRoute = authSignIn2LazyImport
-  .update({
-    id: '/(auth)/sign-in-2',
-    path: '/sign-in-2',
-    getParentRoute: () => rootRoute,
-  } as any)
-  .lazy(() => import('./routes/(auth)/sign-in-2.lazy').then((d) => d.Route))
-
 const authForgotPasswordLazyRoute = authForgotPasswordLazyImport
   .update({
     id: '/(auth)/forgot-password',
@@ -221,24 +204,6 @@ const AuthenticatedVoucherIndexLazyRoute =
     import('./routes/_authenticated/voucher/index.lazy').then((d) => d.Route),
   )
 
-const AuthenticatedUsersIndexLazyRoute =
-  AuthenticatedUsersIndexLazyImport.update({
-    id: '/users/',
-    path: '/users/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/users/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedTasksIndexLazyRoute =
-  AuthenticatedTasksIndexLazyImport.update({
-    id: '/tasks/',
-    path: '/tasks/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/tasks/index.lazy').then((d) => d.Route),
-  )
-
 const AuthenticatedSettingsIndexLazyRoute =
   AuthenticatedSettingsIndexLazyImport.update({
     id: '/',
@@ -277,6 +242,15 @@ const AuthenticatedHelpCenterIndexLazyRoute =
     ),
   )
 
+const AuthenticatedDashboardIndexLazyRoute =
+  AuthenticatedDashboardIndexLazyImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/dashboard/index.lazy').then((d) => d.Route),
+  )
+
 const AuthenticatedChatsIndexLazyRoute =
   AuthenticatedChatsIndexLazyImport.update({
     id: '/chats/',
@@ -295,15 +269,15 @@ const AuthenticatedBanhangIndexLazyRoute =
     import('./routes/_authenticated/banhang/index.lazy').then((d) => d.Route),
   )
 
-const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
-  {
-    id: '/apps/',
-    path: '/apps/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any,
-).lazy(() =>
-  import('./routes/_authenticated/apps/index.lazy').then((d) => d.Route),
-)
+const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
+  .update({
+    id: '/(auth)/dienthoai/',
+    path: '/dienthoai/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/dienthoai/index.lazy').then((d) => d.Route),
+  )
 
 const AuthenticatedSettingsNotificationsLazyRoute =
   AuthenticatedSettingsNotificationsLazyImport.update({
@@ -481,6 +455,33 @@ const AuthenticatedHoadonHoadonchitietRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const authProductIdRoute = authProductIdImport.update({
+  id: '/(auth)/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedTaikhoanNhanvienIndexRoute =
+  AuthenticatedTaikhoanNhanvienIndexImport.update({
+    id: '/taikhoan/nhanvien/',
+    path: '/taikhoan/nhanvien/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedTaikhoanKhachhangIndexRoute =
+  AuthenticatedTaikhoanKhachhangIndexImport.update({
+    id: '/taikhoan/khachhang/',
+    path: '/taikhoan/khachhang/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedProductIdProductDetailRoute =
+  AuthenticatedProductIdProductDetailImport.update({
+    id: '/product/$id/product-detail',
+    path: '/product/$id/product-detail',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -527,13 +528,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordLazyImport
       parentRoute: typeof rootRoute
     }
-    '/(auth)/sign-in-2': {
-      id: '/(auth)/sign-in-2'
-      path: '/sign-in-2'
-      fullPath: '/sign-in-2'
-      preLoaderRoute: typeof authSignIn2LazyImport
-      parentRoute: typeof rootRoute
-    }
     '/(auth)/sign-up': {
       id: '/(auth)/sign-up'
       path: '/sign-up'
@@ -576,18 +570,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof errors503LazyImport
       parentRoute: typeof rootRoute
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/(auth)/': {
       id: '/(auth)/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof authIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/product/$id': {
+      id: '/(auth)/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof authProductIdImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/hoadon/hoadonchitiet': {
@@ -758,12 +752,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsNotificationsLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
-    '/_authenticated/apps/': {
-      id: '/_authenticated/apps/'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AuthenticatedAppsIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/(auth)/dienthoai/': {
+      id: '/(auth)/dienthoai/'
+      path: '/dienthoai'
+      fullPath: '/dienthoai'
+      preLoaderRoute: typeof authDienthoaiIndexLazyImport
+      parentRoute: typeof rootRoute
     }
     '/_authenticated/banhang/': {
       id: '/_authenticated/banhang/'
@@ -777,6 +771,13 @@ declare module '@tanstack/react-router' {
       path: '/chats'
       fullPath: '/chats'
       preLoaderRoute: typeof AuthenticatedChatsIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/help-center/': {
@@ -807,25 +808,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
-    '/_authenticated/tasks/': {
-      id: '/_authenticated/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/_authenticated/voucher/': {
       id: '/_authenticated/voucher/'
       path: '/voucher'
       fullPath: '/voucher'
       preLoaderRoute: typeof AuthenticatedVoucherIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/$id/product-detail': {
+      id: '/_authenticated/product/$id/product-detail'
+      path: '/product/$id/product-detail'
+      fullPath: '/product/$id/product-detail'
+      preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/taikhoan/khachhang/': {
+      id: '/_authenticated/taikhoan/khachhang/'
+      path: '/taikhoan/khachhang'
+      fullPath: '/taikhoan/khachhang'
+      preLoaderRoute: typeof AuthenticatedTaikhoanKhachhangIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/taikhoan/nhanvien/': {
+      id: '/_authenticated/taikhoan/nhanvien/'
+      path: '/taikhoan/nhanvien'
+      fullPath: '/taikhoan/nhanvien'
+      preLoaderRoute: typeof AuthenticatedTaikhoanNhanvienIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
   }
@@ -861,7 +869,6 @@ const AuthenticatedSettingsRouteLazyRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedHoadonHoadonchitietRoute: typeof AuthenticatedHoadonHoadonchitietRoute
   AuthenticatedProductBatteryRoute: typeof AuthenticatedProductBatteryRoute
   AuthenticatedProductBluetoothRoute: typeof AuthenticatedProductBluetoothRoute
@@ -882,21 +889,21 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductSimRoute: typeof AuthenticatedProductSimRoute
   AuthenticatedProductWifiRoute: typeof AuthenticatedProductWifiRoute
   AuthenticatedVoucherCreateRoute: typeof AuthenticatedVoucherCreateRoute
-  AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedBanhangIndexLazyRoute: typeof AuthenticatedBanhangIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
+  AuthenticatedDashboardIndexLazyRoute: typeof AuthenticatedDashboardIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
-  AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
-  AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
+  AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
+  AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  AuthenticatedTaikhoanNhanvienIndexRoute: typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteLazyRoute:
     AuthenticatedSettingsRouteLazyRouteWithChildren,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedHoadonHoadonchitietRoute: AuthenticatedHoadonHoadonchitietRoute,
   AuthenticatedProductBatteryRoute: AuthenticatedProductBatteryRoute,
   AuthenticatedProductBluetoothRoute: AuthenticatedProductBluetoothRoute,
@@ -918,15 +925,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductSimRoute: AuthenticatedProductSimRoute,
   AuthenticatedProductWifiRoute: AuthenticatedProductWifiRoute,
   AuthenticatedVoucherCreateRoute: AuthenticatedVoucherCreateRoute,
-  AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedBanhangIndexLazyRoute: AuthenticatedBanhangIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
+  AuthenticatedDashboardIndexLazyRoute: AuthenticatedDashboardIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
-  AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
-  AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
+  AuthenticatedProductIdProductDetailRoute:
+    AuthenticatedProductIdProductDetailRoute,
+  AuthenticatedTaikhoanKhachhangIndexRoute:
+    AuthenticatedTaikhoanKhachhangIndexRoute,
+  AuthenticatedTaikhoanNhanvienIndexRoute:
+    AuthenticatedTaikhoanNhanvienIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -939,13 +950,13 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof authSignInRoute
   '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-in-2': typeof authSignIn2LazyRoute
   '/sign-up': typeof authSignUpLazyRoute
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -970,30 +981,33 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '': typeof AuthenticatedRouteRouteWithChildren
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
   '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-in-2': typeof authSignIn2LazyRoute
   '/sign-up': typeof authSignUpLazyRoute
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
   '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -1018,16 +1032,18 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRoutesById {
@@ -1038,15 +1054,14 @@ export interface FileRoutesById {
   '/(auth)/sign-in': typeof authSignInRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
-  '/(auth)/sign-in-2': typeof authSignIn2LazyRoute
   '/(auth)/sign-up': typeof authSignUpLazyRoute
   '/(errors)/401': typeof errors401LazyRoute
   '/(errors)/403': typeof errors403LazyRoute
   '/(errors)/404': typeof errors404LazyRoute
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/(auth)/': typeof authIndexLazyRoute
+  '/(auth)/product/$id': typeof authProductIdRoute
   '/_authenticated/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -1071,16 +1086,18 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
+  '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
   '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
-  '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
+  '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/_authenticated/taikhoan/khachhang/': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/_authenticated/taikhoan/nhanvien/': typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -1092,13 +1109,13 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/settings'
     | '/forgot-password'
-    | '/sign-in-2'
     | '/sign-up'
     | '/401'
     | '/403'
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
@@ -1123,29 +1140,32 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
-    | '/apps'
+    | '/dienthoai'
     | '/banhang'
     | '/chats'
+    | '/dashboard'
     | '/help-center'
     | '/hoadon'
     | '/product'
     | '/settings/'
-    | '/tasks'
-    | '/users'
     | '/voucher'
+    | '/product/$id/product-detail'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | ''
     | '/500'
     | '/otp'
     | '/sign-in'
     | '/forgot-password'
-    | '/sign-in-2'
     | '/sign-up'
     | '/401'
     | '/403'
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
     | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
@@ -1170,16 +1190,18 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
-    | '/apps'
+    | '/dienthoai'
     | '/banhang'
     | '/chats'
+    | '/dashboard'
     | '/help-center'
     | '/hoadon'
     | '/product'
     | '/settings'
-    | '/tasks'
-    | '/users'
     | '/voucher'
+    | '/product/$id/product-detail'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
   id:
     | '__root__'
     | '/_authenticated'
@@ -1188,15 +1210,14 @@ export interface FileRouteTypes {
     | '/(auth)/sign-in'
     | '/_authenticated/settings'
     | '/(auth)/forgot-password'
-    | '/(auth)/sign-in-2'
     | '/(auth)/sign-up'
     | '/(errors)/401'
     | '/(errors)/403'
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
-    | '/_authenticated/'
     | '/(auth)/'
+    | '/(auth)/product/$id'
     | '/_authenticated/hoadon/hoadonchitiet'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
@@ -1221,16 +1242,18 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
-    | '/_authenticated/apps/'
+    | '/(auth)/dienthoai/'
     | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/help-center/'
     | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
     | '/_authenticated/settings/'
-    | '/_authenticated/tasks/'
-    | '/_authenticated/users/'
     | '/_authenticated/voucher/'
+    | '/_authenticated/product/$id/product-detail'
+    | '/_authenticated/taikhoan/khachhang/'
+    | '/_authenticated/taikhoan/nhanvien/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1240,7 +1263,6 @@ export interface RootRouteChildren {
   authOtpRoute: typeof authOtpRoute
   authSignInRoute: typeof authSignInRoute
   authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
-  authSignIn2LazyRoute: typeof authSignIn2LazyRoute
   authSignUpLazyRoute: typeof authSignUpLazyRoute
   errors401LazyRoute: typeof errors401LazyRoute
   errors403LazyRoute: typeof errors403LazyRoute
@@ -1248,6 +1270,8 @@ export interface RootRouteChildren {
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
+  authProductIdRoute: typeof authProductIdRoute
+  authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1256,7 +1280,6 @@ const rootRouteChildren: RootRouteChildren = {
   authOtpRoute: authOtpRoute,
   authSignInRoute: authSignInRoute,
   authForgotPasswordLazyRoute: authForgotPasswordLazyRoute,
-  authSignIn2LazyRoute: authSignIn2LazyRoute,
   authSignUpLazyRoute: authSignUpLazyRoute,
   errors401LazyRoute: errors401LazyRoute,
   errors403LazyRoute: errors403LazyRoute,
@@ -1264,6 +1287,8 @@ const rootRouteChildren: RootRouteChildren = {
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
+  authProductIdRoute: authProductIdRoute,
+  authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1281,21 +1306,21 @@ export const routeTree = rootRoute
         "/(auth)/otp",
         "/(auth)/sign-in",
         "/(auth)/forgot-password",
-        "/(auth)/sign-in-2",
         "/(auth)/sign-up",
         "/(errors)/401",
         "/(errors)/403",
         "/(errors)/404",
         "/(errors)/500",
         "/(errors)/503",
-        "/(auth)/"
+        "/(auth)/",
+        "/(auth)/product/$id",
+        "/(auth)/dienthoai/"
       ]
     },
     "/_authenticated": {
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/settings",
-        "/_authenticated/",
         "/_authenticated/hoadon/hoadonchitiet",
         "/_authenticated/product/battery",
         "/_authenticated/product/bluetooth",
@@ -1316,15 +1341,16 @@ export const routeTree = rootRoute
         "/_authenticated/product/sim",
         "/_authenticated/product/wifi",
         "/_authenticated/voucher/create",
-        "/_authenticated/apps/",
         "/_authenticated/banhang/",
         "/_authenticated/chats/",
+        "/_authenticated/dashboard/",
         "/_authenticated/help-center/",
         "/_authenticated/hoadon/",
         "/_authenticated/product/",
-        "/_authenticated/tasks/",
-        "/_authenticated/users/",
-        "/_authenticated/voucher/"
+        "/_authenticated/voucher/",
+        "/_authenticated/product/$id/product-detail",
+        "/_authenticated/taikhoan/khachhang/",
+        "/_authenticated/taikhoan/nhanvien/"
       ]
     },
     "/(auth)/500": {
@@ -1350,9 +1376,6 @@ export const routeTree = rootRoute
     "/(auth)/forgot-password": {
       "filePath": "(auth)/forgot-password.lazy.tsx"
     },
-    "/(auth)/sign-in-2": {
-      "filePath": "(auth)/sign-in-2.lazy.tsx"
-    },
     "/(auth)/sign-up": {
       "filePath": "(auth)/sign-up.lazy.tsx"
     },
@@ -1371,12 +1394,11 @@ export const routeTree = rootRoute
     "/(errors)/503": {
       "filePath": "(errors)/503.lazy.tsx"
     },
-    "/_authenticated/": {
-      "filePath": "_authenticated/index.tsx",
-      "parent": "/_authenticated"
-    },
     "/(auth)/": {
       "filePath": "(auth)/index.lazy.tsx"
+    },
+    "/(auth)/product/$id": {
+      "filePath": "(auth)/product.$id.tsx"
     },
     "/_authenticated/hoadon/hoadonchitiet": {
       "filePath": "_authenticated/hoadon/hoadonchitiet.tsx",
@@ -1474,9 +1496,8 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/settings/notifications.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
-    "/_authenticated/apps/": {
-      "filePath": "_authenticated/apps/index.lazy.tsx",
-      "parent": "/_authenticated"
+    "/(auth)/dienthoai/": {
+      "filePath": "(auth)/dienthoai/index.lazy.tsx"
     },
     "/_authenticated/banhang/": {
       "filePath": "_authenticated/banhang/index.lazy.tsx",
@@ -1484,6 +1505,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/chats/": {
       "filePath": "_authenticated/chats/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/dashboard/": {
+      "filePath": "_authenticated/dashboard/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/help-center/": {
@@ -1502,16 +1527,20 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/settings/index.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
-    "/_authenticated/tasks/": {
-      "filePath": "_authenticated/tasks/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/users/": {
-      "filePath": "_authenticated/users/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
     "/_authenticated/voucher/": {
       "filePath": "_authenticated/voucher/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/$id/product-detail": {
+      "filePath": "_authenticated/product/$id.product-detail.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/taikhoan/khachhang/": {
+      "filePath": "_authenticated/taikhoan/khachhang/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/taikhoan/nhanvien/": {
+      "filePath": "_authenticated/taikhoan/nhanvien/index.tsx",
       "parent": "/_authenticated"
     }
   }

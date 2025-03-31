@@ -81,11 +81,9 @@ public class ProductController {
     @GetMapping("/{id}/product-detail")
     public ResponseEntity<List<ProductDetailResponse>> searchProductDetails(
             @ModelAttribute SearchProductDetailRequest searchProductDetailRequest,
-            @PathVariable Integer id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PathVariable Integer id) {
 
-        List<ProductDetailResponse> result = productDetailService.searchProductDetails(searchProductDetailRequest, page, size,id).getContent();
+        List<ProductDetailResponse> result = productDetailService.searchProductDetails(searchProductDetailRequest,id);
         return ResponseEntity.ok(result);
     }
 

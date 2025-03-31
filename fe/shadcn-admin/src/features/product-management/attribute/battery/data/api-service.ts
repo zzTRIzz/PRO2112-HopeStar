@@ -12,15 +12,6 @@ export const getBattery = async () => {
     throw error;
   }
 };
-export const getBatteryActive = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/battery/active`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching batteries:', error);
-    throw error;
-  }
-};
 
 export const addBattery = async (battery: Battery) => {
   try {

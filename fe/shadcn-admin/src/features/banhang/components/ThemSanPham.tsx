@@ -39,7 +39,7 @@ interface SanPhamChiTiet {
     listProduct: ProductDetail[];
     listImei: imei[];
     handleAddProduct: (product: ProductDetail) => void;
-    handleAddImei: (id: number) => void;
+    handleAddImei: () => void;
     handleCheckboxChange: (id: number) => void;
     idBillDetail: number;
     selectedImei: number[];
@@ -62,9 +62,6 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
         isDialogOpen,
         setIsDialogOpen
     }) => {
-        // const [isDialogOpen, setIsDialogOpen] = useState(false);
-        // const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-
         return (
             <>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -142,7 +139,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                     </TableBody>
                                 </Table>
                                 <Button className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
-                                    onClick={() => handleAddImei(idBillDetail)}>
+                                    onClick={() => handleAddImei()}>
                                     Chọn
                                 </Button>
                             </TableContainer>

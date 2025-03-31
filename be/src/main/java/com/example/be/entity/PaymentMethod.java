@@ -23,8 +23,8 @@ public class PaymentMethod extends AuditEntity {
     @Column(name = "method")
     private Byte method;
 
-    @Column(name = "type")
-    private Byte type;
+    @Column(name = "note")
+    private String note;
 
     @Column(name = "status")
     //@Enumerated(EnumType.STRING)

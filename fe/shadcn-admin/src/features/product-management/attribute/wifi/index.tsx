@@ -23,7 +23,7 @@ const columns: ColumnDef<Wifi>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Tên',
+    header: 'Loại',
   },
   {
     accessorKey: 'status',

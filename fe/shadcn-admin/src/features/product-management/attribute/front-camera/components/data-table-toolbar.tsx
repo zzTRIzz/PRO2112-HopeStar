@@ -17,7 +17,7 @@ export function DataTableToolbar<TData>({
     <div className='flex items-center justify-between'>
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
         <Input
-          placeholder='Filter front-cameras...'
+          placeholder='Tìm kiếm...'
           value={(table.getColumn('type')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('type')?.setFilterValue(event.target.value)
