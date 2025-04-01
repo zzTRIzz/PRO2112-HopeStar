@@ -76,7 +76,7 @@ export default function Navbar() {
             as='button'
             avatarProps={{
               isBordered: true,
-              src: profile.avatar || 'https://i.pravatar.cc/150',
+              src: profile.avatar || 'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
             }}
             className='transition-transform'
             description={profile.email}

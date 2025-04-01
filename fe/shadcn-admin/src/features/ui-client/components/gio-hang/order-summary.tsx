@@ -129,7 +129,7 @@ export function OrderSummary({
     if (errorMessages.length === 0) return null
 
     return (
-      <div className='mb-4 rounded border border-red-200 bg-red-50 p-3 pt-2'>
+      <div className='mb-4 rounded-lg border border-red-200 bg-red-50 p-3 mt-2'>
         <p className='mb-2 text-sm font-medium text-red-600'>
           Vui lòng kiểm tra lại thông tin:
         </p>
@@ -254,20 +254,13 @@ export function OrderSummary({
                 {total.toLocaleString()}đ
               </span>
             </div>
-            <div className='flex items-center justify-between text-sm'>
-              <span>Điểm thưởng</span>
-              <span className='flex items-center gap-1'>
-                <span className='text-warning-500'>⭐</span>+
-                {points.toLocaleString()}
-              </span>
-            </div>
           </div>
 
           {/* Add error messages before the checkout button */}
           {!isValid && renderErrors()}
 
           <Button
-            className='mt-6 h-12 w-full bg-[#338cf1] text-lg font-medium text-white hover:bg-[#338cf1]'
+            className='mt-4 h-12 w-full bg-[#338cf1] text-lg font-medium text-white hover:bg-[#338cf1]'
             type='button'
             onPress={onCheckout}
             isDisabled={!isValid}
@@ -284,7 +277,7 @@ export function OrderSummary({
             <a href='#' className='text-primary-500'>
               Chính sách xử lý dữ liệu cá nhân
             </a>{' '}
-            của FPT Shop
+            của HopeStar
           </p>
         </div>
       </Card>
