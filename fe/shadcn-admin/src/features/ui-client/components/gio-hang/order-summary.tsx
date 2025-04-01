@@ -213,7 +213,7 @@ export function OrderSummary({ onCheckout, products = [] }: OrderSummaryProps) {
           <a href="#" className="text-primary-500">
             Chính sách xử lý dữ liệu cá nhân
           </a>{" "}
-          của FPT Shop
+          của Hopstar Shop
         </p>
         </div>
       </Card>
