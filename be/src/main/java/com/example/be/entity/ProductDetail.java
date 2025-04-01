@@ -27,8 +27,8 @@ public class ProductDetail extends AuditEntity {
     @Column(name = "code")
     private String code;
 
-//    @Column(name = "price", precision = 24, scale = 2)
-//    private BigDecimal price;
+    @Column(name = "price", precision = 24, scale = 2)
+    private BigDecimal price;
 
     @JsonIgnore
     @OneToMany(mappedBy = "productDetail")
@@ -63,5 +63,6 @@ public class ProductDetail extends AuditEntity {
     @Size(max = 255)
     @Column(name = "image_url")
     private String imageUrl;
+
 
 }

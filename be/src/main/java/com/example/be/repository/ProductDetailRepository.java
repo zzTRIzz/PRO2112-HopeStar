@@ -29,4 +29,6 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
           "AND (:#{#searchRequest.idColors} IS NULL OR c.id = :#{#searchRequest.idColors})")
   List<ProductDetail> findAllMatching(@Param("searchRequest") SearchProductDetailRequest searchRequest,
                                       @Param("idProduct") Integer idProduct);
+
+  List<ProductDetail> findByProductId(Integer productId);
   }
