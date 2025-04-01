@@ -66,6 +66,9 @@ const AuthenticatedVoucherIndexLazyImport = createFileRoute(
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
 )()
+const AuthenticatedSaleIndexLazyImport = createFileRoute(
+  '/_authenticated/sale/',
+)()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
 )()
@@ -216,6 +219,16 @@ const AuthenticatedSettingsIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/settings/index.lazy').then((d) => d.Route),
   )
+
+const AuthenticatedSaleIndexLazyRoute = AuthenticatedSaleIndexLazyImport.update(
+  {
+    id: '/sale/',
+    path: '/sale/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_authenticated/sale/index.lazy').then((d) => d.Route),
+)
 
 const AuthenticatedProductIndexLazyRoute =
   AuthenticatedProductIndexLazyImport.update({
@@ -845,6 +858,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/sale/': {
+      id: '/_authenticated/sale/'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof AuthenticatedSaleIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -958,6 +978,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardIndexLazyRoute: typeof AuthenticatedDashboardIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
+  AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
   AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
   AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
@@ -992,6 +1013,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardIndexLazyRoute: AuthenticatedDashboardIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
+  AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
   AuthenticatedProductIdProductDetailRoute:
     AuthenticatedProductIdProductDetailRoute,
@@ -1050,6 +1072,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
@@ -1105,6 +1128,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
@@ -1163,6 +1187,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
+  '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
   '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
@@ -1221,6 +1246,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/help-center'
     | '/product'
+    | '/sale'
     | '/settings/'
     | '/voucher'
     | '/product/$id/product-detail'
@@ -1275,6 +1301,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/help-center'
     | '/product'
+    | '/sale'
     | '/settings'
     | '/voucher'
     | '/product/$id/product-detail'
@@ -1331,6 +1358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/'
     | '/_authenticated/help-center/'
     | '/_authenticated/product/'
+    | '/_authenticated/sale/'
     | '/_authenticated/settings/'
     | '/_authenticated/voucher/'
     | '/_authenticated/product/$id/product-detail'
@@ -1449,6 +1477,7 @@ export const routeTree = rootRoute
         "/_authenticated/dashboard/",
         "/_authenticated/help-center/",
         "/_authenticated/product/",
+        "/_authenticated/sale/",
         "/_authenticated/voucher/",
         "/_authenticated/product/$id/product-detail",
         "/_authenticated/taikhoan/khachhang/",
@@ -1624,6 +1653,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/": {
       "filePath": "_authenticated/product/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/sale/": {
+      "filePath": "_authenticated/sale/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/settings/": {
