@@ -20,6 +20,7 @@ import {
   IconUsers,
   IconSubtask,
   IconDiscount,
+  IconPercentage,  // Thêm icon này
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -115,7 +116,6 @@ export const sidebarData: SidebarData = {
           url: '/tasks',
           icon: IconSubtask,
         },
-
         {
           title: 'Counter',
           url: '/apps',
@@ -136,6 +136,11 @@ export const sidebarData: SidebarData = {
           title: 'Voucher',
           url: '/voucher',
           icon: IconDiscount
+        },
+        {
+          title: 'Sale',
+          url: '/sale',
+          icon: IconPercentage
         }
       ],
     },

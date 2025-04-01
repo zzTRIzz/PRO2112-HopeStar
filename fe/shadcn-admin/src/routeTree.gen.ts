@@ -61,6 +61,9 @@ const AuthenticatedTasksIndexLazyImport = createFileRoute(
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
 )()
+const AuthenticatedSaleIndexLazyImport = createFileRoute(
+  '/_authenticated/sale/',
+)()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
 )()
@@ -227,6 +230,16 @@ const AuthenticatedSettingsIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/settings/index.lazy').then((d) => d.Route),
   )
+
+const AuthenticatedSaleIndexLazyRoute = AuthenticatedSaleIndexLazyImport.update(
+  {
+    id: '/sale/',
+    path: '/sale/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_authenticated/sale/index.lazy').then((d) => d.Route),
+)
 
 const AuthenticatedProductIndexLazyRoute =
   AuthenticatedProductIndexLazyImport.update({
@@ -672,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/sale/': {
+      id: '/_authenticated/sale/'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof AuthenticatedSaleIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -753,6 +773,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
+  AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
   AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
@@ -782,6 +803,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
+  AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
   AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
@@ -827,6 +849,7 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
@@ -868,6 +891,7 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
@@ -913,6 +937,7 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
+  '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
@@ -958,6 +983,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/help-center'
     | '/product'
+    | '/sale'
     | '/settings/'
     | '/tasks'
     | '/users'
@@ -998,6 +1024,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/help-center'
     | '/product'
+    | '/sale'
     | '/settings'
     | '/tasks'
     | '/users'
@@ -1041,6 +1068,7 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
     | '/_authenticated/product/'
+    | '/_authenticated/sale/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
@@ -1126,6 +1154,7 @@ export const routeTree = rootRoute
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
         "/_authenticated/product/",
+        "/_authenticated/sale/",
         "/_authenticated/tasks/",
         "/_authenticated/users/",
         "/_authenticated/voucher/"
@@ -1269,6 +1298,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/": {
       "filePath": "_authenticated/product/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/sale/": {
+      "filePath": "_authenticated/sale/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/settings/": {

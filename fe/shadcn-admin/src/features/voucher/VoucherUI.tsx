@@ -2,6 +2,34 @@ import { useEffect, useState } from "react"
 import { getVouchers } from "./data/apiVoucher"
 import { useNavigate } from "@tanstack/react-router";
 import axios from 'axios';
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from '@/hooks/use-toast'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+
+// Định nghĩa schema validation
+const formSchema = z.object({
+  code: z.string().min(1, "Mã voucher không được để trống"),
+  name: z.string().min(1, "Tên voucher không được để trống"),
+  discountValue: z.number().min(1, "Giá trị voucher phải lớn hơn 0"),
+  voucherType: z.boolean(),
+  conditionPriceMin: z.number().min(0, "Giá tối thiểu phải lớn hơn hoặc bằng 0"),
+  conditionPriceMax: z.number().min(0, "Giá tối đa phải lớn hơn hoặc bằng 0"),
+  quantity: z.number().min(1, "Số lượng phải lớn hơn 0"),
+  startTime: z.string().min(1, "Vui lòng chọn ngày bắt đầu"),
+  endTime: z.string().min(1, "Vui lòng chọn ngày kết thúc"),
+  status: z.string()
+})
 
 // Thêm interface ở đầu file
 interface Voucher {
@@ -129,6 +157,50 @@ export default function VoucherUI() {
 
         fetchVouchers()
     }, [])
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+          code: '',
+          name: '',
+          discountValue: 0,
+          voucherType: false,
+          conditionPriceMin: 0, 
+          conditionPriceMax: 0,
+          quantity: 0,
+          startTime: '',
+          endTime: '',
+          status: 'ACTIVE'
+        }
+      })
+    
+      const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        try {
+          if (isEditing && editId) {
+            await axios.put(`http://localhost:8080/api/admin/voucher/${editId}`, values)
+            toast({
+              title: "Cập nhật thành công",
+              description: "Voucher đã được cập nhật"
+            })
+          } else {
+            await axios.post('http://localhost:8080/api/admin/voucher', values)
+            toast({
+              title: "Thêm mới thành công", 
+              description: "Voucher đã được tạo"
+            })
+          }
+          // Refresh lại danh sách
+          const newData = await getVouchers()
+          setVouchers(newData)
+          handleCloseModal()
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: "",
+            description: "Vui lòng thử lại sau"
+          })
+        }
+      }
 
     return (
         <>
@@ -272,119 +344,188 @@ export default function VoucherUI() {
                     <div className="bg-white p-6 rounded-lg w-[500px]">
                         <h2 className="text-xl font-semibold mb-4">
                             {isEditing ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
-                        </h2>                        <form onSubmit={handleSubmit}>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block mb-1">Mã voucher</label>
-                                    <input
-                                        type="text"
-                                        className="w-full p-2 border rounded"
-                                        value={formData.code}
-                                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block mb-1">Tên voucher</label>
-                                    <input
-                                        type="text"
-                                        className="w-full p-2 border rounded"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block mb-1">Giá trị</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="number"
-                                            className="w-full p-2 border rounded"
-                                            value={formData.discountValue}
-                                            onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-                                            required
-                                        />
-                                        <select
-                                            className="p-2 border rounded"
-                                            value={formData.voucherType ? "true" : "false"}
-                                            onChange={(e) => setFormData({ ...formData, voucherType: e.target.value === "true" })}
-                                        >
-                                            <option value="false">VNĐ</option>
-                                            <option value="true">%</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        </h2>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="code"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mã voucher</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Nhập mã voucher" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tên voucher</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Nhập tên voucher" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block mb-1">Giá tối thiểu</label>
-                                        <input
-                                            type="number"
-                                            className="w-full p-2 border rounded"
-                                            value={formData.conditionPriceMin}
-                                            onChange={(e) => setFormData({ ...formData, conditionPriceMin: Number(e.target.value) })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block mb-1">Giá tối đa</label>
-                                        <input
-                                            type="number"
-                                            className="w-full p-2 border rounded"
-                                            value={formData.conditionPriceMax}
-                                            onChange={(e) => setFormData({ ...formData, conditionPriceMax: Number(e.target.value) })}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block mb-1">Số lượng</label>
-                                    <input
-                                        type="number"
-                                        className="w-full p-2 border rounded"
-                                        value={formData.quantity}
-                                        onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
-                                        required
+                                    <FormField
+                                        control={form.control}
+                                        name="discountValue"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Giá trị</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="number" 
+                                                        placeholder="Nhập giá trị" 
+                                                        {...field}
+                                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="voucherType"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Loại giảm giá</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        className="w-full p-2 border rounded"
+                                                        value={field.value ? "true" : "false"}
+                                                        onChange={(e) => field.onChange(e.target.value === "true")}
+                                                    >
+                                                        <option value="false">VNĐ</option>
+                                                        <option value="true">%</option>
+                                                    </select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
                                 </div>
+
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block mb-1">Ngày bắt đầu</label>
-                                        <input
-                                            type="datetime-local"
-                                            className="w-full p-2 border rounded"
-                                            value={formData.startTime}
-                                            onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block mb-1">Ngày kết thúc</label>
-                                        <input
-                                            type="datetime-local"
-                                            className="w-full p-2 border rounded"
-                                            value={formData.endTime}
-                                            onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                            required
-                                        />
-                                    </div>
+                                    <FormField
+                                        control={form.control}
+                                        name="conditionPriceMin"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Giá tối thiểu</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="number" 
+                                                        placeholder="Nhập giá tối thiểu"
+                                                        {...field}
+                                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="conditionPriceMax"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Giá tối đa</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="number"
+                                                        placeholder="Nhập giá tối đa"
+                                                        {...field}
+                                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                 </div>
-                            </div>
-                            <div className="flex justify-end gap-2 mt-6">
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 border rounded"
-                                    onClick={handleCloseModal}
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded"
-                                >
-                                    {isEditing ? 'Cập nhật' : 'Tạo'}
-                                </button>
-                            </div>
-                        </form>
+
+                                <FormField
+                                    control={form.control}
+                                    name="quantity"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Số lượng</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="number"
+                                                    placeholder="Nhập số lượng"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="startTime"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Ngày bắt đầu</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="datetime-local"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="endTime"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Ngày kết thúc</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="datetime-local"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-2 mt-6">
+                                    <Button 
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleCloseModal}
+                                    >
+                                        Hủy
+                                    </Button>
+                                    <Button type="submit">
+                                        {isEditing ? 'Cập nhật' : 'Tạo'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
                     </div>
                 </div>
             )}
