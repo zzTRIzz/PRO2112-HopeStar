@@ -179,6 +179,16 @@ public class AuthServiceImpl implements AuthService {
         return accountResponse;
     }
 
+    @Override
+    public Account findAccountByJwt(String jwt) throws Exception {
+        String email = jwtProvider.getEmailFromJwtToken(jwt);
+        Account account = accountRepository.findByEmail(email);
+        if (account == null){
+            throw new Exception("account not found");
+        }
+        return account;
+    }
+
 
     private Authentication authentication(String email){
         UserDetails userDetails = customUser.loadUserByUsername(email);

@@ -6,9 +6,9 @@ import { CheckoutPage } from '@/features/ui-client/pages/gio-hang/CheckoutPage'
 
 export const Route = createFileRoute('/(auth)/dat-hang/')({
   component: RouteComponent,
-  validateSearch: z.object({
-    selectedProducts: z.string().optional().catch(undefined),
-  }),
+  // validateSearch: z.object({
+  //   selectedProducts: z.string().optional().catch(undefined),
+  // }),
 })
 
 function RouteComponent() {

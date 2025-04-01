@@ -188,13 +188,7 @@ export function OrderSummary({ onCheckout, products = [] }: OrderSummaryProps) {
               {total.toLocaleString()}đ
             </span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span>Điểm thưởng</span>
-            <span className="flex items-center gap-1">
-              <span className="text-warning-500">⭐</span>
-              +{points.toLocaleString()}
-            </span>
-          </div>
+         
         </div>
 
         <Button
@@ -204,7 +198,7 @@ export function OrderSummary({ onCheckout, products = [] }: OrderSummaryProps) {
           Đặt hàng
         </Button>
 
-        <p className="mt-4 text-center text-sm text-default-500">
+        {/* <p className="mt-4 text-center text-sm text-default-500">
           Bằng việc tiến hành đặt mua hàng, bạn đồng ý với{" "}
           <a href="#" className="text-primary-500">
             Điều khoản dịch vụ
@@ -214,7 +208,7 @@ export function OrderSummary({ onCheckout, products = [] }: OrderSummaryProps) {
             Chính sách xử lý dữ liệu cá nhân
           </a>{" "}
           của FPT Shop
-        </p>
+        </p>   */}
         </div>
       </Card>
     </div>

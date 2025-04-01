@@ -18,7 +18,6 @@ import { RelatedProducts } from '../components/related-products'
 import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
 import Navbar from '../components/navbar'
-import { getCart, getByCartDetail, createCartDetail } from '../service/CartDetail'
 
 
 
@@ -33,9 +32,6 @@ export default function ProductDetail() {
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [quantity, setQuantity] = useState(1)
   const [currentProductDetail, setCurrentProductDetail] = useState<any>(null)
-  const [idCart, setIdCart] = useState<number>(0);
-  const [idProductDetail, setIdProductDetail] = useState<number>(0);
-
 
   // Lấy id account
   const userId = useMemo(() => {
@@ -94,53 +90,6 @@ export default function ProductDetail() {
       }
     }
   }, [selectedStorage, selectedColor, productDetail])
-
-
-  useEffect(() => {
-    getCartByAccount()
-  }, [userId]) 
-
-
-
-  const getCartByAccount = async () => {
-    try {
-      if (!userId) {
-        console.error("User ID không hợp lệ")
-        return
-      }
-      const data = await getCart(userId)
-      if (Array.isArray(data) && data.length > 0) {
-        setIdCart(data[0].id);
-        console.log("id cart:", data[0].id);
-      } else {
-        setIdCart(0);
-        console.log("Giỏ hàng trống hoặc không tìm thấy.");
-      }
-    } catch (error) {
-      console.error('Lỗi lấy giỏ hàng:', error)
-    }
-  }
-
-  const addCartDetail = async () => {
-    console.log("id cart " + idCart);
-    console.log("so luong " + quantity);
-    console.log(productDetail?.defaultProductDetail?.productDetailId);
-    if (
-      !productDetail?.defaultProductDetail?.productDetailId ||
-      !idCart
-    ) {
-      throw new Error("Thiếu thông tin sản phẩm hoặc giỏ hàng");
-    }
-    const data = await createCartDetail(
-      {
-        quantity: quantity,
-        idProductDetail: productDetail?.defaultProductDetail?.productDetailId,
-        idShoppingCart: idCart
-      }
-    );
-    console.log(data);
-
-  }
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change
@@ -357,11 +306,14 @@ export default function ProductDetail() {
                 size='lg'
                 className='flex-1'
                 startContent={<Icon icon='lucide:shopping-cart' />}
-                onClick={addCartDetail}
               >
                 Thêm vào giỏ hàng
               </Button>
-              <Button color='success' size='lg' className='flex-1'>
+              <Button
+               color='success'
+                size='lg'
+                 className='flex-1'
+                 >
                 Mua ngay
               </Button>
             </div>

@@ -11,4 +11,5 @@ public interface AuthService {
     String createUser(SignupRequest signupRequest) throws Exception;
     AuthResponse signing(LoginRequest loginRequest) throws Exception;
     AccountResponse getAccountProfile(String jwt) throws Exception;
+    Account findAccountByJwt(String jwt) throws Exception;
 }
