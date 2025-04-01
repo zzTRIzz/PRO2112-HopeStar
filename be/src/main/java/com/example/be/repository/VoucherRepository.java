@@ -58,4 +58,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime
     );
+
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Integer id);
 }
