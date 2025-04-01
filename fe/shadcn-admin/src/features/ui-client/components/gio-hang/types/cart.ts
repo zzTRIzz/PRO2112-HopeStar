@@ -1,10 +1,13 @@
 export interface CartItem {
   id: string;
-  name: string;
-  sku: string;
+  productName: string;
   price: number;
+  priceSell:number;
   image: string;
   quantity: number;
+  ram:string;
+  rom:string;
+  color:string
 }
 
 export interface OrderSummary {
