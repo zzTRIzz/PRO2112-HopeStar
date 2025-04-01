@@ -88,11 +88,11 @@ export default function Navbar() {
           <DropdownItem key='orders'>Đơn hàng của tôi</DropdownItem>
 
           {profile?.idRole === 2 ? (
-            <DropdownItem key='admin' asChild>
+            <DropdownItem key='admin'>
               <Link to='/dashboard'>Quản trị viên</Link>
             </DropdownItem>
           ) : profile?.idRole === 3 ? (
-            <DropdownItem key='staff' asChild>
+            <DropdownItem key='staff'>
               <Link to='/banhang'>Nhân viên</Link>
             </DropdownItem>
           ) : null}

@@ -72,14 +72,15 @@ export function CartItemCard({
               </p>
             </div>
             <div className='flex flex-wrap items-center justify-between gap-4'>
-              <div className='space-y-1'>
-                <p className='text-lg font-bold text-danger'>
+              <div className='space-y-1 space-x-2'>
+                <span className='text-lg font-bold text-danger'>
                   {new Intl.NumberFormat('vi-VN').format(item.priceSell)}₫
-                </p>
+                </span>
+
                 {item.price !== item.priceSell && (
-                  <p className='text-sm text-default-500 line-through'>
+                  <span className='text-sm text-default-500 line-through'>
                     {new Intl.NumberFormat('vi-VN').format(item.price)}₫
-                  </p>
+                  </span>
                 )}
               </div>
               <div className='flex items-center gap-2'>

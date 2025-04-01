@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { IconLoader2 } from '@tabler/icons-react'
 import { Heart, Star } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
+import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
   productViewResponse,
@@ -21,16 +24,48 @@ export default function FeaturedProducts() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
+  const queryClient = useQueryClient()
+
+  const addToCart = async (idProductDetail: number | undefined) => {
+    try {
+      if (!idProductDetail) {
+        toast({
+          title: 'Lỗi',
+          description: 'Không thể thêm sản phẩm vào giỏ hàng',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      await addProductToCart(idProductDetail,1)
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã thêm sản phẩm vào giỏ hàng',
+      })
+
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+    } catch (error) {
+      console.error('Add to cart error:', error)
+      toast({
+        title: 'Thông báo',
+        description:
+          error?.response?.data?.message ||
+          'Không thể thêm sản phẩm vào giỏ hàng',
+        variant: 'destructive',
+      })
+    }
+  }
+
   useEffect(() => {
     const fetchHome = async () => {
       try {
         setLoading(true)
         const response = await getHome()
-        console.log(response);
+        console.log(response)
         // Validate the response with Zod schema
         const parsedData = productViewResponseAllSchema.parse(response)
 
-        
         setNewestProducts(parsedData.newestProducts)
         setBestSellingProducts(parsedData.bestSellingProducts)
       } catch (error) {
@@ -177,6 +212,7 @@ export default function FeaturedProducts() {
                   size='lg'
                   variant='outline'
                   className='h-8 border-gray-300 px-4 text-xs text-gray-700 hover:bg-gray-100'
+                  onClick={() => addToCart(product.idProductDetail)}
                 >
                   Thêm giỏ
                 </Button>
@@ -306,6 +342,7 @@ export default function FeaturedProducts() {
                   size='lg'
                   variant='outline'
                   className='h-8 border-gray-300 px-4 text-xs text-gray-700 hover:bg-gray-100'
+                  onClick={() => addToCart(product.idProductDetail)}
                 >
                   Thêm giỏ
                 </Button>
