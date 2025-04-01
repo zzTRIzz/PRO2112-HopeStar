@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { BillSchema, Voucher } from '../service/Schema';
 import InHoaDon from './InHoaDon';
+import "../css/print_hoaDon.css"
 interface ThanhToanProps {
     searchBill: BillSchema | undefined;
     setPaymentMethod: any;
@@ -34,7 +35,7 @@ interface ThanhToanProps {
     tienThua: number;
     isBanGiaoHang: boolean;
     phiShip: number;
-    printData: any; 
+    printData: any;
     printRef: React.RefObject<HTMLDivElement | null>;
 
 }
@@ -223,8 +224,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     onClick={() => handleThanhToan("CHO_XAC_NHAN", 1)}>
                                     Xác nhận thanh toán</Button>
                             )}
-
-                            
                         </div>
                     </div>
                 </div>

@@ -44,7 +44,7 @@ public interface BillService {
     //__________________________________________________________________________________________
     BillDto createHoaDonTaiWeb(BillDto billDto);
 
-    void apDungVoucherChoOnline(Bill bill);
+//    void apDungVoucherChoOnline(Bill bill);
 
     BillDto createDatHangOnline(BillDto billDto);
 

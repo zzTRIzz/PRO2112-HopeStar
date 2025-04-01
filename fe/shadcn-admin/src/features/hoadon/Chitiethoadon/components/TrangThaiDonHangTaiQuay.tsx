@@ -230,7 +230,7 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
                                     Xác nhận
                                 </button>
                             )} */}
-                            <div className="ml-[500px]">
+                            <div className="ml-[700px]">
                                 <Button>In hóa đơn </Button>
                             </div>
 

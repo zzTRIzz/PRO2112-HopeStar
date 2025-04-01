@@ -111,3 +111,16 @@ export const billDetailSchema = z.object({
 });
 
 export type BillDetailSchema = z.infer<typeof billDetailSchema>;
+
+
+
+export interface HoaDon {
+  orderId: string;
+  orderDate: string;
+  customerName: string;
+  customerPhone: string;
+  products: SearchBillDetail[];
+  khachHang : AccountKhachHang
+  totalAmount: number;
+  paymentMethod: string;
+}

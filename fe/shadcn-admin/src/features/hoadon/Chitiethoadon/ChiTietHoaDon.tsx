@@ -362,7 +362,7 @@ const ChiTietHoaDon: React.FC = () => {
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">
                     <div className="mb-2 flex items-center justify-between">
-                        <h1 className="font-bold tracking-tight">Giỏ hàng</h1>
+                        <h1 className="font-bold tracking-tight">Hóa đơn chi tiết</h1>
                         <div className="flex space-x-2">
                             {/* Quét Barcode để check sản phẩm */}
                             {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
@@ -404,7 +404,7 @@ const ChiTietHoaDon: React.FC = () => {
                         deleteBillDetail={deleteBillDetail}
                         searchBill={searchBill} />
                     <br />
-                    
+
                     {product.length > 0 && (
                         <div className="bg-white p-4 ml-auto mr-5 w-fit text-lg mb-2">
                             <div className="w-[380px] min-w-[380px] ">
@@ -418,7 +418,7 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí ship:", value: searchBill?.deliveryFee },
                                         { label: "Khách cần trả:", value: searchBill?.totalDue },
                                         { label: "Khách đã trả:", value: searchBill?.customerPayment },
-                                        { label: "Đã trả khách:", value: searchBill?.amountChange, highlight: true },
+                                        { label: "Khách còn thiếu:", value: (searchBill != null ? searchBill?.totalDue - searchBill?.customerPayment : 0), highlight: true },
                                     ].map((item, index) => (
                                         <div key={index} className="flex justify-between border-b pb-2">
                                             <span className={`text-gray-700 text-base ${item.highlight ? "text-red-500 font-semibold" : ""}`}>
@@ -433,9 +433,9 @@ const ChiTietHoaDon: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                       )}
+                    )}
                 </div>
-              
+
 
 
             </Main >

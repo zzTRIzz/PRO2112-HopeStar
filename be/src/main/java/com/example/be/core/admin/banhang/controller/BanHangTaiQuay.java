@@ -181,7 +181,6 @@ public class BanHangTaiQuay {
 
         Bill bill = billRepository.findById(billDetailDto.getIdBill())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-
         Optional<BillDetail> existingBillDetail = billDetailRepository.findFirstByIdBillAndIdProductDetail(
                 billDetailDto.getIdBill(), billDetailDto.getIdProductDetail());
 

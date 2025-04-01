@@ -212,21 +212,6 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                         <OrderStepper currentStatus={currentStatus} />
                         {/* Buttons */}
                         <div className="flex justify-center gap-4 mt-8">
-                            {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && (
-                                <button
-                                    onClick={handlePrevStatus}
-                                    // disabled={currentStatus === "CHO_XAC_NHAN"}
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2",
-                                        // currentStatus === "CHO_XAC_NHAN"
-                                        //     ? "bg-gray-300 cursor-not-allowed" :
-                                        "bg-orange-500 hover:bg-orange-600"
-                                    )}
-                                >
-                                    Hủy
-                                </button>
-                            )}
                             {currentStatus != "HOAN_THANH" && (
                                 <button
                                     onClick={handleNextStatus}
@@ -239,9 +224,31 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                     Xác nhận
                                 </button>
                             )}
-                            <div>
-                                <Button>In hóa đơn </Button>
-                            </div>
+                            {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && (
+                                <button
+                                    onClick={handlePrevStatus}
+                                    // disabled={currentStatus === "CHO_XAC_NHAN"}
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2",
+                                        // currentStatus === "CHO_XAC_NHAN"
+                                        //     ? "bg-gray-300 cursor-not-allowed" :
+                                        "bg-red-600 hover:bg-red-500"
+                                    )}
+                                >
+                                    Hủy đơn
+                                </button>
+                            )}
+
+                            <div className="ml-[500px]">
+                                <button
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
+                                    )}
+                                >
+                                    In hóa đơn
+                                </button>                            </div>
 
                         </div>
 

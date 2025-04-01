@@ -31,8 +31,6 @@ import ThanhToan from './components/ThanhToan';
 import { Checkbox } from '@/components/ui/checkbox';
 import BarcodeScannerModal from './components/BarcodeScannerModal';
 import InHoaDon from './components/InHoaDon';
-import axios from 'axios';
-import Quagga from 'quagga';
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
   const [billChoThanhToan, setBillChoThanhToan] = useState<BillSchema[]>([]);
@@ -281,10 +279,10 @@ function BanHangTaiQuay() {
   // Them imei vao hoa don chi tiet
   const handleAddImei = async () => {
     try {
-      console.log("id id_Imei" +selectedImei)
-      console.log("id idBillDetail" +idBillDetail)
-      console.log("id idHoaDon" +idHoaDon)
-      console.log("id idProductDetail" +idProductDetail)
+      console.log("id id_Imei" + selectedImei)
+      console.log("id idBillDetail" + idBillDetail)
+      console.log("id idHoaDon" + idHoaDon)
+      console.log("id idProductDetail" + idProductDetail)
       const newImei = await createImeiSold({
         id_Imei: selectedImei,
         idBillDetail: idBillDetail
@@ -412,7 +410,7 @@ function BanHangTaiQuay() {
   // chọn check box bán giao hàng 
   const handleBanGiaoHangChange = () => {
     try {
-      if (searchBill?.idAccount == 1) {
+      if (searchBill?.idAccount == 1 || searchBill?.idAccount == null) {
         fromThatBai("Khách lẻ không bán giao hàng");
         return;
       }
@@ -424,6 +422,7 @@ function BanHangTaiQuay() {
         fromThatBai("Vui lòng thêm sản phẩm ");
         return;
       }
+      
       setIsBanGiaoHang((prev) => !prev);
     } catch (error) {
       console.error("Lỗi khi bán giao hàng:", error);
@@ -444,7 +443,7 @@ function BanHangTaiQuay() {
     }
   }
 
-  
+
   // const handlePrint = (billData: any) => {
   //   setPrintData(billData);
 
@@ -492,18 +491,62 @@ function BanHangTaiQuay() {
   //   }, 500);
   // };
 
+  // const handlePrint = (billData: any) => {
+  //   if (!billData) {
+  //     console.error("Dữ liệu hóa đơn không hợp lệ:", billData);
+  //     return;
+  //   }
+
+  //   setPrintData(billData);
+
+  //   setTimeout(() => {
+  //     if (printRef.current) {
+  //       console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
+  //       window.print(); // Gọi hộp thoại in
+  //     } else {
+  //       console.error("Không tìm thấy nội dung cần in.");
+  //     }
+
+  //     // Làm sạch dữ liệu sau khi in
+  //     setPrintData(null);
+  //   }, 500);
+  // };
   const handlePrint = (billData: any) => {
-  setPrintData(billData);
-
-  setTimeout(() => {
-    if (printRef.current) {
-      window.print(); // Gọi hộp thoại in
+    if (!billData) {
+      console.error("Dữ liệu hóa đơn không hợp lệ:", billData);
+      return;
     }
+    console.log("Dữ liệu hóa đơn trước khi in:", billData); // Debug dữ liệu
+    setPrintData(billData); // Cập nhật dữ liệu cần in
+  };
 
-    // Làm sạch dữ liệu sau khi in
-    setPrintData(null);
-  }, 500);
-};
+
+  useEffect(() => {
+    if (printData && printRef.current) {
+      const printContent = printRef.current;
+      printContent.style.position = 'static';
+      printContent.style.left = '0';
+
+      setTimeout(() => {
+        window.print();
+        setPrintData(null);
+        printContent.style.position = 'fixed';
+        printContent.style.left = '-9999px';
+      }, 100);
+    }
+  }, [printData]);
+
+  // useEffect(() => {
+  //   if (printData && printRef.current) {
+  //     console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
+
+  //     // Gọi window.print() sau khi DOM đã được cập nhật
+  //     window.print();
+
+  //     // Làm sạch dữ liệu sau khi in
+  //     setPrintData(null);
+  //   }
+  // }, [printData]);
 
 
   // Thanh toán hóa đơn
@@ -676,9 +719,9 @@ function BanHangTaiQuay() {
   //   }
   // };
 
-  useEffect(() => {
-    console.log("✅ ID hóa đơn đã cập nhật:", idHoaDon);
-  }, [idHoaDon]);
+  // useEffect(() => {
+  //   console.log("✅ ID hóa đơn đã cập nhật:", idHoaDon);
+  // }, [idHoaDon]);
 
   const isProcessing = useRef(false);
   const handleScanSuccess = async (imei: string) => {
@@ -741,7 +784,8 @@ function BanHangTaiQuay() {
 
       fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`);
     } catch (error: any) {
-      console.error("[❌ LỖI]", error);
+      fromThatBai("Lỗi khi thêm sản phẩm !");
+      // console.error("[❌ LỖI]", error);
     } finally {
       isProcessing.current = false;  // Cho phép quét tiếp
       setIsScanning(false);
@@ -821,7 +865,7 @@ function BanHangTaiQuay() {
                 Quét Barcode
               </Button>
 
-              {scanResult && (
+              {/* {scanResult && (
                 <div className="mt-2 p-2 bg-green-100 rounded">
                   Mã đã quét: <span className="font-bold">{scanResult}</span>
                 </div>
@@ -831,7 +875,7 @@ function BanHangTaiQuay() {
                 <div className="text-red-500 mt-2 p-2 bg-red-100 rounded">
                   {scanError}
                 </div>
-              )}
+              )} */}
 
               <BarcodeScannerModal
                 isOpen={isScanning}
@@ -928,16 +972,17 @@ function BanHangTaiQuay() {
             printData={printData}
             printRef={printRef}
           />
-          <div style={{ display: "none" }}>
-            {printData && (
-              <div ref={printRef} className="print-container">
-                <InHoaDon billData={printData} />
-              </div>
-            )}
-          </div>
+
         </div>
       </div > <br />
-    </>
+
+      <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+        {printData && (
+          <div ref={printRef} className="print-container">
+            <InHoaDon billData={printData} />
+          </div>
+        )}
+      </div>    </>
   );
 }
 export default BanHangTaiQuay;

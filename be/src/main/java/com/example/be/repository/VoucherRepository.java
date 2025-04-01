@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,41 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
                                  @Param("status") StatusVoucher status,
                                  @Param("dateTime") LocalDateTime  dateTime
                                  );
+
+
+
+
+
+//    @Query("SELECT v FROM Voucher v " +
+//            "JOIN VoucherAccount va ON v = va.idVoucher " +
+//            "WHERE va.idAccount.id = :idAccount " +
+//            "AND v.status = :status " +
+//            "AND v.conditionPriceMin <= :currentTotalPrice " +
+//            "AND v.conditionPriceMax >= :currentTotalPrice " +
+//            "AND v.quantity > 0 " +
+//            "AND v.discountValue > 0 " +
+//            "AND v.startTime <= :dateTime " +
+//            "AND v.endTime >= :dateTime " +
+//            "ORDER BY " +
+//            "CASE " +
+//            "  WHEN v.voucherType = true AND v.conditionPriceMax IS NOT NULL " +  //hiện tại vẫn cho giá trị max là conditionPriceMax
+//            "  THEN CASE " +
+//            "         WHEN (v.discountValue * :currentTotalPrice) / 100 > v.conditionPriceMax " +
+//            "         THEN v.conditionPriceMax " +
+//            "         ELSE (v.discountValue * :currentTotalPrice) / 100 " +
+//            "       END " +
+//            "  WHEN v.voucherType = true " +
+//            "  THEN (v.discountValue * :currentTotalPrice) / 100 " +
+//            "  ELSE v.discountValue " +
+//            "END DESC")
+//    List<Voucher> giamGiaTotNhat(
+//            @Param("idAccount") Integer idAccount,
+//            @Param("status") StatusVoucher status,
+//            @Param("dateTime") LocalDateTime dateTime,
+//            @Param("currentTotalPrice") BigDecimal currentTotalPrice
+//    );
+
+
 
 
     @Query("SELECT v FROM Voucher v JOIN Bill b ON b.idVoucher.id = v.id " +

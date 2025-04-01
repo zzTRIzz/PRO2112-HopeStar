@@ -328,38 +328,38 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-    @Override
-    public void apDungVoucherChoOnline(Bill bill) {
-        try {
-            LocalDateTime now = LocalDateTime.now();
-            Account accountKhachHang = accountRepository.findById(bill.getIdAccount().getId()).orElse(null);
-            Voucher voucher;
-            List<Voucher> voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE, now);
-            voucher = voucherList.isEmpty() ? null : voucherList.get(0);
-            BigDecimal tongSauKhiGiam;
-            if (voucher == null) {
-                tongSauKhiGiam = bill.getTotalPrice();
-                voucher = null;
-            } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
-                tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
-                voucherService.updateSoLuongVoucher(voucher.getId());
-            } else {
-                tongSauKhiGiam = BigDecimal.ZERO;
-                voucherService.updateSoLuongVoucher(voucher.getId());
-            }
-            System.out.println("voucher da tim duoc la :" + voucher);
-            bill.setIdVoucher(voucher);
-            // Lấy phí ship (nếu null thì mặc định 0)
-            BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
-            // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
-            BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
-            bill.setTotalDue(tongTienFinal);
-            billRepository.save(bill);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Lỗi khi cập nhật áp dụng voucher online cho hóa đơn: " + e.getMessage());
-        }
-    }
+//    @Override
+//    public void apDungVoucherChoOnline(Bill bill) {
+//        try {
+//            LocalDateTime now = LocalDateTime.now();
+//            Account accountKhachHang = accountRepository.findById(bill.getIdAccount().getId()).orElse(null);
+//            Voucher voucher;
+//            List<Voucher> voucherList = voucherRepository.giamGiaTotNhat(accountKhachHang.getId(), StatusVoucher.ACTIVE, now);
+//            voucher = voucherList.isEmpty() ? null : voucherList.get(0);
+//            BigDecimal tongSauKhiGiam;
+//            if (voucher == null) {
+//                tongSauKhiGiam = bill.getTotalPrice();
+//                voucher = null;
+//            } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
+//                tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
+//                voucherService.updateSoLuongVoucher(voucher.getId());
+//            } else {
+//                tongSauKhiGiam = BigDecimal.ZERO;
+//                voucherService.updateSoLuongVoucher(voucher.getId());
+//            }
+//            System.out.println("voucher da tim duoc la :" + voucher);
+//            bill.setIdVoucher(voucher);
+//            // Lấy phí ship (nếu null thì mặc định 0)
+//            BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+//            // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
+//            BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
+//            bill.setTotalDue(tongTienFinal);
+//            billRepository.save(bill);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("Lỗi khi cập nhật áp dụng voucher online cho hóa đơn: " + e.getMessage());
+//        }
+//    }
 
     @Override
     public BillDto createDatHangOnline(BillDto billDto) {

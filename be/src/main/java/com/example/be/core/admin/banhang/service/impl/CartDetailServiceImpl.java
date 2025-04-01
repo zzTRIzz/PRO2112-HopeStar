@@ -159,7 +159,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         bill.setIdAccount(account);
         bill.setTotalPrice(tongTienBill);
         billRepository.save(bill);
-        billService.apDungVoucherChoOnline(bill);
+//        billService.apDungVoucherChoOnline(bill);
         Bill saveBill = billRepository.save(bill);
         return billMapper.dtoBillMapper(saveBill);
     }

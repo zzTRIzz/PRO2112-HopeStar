@@ -1,7 +1,14 @@
 import { BillSchema } from '@/features/banhang/service/Schema';
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from "date-fns";
-
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle
+} from "@/components/ui/dialog";
+import DiaChiGiaoHang from './CapNhatDiaChi';
 interface AccountKhachHang {
     id: number,
     code: string,
@@ -15,62 +22,84 @@ interface Posp {
     searchBill: BillSchema | null;
     listKhachHang: AccountKhachHang | undefined;
 }
-const ThongTinDonHang: React.FC<Posp> = (
-    { searchBill, listKhachHang }
-) => {
-    return (
-        <div>
-            <div className='bg-white rounded-xl shadow-xl p-4'>
-                <h1 className='font-bold text-lg text-gray-600 ml-[15px]'>Thông tin đơn hàng</h1>
-                <hr className=" border-gray-600 mt-[6px]" /><br />
+const ThongTinDonHang: React.FC<Posp> =
+    ({
+        searchBill,
+        listKhachHang
+    }) => {
+        const [isDialogOpen, setIsDialogOpen] = useState(false);
+        return (
+            <div>
+                <div className='bg-white rounded-xl shadow-xl p-4'>
+                    <div className="flex items-center justify-between px-4">
+                        <h1 className="font-bold text-lg text-gray-600">Thông tin đơn hàng</h1>
+                        {searchBill?.billType == 1 &&(
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <Button onClick={() => setIsDialogOpen(true)}>Cập nhật</Button>
 
-                <div className="grid grid-cols-2 gap-x-10 ml-[8px]">
-                    {/* Cột bên trái */}
-                    <div className="space-y-2">
-                        <div className="flex  pb-2 mt-[13px]">
-                            <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
-                            <p className="ml-[14px]">{searchBill?.nameBill}</p>
-                        </div>
-                        <div className="flex  pb-2 mt-[13px]">
-                            <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
-                            <p className="ml-[14px]">{searchBill?.billType == 0 ? "Tại quầy" : "Giao hàng"}</p>
-                        </div>
-                        <div className="flex  pb-2 mt-[23px]">
-                            <span className="text-base text-gray-700 font-bold">Khách hàng:</span>
-                            <p className="ml-[14px]">{listKhachHang?.fullName}</p>
-                        </div>
-                        <div className="flex  pb-2 mt-[13px] pt-[21px]">
-                            <span className="text-base text-gray-700 font-bold">Số điện thoại:</span>
-                            <p className="ml-[14px]">{listKhachHang?.phone}</p>
-                        </div>
-
+                            <DialogContent className="max-w-3xl">
+                                <DialogHeader>
+                                    <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
+                                </DialogHeader>
+                                <DiaChiGiaoHang
+                                    isBanGiaoHang={true}
+                                    khachHang={listKhachHang}
+                                    onClose={() => setIsDialogOpen(false)}
+                                />
+                            </DialogContent>
+                        </Dialog>
+                        )}
                     </div>
 
-                    {/* Cột bên phải */}
-                    <div className="space-y-2">
-                        <div className="flex  pb-2 mt-[13px]">
-                            <span className="text-base text-gray-700 font-bold">Ngày đặt hàng:</span>
+                    <hr className=" border-gray-600 mt-[6px]" /><br />
 
-                            <p className="ml-[14px]">
-                                {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "dd/MM/yyyy HH:mm") : "Chưa có"}
-                            </p>                        </div>
-                        <div className="flex  pb-2 mt-[13px]">
-                            <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>
-                            <p className="ml-[14px]">{searchBill?.totalDue != null ? searchBill?.totalDue.toLocaleString('vi-VN') : 0} VND</p>
+                    <div className="grid grid-cols-2 gap-x-10 ml-[8px]">
+                        {/* Cột bên trái */}
+                        <div className="space-y-2">
+                            <div className="flex  pb-2 mt-[13px]">
+                                <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
+                                <p className="ml-[14px]">{searchBill?.nameBill}</p>
+                            </div>
+                            <div className="flex  pb-2 mt-[13px]">
+                                <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
+                                <p className="ml-[14px]">{searchBill?.billType == 0 ? "Tại quầy" : "Giao hàng"}</p>
+                            </div>
+                            <div className="flex  pb-2 mt-[23px]">
+                                <span className="text-base text-gray-700 font-bold">Khách hàng:</span>
+                                <p className="ml-[14px]">{listKhachHang?.fullName}</p>
+                            </div>
+                            <div className="flex  pb-2 mt-[13px] pt-[21px]">
+                                <span className="text-base text-gray-700 font-bold">Số điện thoại:</span>
+                                <p className="ml-[14px]">{listKhachHang?.phone}</p>
+                            </div>
+
                         </div>
-                        <div className="flex  pb-2 mt-[13px]">
-                            <span className="text-base text-gray-700 font-bold w-[100px]">Địa chỉ:</span>
-                            <p className="ml-[14px]">{listKhachHang?.address}</p>
-                        </div>
-                        <div className="flex  pb-2 mt-[13px] ">
-                            <span className="text-base text-gray-700 font-bold ">Trạng thái:</span>
-                            <p className="ml-[14px] text-green-600 font-semibold">{searchBill?.status}</p>
+
+                        {/* Cột bên phải */}
+                        <div className="space-y-2">
+                            <div className="flex  pb-2 mt-[13px]">
+                                <span className="text-base text-gray-700 font-bold">Ngày đặt hàng:</span>
+
+                                <p className="ml-[14px]">
+                                    {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "dd/MM/yyyy HH:mm") : "Chưa có"}
+                                </p>                        </div>
+                            <div className="flex  pb-2 mt-[13px]">
+                                <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>
+                                <p className="ml-[14px]">{searchBill?.totalDue != null ? searchBill?.totalDue.toLocaleString('vi-VN') : 0} VND</p>
+                            </div>
+                            <div className="flex  pb-2 mt-[13px]">
+                                <span className="text-base text-gray-700 font-bold w-[100px]">Địa chỉ:</span>
+                                <p className="ml-[14px]">{listKhachHang?.address}</p>
+                            </div>
+                            <div className="flex  pb-2 mt-[13px] ">
+                                <span className="text-base text-gray-700 font-bold ">Trạng thái:</span>
+                                <p className="ml-[14px] text-green-600 font-semibold">{searchBill?.status}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
 export default ThongTinDonHang;
