@@ -84,8 +84,12 @@ export default function Navbar() {
           />
         </DropdownTrigger>
         <DropdownMenu aria-label='User Actions' variant='flat'>
-          <DropdownItem key='profile'>Thông tin cá nhân</DropdownItem>
-          <DropdownItem key='orders'>Đơn hàng của tôi</DropdownItem>
+          <DropdownItem key='profile'>
+            <Link href='/taikhoan/thong-tin-ca-nhan'>Thông tin cá nhân</Link>
+          </DropdownItem>
+          <DropdownItem key='orders'>
+            <Link href='/taikhoan/don-hang-cua-toi'>Đơn hàng của tôi</Link>
+          </DropdownItem>
 
           {profile?.idRole === 2 ? (
             <DropdownItem key='admin'>
