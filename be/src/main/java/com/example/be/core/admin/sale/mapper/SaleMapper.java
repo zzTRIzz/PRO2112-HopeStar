@@ -16,7 +16,6 @@ public class SaleMapper {
                 sale.getName(),
                 sale.getDateStart(),
                 sale.getDateEnd(),
-                sale.getStatus(),
                 sale.getDescription(),
                 sale.getDiscountValue(),
                 sale.getDiscountType()
@@ -29,7 +28,6 @@ public class SaleMapper {
         sale.setName(request.getName());
         sale.setDateStart(request.getDateStart());
         sale.setDateEnd(request.getDateEnd());
-        sale.setStatus(request.getStatus());
         sale.setDescription(request.getDescription());
         sale.setDiscountValue(request.getDiscountValue());
         sale.setDiscountType(request.getDiscountType());

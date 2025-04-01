@@ -41,4 +41,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
 
   List<ProductDetail> findAllByProduct(Product product);
+
+
+  List<ProductDetail> findByProductId(Integer productId);
   }
