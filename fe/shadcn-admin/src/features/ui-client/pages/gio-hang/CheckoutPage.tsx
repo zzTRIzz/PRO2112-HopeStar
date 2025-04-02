@@ -1,11 +1,15 @@
-import React from 'react'
-import { Link, useSearch } from '@tanstack/react-router'
+
 import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import React from 'react'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
 import type { CartItem } from '../../components/gio-hang/types/cart'
+import { order } from '../../data/api-cart-service'
+import { toast } from '@/hooks/use-toast'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface CheckoutData {
   customerInfo: {
@@ -24,6 +28,7 @@ interface CheckoutData {
 }
 
 export function CheckoutPage() {
+  const queryClient = useQueryClient()
   const { selectedProducts: productsJson } = useSearch({ strict: false })
   const selectedProducts = React.useMemo(() => {
     try {
@@ -209,15 +214,52 @@ export function CheckoutPage() {
     validateForm()
   }, [validateForm, checkoutData])
 
-  const handleCheckout = () => {
+  const navigate = useNavigate()
+
+  const handleCheckout = async () => {
     if (!validateForm()) {
       return
     }
-    console.log('Checkout data:', {
-      ...checkoutData,
-      products: selectedProducts,
-    })
-    // Xử lý thanh toán tại đây
+
+    try {
+      // Get saved address from profile if exists
+      const profile = JSON.parse(localStorage.getItem('profile') || '{}')
+      const hasSavedAddress = !!profile.address
+
+      // Prepare order data
+      const orderData = {
+        customerInfo: checkoutData.customerInfo,
+        location: {
+          deliveryType: checkoutData.location.deliveryType,
+          fullAddress: hasSavedAddress ? profile.address : checkoutData.location.fullAddress,
+        },
+        paymentMethod: checkoutData.paymentMethod,
+        eInvoice: checkoutData.eInvoice,
+        products: selectedProducts,
+      }
+
+      // Call API to create order
+      await order(orderData)
+
+      // Show success message
+      toast({
+        title: 'Đặt hàng thành công',
+        description: 'Đơn hàng của bạn đã được tạo thành công',
+      })
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+      // Navigate to orders page
+      navigate({ to: '/taikhoan/don-hang-cua-toi' })
+
+    } catch (error) {
+      console.error('Checkout error:', error)
+      toast({
+        title: 'Đặt hàng thất bại',
+        description:
+          error?.response?.data?.message ||
+          'Không thể thêm sản phẩm vào giỏ hàng',
+        variant: 'destructive',
+      })
+    }
   }
 
   // Update isLoggedIn check to also verify if data exists

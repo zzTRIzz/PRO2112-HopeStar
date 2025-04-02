@@ -261,7 +261,7 @@ export function OrderSummary({
 
           <Button
             className='mt-4 h-12 w-full bg-[#338cf1] text-lg font-medium text-white hover:bg-[#338cf1]'
-            type='button'
+            type='submit'
             onPress={onCheckout}
             isDisabled={!isValid}
           >

@@ -44,4 +44,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
 
   List<ProductDetail> findByProductId(Integer productId);
+
+  ProductDetail findByIdAndStatus(Integer id, ProductDetailStatus status);
+
   }

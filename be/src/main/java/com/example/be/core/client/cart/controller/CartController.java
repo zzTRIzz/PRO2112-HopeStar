@@ -4,9 +4,11 @@ import com.example.be.core.admin.account.dto.response.ResponseData;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.core.client.cart.dto.request.AddToCartRequest;
 import com.example.be.core.client.cart.dto.request.CartDetailRequest;
+import com.example.be.core.client.cart.dto.request.OrderRequest;
 import com.example.be.core.client.cart.dto.response.CartResponse;
 import com.example.be.core.client.cart.service.CartDetailService;
 import com.example.be.core.client.cart.service.CartService;
+import com.example.be.core.client.cart.service.OrderService;
 import com.example.be.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ public class CartController {
     private final CartService cartService;
     private final AuthService authService;
     private final CartDetailService cartDetailService;
+    private final OrderService orderService;
 
     @GetMapping("/cart")
     public ResponseData<?> getCart(@RequestHeader("Authorization") String jwt) throws Exception {
@@ -56,6 +59,16 @@ public class CartController {
 
         authService.findAccountByJwt(jwt);
         Object o = cartDetailService.deleteCartDetail(id);
+        return new ResponseData<>(HttpStatus.OK,"ok",o);
+
+    }
+
+    @PostMapping("/order")
+    public ResponseData<?> order(@RequestHeader("Authorization") String jwt,
+                                 @RequestBody OrderRequest orderRequest) throws Exception {
+
+        Account account = authService.findAccountByJwt(jwt);
+        Object o = orderService.order(orderRequest,account);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }

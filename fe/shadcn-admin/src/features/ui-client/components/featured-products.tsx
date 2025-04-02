@@ -98,7 +98,7 @@ export default function FeaturedProducts() {
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
-          <Link to='/'>Xem tất cả</Link>
+          <Link to='/dienthoai'>Xem tất cả</Link>
         </Button>
       </div>
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
