@@ -24,4 +24,6 @@ public interface BillDetailService {
     void deleteBillDetail(Integer idBillDetail);
 
     List<ProductDetailDto> getAllProductDetailDto();
+
+    ProductDetailDto quetBarCodeCHoProductTheoImei(String barCode);
 }

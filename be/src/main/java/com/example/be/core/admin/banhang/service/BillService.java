@@ -2,15 +2,19 @@ package com.example.be.core.admin.banhang.service;
 
 
 import com.example.be.core.admin.banhang.dto.BillDto;
+import com.example.be.core.admin.banhang.dto.SearchBill;
+import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
-import com.example.be.entity.Account;
 import com.example.be.entity.Bill;
+import com.example.be.entity.status.StatusBill;
 
 import java.util.List;
 
 public interface BillService {
 
-    List<BillDto> getAllBill();
+    List<SearchBill> getAllBill();
+
+    List<SearchBill> searchBillList(SearchBillRequest searchBillRequest);
 
     List<BillDto> listTaiQuay();
 
@@ -19,15 +23,19 @@ public interface BillService {
 
     BillDto getByIdBill(Integer idBill);
 
+    BillDto updateStatus(Integer idBill, StatusBill status);
+
     BillDto createHoaDonTaiQuay(BillDto billDto);
 
-    BillDto updateHoaDonTaiQuay(BillDto billDto);
+//    BillDto updateHoaDonTaiQuay(BillDto billDto);
 
     void addAccount(Integer idBill, Integer idAccount);
 
     BillDto apDungVoucher(Integer idBill, Integer idAccount);
 
-    BillDto updateTongTienHoaDon(BillDto billDto);
+    BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher);
+
+    BillDto saveBillDto(BillDto billDto);
 
     BillDto getByIdHoaDon(Integer id);
 
@@ -36,7 +44,7 @@ public interface BillService {
     //__________________________________________________________________________________________
     BillDto createHoaDonTaiWeb(BillDto billDto);
 
-    void apDungVoucherChoOnline(Bill bill);
+//    void apDungVoucherChoOnline(Bill bill);
 
     BillDto createDatHangOnline(BillDto billDto);
 

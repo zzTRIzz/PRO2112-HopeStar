@@ -38,6 +38,7 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authenticated/hoadon/hoadonchitiet'
 import { Route as authProductIdImport } from './routes/(auth)/product.$id'
 import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
 import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
@@ -71,6 +72,9 @@ const AuthenticatedSaleIndexLazyImport = createFileRoute(
 )()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
+)()
+const AuthenticatedHoadonIndexLazyImport = createFileRoute(
+  '/_authenticated/hoadon/',
 )()
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
   '/_authenticated/help-center/',
@@ -237,6 +241,15 @@ const AuthenticatedProductIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/product/index.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedHoadonIndexLazyRoute =
+  AuthenticatedHoadonIndexLazyImport.update({
+    id: '/hoadon/',
+    path: '/hoadon/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/hoadon/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedHelpCenterIndexLazyRoute =
@@ -478,6 +491,13 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedHoadonHoadonchitietRoute =
+  AuthenticatedHoadonHoadonchitietImport.update({
+    id: '/hoadon/hoadonchitiet',
+    path: '/hoadon/hoadonchitiet',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const authProductIdRoute = authProductIdImport.update({
   id: '/(auth)/product/$id',
   path: '/product/$id',
@@ -633,6 +653,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/product/$id'
       preLoaderRoute: typeof authProductIdImport
       parentRoute: typeof rootRoute
+    }
+    '/_authenticated/hoadon/hoadonchitiet': {
+      id: '/_authenticated/hoadon/hoadonchitiet'
+      path: '/hoadon/hoadonchitiet'
+      fullPath: '/hoadon/hoadonchitiet'
+      preLoaderRoute: typeof AuthenticatedHoadonHoadonchitietImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/battery': {
       id: '/_authenticated/product/battery'
@@ -851,6 +878,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/hoadon/': {
+      id: '/_authenticated/hoadon/'
+      path: '/hoadon'
+      fullPath: '/hoadon'
+      preLoaderRoute: typeof AuthenticatedHoadonIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/': {
       id: '/_authenticated/product/'
       path: '/product'
@@ -954,6 +988,7 @@ const AuthenticatedSettingsRouteLazyRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
+  AuthenticatedHoadonHoadonchitietRoute: typeof AuthenticatedHoadonHoadonchitietRoute
   AuthenticatedProductBatteryRoute: typeof AuthenticatedProductBatteryRoute
   AuthenticatedProductBluetoothRoute: typeof AuthenticatedProductBluetoothRoute
   AuthenticatedProductBrandRoute: typeof AuthenticatedProductBrandRoute
@@ -977,6 +1012,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedDashboardIndexLazyRoute: typeof AuthenticatedDashboardIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
+  AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
   AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
@@ -988,6 +1024,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteLazyRoute:
     AuthenticatedSettingsRouteLazyRouteWithChildren,
+  AuthenticatedHoadonHoadonchitietRoute: AuthenticatedHoadonHoadonchitietRoute,
   AuthenticatedProductBatteryRoute: AuthenticatedProductBatteryRoute,
   AuthenticatedProductBluetoothRoute: AuthenticatedProductBluetoothRoute,
   AuthenticatedProductBrandRoute: AuthenticatedProductBrandRoute,
@@ -1012,6 +1049,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedDashboardIndexLazyRoute: AuthenticatedDashboardIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
+  AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
   AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
@@ -1040,6 +1078,7 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
   '/product/$id': typeof authProductIdRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1071,6 +1110,7 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
@@ -1096,6 +1136,7 @@ export interface FileRoutesByTo {
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
   '/product/$id': typeof authProductIdRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1127,6 +1168,7 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
   '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
@@ -1155,6 +1197,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503LazyRoute
   '/(auth)/': typeof authIndexLazyRoute
   '/(auth)/product/$id': typeof authProductIdRoute
+  '/_authenticated/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -1186,6 +1229,7 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
   '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
@@ -1214,6 +1258,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/product/$id'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1245,6 +1290,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/dashboard'
     | '/help-center'
+    | '/hoadon'
     | '/product'
     | '/sale'
     | '/settings/'
@@ -1269,6 +1315,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/product/$id'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -1300,6 +1347,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/dashboard'
     | '/help-center'
+    | '/hoadon'
     | '/product'
     | '/sale'
     | '/settings'
@@ -1326,6 +1374,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/(auth)/'
     | '/(auth)/product/$id'
+    | '/_authenticated/hoadon/hoadonchitiet'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1357,6 +1406,7 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
     | '/_authenticated/sale/'
     | '/_authenticated/settings/'
@@ -1453,6 +1503,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/settings",
+        "/_authenticated/hoadon/hoadonchitiet",
         "/_authenticated/product/battery",
         "/_authenticated/product/bluetooth",
         "/_authenticated/product/brand",
@@ -1476,6 +1527,7 @@ export const routeTree = rootRoute
         "/_authenticated/chats/",
         "/_authenticated/dashboard/",
         "/_authenticated/help-center/",
+        "/_authenticated/hoadon/",
         "/_authenticated/product/",
         "/_authenticated/sale/",
         "/_authenticated/voucher/",
@@ -1530,6 +1582,10 @@ export const routeTree = rootRoute
     },
     "/(auth)/product/$id": {
       "filePath": "(auth)/product.$id.tsx"
+    },
+    "/_authenticated/hoadon/hoadonchitiet": {
+      "filePath": "_authenticated/hoadon/hoadonchitiet.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/product/battery": {
       "filePath": "_authenticated/product/battery.tsx",
@@ -1649,6 +1705,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/help-center/": {
       "filePath": "_authenticated/help-center/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/hoadon/": {
+      "filePath": "_authenticated/hoadon/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/": {

@@ -57,9 +57,9 @@ public class GioHang {
         return shoppingCartService.getByIDShoppingCart(idAccount);
     }
 
-    @GetMapping("/cartDetail/{idGH}")
-    public List<CartDetailDto> chiTietGioHang(@PathVariable("idGH")Integer idGH){
-        return cartDetailService.getByIdGH(idGH);
+    @GetMapping("/cartDetail/{idAccount}")
+    public List<CartDetailDto> chiTietGioHang(@PathVariable("idAccount")Integer idAccount){
+        return cartDetailService.getByidAccount(idAccount);
     }
 
     @GetMapping("/deleteCartDetail/{idCartDetail}")
@@ -97,7 +97,6 @@ public class GioHang {
 
     @PostMapping("/muaHangOnline")
     public ResponseEntity<?> muaHangOnline(@RequestParam Integer idCart){
-//        System.out.println("idAcounnt là gì " + idAccount);
         if (idCart == null){
             throw new RuntimeException("Vui long dien idAccount");
         }

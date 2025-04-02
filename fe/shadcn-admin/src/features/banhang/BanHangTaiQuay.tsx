@@ -1,222 +1,82 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import TasksProvider from '../tasks/context/tasks-context';
-import { FaTimes } from "react-icons/fa";
-import { CgAdd } from "react-icons/cg";
 import { Main } from '@/components/layout/main';
 import { Button } from '@/components/ui/button';
-import { DataTablePagination } from './attribute/data-table-pagination'
 import {
   getData, findImeiByIdProductDaBan, findBill,
   findKhachHang, addKhachHang, addHoaDon, findImeiById,
   createImeiSold, deleteProduct, getImei, getAccountKhachHang,
-  getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung
-  , findVoucherByAccount, huyHoaDon, getDataChoThanhToan,updateImeiSold
+  getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
+  findVoucherByAccount, huyHoaDon, getDataChoThanhToan, updateImeiSold,
+  updateVoucher, thanhToan,
+  quetBarCode
 }
   from './service/BanHangTaiQuayService';
 import "./custom-toast.css"; // Thêm CSS tùy chỉnh
-// import "./custom-toast.css"; // Thêm CSS tùy chỉnh
-import { ImCart } from "react-icons/im";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import useVietnamAddress from './service/ApiTichHopDiaChi';
-import {
-  Dialog,
-  DialogContent,
-  // DialogDescription,
-  // DialogFooter,
-  // DialogHeader,
-  // DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { showDialog } from './service/ConfirmDialog';
+import "./css/print_hoaDon.css"
+import { toast } from 'react-toastify';
+import HoaDonCho from './components/HoaDonCho';
+import ThemSanPham from './components/ThemSanPham';
+import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 
-import { toast, ToastContainer } from 'react-toastify';
-
-
-
-import {
-  useForm
-} from "react-hook-form"
-import {
-  zodResolver
-} from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  cn
-} from "@/lib/utils"
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Check,
-  ChevronsUpDown
-} from "lucide-react"
-import {
-  Textarea
-} from "@/components/ui/textarea"
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-
-interface Bill {
-  id: number;
-  nameBill: string;
-  idAccount?: number | null;
-  idNhanVien?: number | null;
-  idVoucher?: number | null;
-  totalPrice: number | null;
-  customerPayment: number | null;
-  amountChange: number | null;
-  deliveryFee: number | null;
-  totalDue: number | null;
-  customerRefund: number | null;
-  discountedTotal: number | null;
-  deliveryDate?: string | null;
-  customerPreferred_date?: string | null;
-  customerAppointment_date?: string | null;
-  receiptDate?: string | null;
-  paymentDate?: string | null;
-  address?: string | null;
-  email?: string | null;
-  note?: string | null;
-  phone?: string | null;
-  name: string;
-  paymentId?: number | null;
-  deliveryId?: number | null;
-  itemCount: number;
-}
-
-interface SearchBillDetail {
-  id: number
-  price: number,
-  quantity: number,
-  totalPrice: number,
-  idProductDetail: number,
-  nameProduct: string,
-  ram: number,
-  rom: number,
-  mauSac: string,
-  imageUrl: string,
-  idBill: number
-}
-
-interface ProductDetail {
-  id: number,
-  code: string,
-  priceSell: number,
-  inventoryQuantity: number,
-  idProduct: number,
-  name: string,
-  ram: number,
-  rom: number,
-  color: string,
-  imageUrl: string,
-}
-
-interface AccountKhachHang {
-  id: number,
-  code: string,
-  fullName: string,
-  email: string,
-  phone: string,
-  address: string,
-  googleId: string
-}
-interface imei {
-  id: number,
-  imeiCode: string,
-  barCode: string,
-  status: string
-}
-interface Voucher {
-  id: number;
-  code: string;
-  name: string;
-  conditionPriceMin: number;
-  conditionPriceMax: number;
-  discountValue: number;
-  voucherType: boolean;
-  quantity: number;
-  startTime: string;
-  endTime: string;
-  status: string;
-}
-
-const formSchema = z.object({
-  fullName: z.string().min(1),
-  phone: z.string().min(1),
-  province: z.string().min(1),
-  district: z.string().min(1),
-  ward: z.string().min(1),
-  address: z.string().min(1),
-  note: z.string().optional()
-});
-
-
+import DiaChiGiaoHang from './components/DiaChiGiaoHang';
+import { AccountKhachHang, BillSchema, Imei, ProductDetail, SearchBillDetail, Voucher } from './service/Schema';
+import TableKhachHang from './components/TableKhachHang';
+import ThanhToan from './components/ThanhToan';
+import { Checkbox } from '@/components/ui/checkbox';
+import BarcodeScannerModal from './components/BarcodeScannerModal';
 function BanHangTaiQuay() {
-  const [listBill, setListBill] = useState<Bill[]>([]);
-  const [billChoThanhToan, setBillChoThanhToan] = useState<Bill[]>([]);
-  const [searchBill, setSearchBill] = useState<Bill>();
+  const [listBill, setListBill] = useState<BillSchema[]>([]);
+  const [billChoThanhToan, setBillChoThanhToan] = useState<BillSchema[]>([]);
+  const [searchBill, setSearchBill] = useState<BillSchema>();
   const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
   const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
-  const [listImei, setListImei] = useState<imei[]>([]);
-  // const [listImeiDaBan, setListImeiDaBan] = useState<imei[]>([]);
-  const [idBill, setIdBill] = useState<number>(0);
+  const [listImei, setListImei] = useState<Imei[]>([]);
+  const [idHoaDon, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
   const [selectedImei, setSelectedImei] = useState<number[]>([]);
   const [idBillDetail, setIdBillDetail] = useState<number>(0);
   const [product, setProduct] = useState<SearchBillDetail[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-  const [hoveredBillId, setHoveredBillId] = useState<number | null>(null);
   const [isKhachHang, setIsKhachHang] = useState(false);
   const [isVoucher, setIsVoucher] = useState(false);
   const [isCapNhatImei, setIsCapNhatImei] = useState(false);
   const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
   const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
   const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
-  const handleBanGiaoHangChange = () => {
-    setIsBanGiaoHang((prev) => !prev);
-  };
-
+  const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
+  const [customerPayment, setCustomerPayment] = useState<number>(0);
+  const [phiShip, setPhiShip] = useState<number>(0);
+  const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
+  const [isPTThanhToan, setIsPTThanhToan] = useState(false);
+  const tongTien = (searchBill?.totalDue ?? 0) + phiShip;
+  const tienThua = Math.max(customerPayment - tongTien);
+  const [scanError, setScanError] = useState('');
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResult, setScanResult] = useState('');
+  const [barcode, setBarcode] = useState<string | null>(null);
+  const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
     loadBill();
     loadProductDet();
     loadAccountKH();
     loadBillChoThanhToan();
-  }, []);
+    chuyenPhiShip();
+    // console.log("idBill cập nhật:", idBill);
+  }, [isBanGiaoHang, tongTien]);
+  const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
+  const { id } = signupData
+  const printRef = useRef<HTMLDivElement>(null);
+  const [printData, setPrintData] = useState<any>(null);
+
   // Lấy danh sách hóa đơn top 5 
   const loadBill = async () => {
     try {
@@ -259,7 +119,6 @@ function BanHangTaiQuay() {
   const loadVoucherByAcount = async (idBillAC: number) => {
     try {
       const data = await findVoucherByAccount(idBillAC);
-      // console.log("ID voucher " + idBillAC)
       setListVoucherTheoAccount(data);
     } catch (error) {
       setListVoucherTheoAccount([]);
@@ -270,7 +129,7 @@ function BanHangTaiQuay() {
   // Lấy danh sách imei
   const loadImei = async (idProductDetail: number) => {
     try {
-      console.log("ID product detail tat ca:", idProductDetail);
+      // console.log("ID product detail tat ca:", idProductDetail);
       const data = await getImei(idProductDetail);
       setListImei(data);
     } catch (error) {
@@ -278,12 +137,10 @@ function BanHangTaiQuay() {
     }
   };
 
-  // Tìm kiêm bill theo id
+  // Tìm kiêm bill theo id hoa don
   const findBillById = async (id: number) => {
     try {
       const data = await findBill(id);
-      console.log(data);
-      console.log("ID hóa đơn:", id);
       setSearchBill(data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -298,9 +155,7 @@ function BanHangTaiQuay() {
       loadProductDet();
       setProduct([]);
       loadBillChoThanhToan();
-      // hienThiKhachHang();
-      setIdBill(0);
-
+      // setIdBill(0);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -309,9 +164,9 @@ function BanHangTaiQuay() {
   // Lấy hóa đơn chi tiet theo ID bill 
   const getById = async (id: number) => {
     try {
-      const data = await getByIdBillDetail(id);
-      setProduct(data); // Cập nhật state
       setIdBill(id);
+      const data = await getByIdBillDetail(id);
+      setProduct(data); // Cập nhật state 
       const khachHang = await findKhachHang(id);
       hienThiKhachHang(khachHang);
       findBillById(id);
@@ -319,10 +174,11 @@ function BanHangTaiQuay() {
       setDuLieuVoucherDangDung(voucher);
       findBillById(id);
       await loadVoucherByAcount(id);
+      setIsBanGiaoHang(false);
+      // console.log("id bill khi chon "+ id);
     } catch (error) {
       setProduct([]); // Xóa danh sách cũ
-      setIdBill(0);
-      // setError(error.message);
+      // setIdBill(0);
       console.error("Error fetching data:", error);
     }
   };
@@ -342,24 +198,37 @@ function BanHangTaiQuay() {
   // Xoa san pham trong hoa don chi tiet
   const deleteBillDetail = async (idBillDetail: number) => {
     try {
-      console.log(idBillDetail);
-      const data = await deleteProduct(idBillDetail, idBill);
-      // console.log("Xoa san pham:", data);
-      await loadProductDet();
-      await loadImei(idProductDetail);
-      await getById(idBill);
-      fromThanhCong("Xóa sản phẩm chi tiết thành công");
+      const result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận xóa sản phẩm',
+        message: 'Bạn chắc chắn muốn xóa không?',
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ'
+      });
+
+      if (result) {
+        // console.log(idBillDetail);
+        await deleteProduct(idBillDetail, idHoaDon);
+        await loadProductDet();
+        await loadImei(idProductDetail);
+        await getById(idHoaDon);
+        fromThanhCong("Xóa sản phẩm chi tiết thành công");
+      } else {
+        // console.log('Hủy thao tác');
+        fromThatBai("Xóa sản phẩm chi tiết không thành công");
+
+      }
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-
   // Thêm hóa đơn mới
   const handleAddBill = async () => {
     try {
-      const newBill = await addHoaDon({ idNhanVien: Number(9) }); // Truyền trực tiếp idNhanVien
-      console.log("Hóa đơn mới:", newBill);
+      const newBill = await addHoaDon({ idNhanVien: id }); // Truyền trực tiếp idNhanVien
+      // console.log("Hóa đơn mới:", newBill);
       setListBill([...listBill, newBill]); // Cập nhật danh sách
       loadBill();
       loadBillChoThanhToan();
@@ -373,21 +242,22 @@ function BanHangTaiQuay() {
   // Thêm sản phẩm chi tiết vào hóa đơn chi tiết 
   const handleAddProduct = async (product: ProductDetail) => {
     try {
-      console.log("ID bill san pham " + idBill);
-      if (idBill == 0 || idBill == null) {
+      // console.log("ID bill san pham " + idBill);
+      if (idHoaDon == 0 || idBillDetail == null) {
         fromThatBai("Vui lòng chọn hóa đơn");
         setIsDialogOpen(false);
         return;
       }
       const newProduct = await addHDCT({
-        idBill: idBill,
+        idBill: idHoaDon,
         idProductDetail: product.id
       });
       setIdBillDetail(newProduct.id);
       setIdProductDetail(product.id);
       setSelectedImei([]);
       loadImei(product.id);
-      getById(idBill);
+      getById(idHoaDon);
+      // console.log("id product detail: " + idProductDetail)
       setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
       fromThanhCong("Thêm sản phẩm vào hóa đơn thành công");
     } catch (error) {
@@ -406,13 +276,17 @@ function BanHangTaiQuay() {
 
 
   // Them imei vao hoa don chi tiet
-  const handleAddImei = async (idBillDetail:number) => {
+  const handleAddImei = async () => {
     try {
+      console.log("id id_Imei" + selectedImei)
+      console.log("id idBillDetail" + idBillDetail)
+      console.log("id idHoaDon" + idHoaDon)
+      console.log("id idProductDetail" + idProductDetail)
       const newImei = await createImeiSold({
         id_Imei: selectedImei,
         idBillDetail: idBillDetail
       },
-        idBill,
+        idHoaDon,
         idProductDetail
       );
       console.log("Imei mới:", newImei);
@@ -420,7 +294,7 @@ function BanHangTaiQuay() {
       setIsDialogOpen(false); // Đóng dialog
       await loadProductDet();
       await loadImei(idProductDetail);
-      await getById(idBill);
+      await getById(idHoaDon);
       fromThanhCong("Thêm IMEI thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
@@ -428,13 +302,13 @@ function BanHangTaiQuay() {
   };
 
 
-  const updateHandleImeiSold = async (idBillDetail:number) => {
+  const updateHandleImeiSold = async (idBillDetail: number) => {
     try {
       const newImei = await updateImeiSold({
         id_Imei: selectedImei,
         idBillDetail: idBillDetail
       },
-        idBill,
+        idHoaDon,
         idProductDetail
       );
       console.log("Imei mới:", newImei);
@@ -442,7 +316,7 @@ function BanHangTaiQuay() {
       setIsCapNhatImei(false);
       await loadProductDet();
       await loadImei(idProductDetail);
-      await getById(idBill);
+      await getById(idHoaDon);
       fromThanhCong("Cập nhật IMEI thành công");
     } catch (error) {
       console.error("Lỗi API:", error);
@@ -451,7 +325,7 @@ function BanHangTaiQuay() {
 
   // Ca
   const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
-    console.log("ID product detail:", idPD);
+    // console.log("ID product detail:", idPD);
     setSelectedImei([]);  // Reset trước khi cập nhật
     // setIsCapNhatImei(true);
     try {
@@ -468,11 +342,435 @@ function BanHangTaiQuay() {
     findImeiByIdProductDetail(idPD, billDetaill);
   };
 
+  const updateVoucherKhiChon = (idVoucher: number) => {
+    try {
+      updateVoucher(idHoaDon, idVoucher);
+      getById(idHoaDon);
+      setIsVoucher(false);
+
+      fromThanhCong("Cập nhật voucher thành công ")
+    } catch (error) {
+      console.error("Lỗi khi cập nhật voucher:", error);
+    }
+  }
+  // Thêm khách hàng vào hóa đơn
+  const handleAddKhachHang = async (idAccount: number) => {
+    if (idHoaDon == 0 || idHoaDon == null) {
+      fromThatBai("Vui lòng chọn hóa đơn");
+      setIsKhachHang(false);
+      return;
+    }
+    try {
+      console.log("Khách hàng mới:", idHoaDon);
+      await addKhachHang(idHoaDon, idAccount);
+      await loadAccountKH();
+      setIsKhachHang(false);
+      const khachHang = await findKhachHang(idHoaDon);
+      hienThiKhachHang(khachHang);
+      await findBillById(idHoaDon);
+      setIsBanGiaoHang(false);
+      const voucher = await getVoucherDangSuDung(idHoaDon);
+      setDuLieuVoucherDangDung(voucher);
+      await loadVoucherByAcount(idHoaDon);
+      fromThanhCong("Thêm khách hàng thành công");
+    } catch (error) {
+      console.error("Lỗi khi thêm khách hàng:", error);
+    }
+  }
+
+  const handlePTThanhToan = async () => {
+    try {
+      if (idHoaDon == 0 || idHoaDon == null) {
+        fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+        setIsPTThanhToan(false);
+        return;
+      }
+      setIsPTThanhToan(false);
+      const result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận thanh toán chuyển khoản',
+        message: `Bạn chắc chắn đã nhận được số tiền là: ${(tongTien - customerPayment).toLocaleString()}đ?`,
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ'
+      });
+      if (result) {
+        setPaymentMethod(2);
+        setCustomerPayment(tongTien);
+        setIsPTThanhToan(false);
+        setIsThanhToanNhanHang(false); // Tắt "Thanh toán khi nhận hàng" nếu chọn phương thức thanh toán
+        fromThanhCong("Chuyển khoản thành công");
+      } else {
+        fromThatBai("Thanh toán không thành công");
+      }
+    } catch (error) {
+      console.error("Lỗi khi thanh toán:", error);
+    }
+  }
+  // chọn check box bán giao hàng 
+  const handleBanGiaoHangChange = () => {
+    try {
+      if (searchBill?.idAccount == 1 || searchBill?.idAccount == null) {
+        fromThatBai("Khách lẻ không bán giao hàng");
+        return;
+      }
+      if (idHoaDon == 0 || searchBill?.id === undefined) {
+        fromThatBai("Vui lòng chọn hóa đơn");
+        return;
+      }
+      if (product.length === 0) {
+        fromThatBai("Vui lòng thêm sản phẩm ");
+        return;
+      }
+
+      setIsBanGiaoHang((prev) => !prev);
+    } catch (error) {
+      console.error("Lỗi khi bán giao hàng:", error);
+    }
+  };
+
+  const chuyenPhiShip = async () => {
+    try {
+      const newPhiShip = isBanGiaoHang == true ? 30000 : 0;
+      setPhiShip(newPhiShip);
+
+      // Tính tổng tiền khách cần trả
+      const newTotal = (searchBill?.totalDue ?? 0) + newPhiShip;
+      setTongTienKhachTra(newTotal);
+
+    } catch (error) {
+      console.error("Lỗi khi bán giao hàng:", error);
+    }
+  }
+
+  // const handlePrint = (billData: any) => {
+  //   const invoiceData = {
+  //     invoiceNumber: searchBill?.nameBill || "",
+  //     date: searchBill?.paymentDate,
+  //     staff: signupData?.fullName || "Nhân viên",
+  //     customer: listKhachHang?.fullName || "Khách lẻ",
+  //     phone: listKhachHang?.phone || "",
+  //     items: product.map(p => ({
+  //       product: p.nameProduct,
+  //       // imei:0,
+  //       price: p.price,
+  //       quantity: p.quantity
+  //     })),
+  //     total: searchBill?.totalPrice || 0,
+  //     discount: searchBill?.discountedTotal || 0,
+  //     payment: customerPayment,
+  //     change: tienThua
+  //   };
+
+  //   setPrintData(invoiceData);
+  //   setTimeout(() => window.print(), 100);
+  // };
+
+  // const handlePrint = (billData: any) => {
+  //   if (!billData) {
+  //     console.error("Dữ liệu hóa đơn không hợp lệ:", billData);
+  //     return;
+  //   }
+
+  //   console.log("Dữ liệu hóa đơn trước khi in:", billData); // Debug dữ liệu
+  //   setPrintData(billData);
+
+  //   setTimeout(() => {
+  //     if (printRef.current) {
+  //       console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
+  //       window.print();
+  //     } else {
+  //       console.error("Không tìm thấy nội dung cần in.");
+  //     }
+  //   }, 100);
+  // };
+
+  const handlePrint = (invoiceData: any) => {
+    setPrintData(invoiceData);
+
+    // Đợi React cập nhật DOM trước khi in
+    setTimeout(() => {
+      const printElement = printRef.current;
+      if (printElement) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>In hóa đơn</title>
+                <link rel="stylesheet" href="/path-to-your-tailwind.css">
+              </head>
+              <body onload="window.print()">
+                ${printElement.innerHTML}
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      }
+    }, 100);
+  };
+
+
+  // Thanh toán hóa đơn
+  const handleThanhToan = async (status: string, billType: number) => {
+    try {
+      if (searchBill == null || searchBill?.id === undefined) {
+        fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+        return;
+      } else if (product.length === 0) {
+        fromThatBai("Vui lòng thêm sản phẩm trước khi thanh toán");
+        return;
+      } else if (searchBill?.idAccount == null) {
+        fromThatBai("Vui lòng chọn khách hàng");
+        return;
+      } else if (paymentMethod == null 
+        && isThanhToanNhanHang == false) {
+        fromThatBai("Vui lòng chọn phương thức thanh toán");
+        return;
+      } else if (tienThua < 0  && isThanhToanNhanHang == false) {
+        fromThatBai("Số tiền thanh toán không đủ");
+        return;
+      } else {
+        const result = await showDialog({
+          type: 'confirm',
+          title: 'Xác nhận thanh toán đơn hàng',
+          message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+          <strong style="color:rgb(8, 122, 237)">${searchBill?.nameBill ?? ''}</strong>  <br />
+          với số tiền đã nhận được là 
+          <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
+          ${customerPayment.toLocaleString()}đ
+          </span>?`,
+          confirmText: 'Xác nhận',
+          cancelText: 'Hủy bỏ'
+        });
+
+        if (result) {
+          await thanhToan({
+            id: searchBill?.id,
+            nameBill: searchBill?.nameBill,
+            idAccount: searchBill?.idAccount ?? null,
+            idNhanVien: searchBill?.idNhanVien ?? null,
+            idVoucher: searchBill?.idVoucher ?? null,
+            totalPrice: searchBill?.totalPrice ?? 0,
+            customerPayment: customerPayment,
+            amountChange: tienThua,
+            deliveryFee: phiShip ?? 0,
+            totalDue: tongTien ?? 0,
+            customerRefund: searchBill?.customerRefund ?? 0,
+            discountedTotal: searchBill?.discountedTotal ?? 0,
+            deliveryDate: searchBill?.deliveryDate ?? null,
+            customerPreferred_date: searchBill?.customerPreferred_date ?? null,
+            customerAppointment_date: searchBill?.customerAppointment_date ?? null,
+            receiptDate: searchBill?.receiptDate ?? null,
+            paymentDate: new Date().toISOString(),
+            billType: billType,
+            status: status,
+            address: searchBill?.address ?? null,
+            email: searchBill?.email ?? null,
+            note: searchBill?.note ?? null,
+            phone: searchBill?.phone ?? null,
+            name: searchBill?.name ?? null,
+            idPayment: paymentMethod,
+            idDelivery: searchBill?.idDelivery ?? null,
+            itemCount: searchBill?.itemCount ?? 0
+          });
+          const invoiceData = {
+            invoiceNumber: searchBill?.nameBill || "",
+            date: searchBill?.paymentDate,
+            staff: signupData?.name,
+            customer: listKhachHang?.fullName || "Khách lẻ",
+            phone: listKhachHang?.phone || "",
+            items: product.map(p => ({
+              product: p.nameProduct,
+              imei: listImei.map(i => i.imeiCode), // Thêm trường IMEI từ dữ liệu
+              price: p.price,
+              quantity: p.quantity
+            })),
+            total: tongTienKhachTra,
+            discount: searchBill?.discountedTotal || 0,
+            payment: customerPayment,
+            change: tienThua
+          };
+          // Gọi hàm in
+          handlePrint(invoiceData);
+          setSearchBill(undefined);
+          hienThiKhachHang(undefined);
+          // await loadBill();
+          // await loadProductDet();
+          setProduct([]);
+          setCustomerPayment(0);
+          setPaymentMethod(null);
+          // await loadBillChoThanhToan();
+          setIsBanGiaoHang(false);
+          fromThanhCong("Thanh toán thành công");
+
+        } else {
+          fromThatBai(`Thanh toán đơn hàng ${searchBill?.nameBill ?? ''} không thành công`);
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi khi thanh toán:", error);
+    }
+  }
+
+
+
+
+  // const handleScanSuccess = async (imei: string) => {
+  //   try {
+  //     setIsScanning(true); // Khóa scanner trong khi xử lý
+  //     setScanError('');
+  //     setScanResult(imei);
+  //     // console.log('ID luc trươc:' + idBill);
+
+
+  //     // 1. Kiểm tra IMEI tồn tại và hợp lệ
+  //     const productDetail = await quetBarCode(imei);
+
+  //     if (!productDetail?.idImei) {
+  //       fromThatBai('IMEI không tồn tại trong hệ thống');
+  //     }
+
+  //     // 2. Kiểm tra hóa đơn đã được chọn
+  //     if (!idBill || idBill === 0) {
+  //       fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã');
+  //     }
+
+  //     // 3. Thêm vào hóa đơn chi tiết (HDCT)
+  //     const newBillDetail = await addHDCT({
+  //       idBill: idBill,
+  //       idProductDetail: productDetail.id
+  //     });
+  //     console.log('Phản hồi từ addHDCT:', newBillDetail);
+
+  //     if (!newBillDetail?.id) {
+  //       fromThatBai('Tạo hóa đơn chi tiết thất bại');
+  //     }
+
+  //     // 4. Thêm IMEI vào bảng sold với kiểm tra
+  //     // const imeiResponse = await createImeiSold(
+  //     //   {
+  //     //     id_Imei: [productDetail.idImei],
+  //     //     idBillDetail: newBillDetail.id
+  //     //   },
+  //     //   idBill,
+  //     //   productDetail.id
+  //     // );
+  //     // console.log('Phản hồi từ createImeiSold:', imeiResponse);
+  //     // 5. Xóa dữ liệu trước đó (nếu cần)
+  //     setProduct((prev) => prev.filter((p) => p.idProductDetail !== productDetail.id));
+  //     console.log(product);
+  //     // 5. Cập nhật UI
+  //     await Promise.all([
+  //       loadImei(productDetail.id), // Tải lại danh sách IMEI
+  //       getById(idBill),
+  //     ]);
+  //     console.log('ID luc sau:' + idBill);
+
+  //     fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`);
+  //   } catch (error: any) {
+  //     // Xử lý lỗi chi tiết
+  //     let errorMessage = 'Lỗi không xác định';
+  //     if (error.response) {
+  //       errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
+  //     } else if (error.message) {
+  //       errorMessage = error.message;
+  //     }
+
+  //     setScanError(errorMessage);
+  //     console.error('[SCAN ERROR]', errorMessage, error);
+  //   } finally {
+  //     setIsScanning(false); // Mở lại scanner
+  //     setSelectedImei([]); // Reset IMEI đã chọn
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   console.log("✅ ID hóa đơn đã cập nhật:", idHoaDon);
+  // }, [idHoaDon]);
+
+  const isProcessing = useRef(false);
+  const handleScanSuccess = async (imei: string) => {
+    console.log("id bill khi chon " + idHoaDon);
+    if (isProcessing.current) {
+      console.log("⚠ handleScanSuccess bị chặn do đã chạy trước đó!");
+      return;
+    }
+
+    isProcessing.current = true;  // Đánh dấu đang xử lý
+
+    // ⛔ Dừng camera ngay lập tức để tránh quét lại
+    if (window.Quagga) {
+      window.Quagga.stop();
+      console.log("📸 Camera đã dừng để tránh quét lại");
+    }
+
+    try {
+      setIsScanning(true);
+      setScanError('');
+      setScanResult(imei);
+      console.log("id bill chuẩn bị chon " + idHoaDon);
+      const productDetail = await quetBarCode(imei);
+      if (!productDetail?.idImei) {
+        fromThatBai('IMEI không tồn tại trong hệ thống');
+        return;
+      }
+
+      if (!idHoaDon || idHoaDon === 0) {
+        fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã');
+        return;
+      }
+
+      console.log("id bill trước luc chạy " + idHoaDon)
+      const newBillDetail = await addHDCT({
+        idBill: idHoaDon,
+        idProductDetail: productDetail.id
+      });
+
+      if (!newBillDetail?.id) {
+        fromThatBai('Tạo hóa đơn chi tiết thất bại');
+        return;
+      }
+      console.log("id bill luc chạy " + idHoaDon)
+      await createImeiSold(
+        {
+          id_Imei: [productDetail.idImei],
+          idBillDetail: newBillDetail.id
+        },
+        idHoaDon,
+        productDetail.id
+      );
+
+      setProduct((prev) => prev.filter((p) => p.idProductDetail !== productDetail.id));
+
+      await Promise.all([
+        loadImei(productDetail.id),
+        getById(idHoaDon),
+      ]);
+
+      fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`);
+    } catch (error: any) {
+      fromThatBai("Lỗi khi thêm sản phẩm !");
+      // console.error("[❌ LỖI]", error);
+    } finally {
+      isProcessing.current = false;  // Cho phép quét tiếp
+      setIsScanning(false);
+      setSelectedImei([]);
+
+      // ✅ Bật lại camera sau khi xử lý xong
+      setTimeout(() => {
+        if (window.Quagga) {
+          window.Quagga.start();
+          console.log("📸 Camera đã bật lại để quét tiếp");
+        }
+      }, 1000); // Delay 1 giây để tránh quét quá nhanh
+    }
+  };
 
   const fromThanhCong = (message: string) => {
     toast.success(message, {
       position: "top-right",
-      className: "custom-toast", // Áp dụng CSS tùy chỉnh
+      className: "custom-toast",
       autoClose: 2000,
       hideProgressBar: true,
       closeOnClick: true,
@@ -485,7 +783,7 @@ function BanHangTaiQuay() {
   const fromThatBai = (message: string) => {
     toast.success(message, {
       position: "top-right",
-      className: "custom-thatBai", // Áp dụng CSS tùy chỉnh
+      className: "custom-thatBai",
       autoClose: 2000,
       hideProgressBar: true,
       closeOnClick: true,
@@ -494,73 +792,6 @@ function BanHangTaiQuay() {
     });
   };
 
-  // Thêm khách hàng vào hóa đơn
-  const handleAddKhachHang = async (idAccount: number) => {
-    if (idBill == 0 || idBill == null) {
-      fromThatBai("Vui lòng chọn hóa đơn");
-      setIsKhachHang(false);
-      return;
-    }
-    try {
-      const data = await addKhachHang(idBill, idAccount);
-      console.log("Khách hàng mới:", data);
-      await loadAccountKH();
-      setIsKhachHang(false);
-      const khachHang = await findKhachHang(idBill);
-      hienThiKhachHang(khachHang);
-      await findBillById(idBill);
-      // Hiển thị thông báo
-      const voucher = await getVoucherDangSuDung(idBill);
-      setDuLieuVoucherDangDung(voucher);
-      await loadVoucherByAcount(idBill);
-      fromThanhCong("Thêm khách hàng thành công");
-    } catch (error) {
-      console.error("Lỗi khi thêm khách hàng:", error);
-    }
-  }
-  const CartEmpty = () => {
-    return (
-      <>
-        <div className="flex flex-col items-center justify-center mt-4" style={{ height: "224px" }}>
-          {/* <img
-            src="https://res.cloudinary.com/dqwfbbd9g/image/upload/v1701448962/yy04ozpcgnsz3lv4r2h2.png"
-            style={{ width: "190px" }}
-          /> */}
-          <p className="text-dark font-semibold text-center text-lg">
-            Chưa có sản phẩm nào trong giỏ hàng!
-          </p>
-        </div>
-
-      </>
-    );
-  };
-
-
-
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-
-  })
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
-    }
-  }
-
-  const { provinces, districts, wards, fetchDistricts, fetchWards } = useVietnamAddress();
-
-  // const form = useForm({ resolver: zodResolver(formSchema) });
-  const [open, setOpen] = React.useState(false)
-  const [valueID, setValue] = React.useState("")
 
   return (
     <>
@@ -575,278 +806,91 @@ function BanHangTaiQuay() {
           </Header>
         </TasksProvider>
       </div><br />
-      <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5" style={{ paddingTop: '18px', margin: '0 13px' }}>
-      <div className="grid grid-cols-9 gap-4">
-      <div className='col-span-7'>
-        <div className="flex space-x-1" style={{ paddingLeft: '13px', paddingRight: '10px' }}>
-              {listBill.map((b) => (
-                <div key={b.id}
-                  className={`flex items-center space-x-1 p-2 border-b-2 text-sm rounded-[5%] shadow-sm
-              ${idBill === b.id ? 'border-blue-600 bg-gray-300' : 'border-transparent'}
-              ${hoveredBillId === b.id ? 'bg-gray-200' : ''}`}
-                  onClick={() => getById(b.id)}
-                  onMouseEnter={() => setHoveredBillId(b.id)}
-                  onMouseLeave={() => setHoveredBillId(null)}
-                >
-                  <button className="flex items-center space-x-1"
-                    onClick={() => setValue("")} >
-                    {b.nameBill}
-                    <div className="relative">
-                      <ImCart size={20} />
-                      {b.itemCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
-                          {b.itemCount}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => void huyHoaDonTheoId(b.id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <FaTimes size={16} />
-                  </button>
+      <div className="p-2 bg-white rounded-lg shadow-md border border-gray-300 mr-1.5"
+        style={{ paddingTop: '18px', margin: '0 13px' }}>
 
-                </div>
-              ))}
-              <button onClick={handleAddBill} ><CgAdd size={26} /></button>
-            </div>
-            </div>
-            <div className='col-span-2'>
-              {/* <div className="transform -translate-x-[-145px]"> */}
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className="w-[180px] justify-between"
-                    >
-                      {valueID
-                        ? billChoThanhToan.find((bill) => bill.nameBill === valueID)?.nameBill
-                        : "Hóa đơn"}
-
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search bill" className="h-9" />
-                      <CommandList>
-                        <CommandEmpty>No bill</CommandEmpty>
-                        <CommandGroup>
-                          {billChoThanhToan.map((b) => (
-                            <CommandItem
-                              key={b.id}
-                              value={b.nameBill}
-                              onSelect={(currentValue) => {
-                                setValue(currentValue === valueID ? "" : currentValue)
-                                setOpen(false),
-                                  getById(b.id); // Gọi API lấy sản phẩm
-
-                              }}
-                            >
-                              {b.nameBill}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  valueID === b.nameBill ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-        </div>
-
+        {/* Thêm hóa đơn chờ tại quầy */}
+        <HoaDonCho
+          listBill={listBill}
+          billChoThanhToan={billChoThanhToan}
+          huyHoaDonTheoId={huyHoaDonTheoId}
+          getById={getById}
+          handleAddBill={handleAddBill}
+          idBill={idHoaDon} />
         <hr />
 
         <Main>
           <div className="mb-2 flex items-center justify-between">
             <h1 className="font-bold tracking-tight">Giỏ hàng</h1>
             <div className="flex space-x-2">
-              <Button className="bg-white-500 border border-black rounded-sm border-opacity-50 text-black hover:bg-gray-300">
+              {/* Quét Barcode để check sản phẩm */}
+              <Button
+                onClick={() => setIsScanning(true)}
+                className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
+              >
                 Quét Barcode
               </Button>
 
-              {/* // Hiển thi nút thêm sản phẩm và trang của sản phẩm   */}
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="bg-black text-white hover:bg-gray-400" onClick={() => setDialogContent('product')}>
-                    Thêm sản phẩm
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px]">
-                  <Input
-                    placeholder="Tìm mã sản phẩm, tên sản phẩm  "
-                    className="max-w-sm"
-                  />
-                  {dialogContent === 'product' ? (
-                    <TableContainer>
-                      {/* <h2>Sản phẩm </h2>   */}
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Stt</TableCell>
-                            <TableCell>Mã code</TableCell>
-                            <TableCell>Tên sản phẩm</TableCell>
-                            <TableCell>Giá tiền </TableCell>
-                            <TableCell>Số lượng tồn kho</TableCell>
-                            <TableCell>Thao Tác</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {listProduct.map((product, index) => (
-                            <TableRow key={product.id}>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{product.code}</TableCell>
-                              <TableCell>{product.name + " " + product.ram + "/" + product.rom + "GB (" + product.color + ")"}</TableCell>
-                              <TableCell>{product.priceSell}</TableCell>
-                              <TableCell align="center">{product.inventoryQuantity}</TableCell>
-                              <TableCell>
-                                <Button color="primary" onClick={() => handleAddProduct(product)}>
-                                  Chọn
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+              {/* {scanResult && (
+                <div className="mt-2 p-2 bg-green-100 rounded">
+                  Mã đã quét: <span className="font-bold">{scanResult}</span>
+                </div>
+              )}
 
-                  ) : (
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>Stt</TableCell>
-                            <TableCell>Imei code</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {listImei.map((im, index) => (
-                            <TableRow key={im.id}>
-                              <TableCell>
-                                <div className="flex items-center space-x-2">
-                                  <Checkbox
-                                    checked={selectedImei.includes(im.id)}
-                                    onCheckedChange={() => handleCheckboxChange(im.id)}
-                                  />
-                                </div>
-                              </TableCell>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{im.imeiCode}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                      <Button className="bg-black text-white hover:bg-gray-600" onClick={() =>handleAddImei(idBillDetail)}>
-                        Chọn
-                      </Button>
-                    </TableContainer>
-                  )}
-                </DialogContent>
-              </Dialog>
-              {/* <DataTablePagina tion/> */}
+              {scanError && (
+                <div className="text-red-500 mt-2 p-2 bg-red-100 rounded">
+                  {scanError}
+                </div>
+              )} */}
+
+              <BarcodeScannerModal
+                isOpen={isScanning}
+                onClose={() => setIsScanning(false)}
+                onScanSuccess={handleScanSuccess}
+              />
+              {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
+              <ThemSanPham
+                listProduct={listProduct}
+                listImei={listImei}
+                idBillDetail={idBillDetail}
+                selectedImei={selectedImei}
+                handleAddImei={handleAddImei}
+                handleAddProduct={handleAddProduct}
+                handleCheckboxChange={handleCheckboxChange}
+                dialogContent={dialogContent}
+                setDialogContent={setDialogContent}
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+              />
             </div>
-          </div>  <hr className="border-t-1.5 border-gray-600" />
+          </div>
+          <hr className="border-t-1.5 border-gray-600" />
 
           {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
-
-          {product.length === 0 ? (
-            <CartEmpty />
-          ) : (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="right">Stt</TableCell>
-                    <TableCell align="center">Sản phẩm</TableCell>
-                    <TableCell align="right">Đơn giá</TableCell>
-                    <TableCell align="right">Số lượng</TableCell>
-                    <TableCell align="right">Thành tiền</TableCell>
-                    <TableCell align="center">Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {product.map((pr, index) => (
-                    <TableRow
-                      key={pr.id}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell align="right">{index + 1}</TableCell>
-                      <TableCell component="th" scope="row" align="center">
-                        {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
-                      </TableCell>
-                      <TableCell align="right">{pr.price} VND</TableCell>
-                      <TableCell align="right">{pr.quantity}</TableCell>
-                      <TableCell align="right">{pr.totalPrice} VND</TableCell>
-                      <TableCell align="center" style={{}}>
-                        <div className="right space-x-2">
-                          <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
-                            <DialogTrigger asChild>
-                              <Button className="bg-white-500 border border-black rounded-sm border-opacity-50
-                           text-black hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
-                                Cập nhật
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px]">
-                              <TableContainer>
-                                <Table>
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableCell></TableCell>
-                                      <TableCell>Stt</TableCell>
-                                      <TableCell>Imei code</TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {listImei.map((im, index) => (
-                                      <TableRow key={im.id}>
-                                        <TableCell>
-                                          <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                              checked={selectedImei.includes(im.id)}
-                                              onCheckedChange={() => handleCheckboxChange(im.id)}
-                                            />
-                                          </div>
-                                        </TableCell>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{im.imeiCode}</TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
-                              <Button className="bg-black text-white hover:bg-gray-600" onClick={()=>updateHandleImeiSold(pr.id)}>
-                                Chọn
-                              </Button>
-                            </DialogContent>
-                          </Dialog>
-
-                          <Button className="bg-black text-white hover:bg-gray-600" onClick={() => deleteBillDetail(pr.id)}>
-                            Xóa
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+          <TableHoaDonChiTiet
+            product={product}
+            listImei={listImei}
+            selectedImei={selectedImei}
+            isCapNhatImei={isCapNhatImei}
+            setIsCapNhatImei={setIsCapNhatImei}
+            handleUpdateProduct={handleUpdateProduct}
+            handleCheckboxChange={handleCheckboxChange}
+            updateHandleImeiSold={updateHandleImeiSold}
+            deleteBillDetail={deleteBillDetail} />
         </Main>
       </div>
       <br />
+
+      <TableKhachHang
+        listKhachHang={listKhachHang}
+        listAccount={listAccount}
+        setIsKhachHang={setIsKhachHang}
+        isKhachHang={isKhachHang}
+        handleAddKhachHang={handleAddKhachHang} />
+      <br />
+
+
+
       <div className='p-2 bg-white
            rounded-lg shadow-md border border-gray-300 mr-1.5'
         style={{
@@ -854,570 +898,54 @@ function BanHangTaiQuay() {
           padding: '22px 23px'
         }}>
         <div className="mb-2 flex items-center justify-between ">
-          <h1 className=" font-bold tracking-tight">Khách hàng </h1>
-          <div className="flex space-x-2">
-            <Dialog open={isKhachHang} onOpenChange={setIsKhachHang}>
-              <DialogTrigger asChild>
-                <Button variant="outline"
-                  className="bg-black text-white hover:bg-gray-400">
-                  Chọn khách hàng
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[980px]">
-                <div className="grid grid-cols-10 gap-4">
-                  <div className='col-span-7'>
-                    <Input
-                      placeholder="Tìm mã, họ và tên"
-                      className="max-w-sm"
-                    />
-                  </div>
-                  {/* <div className="grid grid-cols-2 gap-4"> */}
-                  <div className='col-span-1'>
-                    <Button variant="outline" className="bg-white-500 border
-                     border-black rounded-sm border-opacity-50
-                      text-black hover:bg-gray-300"  onClick={() => handleAddKhachHang(1)}>
-                      Khách lẻ
-                    </Button> </div>
-                  <div className='col-span-2'>
-                    <Button variant="outline"
-                      className="bg-blue-600 text-white hover:bg-gray-400 text-white">
-                      Thêm khách hàng
-                    </Button>
-                  </div>
-                </div>
-                {/* </div> */}
-
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Stt</TableCell>
-                        <TableCell>Mã</TableCell>
-                        <TableCell>Họ và tên</TableCell>
-                        <TableCell>Số điện thoại</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Địa chỉ</TableCell>
-                        <TableCell>Thao Tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {listAccount.map((ac, index) => (
-                        <TableRow key={ac.id}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{ac.code}</TableCell>
-                          <TableCell>{ac.fullName}</TableCell>
-                          <TableCell>{ac.phone}</TableCell>
-                          <TableCell>{ac.email}</TableCell>
-                          <TableCell>{ac.address}</TableCell>
-                          <TableCell>
-                            <Button color="primary" onClick={() => handleAddKhachHang(ac.id)}>
-                              Chọn
-                            </Button>
-
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </DialogContent>
-            </Dialog>
-            <ToastContainer />
-          </div>
-        </div>
-        <hr className="border-t-1.5 border-gray-600" />
-        {/* Thông tin khách hàng */}
-        <div className="p-4 max-w-3xl" >
-          <div className="flex justify-between pb-2 mb-2 gap-4 pt-5">
-            <div className="flex items-center gap-2">
-              <span className='whitespace-nowrap pr-5'>Tên khách hàng </span> <Input type="email"
-                placeholder=" Tên khách hàng" disabled className='text-blue-600 text-base font-bold'
-                value={listKhachHang?.fullName == null ? "" : listKhachHang?.fullName} />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-16 whitespace-nowrap">Email</span>
-              <Input type="email" disabled placeholder="Email"
-                className='h-[35px] text-blue-600 text-base font-bold' value={listKhachHang?.email == null ? "" : listKhachHang?.email} />
-            </div>
-          </div>
-          <div className="flex justify-between  pb-2 mb-2">
-            <div className="flex items-center gap-2">
-              <span className='whitespace-nowrap pr-10'>Số điện thoại</span>
-              <Input type="email" placeholder="Số điện thoại"
-                className='text-blue-600 text-base font-bold'
-                value={listKhachHang?.phone == null ? "" : listKhachHang?.phone} disabled />
-            </div>
-          </div>
-
-        </div>
-
-      </div> <br />
-      <div className='p-2 bg-white
-           rounded-lg shadow-md border border-gray-300 mr-1.5'
-        style={{
-          margin: '0 13px',
-          padding: '22px 23px'
-        }}>
-        <div className="mb-2 flex items-center justify-between ">
-          <h1 className=" font-bold tracking-tight">Thông tin đơn hàng </h1>
-          <div className="flex space-x-2">
-            {/* <Button variant="outline"
-              className="border border-gray-500 rounded-lg
-             hover:border-orange-600 hover:text-orange-600 px-3 text-2xs">
-              <Checkbox id="terms" />
-              Bán giao hàng
-            </Button> */}
-            <div className="flex space-x-2">
-              <Button variant="outline"
-                className="border border-gray-500 rounded-lg hover:border-orange-600
-                 hover:text-orange-600 px-3 text-2xs">
-                <Checkbox id="ban-giao-hang" checked={isBanGiaoHang} onCheckedChange={handleBanGiaoHangChange} />
-                Bán giao hàng
-              </Button>
-            </div>
-
+          <div className="flex space-x-2 mr-[40px] ml-[750px]">
             <Button variant="outline"
-              className="text-blue-600 border border-blue-500 
-             rounded-lg px-3  text-2xs
-             hover:text-red-700 hover:border-red-700 ">
-              Thanh toán
+              className="border border-blue-500 text-blue-600 rounded-lg hover:border-orange-600
+                 hover:text-orange-600 px-3 text-2xs">
+              <Checkbox id="ban-giao-hang" className='text-blue-600'
+                checked={isBanGiaoHang}
+                onCheckedChange={handleBanGiaoHangChange} />
+              Bán giao hàng
             </Button>
-
           </div>
         </div>
         <hr className=" border-gray-600" /><br />
 
         <div className="grid grid-cols-2 gap-4">
           {/* --------- cot 1 ----------- */}
-          <div
-            className={`transition-all duration-300 ${isBanGiaoHang ? "w-full opacity-100 visible" : "w-0 opacity-0 invisible"
-              }`}
-            style={{ minWidth: isBanGiaoHang ? "400px" : "0px" }}
-          >            {isBanGiaoHang && (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
-
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Họ và tên</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Họ và tên "
-
-                              type=""
-                              {...field} />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6">
-
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Số điện thoại</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Số điện thoại"
-
-                              type=""
-                              {...field} />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                </div>
-
-                <div className="grid grid-cols-10 gap-4">
-
-                  <div className="col-span-5">
-                    <FormField
-                      control={form.control}
-                      name="province"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Thành phố/tỉnh</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
-                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
-                                  {field.value ? provinces.find((p) => p.code === field.value)?.name : "Chọn tỉnh/thành phố"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[230px] p-0">
-                              <Command>
-                                <CommandInput placeholder="Search" />
-                                <CommandList>
-                                  <CommandEmpty>No language found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("province", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
-                                    {provinces.map((p) => (
-                                      <CommandItem key={p.code} onSelect={() => {
-                                        form.setValue("province", p.code);
-                                        fetchDistricts(p.code);
-                                      }}>
-                                        <Check className={p.code === field.value ? "opacity-100" : "opacity-0"} />
-                                        {p.name}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-5">
-                    <FormField
-                      control={form.control}
-                      name="district"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Quận/huyện</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
-                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
-                                  {field.value ? districts.find((d) => d.code === field.value)?.name : "Chọn quận/huyện"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[230px] p-0">
-                              <Command>
-                                <CommandInput placeholder="Search " />
-                                <CommandList>
-                                  <CommandEmpty>No language found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("district", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
-                                    {districts.map((d) => (
-                                      <CommandItem key={d.code} onSelect={() => {
-                                        form.setValue("district", d.code);
-                                        fetchWards(d.code);
-                                      }}>
-                                        <Check className={d.code === field.value ? "opacity-100" : "opacity-0"} />
-                                        {d.name}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6 pt-3">
-                    <FormField
-                      control={form.control}
-                      name="ward"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Phường/xã</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                {/* <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[150px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-
-                              >
-                                {field.value
-                                  ? languages.find(
-                                    (language) => language.value === field.value
-                                  )?.label
-                                  : "Mời chọn"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button> */}
-                                <Button variant="outline" role="combobox" className="w-[220px] justify-between font-normal">
-                                  {field.value ? wards.find((w) => w.code === field.value)?.name : "Chọn phường/xã"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[230px] p-0">
-                              <Command>
-                                <CommandInput placeholder="Search" />
-                                <CommandList>
-                                  <CommandEmpty>No language found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {/* {languages.map((language) => (
-                                    <CommandItem
-                                      value={language.label}
-                                      key={language.value}
-                                      onSelect={() => {
-                                        form.setValue("ward", language.value);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.value === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.label}
-                                    </CommandItem>
-                                  ))} */}
-                                    {wards.map((w) => (
-                                      <CommandItem key={w.code} onSelect={() => form.setValue("ward", w.code)}>
-                                        <Check className={w.code === field.value ? "opacity-100" : "opacity-0"} />
-                                        {w.name}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Địa chỉ cụ thể</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Địa chỉ người nhận"
-
-                              type=""
-                              {...field} />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="note"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ghi chú</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Ghi chú"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {/* <Button type="submit">Submit</Button> */}
-              </form>
-            </Form>
-          )}
-          </div>
+          <DiaChiGiaoHang isBanGiaoHang={isBanGiaoHang} khachHang={listKhachHang} />
 
 
           {/* Cột 2 */}
-          <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
-            <div className="ml-auto mr-5 w-fit text-lg">
-              <div className="mb-4 flex items-center gap-2">
-                <p className="font-bold text-base">Mã Giảm Giá</p>
-                <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
-                  <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
-                  <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
-                </div>
-                <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline"
-                      className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500">
-                      Chọn Mã Giảm Giá
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[980px]">
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Stt</TableCell>
-                            <TableCell>Mã</TableCell>
-                            <TableCell>Giá min</TableCell>
-                            <TableCell>Giá max</TableCell>
-                            <TableCell>Giá trị giảm</TableCell>
-                            <TableCell>Kiểu</TableCell>
-                            <TableCell>Số lượng </TableCell>
-                            <TableCell>Số lượng </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {ListVoucherTheoAccount.map((ac, index) => (
-                            <TableRow key={ac.id}>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{ac.code}</TableCell>
-                              <TableCell>{ac.conditionPriceMin}</TableCell>
-                              <TableCell>{ac.conditionPriceMax}</TableCell>
-                              <TableCell>{ac.discountValue}</TableCell>
-                              <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
-                              <TableCell>{ac.quantity}</TableCell>
-                              <TableCell>
-                                <Button color="primary">
-                                  Chọn
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <div className="space-y-1" >
+          <ThanhToan
+            searchBill={searchBill}
+            setPaymentMethod={setPaymentMethod}
+            paymentMethod={paymentMethod}
+            customerPayment={customerPayment}
+            setCustomerPayment={setCustomerPayment}
+            handlePTThanhToan={handlePTThanhToan}
+            handleThanhToan={handleThanhToan}
+            isPTThanhToan={isPTThanhToan}
+            setIsPTThanhToan={setIsPTThanhToan}
+            ListVoucherTheoAccount={ListVoucherTheoAccount}
+            setVoucherDangDung={setVoucherDangDung}
+            updateVoucherKhiChon={updateVoucherKhiChon}
+            isVoucher={isVoucher}
+            setIsVoucher={setIsVoucher}
+            tienThua={tienThua}
+            isBanGiaoHang={isBanGiaoHang}
+            phiShip={phiShip}
+            printData={printData}
+            printRef={printRef}
+            setIsThanhToanNhanHang={setIsThanhToanNhanHang}
+            isThanhToanNhanHang={isThanhToanNhanHang}
+          />
 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <div className="space-y-4">
-                    <div className="flex justify-between border-b pb-2">
-                      <span className="text-gray-700 text-base">Tổng tiền hàng: </span>
-                      <p className="font-semibold">{searchBill?.totalPrice == null ? 0.00 : searchBill?.totalPrice} đ</p>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <p className="text-gray-700 text-base">Giảm giá:</p>
-                      <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal} đ</p>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <p className="text-gray-700 text-base">Khách cần trả:</p>
-                      <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0.00 : searchBill?.totalDue} đ</p>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <p className="text-gray-700 text-base"> Khách thanh toán:</p>
-                      <p className="font-semibold text-green-600">{searchBill?.customerPayment == null ? 0.00 : searchBill?.customerPayment} đ</p>
-                    </div>
-                  </div>
-
-                  {/* Tổng tiền */}
-                  <div className="mt-4 flex justify-between items-center font-bold text-lg text-red-600">
-                    <p className='text-base'>Tiền thừa trả khách:</p>
-                    <p>{searchBill?.amountChange == null ? 0.00 : searchBill?.amountChange} đ</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 ">
-                  <Switch id="airplane-mode" />
-                  <Label htmlFor="airplane-mode">Thanh toán khi nhận hàng </Label>
-                </div>
-                <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] ">
-                  Xác nhận thanh toán</Button>
-              </div>
-            </div>
-          </div>
         </div>
-      </div><br />
+      </div > <br />
+    
+
+      <br />
     </>
   );
 }

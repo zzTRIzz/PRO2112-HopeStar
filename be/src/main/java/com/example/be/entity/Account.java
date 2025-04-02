@@ -21,7 +21,7 @@ public class Account extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Size(max = 255)
+//    @Size(max = 255)
     @Column(name = "full_name")
     private String fullName;
 
@@ -40,7 +40,7 @@ public class Account extends AuditEntity {
     @Column(name = "password", length = 256)
     private String password;
 
-    @Size(max = 255)
+//    @Size(max = 255)
     @Column(name = "phone")
     private String phone;
 

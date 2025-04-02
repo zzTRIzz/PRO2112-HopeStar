@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,10 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
 
   @Query("SELECT bd FROM BillDetail bd WHERE bd.idProductDetail.id = :idProductDetail")
   BillDetail searchBillDetail(@Param("idProductDetail") Integer idProductDetail);
+
+
+  @Query("SELECT COALESCE(SUM(bd.price * bd.quantity), 0) FROM BillDetail bd WHERE bd.idBill.id = :idBill")
+  BigDecimal getTotalAmountByBillId(@Param("idBill") Integer idBill);
 
 
   @Query("SELECT bd FROM BillDetail bd WHERE bd.idBill.id = :idBill AND bd.idProductDetail.id = :idProductDetail")

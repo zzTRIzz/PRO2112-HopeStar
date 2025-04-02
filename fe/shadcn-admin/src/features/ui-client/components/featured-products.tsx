@@ -188,7 +188,6 @@ export default function FeaturedProducts() {
             </Link>
 
             <CardFooter className='flex flex-col gap-3 px-2 py-4 pt-0'>
-              {/* Giá bán và giá gốc */}
               <div className='flex items-center gap-2'>
                 <div className='text-lg font-bold text-red-600'>
                   {new Intl.NumberFormat('vi-VN', {

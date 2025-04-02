@@ -48,9 +48,10 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/dashboard',
           icon: IconLayoutDashboard,
-        },
-        {
-          title: 'Bán Hàng',
+        }
+        ,
+         {
+          title: 'Bán hàng tại quầy',
           url: '/banhang',
           icon: IconShoppingCart,
         },
@@ -148,8 +149,14 @@ export const sidebarData: SidebarData = {
               url: '/product/os',
               icon: IconPointFilled,
             },
-          ],
-        },
+          ]
+        }
+        ,{
+          title: 'Quản lý hóa đơn',
+          url: '/hoadon',
+          icon: IconShoppingCart,
+        }
+        ,
         {
           title: 'Quản lý tài khoản',
           icon: IconUser,

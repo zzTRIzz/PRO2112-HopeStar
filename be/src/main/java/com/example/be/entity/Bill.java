@@ -60,19 +60,19 @@ public class Bill extends AuditEntity {
     private BigDecimal discountedTotal;
 
     @Column(name = "delivery_date")
-    private Instant deliveryDate;
+    private LocalDateTime  deliveryDate;
 
     @Column(name = "customer_preferred_date")
-    private Instant customerPreferredDate;
+    private LocalDateTime  customerPreferredDate;
 
     @Column(name = "customer_appointment_date")
-    private Instant customerAppointmentDate;
+    private LocalDateTime  customerAppointmentDate;
 
     @Column(name = "receipt_date")
-    private Instant receiptDate;
+    private LocalDateTime  receiptDate;
 
     @Column(name = "payment_date")
-    private Instant paymentDate;
+    private LocalDateTime  paymentDate;
 
     @Column(name = "bill_type")
     private Byte billType;

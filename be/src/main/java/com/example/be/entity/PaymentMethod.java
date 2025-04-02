@@ -23,15 +23,8 @@ public class PaymentMethod extends AuditEntity {
     @Column(name = "method")
     private Byte method;
 
-    @Column(name = "type")
-    private Byte type;
-
-    @Column(name = "payment_amount", precision = 24, scale = 2)
-    private BigDecimal paymentAmount;
-
-    @Size(max = 255)
-    @Column(name = "description")
-    private String description;
+    @Column(name = "note")
+    private String note;
 
     @Column(name = "status")
     //@Enumerated(EnumType.STRING)

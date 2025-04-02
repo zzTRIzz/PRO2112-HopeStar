@@ -30,10 +30,6 @@ public class SearchBillDetailDto {
 
     private String mauSac;
 
-//    private String giaProduct;
-//
-//    private String soLuongTonKho;
-
     private String imageUrl;
 
     private Integer idBill;

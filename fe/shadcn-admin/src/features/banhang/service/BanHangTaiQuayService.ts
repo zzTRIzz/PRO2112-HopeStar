@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { BillDetailSchema } from './BillDetailSchema';
-import { ImeiSoldSchema } from './ImeiSoldSchema';
-import { BillSchema } from './BillSchema';
+
+import { BillDetailSchema, BillSchema, ImeiSoldSchema } from './Schema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -79,6 +78,18 @@ export const addKhachHang = async (idBill: number, idAccount: number) => {
                 idAccount: idAccount
             }
         });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi thêm khách hàng:", error);
+        throw error;
+    }
+}
+
+
+// Cập nhật voucher vào hóa đơn
+export const updateVoucher = async (idBill: number, idVoucher: number) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/updateVoucher/${idBill}/${idVoucher}`);
         return response.data;
     } catch (error) {
         console.error("Lỗi khi thêm khách hàng:", error);
@@ -188,6 +199,18 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     }
 }
 
+// Thêm hóa đơn vào cơ sở dữ liệu
+export const thanhToan = async (bill: BillSchema) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/thanh_toan`, bill);
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    }
+};
+
+
 // Lấy mã voucher đang sử dụng 
 export const getVoucherDangSuDung = async (idBillHienTai: number) => {
     try {
@@ -214,6 +237,17 @@ export const findVoucherByAccount = async (idBillHienTai: number) => {
 export const huyHoaDon = async (idBillCanHuy: number) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+// Quét barcode để lấy sản phẩm chi tiết 
+export const quetBarCode = async (barCode: String) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/product-detail/barcode/${barCode}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);

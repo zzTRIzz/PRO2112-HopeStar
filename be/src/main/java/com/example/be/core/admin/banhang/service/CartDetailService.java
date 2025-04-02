@@ -15,7 +15,7 @@ public interface CartDetailService {
 
     List<CartDetailDto> getAllGHCT();
 
-    List<CartDetailDto> getByIdGH(Integer idGH);
+    List<CartDetailDto> getByidAccount(Integer idAccount);
 
     CartDetailDto createGHCT(CartDetailDto cartDetailDto);
 
