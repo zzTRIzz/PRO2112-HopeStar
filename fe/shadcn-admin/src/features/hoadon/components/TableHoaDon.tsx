@@ -36,6 +36,7 @@ const TableHoaDon: React.FC<Props> =
                 case 1: return "Tiền mặt";
                 case 2: return "Chuyển khoản";
                 case 3: return "Ví VNPAY";
+                case 4: return "Thanh toán khi nhận hàng";
                 default: return "";
             }
         };

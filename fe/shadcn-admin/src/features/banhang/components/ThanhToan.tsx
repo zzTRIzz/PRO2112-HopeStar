@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -37,6 +37,8 @@ interface ThanhToanProps {
     phiShip: number;
     printData: any;
     printRef: React.RefObject<HTMLDivElement | null>;
+    setIsThanhToanNhanHang: (open: boolean) => void;
+    isThanhToanNhanHang: boolean;
 
 }
 
@@ -61,9 +63,27 @@ const ThanhToan: React.FC<ThanhToanProps> =
         isBanGiaoHang,
         phiShip,
         printData,
-        printRef
+        printRef,
+        setIsThanhToanNhanHang,
+        isThanhToanNhanHang
     }) => {
+        const handleSwitchChange = (checked: boolean) => {
+            if (checked) {
+                setPaymentMethod(4);
+                setCustomerPayment(0);
+            } else {
+                setCustomerPayment(0);
+                setPaymentMethod(null);
+            }
+            setIsThanhToanNhanHang(checked);
+        };
 
+        const handlePaymentMethodChange = (method: number) => {
+            setPaymentMethod(method);
+            if (isThanhToanNhanHang) {
+                setIsThanhToanNhanHang(false); // Tắt "Thanh toán khi nhận hàng" nếu chọn phương thức thanh toán
+            }
+        };
 
         return (
             <>
@@ -148,7 +168,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             variant="outline"
                                             className={`border border-emerald-500 text-emerald-600 rounded-lg hover:border-orange-700 hover:text-orange-700 px-3 text-2xs
                            ${paymentMethod === 1 ? 'border-yellow-700 text-yellow-700 bg-slate-300' : 'border-emerald-500 text-emerald-600'}`}
-                                            onClick={() => setPaymentMethod(1)} >
+                                            onClick={() => handlePaymentMethodChange(1)} >
                                             Tiền mặt
                                         </Button>
                                         {/* Mã qr để chuyển khoản */}
@@ -195,7 +215,8 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                 placeholder="Nhập số tiền"
                                                 value={paymentMethod === 2 && customerPayment === 0 ? searchBill?.totalDue ?? 0 : customerPayment}
                                                 onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                                            />
+                                                disabled={isThanhToanNhanHang} // Vô hiệu hóa ô input khi "Thanh toán khi nhận hàng" bật
+                                                />
                                         </p>
 
                                     </div>
@@ -209,13 +230,19 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     </div>
 
                                     <div className="flex items-center  space-x-2 ">
-                                        <Switch id="airplane-mode" />
-                                        <Label htmlFor="airplane-mode">Thanh toán khi nhận hàng </Label>
+                                        {/* <Switch id="thanhToanNhanHang" /> */}
+                                        <Switch
+                                            id="thanhToanNhanHang"
+                                            checked={isThanhToanNhanHang}
+                                            onCheckedChange={handleSwitchChange}
+                                        // disabled={paymentMethod !== null} // Vô hiệu hóa nếu đã chọn phương thức thanh toán
+                                        />
+                                        <Label htmlFor="thanhToanNhanHang">Thanh toán khi nhận hàng </Label>
                                     </div>
                                 </div>
                             </div>
 
-                            {isBanGiaoHang == false ? (
+                            {/* {isBanGiaoHang == false ? (
                                 <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] "
                                     onClick={() => handleThanhToan("DA_THANH_TOAN", 0)}>
                                     Xác nhận thanh toán</Button>
@@ -223,7 +250,32 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                 <Button className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px] "
                                     onClick={() => handleThanhToan("CHO_XAC_NHAN", 1)}>
                                     Xác nhận thanh toán</Button>
+                            )} */}
+                            {/* Nút Xác nhận thanh toán */}
+                            {isBanGiaoHang === false ? (
+                                <Button
+                                    className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
+                                    onClick={() => handleThanhToan("DA_THANH_TOAN", 0) // Khi Switch tắt
+                                    }
+                                >
+                                    Xác nhận thanh toán
+                                </Button>
+                            ) : (
+                                <Button
+                                    className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px]"
+                                    onClick={() => handleThanhToan("CHO_XAC_NHAN", 1) // Khi Switch tắt
+                                    }
+                                >
+                                    Xác nhận thanh toán
+                                </Button>
                             )}
+                            <div style={{ position: 'fixed', left: '-9999px' }}>
+                                {printData && (
+                                    <div ref={printRef} className="invoice-container">
+                                        <InHoaDon billData={printData} />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

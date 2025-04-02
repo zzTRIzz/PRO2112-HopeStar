@@ -30,7 +30,6 @@ import TableKhachHang from './components/TableKhachHang';
 import ThanhToan from './components/ThanhToan';
 import { Checkbox } from '@/components/ui/checkbox';
 import BarcodeScannerModal from './components/BarcodeScannerModal';
-import InHoaDon from './components/InHoaDon';
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
   const [billChoThanhToan, setBillChoThanhToan] = useState<BillSchema[]>([]);
@@ -63,7 +62,7 @@ function BanHangTaiQuay() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState('');
   const [barcode, setBarcode] = useState<string | null>(null);
-
+  const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
     loadBill();
@@ -398,9 +397,9 @@ function BanHangTaiQuay() {
         setPaymentMethod(2);
         setCustomerPayment(tongTien);
         setIsPTThanhToan(false);
+        setIsThanhToanNhanHang(false); // Tắt "Thanh toán khi nhận hàng" nếu chọn phương thức thanh toán
         fromThanhCong("Chuyển khoản thành công");
       } else {
-        setIsPTThanhToan(true);
         fromThatBai("Thanh toán không thành công");
       }
     } catch (error) {
@@ -422,7 +421,7 @@ function BanHangTaiQuay() {
         fromThatBai("Vui lòng thêm sản phẩm ");
         return;
       }
-      
+
       setIsBanGiaoHang((prev) => !prev);
     } catch (error) {
       console.error("Lỗi khi bán giao hàng:", error);
@@ -443,52 +442,27 @@ function BanHangTaiQuay() {
     }
   }
 
-
   // const handlePrint = (billData: any) => {
-  //   setPrintData(billData);
+  //   const invoiceData = {
+  //     invoiceNumber: searchBill?.nameBill || "",
+  //     date: searchBill?.paymentDate,
+  //     staff: signupData?.fullName || "Nhân viên",
+  //     customer: listKhachHang?.fullName || "Khách lẻ",
+  //     phone: listKhachHang?.phone || "",
+  //     items: product.map(p => ({
+  //       product: p.nameProduct,
+  //       // imei:0,
+  //       price: p.price,
+  //       quantity: p.quantity
+  //     })),
+  //     total: searchBill?.totalPrice || 0,
+  //     discount: searchBill?.discountedTotal || 0,
+  //     payment: customerPayment,
+  //     change: tienThua
+  //   };
 
-  //   setTimeout(() => {
-  //     if (printRef.current) {
-  //       const printContent = printRef.current.innerHTML;
-
-  //       // Mở một cửa sổ mới để in
-  //       const printWindow = window.open('', '_blank');
-  //       if (printWindow) {
-  //         printWindow.document.open();
-  //         printWindow.document.write(`
-  //           <html>
-  //             <head>
-  //               <title>In hóa đơn</title>
-  //               <style>
-  //                 /* Thêm các CSS cần thiết cho hóa đơn */
-  //                 body {
-  //                   font-family: Arial, sans-serif;
-  //                   margin: 0;
-  //                   padding: 20px;
-  //                 }
-  //                 .invoice {
-  //                   border: 1px solid #ddd;
-  //                   padding: 20px;
-  //                   border-radius: 8px;
-  //                 }
-  //               </style>
-  //             </head>
-  //             <body>
-  //               <div class="invoice">${printContent}</div>
-  //             </body>
-  //           </html>
-  //         `);
-  //         printWindow.document.close();
-  //         printWindow.print();
-  //         printWindow.close();
-  //       }
-  //     }
-
-  //     // Làm sạch dữ liệu sau khi in
-  //     setPrintData(null);
-  //     loadBill();
-  //     loadProductDet();
-  //   }, 500);
+  //   setPrintData(invoiceData);
+  //   setTimeout(() => window.print(), 100);
   // };
 
   // const handlePrint = (billData: any) => {
@@ -497,56 +471,44 @@ function BanHangTaiQuay() {
   //     return;
   //   }
 
+  //   console.log("Dữ liệu hóa đơn trước khi in:", billData); // Debug dữ liệu
   //   setPrintData(billData);
 
   //   setTimeout(() => {
   //     if (printRef.current) {
   //       console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
-  //       window.print(); // Gọi hộp thoại in
+  //       window.print();
   //     } else {
   //       console.error("Không tìm thấy nội dung cần in.");
   //     }
-
-  //     // Làm sạch dữ liệu sau khi in
-  //     setPrintData(null);
-  //   }, 500);
+  //   }, 100);
   // };
-  const handlePrint = (billData: any) => {
-    if (!billData) {
-      console.error("Dữ liệu hóa đơn không hợp lệ:", billData);
-      return;
-    }
-    console.log("Dữ liệu hóa đơn trước khi in:", billData); // Debug dữ liệu
-    setPrintData(billData); // Cập nhật dữ liệu cần in
+
+  const handlePrint = (invoiceData: any) => {
+    setPrintData(invoiceData);
+
+    // Đợi React cập nhật DOM trước khi in
+    setTimeout(() => {
+      const printElement = printRef.current;
+      if (printElement) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>In hóa đơn</title>
+                <link rel="stylesheet" href="/path-to-your-tailwind.css">
+              </head>
+              <body onload="window.print()">
+                ${printElement.innerHTML}
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      }
+    }, 100);
   };
-
-
-  useEffect(() => {
-    if (printData && printRef.current) {
-      const printContent = printRef.current;
-      printContent.style.position = 'static';
-      printContent.style.left = '0';
-
-      setTimeout(() => {
-        window.print();
-        setPrintData(null);
-        printContent.style.position = 'fixed';
-        printContent.style.left = '-9999px';
-      }, 100);
-    }
-  }, [printData]);
-
-  // useEffect(() => {
-  //   if (printData && printRef.current) {
-  //     console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
-
-  //     // Gọi window.print() sau khi DOM đã được cập nhật
-  //     window.print();
-
-  //     // Làm sạch dữ liệu sau khi in
-  //     setPrintData(null);
-  //   }
-  // }, [printData]);
 
 
   // Thanh toán hóa đơn
@@ -561,10 +523,11 @@ function BanHangTaiQuay() {
       } else if (searchBill?.idAccount == null) {
         fromThatBai("Vui lòng chọn khách hàng");
         return;
-      } else if (paymentMethod == null) {
+      } else if (paymentMethod == null 
+        && isThanhToanNhanHang == false) {
         fromThatBai("Vui lòng chọn phương thức thanh toán");
         return;
-      } else if (tienThua < 0) {
+      } else if (tienThua < 0  && isThanhToanNhanHang == false) {
         fromThatBai("Số tiền thanh toán không đủ");
         return;
       } else {
@@ -612,18 +575,21 @@ function BanHangTaiQuay() {
             itemCount: searchBill?.itemCount ?? 0
           });
           const invoiceData = {
-            orderId: searchBill?.nameBill || "",
-            orderDate: new Date().toLocaleDateString("vi-VN"),
-            customerName: listKhachHang?.fullName || "Khách lẻ",
-            customerPhone: listKhachHang?.phone || "",
-            products: product.map(p => ({
-              name: p.nameProduct,
-              quantity: p.quantity,
+            invoiceNumber: searchBill?.nameBill || "",
+            date: searchBill?.paymentDate,
+            staff: signupData?.name,
+            customer: listKhachHang?.fullName || "Khách lẻ",
+            phone: listKhachHang?.phone || "",
+            items: product.map(p => ({
+              product: p.nameProduct,
+              imei: listImei.map(i => i.imeiCode), // Thêm trường IMEI từ dữ liệu
               price: p.price,
-              total: p.totalPrice
+              quantity: p.quantity
             })),
-            totalAmount: tongTienKhachTra,
-            paymentMethod: paymentMethod === 1 ? "Tiền mặt" : "Chuyển khoản"
+            total: tongTienKhachTra,
+            discount: searchBill?.discountedTotal || 0,
+            payment: customerPayment,
+            change: tienThua
           };
           // Gọi hàm in
           handlePrint(invoiceData);
@@ -971,18 +937,16 @@ function BanHangTaiQuay() {
             phiShip={phiShip}
             printData={printData}
             printRef={printRef}
+            setIsThanhToanNhanHang={setIsThanhToanNhanHang}
+            isThanhToanNhanHang={isThanhToanNhanHang}
           />
 
         </div>
       </div > <br />
+    
 
-      <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-        {printData && (
-          <div ref={printRef} className="print-container">
-            <InHoaDon billData={printData} />
-          </div>
-        )}
-      </div>    </>
+      <br />
+    </>
   );
 }
 export default BanHangTaiQuay;
