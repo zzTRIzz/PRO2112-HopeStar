@@ -98,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         creteBill.setTotalPrice(totalPriceBill);
+        creteBill.setTotalDue(totalPriceBill);
         billRepository.save(creteBill);
 
         return "Đặt hàng thành công";

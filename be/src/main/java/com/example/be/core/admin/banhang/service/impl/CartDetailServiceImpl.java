@@ -82,20 +82,21 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     public CartDetailDto createGHCT(CartDetailDto cartDetailDto) {
-        Optional<CartDetail> optionalCartDetail  = cartDetailRepository.timKiemIdCartByIdProductDetail
-                (cartDetailDto.getIdShoppingCart(), cartDetailDto.getIdProductDetail());
-        if (optionalCartDetail.isPresent()){
-            CartDetail cartDetail = optionalCartDetail.get();
-            Integer soLuong = cartDetail.getQuantity() + cartDetail.getQuantity();
-            cartDetail.setQuantity(soLuong);
-            cartDetailRepository.save(cartDetail);
-            return cartDetailMapper.mapperCartDetailDto(cartDetail);
-        }else {
-            CartDetail savecartDetail = cartDetailMapper.entityCartDetail(cartDetailDto);
-            savecartDetail.setStatus(StatusCartDetail.pending);
-            CartDetail saveCartDetail = cartDetailRepository.save(savecartDetail);
-            return cartDetailMapper.mapperCartDetailDto(saveCartDetail);
-        }
+//        Optional<CartDetail> optionalCartDetail  = cartDetailRepository.timKiemIdCartByIdProductDetail
+//                (cartDetailDto.getIdShoppingCart(), cartDetailDto.getIdProductDetail());
+//        if (optionalCartDetail.isPresent()){
+//            CartDetail cartDetail = optionalCartDetail.get();
+//            Integer soLuong = cartDetail.getQuantity() + cartDetail.getQuantity();
+//            cartDetail.setQuantity(soLuong);
+//            cartDetailRepository.save(cartDetail);
+//            return cartDetailMapper.mapperCartDetailDto(cartDetail);
+//        }else {
+//            CartDetail savecartDetail = cartDetailMapper.entityCartDetail(cartDetailDto);
+//            savecartDetail.setStatus(StatusCartDetail.pending);
+//            CartDetail saveCartDetail = cartDetailRepository.save(savecartDetail);
+//            return cartDetailMapper.mapperCartDetailDto(saveCartDetail);
+//        }
+        return null;
     }
 
     @Override
