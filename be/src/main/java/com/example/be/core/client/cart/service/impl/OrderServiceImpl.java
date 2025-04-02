@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -47,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
         bill.setEmail(customerInfo.getEmail());
         bill.setAddress(location.getFullAddress());
         bill.setPhone(customerInfo.getPhone());
+        bill.setPaymentDate(LocalDateTime.now());
+        bill.setBillType((byte) 1);
 
         //phuong thuc thanh toan ...
 
@@ -90,8 +93,8 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal totalPrice = products.getPriceSell().multiply(BigDecimal.valueOf(products.getQuantity()));
             billDetail.setTotalPrice(totalPrice);
             billDetailRepository.save(billDetail);
-            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()-products.getQuantity());
-            productDetailRepository.save(productDetail);
+            //productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()-products.getQuantity());
+            //productDetailRepository.save(productDetail);
             cartDetail.setStatus(StatusCartDetail.purchased);
             cartDetailRepository.save(cartDetail);
             totalPriceBill = totalPriceBill.add(totalPrice);

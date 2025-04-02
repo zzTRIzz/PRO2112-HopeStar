@@ -40,7 +40,7 @@ const QuanLyHoaDon: React.FC = () => {
             <Main>
                 <div>
                     <div className='mb-[8px]'>
-                        <h2 className='text-2xl font-bold tracking-tight'>Quản lý sản phẩm</h2>
+                        <h2 className='text-2xl font-bold tracking-tight'>Quản lý hóa đơn</h2>
                     </div>
                     <TimKiemHoaDon setListHoaDon={setListHoaDon} /> <br />
                     <TableHoaDon listHoaDon={listHoaDon} />
