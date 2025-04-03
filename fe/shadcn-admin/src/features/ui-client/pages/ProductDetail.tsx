@@ -311,12 +311,12 @@ export default function ProductDetail() {
                 >
                   <Icon icon='lucide:plus' />
                 </Button>
-                {/* <span className='text-sm text-gray-500'>
+                <span className='text-sm text-gray-500'>
                   Còn{' '}
                   {currentProductDetail?.inventoryQuantity ||
                     defaultProductDetail.inventoryQuantity}{' '}
                   sản phẩm
-                </span> */}
+                </span>
               </div>
             </div>
 

@@ -66,17 +66,16 @@ public class CartServiceImpl implements CartService {
                 .findCartDetailByIdShoppingCartAndStatusAndAndIdProductDetail(cart, StatusCartDetail.pending, productDetail);
 
         if (existingItem != null) {
-            if (existingItem.getQuantity() == 5){
-                throw new Exception("Sản phảm thêm tối đa là 5");
-            }
-            if (request.getQuantity() != 1){
 
-                Integer sum = request.getQuantity() + existingItem.getQuantity();
-                if (sum > 5){
-                    throw new Exception("Sản phảm thêm tối đa là 5. Giỏ hàng đã có:"+existingItem.getQuantity());
-                }
-
+            if ((request.getQuantity()+existingItem.getQuantity())>productDetail.getInventoryQuantity()){
+                throw new Exception("Sản phảm bạn thêm chỉ còn: "+productDetail.getInventoryQuantity()+" Giỏ hàng đã có: "+existingItem.getQuantity());
             }
+
+            Integer sum = request.getQuantity() + existingItem.getQuantity();
+            if (sum > 5){
+                throw new Exception("Sản phảm thêm tối đa là 5. Giỏ hàng đã có: "+existingItem.getQuantity());
+            }
+
             existingItem.setQuantity(existingItem.getQuantity() + 1);
             cartDetailRepository.save(existingItem);
         } else {

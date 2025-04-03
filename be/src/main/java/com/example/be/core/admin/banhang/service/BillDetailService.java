@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.service;
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
 import com.example.be.core.admin.banhang.dto.ProductDetailDto;
 import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.BillDetail;
 
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ public interface BillDetailService {
 
     void deleteBillDetail(Integer idBillDetail);
 
-    List<ProductDetailDto> getAllProductDetailDto();
+    List<ProductDetailDto> getAllProductDetailDto(SearchProductRequest searchProductRequest);
 
     ProductDetailDto quetBarCodeCHoProductTheoImei(String barCode);
 }

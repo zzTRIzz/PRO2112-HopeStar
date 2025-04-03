@@ -248,7 +248,7 @@ export function CheckoutPage() {
       })
       await queryClient.invalidateQueries({ queryKey: ['cart'] })
       // Navigate to orders page
-      navigate({ to: '/taikhoan/don-hang-cua-toi' })
+      navigate({ to: '/gio-hang' })
 
     } catch (error) {
       console.error('Checkout error:', error)

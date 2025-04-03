@@ -11,6 +11,7 @@ import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
@@ -254,8 +255,8 @@ public class BanHangTaiQuay {
     }
 
     @GetMapping("/product_detail")
-    public ResponseEntity<List<?>> getListProductDetail() {
-        List<ProductDetailDto> productDetailDto = billDetailService.getAllProductDetailDto();
+    public ResponseEntity<List<?>> getListProductDetail(@ModelAttribute SearchProductRequest searchProductRequest) {
+        List<ProductDetailDto> productDetailDto = billDetailService.getAllProductDetailDto(searchProductRequest);
         return ResponseEntity.ok(productDetailDto);
     }
 
