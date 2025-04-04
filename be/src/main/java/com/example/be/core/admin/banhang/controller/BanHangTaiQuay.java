@@ -231,10 +231,11 @@ public class BanHangTaiQuay {
     ) {
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
+
         Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
-        if (-quantyti == billDetail.getQuantity()) {
+            if (-quantyti == billDetail.getQuantity()) {
             billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
         } else {
             billDetailService.thayDoiSoLuongKhiCungSPVaHD(

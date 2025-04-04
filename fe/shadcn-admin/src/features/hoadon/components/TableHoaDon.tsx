@@ -36,7 +36,7 @@ const TableHoaDon: React.FC<Props> =
                 case 1: return "Tiền mặt";
                 case 2: return "Chuyển khoản";
                 case 3: return "Ví VNPAY";
-                case 4: return "Thanh toán khi nhận hàng";
+                case 4: return `Thanh toán khi nhận hàng`;
                 default: return "";
             }
         };
@@ -64,7 +64,7 @@ const TableHoaDon: React.FC<Props> =
                     </div>
                 ) : (
                     <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <Table className="min-w-[650px]" aria-label="simple table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="right">STT</TableCell>
@@ -73,7 +73,7 @@ const TableHoaDon: React.FC<Props> =
                                     <TableCell align="right" >Loại hóa đơn </TableCell>
                                     <TableCell align="center">Trạng thái</TableCell>
                                     <TableCell align="center">Tổng tiền</TableCell>
-                                    <TableCell align="center">Thanh toán</TableCell>
+                                    <TableCell align="center" >Thanh toán</TableCell>
                                     <TableCell align="center">Ngày tạo</TableCell>
                                     <TableCell align="center" >Thao tác</TableCell>
                                 </TableRow>
@@ -98,12 +98,15 @@ const TableHoaDon: React.FC<Props> =
                                             statusStyles[hd.status] || "bg-gray-500 text-white"
                                         )}>{hd.status}</span></TableCell>
                                         <TableCell align="right">{hd.totalDue == null ? 0 : hd.totalDue.toLocaleString('vi-VN')} VND</TableCell>
-                                        <TableCell align="right">{hd.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
+                                        <TableCell align="right" >{hd.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
                                         <TableCell align="right"> {hd.paymentDate
                                             ? new Date(hd.paymentDate).toLocaleDateString("vi-VN", {
                                                 year: "numeric",
                                                 month: "2-digit",
                                                 day: "2-digit",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false
                                             })
                                             : ""}</TableCell>
                                         <TableCell align="center" style={{}}>

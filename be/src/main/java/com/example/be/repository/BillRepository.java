@@ -28,12 +28,12 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
             """, nativeQuery = true)
     String getNewCode();
 
+
     @Query("SELECT b FROM Bill b " +
             "where b.status = :status " +
             "order by b.paymentDate desc" )
     List<Bill> findTop6BillsPendingPayment(Pageable pageable,
                                            @Param("status")StatusBill statusBill);
-
 
 
     @Query("SELECT b FROM Bill b " +
