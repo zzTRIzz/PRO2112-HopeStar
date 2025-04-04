@@ -17,6 +17,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as authTaikhoanIndexImport } from './routes/(auth)/taikhoan/index'
 import { Route as authDatHangIndexImport } from './routes/(auth)/dat-hang/index'
 import { Route as AuthenticatedVoucherCreateImport } from './routes/_authenticated/voucher/create'
 import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated/product/wifi'
@@ -41,6 +42,8 @@ import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authe
 import { Route as authProductIdImport } from './routes/(auth)/product.$id'
 import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
 import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
+import { Route as authTaikhoanThongTinCaNhanIndexImport } from './routes/(auth)/taikhoan/thong-tin-ca-nhan/index'
+import { Route as authTaikhoanDonHangCuaToiIndexImport } from './routes/(auth)/taikhoan/don-hang-cua-toi/index'
 import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
@@ -63,6 +66,9 @@ const AuthenticatedVoucherIndexLazyImport = createFileRoute(
 )()
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
+)()
+const AuthenticatedSaleIndexLazyImport = createFileRoute(
+  '/_authenticated/sale/',
 )()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
@@ -95,6 +101,9 @@ const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
 )()
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
   '/_authenticated/settings/account',
+)()
+const authTaikhoanDonHangCuaToiThongTinIndexLazyImport = createFileRoute(
+  '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/',
 )()
 
 // Create/Update Routes
@@ -215,6 +224,16 @@ const AuthenticatedSettingsIndexLazyRoute =
     import('./routes/_authenticated/settings/index.lazy').then((d) => d.Route),
   )
 
+const AuthenticatedSaleIndexLazyRoute = AuthenticatedSaleIndexLazyImport.update(
+  {
+    id: '/sale/',
+    path: '/sale/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_authenticated/sale/index.lazy').then((d) => d.Route),
+)
+
 const AuthenticatedProductIndexLazyRoute =
   AuthenticatedProductIndexLazyImport.update({
     id: '/product/',
@@ -290,6 +309,12 @@ const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
   .lazy(() =>
     import('./routes/(auth)/dienthoai/index.lazy').then((d) => d.Route),
   )
+
+const authTaikhoanIndexRoute = authTaikhoanIndexImport.update({
+  id: '/(auth)/taikhoan/',
+  path: '/taikhoan/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const authDatHangIndexRoute = authDatHangIndexImport.update({
   id: '/(auth)/dat-hang/',
@@ -493,12 +518,39 @@ const AuthenticatedTaikhoanKhachhangIndexRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const authTaikhoanThongTinCaNhanIndexRoute =
+  authTaikhoanThongTinCaNhanIndexImport.update({
+    id: '/(auth)/taikhoan/thong-tin-ca-nhan/',
+    path: '/taikhoan/thong-tin-ca-nhan/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const authTaikhoanDonHangCuaToiIndexRoute =
+  authTaikhoanDonHangCuaToiIndexImport.update({
+    id: '/(auth)/taikhoan/don-hang-cua-toi/',
+    path: '/taikhoan/don-hang-cua-toi/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 const AuthenticatedProductIdProductDetailRoute =
   AuthenticatedProductIdProductDetailImport.update({
     id: '/product/$id/product-detail',
     path: '/product/$id/product-detail',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+
+const authTaikhoanDonHangCuaToiThongTinIndexLazyRoute =
+  authTaikhoanDonHangCuaToiThongTinIndexLazyImport
+    .update({
+      id: '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/',
+      path: '/taikhoan/don-hang-cua-toi/thong-tin/',
+      getParentRoute: () => rootRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(auth)/taikhoan/don-hang-cua-toi/thong-tin/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 // Populate the FileRoutesByPath interface
 
@@ -777,6 +829,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authDatHangIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/taikhoan/': {
+      id: '/(auth)/taikhoan/'
+      path: '/taikhoan'
+      fullPath: '/taikhoan'
+      preLoaderRoute: typeof authTaikhoanIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/(auth)/dienthoai/': {
       id: '/(auth)/dienthoai/'
       path: '/dienthoai'
@@ -833,6 +892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/sale/': {
+      id: '/_authenticated/sale/'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof AuthenticatedSaleIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -854,6 +920,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/(auth)/taikhoan/don-hang-cua-toi/': {
+      id: '/(auth)/taikhoan/don-hang-cua-toi/'
+      path: '/taikhoan/don-hang-cua-toi'
+      fullPath: '/taikhoan/don-hang-cua-toi'
+      preLoaderRoute: typeof authTaikhoanDonHangCuaToiIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/taikhoan/thong-tin-ca-nhan/': {
+      id: '/(auth)/taikhoan/thong-tin-ca-nhan/'
+      path: '/taikhoan/thong-tin-ca-nhan'
+      fullPath: '/taikhoan/thong-tin-ca-nhan'
+      preLoaderRoute: typeof authTaikhoanThongTinCaNhanIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/_authenticated/taikhoan/khachhang/': {
       id: '/_authenticated/taikhoan/khachhang/'
       path: '/taikhoan/khachhang'
@@ -867,6 +947,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/taikhoan/nhanvien'
       preLoaderRoute: typeof AuthenticatedTaikhoanNhanvienIndexImport
       parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/': {
+      id: '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/'
+      path: '/taikhoan/don-hang-cua-toi/thong-tin'
+      fullPath: '/taikhoan/don-hang-cua-toi/thong-tin'
+      preLoaderRoute: typeof authTaikhoanDonHangCuaToiThongTinIndexLazyImport
+      parentRoute: typeof rootRoute
     }
   }
 }
@@ -927,6 +1014,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
+  AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
   AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
   AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
@@ -963,6 +1051,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
+  AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
   AuthenticatedProductIdProductDetailRoute:
     AuthenticatedProductIdProductDetailRoute,
@@ -1014,6 +1103,7 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/dat-hang': typeof authDatHangIndexRoute
+  '/taikhoan': typeof authTaikhoanIndexRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
@@ -1022,11 +1112,15 @@ export interface FileRoutesByFullPath {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/don-hang-cua-toi': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/taikhoan/thong-tin-ca-nhan': typeof authTaikhoanThongTinCaNhanIndexRoute
   '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
   '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/taikhoan/don-hang-cua-toi/thong-tin': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -1067,6 +1161,7 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/dat-hang': typeof authDatHangIndexRoute
+  '/taikhoan': typeof authTaikhoanIndexRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
@@ -1075,11 +1170,15 @@ export interface FileRoutesByTo {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
   '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/don-hang-cua-toi': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/taikhoan/thong-tin-ca-nhan': typeof authTaikhoanThongTinCaNhanIndexRoute
   '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
   '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/taikhoan/don-hang-cua-toi/thong-tin': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -1123,6 +1222,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/(auth)/dat-hang/': typeof authDatHangIndexRoute
+  '/(auth)/taikhoan/': typeof authTaikhoanIndexRoute
   '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
   '/(auth)/gio-hang/': typeof authGioHangIndexLazyRoute
   '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
@@ -1131,11 +1231,15 @@ export interface FileRoutesById {
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
+  '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
   '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/(auth)/taikhoan/don-hang-cua-toi/': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/(auth)/taikhoan/thong-tin-ca-nhan/': typeof authTaikhoanThongTinCaNhanIndexRoute
   '/_authenticated/taikhoan/khachhang/': typeof AuthenticatedTaikhoanKhachhangIndexRoute
   '/_authenticated/taikhoan/nhanvien/': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -1179,6 +1283,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/dat-hang'
+    | '/taikhoan'
     | '/dienthoai'
     | '/gio-hang'
     | '/banhang'
@@ -1187,11 +1292,15 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/hoadon'
     | '/product'
+    | '/sale'
     | '/settings/'
     | '/voucher'
     | '/product/$id/product-detail'
+    | '/taikhoan/don-hang-cua-toi'
+    | '/taikhoan/thong-tin-ca-nhan'
     | '/taikhoan/khachhang'
     | '/taikhoan/nhanvien'
+    | '/taikhoan/don-hang-cua-toi/thong-tin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -1231,6 +1340,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/dat-hang'
+    | '/taikhoan'
     | '/dienthoai'
     | '/gio-hang'
     | '/banhang'
@@ -1239,11 +1349,15 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/hoadon'
     | '/product'
+    | '/sale'
     | '/settings'
     | '/voucher'
     | '/product/$id/product-detail'
+    | '/taikhoan/don-hang-cua-toi'
+    | '/taikhoan/thong-tin-ca-nhan'
     | '/taikhoan/khachhang'
     | '/taikhoan/nhanvien'
+    | '/taikhoan/don-hang-cua-toi/thong-tin'
   id:
     | '__root__'
     | '/_authenticated'
@@ -1285,6 +1399,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/(auth)/dat-hang/'
+    | '/(auth)/taikhoan/'
     | '/(auth)/dienthoai/'
     | '/(auth)/gio-hang/'
     | '/_authenticated/banhang/'
@@ -1293,11 +1408,15 @@ export interface FileRouteTypes {
     | '/_authenticated/help-center/'
     | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
+    | '/_authenticated/sale/'
     | '/_authenticated/settings/'
     | '/_authenticated/voucher/'
     | '/_authenticated/product/$id/product-detail'
+    | '/(auth)/taikhoan/don-hang-cua-toi/'
+    | '/(auth)/taikhoan/thong-tin-ca-nhan/'
     | '/_authenticated/taikhoan/khachhang/'
     | '/_authenticated/taikhoan/nhanvien/'
+    | '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1316,8 +1435,12 @@ export interface RootRouteChildren {
   authIndexLazyRoute: typeof authIndexLazyRoute
   authProductIdRoute: typeof authProductIdRoute
   authDatHangIndexRoute: typeof authDatHangIndexRoute
+  authTaikhoanIndexRoute: typeof authTaikhoanIndexRoute
   authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
   authGioHangIndexLazyRoute: typeof authGioHangIndexLazyRoute
+  authTaikhoanDonHangCuaToiIndexRoute: typeof authTaikhoanDonHangCuaToiIndexRoute
+  authTaikhoanThongTinCaNhanIndexRoute: typeof authTaikhoanThongTinCaNhanIndexRoute
+  authTaikhoanDonHangCuaToiThongTinIndexLazyRoute: typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1335,8 +1458,13 @@ const rootRouteChildren: RootRouteChildren = {
   authIndexLazyRoute: authIndexLazyRoute,
   authProductIdRoute: authProductIdRoute,
   authDatHangIndexRoute: authDatHangIndexRoute,
+  authTaikhoanIndexRoute: authTaikhoanIndexRoute,
   authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
   authGioHangIndexLazyRoute: authGioHangIndexLazyRoute,
+  authTaikhoanDonHangCuaToiIndexRoute: authTaikhoanDonHangCuaToiIndexRoute,
+  authTaikhoanThongTinCaNhanIndexRoute: authTaikhoanThongTinCaNhanIndexRoute,
+  authTaikhoanDonHangCuaToiThongTinIndexLazyRoute:
+    authTaikhoanDonHangCuaToiThongTinIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1363,8 +1491,12 @@ export const routeTree = rootRoute
         "/(auth)/",
         "/(auth)/product/$id",
         "/(auth)/dat-hang/",
+        "/(auth)/taikhoan/",
         "/(auth)/dienthoai/",
-        "/(auth)/gio-hang/"
+        "/(auth)/gio-hang/",
+        "/(auth)/taikhoan/don-hang-cua-toi/",
+        "/(auth)/taikhoan/thong-tin-ca-nhan/",
+        "/(auth)/taikhoan/don-hang-cua-toi/thong-tin/"
       ]
     },
     "/_authenticated": {
@@ -1397,6 +1529,7 @@ export const routeTree = rootRoute
         "/_authenticated/help-center/",
         "/_authenticated/hoadon/",
         "/_authenticated/product/",
+        "/_authenticated/sale/",
         "/_authenticated/voucher/",
         "/_authenticated/product/$id/product-detail",
         "/_authenticated/taikhoan/khachhang/",
@@ -1549,6 +1682,9 @@ export const routeTree = rootRoute
     "/(auth)/dat-hang/": {
       "filePath": "(auth)/dat-hang/index.tsx"
     },
+    "/(auth)/taikhoan/": {
+      "filePath": "(auth)/taikhoan/index.tsx"
+    },
     "/(auth)/dienthoai/": {
       "filePath": "(auth)/dienthoai/index.lazy.tsx"
     },
@@ -1579,6 +1715,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/index.lazy.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/sale/": {
+      "filePath": "_authenticated/sale/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/settings/": {
       "filePath": "_authenticated/settings/index.lazy.tsx",
       "parent": "/_authenticated/settings"
@@ -1591,6 +1731,12 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/$id.product-detail.tsx",
       "parent": "/_authenticated"
     },
+    "/(auth)/taikhoan/don-hang-cua-toi/": {
+      "filePath": "(auth)/taikhoan/don-hang-cua-toi/index.tsx"
+    },
+    "/(auth)/taikhoan/thong-tin-ca-nhan/": {
+      "filePath": "(auth)/taikhoan/thong-tin-ca-nhan/index.tsx"
+    },
     "/_authenticated/taikhoan/khachhang/": {
       "filePath": "_authenticated/taikhoan/khachhang/index.tsx",
       "parent": "/_authenticated"
@@ -1598,6 +1744,9 @@ export const routeTree = rootRoute
     "/_authenticated/taikhoan/nhanvien/": {
       "filePath": "_authenticated/taikhoan/nhanvien/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/(auth)/taikhoan/don-hang-cua-toi/thong-tin/": {
+      "filePath": "(auth)/taikhoan/don-hang-cua-toi/thong-tin/index.lazy.tsx"
     }
   }
 }

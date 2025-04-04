@@ -3,6 +3,7 @@ package com.example.be.core.admin.account.dto.response;
 import com.example.be.entity.Account;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ import java.time.LocalDate;
  * DTO for {@link Account}
  */
 
-
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

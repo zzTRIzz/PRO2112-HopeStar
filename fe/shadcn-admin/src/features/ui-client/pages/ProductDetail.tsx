@@ -1,28 +1,28 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Route } from '@/routes/(auth)/product.$id'
 import {
+  Badge,
+  Button,
   Card,
   CardBody,
-  Button,
-  Tabs,
-  Tab,
   Divider,
-  Badge,
   Spinner,
+  Tab,
+  Tabs,
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { toast } from '@/hooks/use-toast'
+import Navbar from '../components/navbar'
 import { ProductGallery } from '../components/product-gallery'
 import { ProductReviews } from '../components/product-reviews'
 import { RelatedProducts } from '../components/related-products'
+import { addProductToCart } from '../data/api-cart-service'
 import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
-import Navbar from '../components/navbar'
-
-
 
 export default function ProductDetail() {
-
   const { id } = Route.useParams() // Lấy id từ URL
   const [productDetail, setProductDetail] =
     useState<productDetailViewResponse | null>(null)
@@ -33,18 +33,40 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1)
   const [currentProductDetail, setCurrentProductDetail] = useState<any>(null)
 
-  // Lấy id account
-  const userId = useMemo(() => {
+  // add cart
+
+  const queryClient = useQueryClient()
+
+  const addToCart = async (productDetailId: number | undefined) => {
     try {
-      const profile = localStorage.getItem('profile')
-      return profile ? JSON.parse(profile)?.id : null
+      if (!productDetailId) {
+        toast({
+          title: 'Lỗi',
+          description: 'Vui lòng chọn phiên bản sản phẩm',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      await addProductToCart(productDetailId, quantity)
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã thêm sản phẩm vào giỏ hàng',
+      })
+
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
     } catch (error) {
-      console.error("Lỗi parse profile:", error)
-      return null
+      console.error('Add to cart error:', error)
+      toast({
+        title: 'Thông báo',
+        description:
+          error?.response?.data?.message ||
+          'Không thể thêm sản phẩm vào giỏ hàng',
+        variant: 'destructive',
+      })
     }
-  }, [])
-
-
+  }
 
   // Lấy dữ liệu sản phẩm chi tiết từ API
   useEffect(() => {
@@ -64,7 +86,7 @@ export default function ProductDetail() {
         setLoading(false)
       }
     }
-    // getCartByAccount();
+
     fetchProductDetail()
   }, [id])
 
@@ -93,7 +115,7 @@ export default function ProductDetail() {
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change
-    if (newQuantity >= 1 && newQuantity <= 5 && newQuantity <= currentProductDetail?.inventoryQuantity) {
+    if (newQuantity >= 1 && newQuantity <= 10) {
       setQuantity(newQuantity)
     }
   }
@@ -118,8 +140,6 @@ export default function ProductDetail() {
     return <div>Không tìm thấy sản phẩm</div>
   }
 
-
-
   const {
     productName,
     productDescription,
@@ -140,7 +160,7 @@ export default function ProductDetail() {
             Trang chủ
           </Link>
           <Icon icon='lucide:chevron-right' className='h-4 w-4 text-gray-400' />
-          <Link to='/' className='hover:text-blue-500'>
+          <Link to='/dienthoai' className='hover:text-blue-500'>
             Điện thoại
           </Link>
           <Icon icon='lucide:chevron-right' className='h-4 w-4 text-gray-400' />
@@ -151,7 +171,7 @@ export default function ProductDetail() {
           {/* Product Images */}
           <ProductGallery
             defaultImage={
-              currentProductDetail?.imageUrl || defaultProductDetail?.imageUrl
+              currentProductDetail?.imageUrl || defaultProductDetail.imageUrl
             }
             imageUrls={imageUrls}
           />
@@ -187,31 +207,32 @@ export default function ProductDetail() {
                     currency: 'VND',
                   }).format(
                     currentProductDetail?.priceSell ||
-                    defaultProductDetail?.priceSell
+                      defaultProductDetail.priceSell
                   )}
                 </span>
                 {currentProductDetail?.price !==
                   currentProductDetail?.priceSell && (
-                    <>
-                      <span className='text-lg text-gray-500 line-through'>
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(
-                          currentProductDetail?.price || defaultProductDetail?.price
-                        )}
-                      </span>
-                      <Badge color='danger' className='ml-2'>
-                        {(
-                          ((currentProductDetail?.price -
-                            currentProductDetail?.priceSell) /
-                            currentProductDetail?.price) *
-                          100
-                        ).toFixed(0)}
-                        % giảm
-                      </Badge>
-                    </>
-                  )}
+                  <>
+                    <span className='text-lg text-gray-500 line-through'>
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      }).format(
+                        currentProductDetail?.price ||
+                          defaultProductDetail.price
+                      )}
+                    </span>
+                    <Badge color='danger' className='ml-2'>
+                      {(
+                        ((currentProductDetail?.price -
+                          currentProductDetail?.priceSell) /
+                          currentProductDetail?.price) *
+                        100
+                      ).toFixed(0)}
+                      % giảm
+                    </Badge>
+                  </>
+                )}
               </div>
             </div>
 
@@ -248,10 +269,11 @@ export default function ProductDetail() {
                 {colorOptions.map((color) => (
                   <div
                     key={color.id}
-                    className={`flex cursor-pointer flex-col items-center gap-2 ${selectedColor === color.colorCode
-                      ? 'rounded-lg p-1 ring-2 ring-blue-500'
-                      : ''
-                      }`}
+                    className={`flex cursor-pointer flex-col items-center gap-2 ${
+                      selectedColor === color.colorCode
+                        ? 'rounded-lg p-1 ring-2 ring-blue-500'
+                        : ''
+                    }`}
                     onClick={() => setSelectedColor(color.colorCode)}
                   >
                     <div
@@ -285,35 +307,31 @@ export default function ProductDetail() {
                   isIconOnly
                   variant='bordered'
                   onClick={() => handleQuantityChange(1)}
-                  disabled={quantity >= 10}
+                  disabled={quantity >= 5}
                 >
                   <Icon icon='lucide:plus' />
                 </Button>
-                <span className='text-sm text-gray-500'>
+                {/* <span className='text-sm text-gray-500'>
                   Còn{' '}
                   {currentProductDetail?.inventoryQuantity ||
-                    defaultProductDetail?.inventoryQuantity}{' '}
+                    defaultProductDetail.inventoryQuantity}{' '}
                   sản phẩm
-                </span>
+                </span> */}
               </div>
             </div>
 
             {/* Action Buttons */}
-
             <div className='flex gap-4 pt-4'>
               <Button
                 color='primary'
                 size='lg'
                 className='flex-1'
                 startContent={<Icon icon='lucide:shopping-cart' />}
+                onClick={() => addToCart(currentProductDetail?.productDetailId)}
               >
                 Thêm vào giỏ hàng
               </Button>
-              <Button
-               color='success'
-                size='lg'
-                 className='flex-1'
-                 >
+              <Button color='success' size='lg' className='flex-1'>
                 Mua ngay
               </Button>
             </div>
@@ -334,7 +352,10 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
-                  <Icon icon='lucide:repeat' className='h-6 w-6 text-blue-500' />
+                  <Icon
+                    icon='lucide:repeat'
+                    className='h-6 w-6 text-blue-500'
+                  />
                   <div>
                     <h4 className='font-semibold'>Đổi trả miễn phí</h4>
                     <p className='text-sm text-gray-500'>

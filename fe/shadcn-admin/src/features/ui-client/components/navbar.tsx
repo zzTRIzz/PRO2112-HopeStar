@@ -76,7 +76,7 @@ export default function Navbar() {
             as='button'
             avatarProps={{
               isBordered: true,
-              src: profile.avatar || 'https://i.pravatar.cc/150',
+              src: profile.avatar || 'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
             }}
             className='transition-transform'
             description={profile.email}
@@ -84,15 +84,19 @@ export default function Navbar() {
           />
         </DropdownTrigger>
         <DropdownMenu aria-label='User Actions' variant='flat'>
-          <DropdownItem key='profile'>Thông tin cá nhân</DropdownItem>
-          <DropdownItem key='orders'>Đơn hàng của tôi</DropdownItem>
+          <DropdownItem key='profile'>
+            <Link href='/taikhoan/thong-tin-ca-nhan'>Thông tin cá nhân</Link>
+          </DropdownItem>
+          <DropdownItem key='orders'>
+            <Link href='/taikhoan/don-hang-cua-toi'>Đơn hàng của tôi</Link>
+          </DropdownItem>
 
           {profile?.idRole === 2 ? (
-            <DropdownItem key='admin' asChild>
+            <DropdownItem key='admin'>
               <Link to='/dashboard'>Quản trị viên</Link>
             </DropdownItem>
           ) : profile?.idRole === 3 ? (
-            <DropdownItem key='staff' asChild>
+            <DropdownItem key='staff'>
               <Link to='/banhang'>Nhân viên</Link>
             </DropdownItem>
           ) : null}
@@ -237,7 +241,7 @@ export default function Navbar() {
             <Link to='/gio-hang' className='relative'>
               <ShoppingCart className='h-5 w-5' />
               <Badge className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center'>
-                {cart?.quantityCartDetail}
+                {cart?.quantityCartDetail||0}
               </Badge>
             </Link>
           </Button>

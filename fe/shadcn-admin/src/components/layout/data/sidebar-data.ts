@@ -22,6 +22,7 @@ import {
   IconDiscount,
   IconPointFilled,
   IconUser,
+  IconPercentage,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -183,6 +184,11 @@ export const sidebarData: SidebarData = {
           url: '/voucher',
           icon: IconDiscount,
         },
+        {
+          title: 'Sale',
+          url: '/sale',
+          icon: IconPercentage
+        }
       ],
     },
     {

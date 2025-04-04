@@ -29,9 +29,16 @@ export function CartItemCard({
   onUpdateQuantity,
   onDelete,
 }: CartItemProps) {
+  const MAX_QUANTITY = 5
+
   const handleQuantityChange = (delta: number) => {
-    const newQuantity = Math.max(1, item.quantity + delta)
-    onUpdateQuantity(newQuantity)
+    const newQuantity = Math.min(
+      MAX_QUANTITY,
+      Math.max(1, item.quantity + delta)
+    )
+    if (newQuantity !== item.quantity) {
+      onUpdateQuantity(newQuantity)
+    }
   }
 
   return (
@@ -72,23 +79,25 @@ export function CartItemCard({
               </p>
             </div>
             <div className='flex flex-wrap items-center justify-between gap-4'>
-              <div className='space-y-1'>
-                <p className='text-lg font-bold text-danger'>
+              <div className='space-x-2 space-y-1'>
+                <span className='text-lg font-bold text-danger'>
                   {new Intl.NumberFormat('vi-VN').format(item.priceSell)}₫
-                </p>
+                </span>
+
                 {item.price !== item.priceSell && (
-                  <p className='text-sm text-default-500 line-through'>
+                  <span className='text-sm text-default-500 line-through'>
                     {new Intl.NumberFormat('vi-VN').format(item.price)}₫
-                  </p>
+                  </span>
                 )}
               </div>
               <div className='flex items-center gap-2'>
                 <Button
                   isIconOnly
-                  variant='flat'
+                  variant='solid'
                   size='sm'
                   onPress={() => handleQuantityChange(-1)}
                   aria-label='Decrease quantity'
+                  isDisabled={item.quantity <= 1}
                 >
                   <Icon icon='lucide:minus' className='h-4 w-4' />
                 </Button>
@@ -97,10 +106,11 @@ export function CartItemCard({
                 </span>
                 <Button
                   isIconOnly
-                  variant='flat'
+                  variant='solid'
                   size='sm'
                   onPress={() => handleQuantityChange(1)}
                   aria-label='Increase quantity'
+                  isDisabled={item.quantity >= MAX_QUANTITY}
                 >
                   <Icon icon='lucide:plus' className='h-4 w-4' />
                 </Button>

@@ -2,23 +2,23 @@ import { useNavigate } from '@tanstack/react-router'
 import { Button, Card, Checkbox, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { CartItemCard } from '../../components/gio-hang/cart-item'
-import { useCartData } from '../../components/gio-hang/hooks/use-cart-data'
 import { useCart } from '../../hooks/use-cart'
 
 export function CartPage() {
-  const { cart, isLoading, refreshCart } = useCart()
-  const navigate = useNavigate()
-
-  const cartItems = cart?.cartDetailResponseList || []
-
   const {
+    cart,
+    isLoading,
     selectedItems,
+    refreshCart,
     updateQuantity,
     deleteItem,
     selectItem,
     selectAll,
     deleteSelected,
-  } = useCartData()
+  } = useCart()
+  const navigate = useNavigate()
+
+  const cartItems = cart?.cartDetailResponseList || []
 
   const selectedProducts = cartItems.filter((item) =>
     selectedItems.has(item.id)
