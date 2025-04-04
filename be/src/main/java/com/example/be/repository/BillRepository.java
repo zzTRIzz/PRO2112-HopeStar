@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Integer> {
@@ -47,4 +48,10 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
             "AND (:#{#searchRequest.trangThai} IS NULL OR b.status = :#{#searchRequest.trangThai})" )
             List<Bill> searchBills(@Param("searchRequest") SearchBillRequest searchRequest);
 
+
+    @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount")
+    List<Bill> findAllByAccount(@Param("idAccount") Integer idAccount);
+
+
+    Optional<Bill> findById(Integer idBill);
 }

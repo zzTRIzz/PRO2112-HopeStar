@@ -23,7 +23,7 @@ import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
 
 export default function ProductDetail() {
-  const { id } = Route.useParams() // Lấy id từ URL
+  const { id } = Route.useParams() 
   const [productDetail, setProductDetail] =
     useState<productDetailViewResponse | null>(null)
   const [loading, setLoading] = useState(true)

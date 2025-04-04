@@ -18,10 +18,5 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
     """, nativeQuery = true)
   String getNewCode();
 
-
-
-  @Query("SELECT sc FROM ShoppingCart sc WHERE sc.idAccount.id= :idAccount")
-  List<ShoppingCart> findByIdShoppingCart(@Param("idAccount") Integer idAccount);
-
   ShoppingCart findShoppingCartByIdAccount(Account account);
 }

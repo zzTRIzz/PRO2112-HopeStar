@@ -1,84 +1,56 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Tabs, Tab, Card, CardBody, Button, Link } from '@heroui/react'
 import { Icon } from '@iconify/react'
-
-interface OrderItem {
-  id: string
-  image: string
-  name: string
-  quantity: number
-  price: number
-  date: string
-  deliveryMethod: string
-  status: 'processing' | 'shipping' | 'completed' | 'cancelled' | 'returned'
-}
+import { Bill } from "../service/schema"
+import { getBillByAccount } from '../service/api-bill-client-service'
 
 const statusConfig = {
-  processing: { color: '#f5a524', text: 'Đang xử lý' },
-  shipping: { color: '#007bff', text: 'Đang giao' },
-  completed: { color: '#17c964', text: 'Hoàn tất' },
-  cancelled: { color: '#dc3545', text: 'Đã hủy' },
-  returned: { color: '#6c757d', text: 'Trả hàng' },
+  CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' }, 
+  DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
+  DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
+  HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
+  DA_HUY: { color: 'red', text: 'Đã hủy' },
+  // returned: { color: '#6c757d', text: 'Trả hàng' },
 }
-
-const sampleOrders: OrderItem[] = [
-  {
-    id: 'ORD123456',
-    image: 'https://cdn2.fptshop.com.vn/unsafe/128x0/filters:quality(100)/iphone_16_ultramarine_523066aa94.png',
-    name: 'iPhone 16 128GB Xanh Lưu Ly',
-    quantity: 1,
-    price: 19290000,
-    date: '27/03/2025',
-    deliveryMethod: 'Giao hàng tận nơi',
-    status: 'completed',
-  },
-  {
-    id: 'ORD123457',
-    image: 'https://cdn2.fptshop.com.vn/unsafe/750x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-    name: 'iPhone 16 128GB Xanh Mòng Két',
-    quantity: 1,
-    price: 19290000,
-    date: '27/03/2025',
-    deliveryMethod: 'Giao hàng tận nơi',
-    status: 'shipping',
-  },
-  {
-    id: 'ORD123458',
-    image: 'https://cdn2.fptshop.com.vn/unsafe/750x0/filters:quality(100)/iphone_16_black_fe52c5d947.png',
-    name: 'iPhone 16 128GB Đen Nhám',
-    quantity: 1,
-    price: 19290000,
-    date: '27/03/2025',
-    deliveryMethod: 'Giao hàng tận nơi',
-    status: 'processing',
-  },
-  {
-    id: 'ORD789012',
-    image: 'https://cdn2.fptshop.com.vn/unsafe/750x0/filters:quality(100)/iphone_16_pink_23227ae794.png',
-    name: 'iPhone 16 128GB Hồng Đào',
-    quantity: 2,
-    price: 18290000,
-    date: '28/03/2025',
-    deliveryMethod: 'Nhận tại cửa hàng',
-    status: 'cancelled',
-  },
-  
-]
 
 export const OrdersPage = () => {
   const [selected, setSelected] = React.useState('all')
+  const [bills, setBills] = useState<Bill[]>([]);
 
-  const filteredOrders = selected === 'all' 
-    ? sampleOrders 
-    : sampleOrders.filter(order => order.status === selected)
+  useEffect(() => {
+    const fetchBills = async () => {
+      try {
+        const data = await getBillByAccount();
+        setBills(data)
+        console.log('Bills:', data);
+      } catch (error) {
+        console.error('Lỗi lấy bill:', error)
+      }
+    }
+
+    fetchBills()
+  }, []);
+
+  if (bills.length == 0) return <div>Đang tải...</div>;
+
+
+  const filteredOrders = selected === 'all'
+    ? bills
+    : bills.filter((bill) =>
+      selected === 'CHO_XAC_NHAN'
+        ? (bill.status === 'CHO_XAC_NHAN' || bill.status === 'CHO_THANH_TOAN')
+        : bill.status === selected
+    )
 
   return (
     <div>
       <div className='mx-auto max-w-5xl'>
+       
         <header className='mb-6 flex items-center justify-between'>
           <h1 className='text-xl font-bold text-[#333333]'>Đơn hàng của tôi</h1>
           <Input
-            placeholder='Tìm theo tên đơn, mã đơn hoặc tên sản phẩm'
+            placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
             startContent={<Icon icon='lucide:search' className='text-default-400' />}
             className='w-96'
           />
@@ -90,11 +62,12 @@ export const OrdersPage = () => {
           color='primary'
         >
           <Tab key='all' title='Tất cả' />
-          <Tab key='processing' title='Đang xử lý' />
-          <Tab key='shipping' title='Đang giao' />
-          <Tab key='completed' title='Hoàn tất' />
-          <Tab key='cancelled' title='Đã hủy' />
-          <Tab key='returned' title='Trả hàng' />
+          <Tab key='CHO_XAC_NHAN' title='Chờ xác nhận' />
+          <Tab key='DANG_CHUAN_BI_HANG' title='Đang chuẩn bị hàng' />
+          <Tab key='DANG_GIAO_HANG' title='Đang giao hàng' />
+          <Tab key='HOAN_THANH' title='Hoàn thành' />
+          <Tab key='DA_HUY' title='Đã hủy' />
+          {/* <Tab key='returned' title='Trả hàng' /> */}
         </Tabs>
 
         {filteredOrders.length === 0 ? (
@@ -108,9 +81,17 @@ export const OrdersPage = () => {
                 <div className='flex items-start justify-between border-b border-default-100 pb-4'>
                   <div className='space-y-1'>
                     <div className='flex items-center gap-4 text-sm text-default-600'>
-                      <span>{order.date}</span>
-                      <span>{order.deliveryMethod}</span>
-                      <span>{order.quantity} sản phẩm</span>
+                      <span>{order.paymentDate ? new Date(order.paymentDate).toLocaleDateString("vi-VN", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                      })
+                        : ""}</span>
+                      {/* <span>{order.deliveryMethod}</span> */}
+                      <span>{order.detailCount != null ? order.detailCount : 0} sản phẩm</span>
                     </div>
                   </div>
 
@@ -123,31 +104,49 @@ export const OrdersPage = () => {
                     </div>
                   </div>
                 </div>
+                {order.billDetailResponesList?.[0] && (
+                  <div className='mt-4 flex items-center justify-between'>
+                    <div className='flex items-center gap-4'>
+                      <img
+                        src={order.billDetailResponesList[0].productDetail.image}
+                        alt={order.billDetailResponesList[0].productDetail.productName}
+                        className='h-20 w-20 rounded-lg object-cover'
+                      />
+                      <div className='space-y-1'>
+                        <Link href={`/taikhoan/don-hang-cua-toi/thong-tin?id=${order.id}`}
+                          className='text-sm font-medium hover:text-[#4c7eea]'
+                        >
+                          {order.billDetailResponesList[0].productDetail.productName
+                            + ' ' + order.billDetailResponesList[0].productDetail.ram
+                            + '/' + order.billDetailResponesList[0].productDetail.rom + 'GB'
+                            + ' - ' + order.billDetailResponesList[0].productDetail.color} <br />
 
-                <div className='mt-4 flex items-center justify-between'>
-                  <div className='flex items-center gap-4'>
-                    <img
-                      src={order.image}
-                      alt={order.name}
-                      className='h-20 w-20 rounded-lg object-cover'
-                    />
-                    <div className='space-y-1'>
-                      <Link className='text-sm font-medium hover:text-[#4c7eea]'>
-                        {order.name}
-                      </Link>
-                      <p className='text-sm text-default-500'>
-                        Số lượng: {order.quantity}
+                        </Link>
+                        <p className='text-sm text-default-500'>
+                          Số lượng: {order.billDetailResponesList[0].quantity}
+                        </p>
+                      </div>
+                    </div>
+                    <div className='text-right'>
+                      <p className='text-lg font-bold'>
+                        {order.billDetailResponesList[0].price.toLocaleString('vi-VN')} đ
                       </p>
                     </div>
                   </div>
-                  <div className='text-right'>
-                    <p className='text-lg font-bold'>
-                      {order.price.toLocaleString('vi-VN')} đ
-                    </p>
-                  </div>
-                </div>
+                )}
+                {/* <div className='flex items-center gap-4'>
+                    <img
+                      src={order.billDetailResponesList[0].productDetail?.image}
+                      alt={order.name}
+                      className='h-20 w-20 rounded-lg object-cover'
+                    />
+                    <div>
+                      <p>{order.billDetailResponesList[0].productDetail?.productName}</p>
+                      <p>Số lượng: {order.billDetailResponesList[0].quantity}</p>
+                    </div>
+                  </div> */}
 
-                <div className='mt-4 flex items-center justify-between border-t border-default-100 pt-4'>
+                {/* <div className='mt-4 flex items-center justify-between border-t border-default-100 pt-4'>
                   <p className='text-sm text-default-600'>
                     Bạn cần hỗ trợ? Liên hệ ngay với chúng tôi.
                   </p>
@@ -159,7 +158,7 @@ export const OrdersPage = () => {
                   >
                     Hỗ trợ
                   </Button>
-                </div>
+                </div> */}
               </CardBody>
             </Card>
           ))
