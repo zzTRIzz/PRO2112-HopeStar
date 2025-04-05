@@ -26,11 +26,7 @@ public class CartServiceImpl implements CartService {
     private final CartDetailRepository cartDetailRepository;
     private final ProductDetailRepository productDetailRepository;
 
-    @Override
-    public CartResponse getCart(Account account) {
-        ShoppingCart cart = shoppingCartRepository.findShoppingCartByIdAccount(account);
-        List<CartDetail> cartDetailList = cartDetailRepository.findCartDetailByIdShoppingCartAndStatus(cart, StatusCartDetail.pending);
-
+    public CartResponse cartMapCartResponse(List<CartDetail> cartDetailList){
         CartResponse cartResponse = new CartResponse();
         List<CartDetailResponse> cartDetailResponseList = new ArrayList<>();
         int quantityCartDetail = 0;
@@ -54,10 +50,34 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Object addToCart(AddToCartRequest request, Account account) throws Exception {
-
+    public CartResponse getCart(Account account) {
         ShoppingCart cart = shoppingCartRepository.findShoppingCartByIdAccount(account);
+        List<CartDetail> cartDetailList = cartDetailRepository.findCartDetailByIdShoppingCartAndStatus(cart, StatusCartDetail.pending);
+        return cartMapCartResponse(cartDetailList);
+    }
 
+    @Override
+    public CartResponse getOrCreateGuestCart(String guestCartId) {
+        ShoppingCart cart = shoppingCartRepository.findShoppingCartByGuestId(guestCartId)
+                .orElseGet(() -> {
+                    // Nếu không tìm thấy, tạo mới giỏ hàng
+                    ShoppingCart newCart = new ShoppingCart();
+                    newCart.setGuestId(guestCartId);
+                    return shoppingCartRepository.save(newCart);
+                });
+        List<CartDetail> cartDetailList = cartDetailRepository.findCartDetailByIdShoppingCartAndStatus(cart, StatusCartDetail.pending);
+        return cartMapCartResponse(cartDetailList);
+    }
+
+    @Override
+    public Object addToCart(AddToCartRequest request, Account account,String guestCartId) throws Exception {
+
+        ShoppingCart cart = new ShoppingCart();
+        if (account != null){
+            cart = shoppingCartRepository.findShoppingCartByIdAccount(account);
+        }else {
+            cart = shoppingCartRepository.findShoppingCartByGuestId(guestCartId).get();
+        }
         ProductDetail productDetail = productDetailRepository.findById(request.getIdProductDetail())
                 .orElseThrow(() -> new RuntimeException("Product detail not found"));
 

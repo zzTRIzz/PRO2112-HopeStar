@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Integer> {
@@ -24,4 +25,6 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
   List<ShoppingCart> findByIdShoppingCart(@Param("idAccount") Integer idAccount);
 
   ShoppingCart findShoppingCartByIdAccount(Account account);
+
+  Optional<ShoppingCart> findShoppingCartByGuestId(String guestId);
 }

@@ -11,8 +11,13 @@ import com.example.be.core.client.cart.service.CartService;
 import com.example.be.core.client.cart.service.OrderService;
 import com.example.be.entity.Account;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,19 +30,45 @@ public class CartController {
     private final OrderService orderService;
 
     @GetMapping("/cart")
-    public ResponseData<?> getCart(@RequestHeader("Authorization") String jwt) throws Exception {
+    public ResponseEntity<ResponseData<?>> getCart(@RequestHeader(value = "Authorization", required = false) String jwt,
+                                                   @CookieValue(value = "guest_cart_id", required = false) String guestCartId) throws Exception {
+        if (jwt !=null){
+            Account account = authService.findAccountByJwt(jwt);
+            CartResponse cartResponse = cartService.getCart(account);
+            return ResponseEntity.ok(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
+        }
 
-        Account account = authService.findAccountByJwt(jwt);
-        CartResponse cartResponse = cartService.getCart(account);
-        return new ResponseData<>(HttpStatus.OK,"ok",cartResponse);
+        // 2. Xử lý khách không tài khoản
+        String cartId = guestCartId != null ? guestCartId : UUID.randomUUID().toString();
+        CartResponse cartResponse = cartService.getOrCreateGuestCart(cartId);
+
+        // Trả về cookie nếu là lần đầu
+        if (guestCartId == null) {
+            ResponseCookie cookie = ResponseCookie.from("guest_cart_id", cartId)
+                    .httpOnly(true)
+                    .secure(false)
+                    .maxAge(30 * 24 * 60 * 60) // 30 ngày
+                    .path("/")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
+        }
+
+        return ResponseEntity.ok(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
+
 
     }
     @PostMapping("/add-to-cart")
-    public ResponseData<?> addToCart(@RequestHeader("Authorization") String jwt,
-                                     @RequestBody AddToCartRequest addToCartRequest) throws Exception {
-
-        Account account = authService.findAccountByJwt(jwt);
-        Object o = cartService.addToCart(addToCartRequest,account);
+    public ResponseData<?> addToCart(@RequestHeader(value = "Authorization", required = false) String jwt,
+                                     @RequestBody AddToCartRequest addToCartRequest,
+                                     @CookieValue(value = "guest_cart_id", required = false)String guestCartId) throws Exception {
+        Account account = null;
+        if (jwt !=null) {
+            account = authService.findAccountByJwt(jwt);
+        }
+        Object o = cartService.addToCart(addToCartRequest,account,guestCartId);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }

@@ -32,6 +32,7 @@ public class ShoppingCartMapper {
         return new ShoppingCart(
                 shoppingCartDto.getId(),
                 account,
+                null,
                 shoppingCartDto.getCode(),
                 shoppingCartDto.getStatus()
         );
