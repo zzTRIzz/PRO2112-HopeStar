@@ -37,4 +37,6 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Integer>
 
     CartDetail findCartDetailByIdShoppingCartAndStatusAndAndIdProductDetail(ShoppingCart shoppingCart, StatusCartDetail statusCartDetail, ProductDetail productDetail);
 
+    void deleteCartDetailByIdShoppingCart(ShoppingCart shoppingCart);
+
 }

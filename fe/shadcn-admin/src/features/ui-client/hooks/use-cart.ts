@@ -20,7 +20,7 @@ export function useCart() {
   } = useQuery<CartResponse>({
     queryKey: CART_QUERY_KEY,
     queryFn: getCart,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000, // 1s
   })
 
   const refreshCart = () => {

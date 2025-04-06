@@ -8,7 +8,7 @@ export const signupRequestSchema = z
         message: 'Vui lòng nhập họ và tên của bạn', // Please enter your full name
       })
       .min(7, {
-        message: 'Tên không được vượt quá 7 ký tự', // Password must be at least 7 characters long
+        message: 'Tên không được ít hơn 7 ký tự', // Password must be at least 7 characters long
       })
       .max(30, {
         message: 'Tên không được vượt quá 30 ký tự', // Full name must not exceed 50 characters

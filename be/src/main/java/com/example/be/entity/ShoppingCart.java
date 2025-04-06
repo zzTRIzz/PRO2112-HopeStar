@@ -26,6 +26,9 @@ public class ShoppingCart extends AuditEntity {
     @Column(name = "code")
     private String code;
 
+    @Column(name = "guest_id", unique = true) // Lưu guest_cart_id từ cookie
+    private String guestId;
+
     @Column(name = "status")
     //@Enumerated(EnumType.STRING)
     private String status;

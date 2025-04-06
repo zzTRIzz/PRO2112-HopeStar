@@ -27,13 +27,14 @@ public class CartKhongTKMapper {
 
     public ShoppingCart entityShoppingCart(ShoppingCartDto shoppingCartDto) {
 //        System.out.println(shoppingCartDto.getIdAccount());
-        Account account = accountRepository.findById(shoppingCartDto.getIdAccount())
-                .orElseThrow(()->new RuntimeException("Không tìm thấy khách hàng "));
-        return new ShoppingCart(
-                shoppingCartDto.getId(),
-                null,
-                shoppingCartDto.getCode(),
-                shoppingCartDto.getStatus()
-        );
+//        Account account = accountRepository.findById(shoppingCartDto.getIdAccount())
+//                .orElseThrow(()->new RuntimeException("Không tìm thấy khách hàng "));
+//        return new ShoppingCart(
+//                shoppingCartDto.getId(),
+//                "1",
+//                shoppingCartDto.getCode(),
+//                shoppingCartDto.getStatus()
+//        );
+        return null;
     }
 }

@@ -109,9 +109,23 @@ export const findKhachHang = async (idBill: number) => {
 }
 
 // Lấy dữ liệu data của product detail
-export const getProductDetail = async () => {
+interface SearchProductRequest{
+  key?: string
+  idChip?: number
+  idBrand?: number
+  idScreen?: number
+  idOs?: number
+  idCategory?: number
+
+}
+
+export const getProductDetail = async (
+  searchProductRequest: SearchProductRequest
+) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/product_detail`);
+        const response = await axios.get(`${API_BASE_URL}/product_detail`,{
+          params:searchProductRequest,
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
