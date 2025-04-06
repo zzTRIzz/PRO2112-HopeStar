@@ -691,7 +691,7 @@ export default function SaleUI() {
                                         {fromServerDateTime(sale.dateStart)} - {fromServerDateTime(sale.dateEnd)}
                                     </td>
                                     <td className="p-3">
-                                        <span className={`px-2 py-1 rounded-full text-sm ${
+                                        <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${
                                             sale.status === 'ACTIVE'
                                             ? 'bg-green-100 text-green-800'
                                             : sale.status === 'UPCOMING'
@@ -705,7 +705,7 @@ export default function SaleUI() {
                                               : 'Đã kết thúc'}
                                         </span>
                                     </td>
-                                    <td className="p-3 space-x-2">
+                                    <td className="p-3 space-x-2 whitespace-nowrap">
                                         <button
                                             className="inline-flex items-center justify-center size-8 rounded-full hover:bg-gray-100"
                                             onClick={() => handleEdit(sale)}
