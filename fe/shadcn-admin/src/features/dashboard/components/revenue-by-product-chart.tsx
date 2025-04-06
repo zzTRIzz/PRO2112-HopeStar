@@ -13,11 +13,22 @@ export const RevenueByProductChart = () => {
   const data = React.useMemo(() => {
     if (!rawData || rawData.length === 0) return [];
     
-    return rawData.map((item) => ({
-      name: item.name,
-      value: item.totalRevenue,
-      percentage: item.percentage // Use percentage from BE
-    }));
+    // Gộp doanh thu các sản phẩm có tên giống nhau
+    const groupedData = rawData.reduce((acc, item) => {
+      if (!acc[item.name]) {
+        acc[item.name] = {
+          name: item.name,
+          value: 0,
+          percentage: 0
+        };
+      }
+      acc[item.name].value += item.totalRevenue;
+      acc[item.name].percentage += item.percentage;
+      return acc;
+    }, {} as Record<string, {name: string; value: number; percentage: number}>);
+
+    // Chuyển object thành array và sắp xếp theo doanh thu giảm dần
+    return Object.values(groupedData).sort((a, b) => b.value - a.value);
   }, [rawData]);
 
   // Debugging: Log the processed data

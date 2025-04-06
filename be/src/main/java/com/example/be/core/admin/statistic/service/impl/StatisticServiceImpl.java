@@ -6,13 +6,17 @@ import com.example.be.core.admin.statistic.service.StatisticService;
 import com.example.be.entity.Bill;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.StatisticRepository;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.*;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,5 +144,69 @@ public class StatisticServiceImpl implements StatisticService {
                         ((Number) result[4]).longValue()  // total_quantity
                 ))
                 .collect(Collectors.toList());
+    }
+
+
+    public TodayRevenueResponse getTodayRevenue() {
+        ZoneId zoneId = ZoneId.systemDefault();
+        Instant startOfDay = LocalDate.now().atStartOfDay(zoneId).toInstant();
+        Instant endOfDay = LocalDate.now().atTime(LocalTime.MAX).atZone(zoneId).toInstant();
+
+        Tuple result = statisticRepository.getRevenueAndCount(startOfDay, endOfDay);
+
+        // Xử lý revenue
+        BigDecimal revenue = Optional.ofNullable(result.get(0, BigDecimal.class))
+                .orElse(BigDecimal.ZERO);
+
+        // Xử lý count
+        Long count = Optional.ofNullable(result.get(1, Long.class))
+                .orElse(0L);
+
+        return new TodayRevenueResponse(revenue, count);
+    }
+
+    public MonthlyRevenueResponse getMonthlyRevenue() {
+        ZoneId zoneId = ZoneId.systemDefault();
+        Instant startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay(zoneId).toInstant();
+        Instant endOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+                .atTime(LocalTime.MAX).atZone(zoneId).toInstant();
+
+        Tuple result = statisticRepository.getRevenueAndCount(startOfMonth, endOfMonth);
+
+        BigDecimal revenue = Optional.ofNullable(result.get(0, BigDecimal.class))
+                .orElse(BigDecimal.ZERO);
+        Long count = Optional.ofNullable(result.get(1, Long.class))
+                .orElse(0L);
+
+        return new MonthlyRevenueResponse(revenue, count);
+    }
+
+    @Override
+    public List<ProductSalesResponse> getMonthlyProductSales() {
+        List<Object[]> results = statisticRepository.getMonthlyProductSales();
+        return results.stream()
+                .map(result -> new ProductSalesResponse(
+                        (Date) result[0], // sale_date
+                        ((Number) result[1]).intValue() // daily_quantity_sold
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<LowStockProductResponse> getLowStockProducts() {
+        List<Object[]> results = statisticRepository.findLowStockProducts();
+
+        return results.stream()
+                .map(this::mapToLowStockResponse)
+                .collect(Collectors.toList());
+    }
+
+    private LowStockProductResponse mapToLowStockResponse(Object[] row) {
+        return new LowStockProductResponse(
+                (String) row[0],   // product_detail_code
+                (String) row[1],   // product_name
+                (String) row[2],   // color_name
+                ((Number) row[3]).intValue(), // inventory_quantity
+                (String) row[4]    // status
+        );
     }
 }

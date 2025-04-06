@@ -2,10 +2,15 @@ package com.example.be.repository;
 
 import com.example.be.entity.Bill;
 import com.example.be.entity.status.StatusBill;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -109,4 +114,47 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
             "LIMIT 1000", nativeQuery = true)
     List<Object[]> getBestSellingProducts();
 
+    @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
+            "WHERE b.status = 'DA_THANH_TOAN' " +
+            "AND DATE(b.paymentDate) = CURRENT_DATE")
+    BigDecimal calculateTodayRevenue();
+
+    @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
+            "WHERE b.status = 'DA_THANH_TOAN' " +
+            "AND MONTH(b.paymentDate) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(b.paymentDate) = YEAR(CURRENT_DATE)")
+    BigDecimal calculateMonthlyRevenue();
+
+    @Query(value = """
+    SELECT DATE(created_at) AS sale_date, 
+           SUM(quantity) AS daily_quantity_sold
+    FROM bill_detail
+    WHERE MONTH(created_at) = MONTH(CURRENT_DATE)
+      AND YEAR(created_at) = YEAR(CURRENT_DATE)
+    GROUP BY DATE(created_at)
+    """, nativeQuery = true)
+    List<Object[]> getMonthlyProductSales();
+
+    @Query("SELECT SUM(b.totalPrice) as revenue, COUNT(b) as count " +
+            "FROM Bill b " +
+            "WHERE b.paymentDate BETWEEN :start AND :end " +
+            "AND b.status = 'DA_THANH_TOAN'")
+    Tuple getRevenueAndCount(
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query(nativeQuery = true, value =
+            "SELECT pd.code AS product_detail_code, " +
+                    "p.name AS product_name, " +
+                    "c.name AS color_name, " +
+                    "pd.inventory_quantity, " +
+                    "pd.status " +
+                    "FROM product_detail pd " +
+                    "JOIN product p ON pd.product_id = p.id " +
+                    "LEFT JOIN color c ON pd.color_id = c.id " +
+                    "WHERE pd.inventory_quantity <= 5 " +
+                    "AND pd.status = 'ACTIVE' " +
+                    "ORDER BY pd.inventory_quantity ASC")
+    List<Object[]> findLowStockProducts();
 }

@@ -191,10 +191,18 @@ export default function SaleUI() {
             if (isEditing && editId) {
                 await updateSale(editId, formattedData);
                 saleId = editId;
+                toast({
+                    title: "Thành công",
+                    description: "Chương trình giảm giá đã được cập nhật"
+                });
             } else {
                 // Bước 1: Tạo sale mới
                 const newSale = await createSale(formattedData);
                 saleId = newSale.id;
+                toast({
+                    title: "Thành công",
+                    description: "Thêm mới chương trình giảm giá thành công"
+                });
             }
 
             // Bước 2: Thêm sản phẩm chi tiết vào sale
@@ -209,10 +217,6 @@ export default function SaleUI() {
                         productDetailIds: selectedDetailIds
                     });
 
-                    toast({
-                        title: "Thành công",
-                        description: `Đã thêm ${selectedDetailIds.length} sản phẩm chi tiết vào chương trình giảm giá`
-                    });
                 }
             }
 
@@ -225,7 +229,7 @@ export default function SaleUI() {
             toast({
                 variant: "destructive",
                 title: "Lỗi",
-                description: error.response?.data?.message || "Không thể lưu chương trình khuyến mãi"
+                description: error.response?.data?.message || "Không thể lưu chương trình giảm giá"
             });
         } finally {
             setLoading(false);
@@ -572,6 +576,38 @@ export default function SaleUI() {
         }
     };
 
+    // Thêm hàm để cập nhật trạng thái của một sale
+    const updateSaleStatus = (sale: Sale): SaleStatus => {
+        const now = new Date().getTime();
+        const startDate = new Date(sale.dateStart).getTime();
+        const endDate = new Date(sale.dateEnd).getTime();
+
+        if (now < startDate) {
+            return SaleStatus.UPCOMING;
+        } else if (now >= startDate && now <= endDate) {
+            return SaleStatus.ACTIVE;
+        } else {
+            return SaleStatus.INACTIVE;
+        }
+    };
+
+    // Thêm useEffect để kiểm tra và cập nhật trạng thái
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setSales(currentSales => 
+                currentSales.map(sale => {
+                    const newStatus = updateSaleStatus(sale);
+                    if (newStatus !== sale.status) {
+                        return { ...sale, status: newStatus };
+                    }
+                    return sale;
+                })
+            );
+        }, 1000); // Kiểm tra mỗi giây
+
+        return () => clearInterval(intervalId);
+    }, []);
+
     return (
         <>
             <div className="p-6 bg-gray-100 min-h-screen">
@@ -621,7 +657,7 @@ export default function SaleUI() {
                                 className="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 onClick={handleCreate}
                             >
-                                + Tạo mới
+                                + Thêm mới
                             </button>
                         </div>
                     </div>
@@ -736,7 +772,7 @@ export default function SaleUI() {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-8 rounded-lg w-[1000px] max-h-[90vh] overflow-y-auto">
                         <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                            {isEditing ? 'Cập Nhật Chương Trình' : 'Tạo Chương Trình Mới'}
+                            {isEditing ? 'Cập Nhật Chương Trình' : 'Thêm Chương Trình Mới'}
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -1019,7 +1055,7 @@ export default function SaleUI() {
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                     disabled={loading}
                                 >
-                                    {loading ? "Đang lưu..." : isEditing ? "Cập nhật" : "Tạo mới"}
+                                    {loading ? "Đang lưu..." : isEditing ? "Cập nhật" : "Thêm mới"}
                                 </button>
                             </div>
                         </form>

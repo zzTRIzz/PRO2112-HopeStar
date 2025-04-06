@@ -19,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +47,8 @@ public class SaleServiceImpl implements SaleService {
         }
     }
 
-    @Scheduled(fixedRate = 6000) // Chạy mỗi phút
+    // SaleServiceImpl.java
+    @Scheduled(fixedRate = 60000)
     @Transactional
     public void updateSaleStatuses() {
         LocalDateTime now = LocalDateTime.now();
@@ -53,10 +56,38 @@ public class SaleServiceImpl implements SaleService {
         for (Sale sale : sales) {
             StatusSale newStatus = calculateStatus(sale.getDateStart(), sale.getDateEnd());
             if (!sale.getStatus().equals(newStatus)) {
+                // Xử lý khi trạng thái thay đổi
+                if (newStatus == StatusSale.ACTIVE) {
+                    updateProductDetailsPrice(sale, true);
+                } else if (sale.getStatus() == StatusSale.ACTIVE && newStatus == StatusSale.INACTIVE) {
+                    updateProductDetailsPrice(sale, false);
+                }
+                // Cập nhật trạng thái sale
                 sale.setStatus(newStatus);
                 saleRepository.save(sale);
-                System.out.println("Cập nhật trạng thái sale ID " + sale.getId() + " thành: " + newStatus);
             }
+        }
+    }
+
+    private void updateProductDetailsPrice(Sale sale, boolean isActive) {
+        List<SaleDetail> saleDetails = saleDetailRepository.findBySaleId(sale.getId());
+        for (SaleDetail sd : saleDetails) {
+            ProductDetail pd = sd.getProductDetail();
+            if (isActive) {
+                BigDecimal priceSell = calculatePriceSell(pd.getPrice(), sale.getDiscountValue(), sale.getDiscountType());
+                pd.setPriceSell(priceSell);
+            } else {
+                // Phục hồi giá hoặc kiểm tra Sale khác
+                List<SaleDetail> activeSales = saleDetailRepository.findByProductDetailIdAndSaleStatus(pd.getId(), StatusSale.ACTIVE);
+                if (activeSales.isEmpty()) {
+                    pd.setPriceSell(pd.getPrice());
+                } else {
+                    Sale activeSale = activeSales.get(0).getSale();
+                    BigDecimal priceSell = calculatePriceSell(pd.getPrice(), activeSale.getDiscountValue(), activeSale.getDiscountType());
+                    pd.setPriceSell(priceSell);
+                }
+            }
+            productDetailRepository.save(pd);
         }
     }
 
@@ -118,20 +149,21 @@ public class SaleServiceImpl implements SaleService {
         sale.setDescription(request.getDescription());
         sale.setDiscountValue(request.getDiscountValue());
         sale.setDiscountType(request.getDiscountType() != null ? request.getDiscountType() : false);
+
         if (request.getStatus() != null) {
             sale.setStatus(request.getStatus());
         }
 
         sale = saleRepository.saveAndFlush(sale);
+
+        // Nếu Sale đang active, cập nhật lại price_sell
+        if (sale.getStatus() == StatusSale.ACTIVE) {
+            updateProductDetailsPrice(sale, true);
+        }
+
         return saleMapper.toResponse(sale);
     }
 
-    @Override
-    public void delete(Integer id) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
-        saleRepository.delete(sale);
-    }
 
     @Override
     @Transactional
@@ -170,6 +202,17 @@ public class SaleServiceImpl implements SaleService {
             saleDetail.setSale(sale);
             saleDetail.setProductDetail(productDetail);
             saleDetailRepository.save(saleDetail);
+
+            // Nếu Sale đang active, cập nhật price_sell
+            if (sale.getStatus() == StatusSale.ACTIVE) {
+                BigDecimal priceSell = calculatePriceSell(
+                        productDetail.getPrice(),
+                        sale.getDiscountValue(),
+                        sale.getDiscountType()
+                );
+                productDetail.setPriceSell(priceSell);
+                productDetailRepository.save(productDetail);
+            }
         }
 
         // Bước 4: Trả về kết quả kèm thông tin
@@ -179,6 +222,20 @@ public class SaleServiceImpl implements SaleService {
         result.put("existing", existingIds);
 
         return result;
+    }
+
+    private BigDecimal calculatePriceSell(BigDecimal price, Integer discountValue, Boolean discountType) {
+        BigDecimal discountAmount;
+        if (discountType) {
+            // Giảm theo %
+            discountAmount = price.multiply(BigDecimal.valueOf(discountValue))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        } else {
+            // Giảm theo VND
+            discountAmount = BigDecimal.valueOf(discountValue);
+        }
+        BigDecimal newPriceSell = price.subtract(discountAmount);
+        return newPriceSell.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : newPriceSell;
     }
 
     @Override
@@ -198,11 +255,34 @@ public class SaleServiceImpl implements SaleService {
     @Override
     @Transactional
     public void deleteSaleDetails(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Danh sách ID không hợp lệ");
-        }
+        List<SaleDetail> saleDetails = saleDetailRepository.findAllById(ids);
+        List<ProductDetail> productDetails = saleDetails.stream()
+                .map(SaleDetail::getProductDetail)
+                .collect(Collectors.toList());
+
         saleDetailRepository.deleteAllByIdIn(ids);
+
+        for (ProductDetail pd : productDetails) {
+            List<SaleDetail> activeSales = saleDetailRepository.findByProductDetailIdAndSaleStatus(pd.getId(), StatusSale.ACTIVE);
+            if (activeSales.isEmpty()) {
+                pd.setPriceSell(pd.getPrice());
+            } else {
+                Sale activeSale = activeSales.get(0).getSale();
+                BigDecimal priceSell = calculatePriceSell(pd.getPrice(), activeSale.getDiscountValue(), activeSale.getDiscountType());
+                pd.setPriceSell(priceSell);
+            }
+            productDetailRepository.save(pd);
+        }
     }
+
+    // Có thể tạo một phương thức trong SaleServiceImpl
+//    @Transactional
+//    public void recalculateAllPriceSell() {
+//        List<Sale> activeSales = saleRepository.findByStatus(StatusSale.ACTIVE);
+//        for (Sale sale : activeSales) {
+//            updateProductDetailsPrice(sale, true);
+//        }
+//    }
 
 }
 

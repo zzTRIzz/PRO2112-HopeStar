@@ -63,3 +63,26 @@ export interface PaidBill {
   phone: string;
   totalPrice: number; // Added totalPrice property
 }
+
+export interface LowStockProduct {
+  maSP: string;
+  tenSP: string;
+  mauSac: string;
+  soLuong: number;
+  trangThai: string;
+}
+
+export interface TodayRevenue {
+  todayRevenue: number;
+  numberOfBills: number;
+}
+
+export interface MonthlyRevenue {
+  monthlyRevenue: number;
+  numberOfBills: number;
+}
+
+export interface DailyProductSale {
+  saleDate: string;
+  dailyQuantitySold: number;
+}
