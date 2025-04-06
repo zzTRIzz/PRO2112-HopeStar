@@ -47,6 +47,9 @@ interface Voucher {
     startTime: string;
     endTime: string;
     status: "UPCOMING" | "ACTIVE" | "EXPIRED";
+    description?: string;
+    isPrivate: boolean;  // true = riêng tư, false = công khai
+    maxDiscountAmount?: number; // Add this field for percentage vouchers
 }
 
 interface RoleResponse {
@@ -150,6 +153,7 @@ export default function VoucherUI() {
     const [formData, setFormData] = useState<Omit<Voucher, 'id'>>({
         code: '',
         name: '',
+        description: '',
         conditionPriceMin: 0,
         conditionPriceMax: 0,
         discountValue: 0,
@@ -157,7 +161,9 @@ export default function VoucherUI() {
         quantity: 0,
         startTime: '',
         endTime: '',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        isPrivate: false,  // Mặc định là công khai
+        maxDiscountAmount: 0,
     });
 
     // Thêm state để track chế độ edit/create
@@ -196,7 +202,10 @@ export default function VoucherUI() {
             quantity: voucher.quantity,
             startTime: voucher.startTime.split('.')[0], // Loại bỏ milliseconds
             endTime: voucher.endTime.split('.')[0],
-            status: voucher.status
+            status: voucher.status,
+            description: voucher.description,
+            isPrivate: voucher.isPrivate,
+            maxDiscountAmount: voucher.maxDiscountAmount || 0,
         });
         setShowModal(true);
     };
@@ -267,29 +276,24 @@ export default function VoucherUI() {
         }
 
         try {
-            // Chỉ kiểm tra mã trùng khi tạo mới
-            if (!isEditing) {
-                const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
-                    params: {
-                        code: formData.code.trim()
-                    }
-                });
+            // Tạo payload với đầy đủ thông tin
+            const payload = {
+                ...formData,
+                isPrivate: formData.isPrivate, // Đảm bảo gửi trường isPrivate
+            };
 
-                if (response.data) { // If code exists
-                    toast.error('Mã voucher đã tồn tại');
-                    return;
-                }
-            }
+            console.log('Sending data:', payload); // Debug log
 
-            // Proceed with saving
+            // Gọi API tương ứng
             if (isEditing && editId) {
-                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
+                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, payload);
                 toast.success('Cập nhật voucher thành công!');
             } else {
-                await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
+                await axios.post(`${API_BASE_URL}/admin/voucher`, payload);
                 toast.success('Tạo voucher mới thành công!');
             }
 
+            // Refresh data
             const newData = await getVouchers();
             setVouchers(newData);
             handleCloseModal();
@@ -314,7 +318,10 @@ export default function VoucherUI() {
             quantity: 0,
             startTime: '',
             endTime: '',
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            description: '',
+            isPrivate: false,
+            maxDiscountAmount: 0,
         });
     };
 
@@ -408,6 +415,15 @@ export default function VoucherUI() {
             setError(new Error(error.message || 'Có lỗi xảy ra khi tìm kiếm'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const refreshVouchers = async () => {
+        try {
+            const newData = await getVouchers();
+            setVouchers(newData);
+        } catch (error) {
+            console.error('Error refreshing vouchers:', error);
         }
     };
 
@@ -519,6 +535,7 @@ export default function VoucherUI() {
                                 <th className="p-3">Số Lượng</th>
                                 <th className="p-3">Thời Gian</th>
                                 <th className="p-3">Trạng Thái</th>
+                                <th className="p-3">Loại</th>
                                 <th className="p-3">Thao Tác</th>
                             </tr>
                         </thead>
@@ -554,6 +571,15 @@ export default function VoucherUI() {
                                                 );
                                             })()}
                                         </td>
+                                        <td className="p-3">
+                                            <span className={`px-2 py-1 rounded-full text-sm ${
+                                                voucher.isPrivate 
+                                                    ? 'bg-purple-100 text-purple-800' 
+                                                    : 'bg-green-100 text-green-800'
+                                            }`}>
+                                                {voucher.isPrivate ? 'Riêng tư' : 'Công khai'}
+                                            </span>
+                                        </td>
                                         <td className="p-3 space-x-2">
                                             <button
                                                 className="text-blue-600 hover:text-blue-800"
@@ -561,15 +587,17 @@ export default function VoucherUI() {
                                             >
                                                 Sửa
                                             </button>
-                                            <button
-                                                className="text-green-600 hover:text-green-800"
-                                                onClick={() => {
-                                                    setSelectedVoucher(voucher);
-                                                    setShowAssignModal(true);
-                                                }}
-                                            >
-                                                Thêm KH
-                                            </button>
+                                            {voucher.isPrivate && (
+                                                <button
+                                                    className="text-green-600 hover:text-green-800"
+                                                    onClick={() => {
+                                                        setSelectedVoucher(voucher);
+                                                        setShowAssignModal(true);
+                                                    }}
+                                                >
+                                                    Thêm KH
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -683,6 +711,31 @@ export default function VoucherUI() {
                                         </select>
                                     </div>
                                 </div>
+
+                                {/* Add maximum discount amount field when type is percentage */}
+                                {formData.voucherType && (
+                                    <div>
+                                        <label className="block mb-1">Giảm tối đa</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                className="w-full p-2 border rounded"
+                                                value={formData.maxDiscountAmount === 0 ? '' : formData.maxDiscountAmount}
+                                                onChange={(e) => setFormData({ 
+                                                    ...formData, 
+                                                    maxDiscountAmount: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                })}
+                                                min="0"
+                                                placeholder="Nhập số tiền giảm tối đa"
+                                            />
+                                            <span className="p-2 border rounded bg-gray-50">VNĐ</span>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            Giá trị giảm tối đa khi áp dụng phần trăm
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block mb-1">Giá tối thiểu</label>
@@ -749,6 +802,53 @@ export default function VoucherUI() {
                                         />
                                     </div>
                                 </div>
+                                <div>
+                                    <label className="block mb-1">
+                                        Mô tả 
+                                        <span className="text-sm text-gray-500 ml-1">(không bắt buộc)</span>
+                                    </label>
+                                    <textarea
+                                        className="w-full p-2 border rounded min-h-[100px]"
+                                        value={formData.description || ''}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        placeholder="Nhập mô tả cho voucher..."
+                                    />
+                                </div>
+
+                                {/* Add privacy setting */}
+                                <div>
+                                    <label className="block mb-1">Loại voucher</label>
+                                    <div className="space-y-2">
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                checked={!formData.isPrivate}
+                                                onChange={() => setFormData({ ...formData, isPrivate: false })}
+                                                className="rounded"
+                                            />
+                                            <span>
+                                                Công khai
+                                                <span className="text-sm text-gray-500 ml-1">
+                                                    (Áp dụng cho tất cả khách hàng đủ điều kiện)
+                                                </span>
+                                            </span>
+                                        </label>
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                checked={formData.isPrivate}
+                                                onChange={() => setFormData({ ...formData, isPrivate: true })}
+                                                className="rounded"
+                                            />
+                                            <span>
+                                                Riêng tư
+                                                <span className="text-sm text-gray-500 ml-1">
+                                                    (Chỉ áp dụng cho khách hàng được chỉ định)
+                                                </span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex justify-end gap-2 mt-6">
                                 <button
@@ -769,13 +869,14 @@ export default function VoucherUI() {
                     </div>
                 </div>
             )}
-            {showAssignModal && selectedVoucher && (
+            {showAssignModal && selectedVoucher && selectedVoucher.isPrivate && (
                 <AssignVoucherModal
                     voucher={selectedVoucher}
                     onClose={() => {
                         setShowAssignModal(false);
                         setSelectedVoucher(null);
                     }}
+                    onRefresh={refreshVouchers} // Add this prop
                 />
             )}
             <ToastContainer
@@ -793,7 +894,15 @@ export default function VoucherUI() {
     )
 }
 
-const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: () => void }) => {
+// Add interface for props
+interface AssignVoucherModalProps {
+    voucher: Voucher;
+    onClose: () => void;
+    onRefresh: () => void; // Add new prop for refreshing
+}
+
+// Update the AssignVoucherModal component
+const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalProps) => {
     const [accounts, setAccounts] = useState<AccountResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -845,23 +954,21 @@ const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: (
 
         try {
             setLoading(true);
+            const selectedCustomers = accounts.filter(account => 
+                selectedAccounts.includes(account.id)
+            );
             
-            // Tạo mảng chứa thông tin khách hàng đã chọn
-            const selectedCustomers = accounts.filter(account => selectedAccounts.includes(account.id));
-            
-            // Gọi API để gán voucher - Sửa lại endpoint
             const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
                 voucherId: voucher.id,
                 customerIds: selectedCustomers.map(customer => customer.id)
             });
 
             const result = response.data;
-            console.log('Kết quả:', result);
 
-            // Xử lý kết quả từ API
             if (result.success) {
-                // Thành công
                 toast.success('Thêm voucher và gửi mail thành công');
+                onRefresh(); // Call the refresh function from props
+                onClose();
             } else {
                 // Kiểm tra các trường hợp thất bại
                 if (result.details?.alreadyHasVoucher?.length > 0) {
@@ -873,6 +980,7 @@ const AssignVoucherModal = ({ voucher, onClose }: { voucher: Voucher; onClose: (
                     toast.success(
                         `Đã thêm voucher và gửi mail thành công cho: ${result.details.assigned.join(', ')}`
                     );
+                    onRefresh(); // Call the refresh function from props
                 }
                 if (result.message && !result.details?.alreadyHasVoucher?.length) {
                     toast.warning(result.message);
