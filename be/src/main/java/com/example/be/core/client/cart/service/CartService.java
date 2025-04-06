@@ -8,4 +8,5 @@ public interface CartService {
     CartResponse getCart(Account account);
     CartResponse getOrCreateGuestCart(String guestCartId);
     Object addToCart(AddToCartRequest request, Account account, String guestCartId) throws Exception;
+    void mergeGuestCartToAccount(String guestCartId,Account account);
 }

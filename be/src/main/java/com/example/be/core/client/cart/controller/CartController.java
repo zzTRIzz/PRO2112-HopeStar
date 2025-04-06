@@ -47,7 +47,7 @@ public class CartController {
             ResponseCookie cookie = ResponseCookie.from("guest_cart_id", cartId)
                     .httpOnly(true)
                     .secure(false)
-                    .maxAge(30 * 24 * 60 * 60) // 30 ngày
+                    .maxAge(29 * 24 * 60 * 60) // 29 ngày
                     .path("/")
                     .build();
 
@@ -74,31 +74,38 @@ public class CartController {
     }
 
     @PutMapping("/cart-detail/update/{itemId}")
-    public ResponseData<?> updateCartDetail(@RequestHeader("Authorization") String jwt,
+    public ResponseData<?> updateCartDetail(@RequestHeader(value = "Authorization", required = false) String jwt,
                                             @PathVariable("itemId") Integer id,
                                             @RequestBody CartDetailRequest cartDetailRequest) throws Exception {
 
-        authService.findAccountByJwt(jwt);
+        if (jwt !=null) {
+            authService.findAccountByJwt(jwt);
+        }
         Object o = cartDetailService.updateQuantityCartDetail(id,cartDetailRequest);
         return new ResponseData<>(HttpStatus.ACCEPTED,"ok",o);
 
     }
 
     @DeleteMapping("/cart-detail/delete/{itemId}")
-    public ResponseData<?> deleteCartDetail(@RequestHeader("Authorization") String jwt,
+    public ResponseData<?> deleteCartDetail(@RequestHeader(value = "Authorization", required = false) String jwt,
                                             @PathVariable("itemId") Integer id) throws Exception {
 
-        authService.findAccountByJwt(jwt);
+        if (jwt !=null) {
+            authService.findAccountByJwt(jwt);
+        }
         Object o = cartDetailService.deleteCartDetail(id);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }
 
     @PostMapping("/order")
-    public ResponseData<?> order(@RequestHeader("Authorization") String jwt,
+    public ResponseData<?> order(@RequestHeader(value = "Authorization", required = false) String jwt,
                                  @RequestBody OrderRequest orderRequest) throws Exception {
 
-        Account account = authService.findAccountByJwt(jwt);
+        Account account = null;
+        if (jwt !=null) {
+            account = authService.findAccountByJwt(jwt);
+        }
         Object o = orderService.order(orderRequest,account);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 

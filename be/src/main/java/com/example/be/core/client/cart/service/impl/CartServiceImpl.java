@@ -12,11 +12,15 @@ import com.example.be.entity.status.StatusCartDetail;
 import com.example.be.repository.CartDetailRepository;
 import com.example.be.repository.ProductDetailRepository;
 import com.example.be.repository.ShoppingCartRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -82,22 +86,24 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new RuntimeException("Product detail not found"));
 
         // Check if product already exists in cart
-        CartDetail existingItem = cartDetailRepository
+        CartDetail existingDetail = cartDetailRepository
                 .findCartDetailByIdShoppingCartAndStatusAndAndIdProductDetail(cart, StatusCartDetail.pending, productDetail);
+        if (request.getQuantity()>productDetail.getInventoryQuantity()){
+            throw new Exception("Sản phẩm bạn thêm chỉ còn: "+productDetail.getInventoryQuantity());
+        }
+        if (existingDetail != null) {
 
-        if (existingItem != null) {
-
-            if ((request.getQuantity()+existingItem.getQuantity())>productDetail.getInventoryQuantity()){
-                throw new Exception("Sản phảm bạn thêm chỉ còn: "+productDetail.getInventoryQuantity()+" Giỏ hàng đã có: "+existingItem.getQuantity());
+            if ((request.getQuantity()+existingDetail.getQuantity())>productDetail.getInventoryQuantity()){
+                throw new Exception("Sản phẩm bạn thêm chỉ còn: "+productDetail.getInventoryQuantity()+" Giỏ hàng đã có: "+existingDetail.getQuantity());
             }
 
-            Integer sum = request.getQuantity() + existingItem.getQuantity();
+            Integer sum = request.getQuantity() + existingDetail.getQuantity();
             if (sum > 5){
-                throw new Exception("Sản phảm thêm tối đa là 5. Giỏ hàng đã có: "+existingItem.getQuantity());
+                throw new Exception("Sản phẩm thêm tối đa là 5. Giỏ hàng đã có: "+existingDetail.getQuantity());
             }
 
-            existingItem.setQuantity(existingItem.getQuantity() + 1);
-            cartDetailRepository.save(existingItem);
+            existingDetail.setQuantity(existingDetail.getQuantity() + 1);
+            cartDetailRepository.save(existingDetail);
         } else {
             CartDetail cartDetail = new CartDetail();
             cartDetail.setIdShoppingCart(cart);
@@ -109,4 +115,55 @@ public class CartServiceImpl implements CartService {
 
         return "Product added to cart successfully";
     }
+
+    @Override
+    @Transactional
+    public void mergeGuestCartToAccount(String guestCartId, Account account) {
+        ShoppingCart guestCart = shoppingCartRepository.findShoppingCartByGuestId(guestCartId).get();
+        ShoppingCart userCart = shoppingCartRepository.findShoppingCartByIdAccount(account);
+        List<CartDetail> cartDetailGuest = cartDetailRepository.findCartDetailByIdShoppingCartAndStatus(guestCart, StatusCartDetail.pending);
+        List<CartDetail> cartDetailUser = cartDetailRepository.findCartDetailByIdShoppingCartAndStatus(userCart, StatusCartDetail.pending);
+        //hop nhat
+        for (CartDetail guestDetail : cartDetailGuest) {
+
+            // Kiểm tra nếu sản phẩm đã có trong giỏ hàng thì cộng dồn số lượng
+            Optional<CartDetail> existingDetail = cartDetailUser.stream()
+                    .filter(item -> item.getIdProductDetail().getId().equals(guestDetail.getIdProductDetail().getId()))
+                    .findFirst();
+
+            if (existingDetail.isPresent()) {
+                existingDetail.get().setQuantity(existingDetail.get().getQuantity() + guestDetail.getQuantity());
+            } else {
+                CartDetail newDetail = new CartDetail();
+                newDetail.setIdShoppingCart(userCart);
+                newDetail.setIdProductDetail(guestDetail.getIdProductDetail());
+                newDetail.setQuantity(guestDetail.getQuantity());
+                newDetail.setStatus(StatusCartDetail.pending);
+                cartDetailRepository.save(newDetail);
+            }
+        }
+        cartDetailRepository.deleteCartDetailByIdShoppingCart(guestCart);
+
+        shoppingCartRepository.delete(guestCart);
+
+    }
+
+    @Scheduled(cron = "0 0 3 * * ?") // 3h sáng hàng ngày
+    @Transactional
+    public void cleanupOldGuestCarts() {
+        // 1. Tìm tất cả guest cart cũ (30 ngày)
+        List<ShoppingCart> oldCarts = shoppingCartRepository.findByGuestIdIsNotNullAndCreatedAtBefore(
+                LocalDateTime.now().minusDays(30)
+        );
+
+        // 2. Xóa cart-detail trước
+        for (ShoppingCart cart : oldCarts) {
+            cartDetailRepository.deleteCartDetailByIdShoppingCart(cart);
+        }
+
+        // 3. Sau đó xóa cart
+        shoppingCartRepository.deleteAll(oldCarts);
+
+    }
+
 }

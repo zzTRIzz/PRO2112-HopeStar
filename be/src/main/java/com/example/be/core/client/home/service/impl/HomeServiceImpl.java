@@ -32,14 +32,19 @@ public class HomeServiceImpl implements HomeService {
         List<ProductViewResponse> bestSellingProducts = new ArrayList<>();
         for (Product product:products) {
             ProductViewResponse productViewResponse = new ProductViewResponse();
-            productViewResponse.setIdProduct(product.getId());
-            productViewResponse.setName(product.getName());
+
 
             List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
 
+            List<ProductDetail> availableProducts = productDetailList.stream()
+                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
+                    .collect(Collectors.toList());
+
             ProductDetail productDetail = new ProductDetail();
-            if (productDetailList.size() !=0){
-                productDetail = productDetailList.get(0);
+            if (availableProducts.size() !=0 && !availableProducts.isEmpty()){
+                productDetail = availableProducts.get(0);
+                productViewResponse.setIdProduct(product.getId());
+                productViewResponse.setName(product.getName());
                 productViewResponse.setIdProductDetail(productDetail.getId());
                 productViewResponse.setPrice(productDetail.getPrice());
                 productViewResponse.setPriceSeller(productDetail.getPriceSell());
@@ -70,23 +75,23 @@ public class HomeServiceImpl implements HomeService {
                 productViewResponse.setRam(uniqueRamCapacities);
                 productViewResponse.setRom(uniqueRomCapacities);
                 productViewResponse.setHex(uniqueColorHex);
+                newestProducts.add(productViewResponse);
             }
-
-
-            newestProducts.add(productViewResponse);
         }
 
 
         for (Product product:products2) {
             ProductViewResponse productViewResponse = new ProductViewResponse();
-            productViewResponse.setIdProduct(product.getId());
-            productViewResponse.setName(product.getName());
 
             List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
-
+            List<ProductDetail> availableProducts = productDetailList.stream()
+                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
+                    .collect(Collectors.toList());
             ProductDetail productDetail = new ProductDetail();
-            if (productDetailList.size() !=0){
-                productDetail = productDetailList.get(0);
+            if (availableProducts.size() !=0 && !availableProducts.isEmpty()){
+                productDetail = availableProducts.get(0);
+                productViewResponse.setIdProduct(product.getId());
+                productViewResponse.setName(product.getName());
                 productViewResponse.setIdProductDetail(productDetail.getId());
                 productViewResponse.setPrice(productDetail.getPrice());
                 productViewResponse.setPriceSeller(productDetail.getPriceSell());
@@ -117,10 +122,8 @@ public class HomeServiceImpl implements HomeService {
                 productViewResponse.setRam(uniqueRamCapacities);
                 productViewResponse.setRom(uniqueRomCapacities);
                 productViewResponse.setHex(uniqueColorHex);
+                bestSellingProducts.add(productViewResponse);
             }
-
-
-            bestSellingProducts.add(productViewResponse);
         }
 
         ProductViewResponseAll productViewResponseAll = new ProductViewResponseAll();
@@ -136,7 +139,9 @@ public class HomeServiceImpl implements HomeService {
                 .orElseThrow(() -> new Exception("Product not found with id: " + idProduct));
 
         // Lấy danh sách ProductDetail liên quan đến sản phẩm
-        List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
+        List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product).stream()
+                .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
+                .collect(Collectors.toList());
 
         // Tạo đối tượng ProductDetailViewResponse
         ProductDetailViewResponse response = new ProductDetailViewResponse();
