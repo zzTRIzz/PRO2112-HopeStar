@@ -40,6 +40,9 @@ public class Voucher extends AuditEntity {
     @Column(name = "discount_value")
     private BigDecimal discountValue;
 
+    @Column(name = "max_discount_amount", precision = 24, scale = 2)
+    private BigDecimal maxDiscountAmount;
+
     @Column(name = "voucher_type")
     private Boolean voucherType;
 
@@ -55,5 +58,10 @@ public class Voucher extends AuditEntity {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private StatusVoucher status;
+    @Column(name = "moTa")
+    @Size(max = 1000)
+    private String moTa;
 
+    @Column(name = "is_private")
+    private Boolean isPrivate = false;
 }

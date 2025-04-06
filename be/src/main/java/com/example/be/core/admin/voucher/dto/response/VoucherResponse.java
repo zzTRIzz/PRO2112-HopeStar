@@ -14,9 +14,13 @@ public class VoucherResponse {
     private BigDecimal conditionPriceMin;
     private BigDecimal conditionPriceMax;
     private BigDecimal discountValue;
+    private BigDecimal maxDiscountAmount;
     private Boolean voucherType;
     private Integer quantity;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private StatusVoucher status;
+    private String moTa;
+    private Boolean isPrivate = false;
+    private Boolean isApply = false;// Added isPrivate with default false
 }
