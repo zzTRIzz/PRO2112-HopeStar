@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
     getVouchers, 
     searchVoucherByCode, 
@@ -418,14 +418,26 @@ export default function VoucherUI() {
         }
     };
 
-    const refreshVouchers = async () => {
+    const refreshVouchers = useCallback(async () => {
         try {
+            setLoading(true); // Add loading state
             const newData = await getVouchers();
             setVouchers(newData);
+            console.log('Vouchers refreshed:', newData);
         } catch (error) {
             console.error('Error refreshing vouchers:', error);
+            toast.error('Không thể cập nhật danh sách voucher');
+        } finally {
+            setLoading(false); // Reset loading state
         }
-    };
+    }, []);
+
+    // Update the modal closing handler
+    const closeAssignModal = useCallback(async () => {
+        setShowAssignModal(false);
+        setSelectedVoucher(null);
+        await refreshVouchers(); // Ensure data is refreshed when modal closes
+    }, [refreshVouchers]);
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -540,7 +552,7 @@ export default function VoucherUI() {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentItems.length > 0 ? (
+                        {currentItems.length > 0 ? (
                                 currentItems.map((voucher, index) => (
                                     <tr key={voucher.id} className="border-t hover:bg-gray-50">
                                         <td className="p-3">
@@ -872,11 +884,8 @@ export default function VoucherUI() {
             {showAssignModal && selectedVoucher && selectedVoucher.isPrivate && (
                 <AssignVoucherModal
                     voucher={selectedVoucher}
-                    onClose={() => {
-                        setShowAssignModal(false);
-                        setSelectedVoucher(null);
-                    }}
-                    onRefresh={refreshVouchers} // Add this prop
+                    onClose={closeAssignModal}
+                    onRefresh={refreshVouchers}
                 />
             )}
             <ToastContainer
@@ -967,10 +976,10 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
 
             if (result.success) {
                 toast.success('Thêm voucher và gửi mail thành công');
-                onRefresh(); // Call the refresh function from props
+                // Immediately refresh data and close modal
+                await onRefresh();
                 onClose();
             } else {
-                // Kiểm tra các trường hợp thất bại
                 if (result.details?.alreadyHasVoucher?.length > 0) {
                     toast.warning(
                         `Các tài khoản sau đã có voucher: ${result.details.alreadyHasVoucher.join(', ')}`
@@ -980,10 +989,9 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                     toast.success(
                         `Đã thêm voucher và gửi mail thành công cho: ${result.details.assigned.join(', ')}`
                     );
-                    onRefresh(); // Call the refresh function from props
-                }
-                if (result.message && !result.details?.alreadyHasVoucher?.length) {
-                    toast.warning(result.message);
+                    // Refresh even on partial success
+                    await onRefresh();
+                    onClose();
                 }
             }
 
