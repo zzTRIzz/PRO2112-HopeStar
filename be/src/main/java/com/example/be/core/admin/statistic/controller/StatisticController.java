@@ -1,11 +1,12 @@
 package com.example.be.core.admin.statistic.controller;
 
-import com.example.be.core.admin.statistic.dto.response.*;
-import com.example.be.core.admin.statistic.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+        import com.example.be.core.admin.statistic.dto.response.*;
+        import com.example.be.core.admin.statistic.service.StatisticService;
+        import lombok.RequiredArgsConstructor;
+        import org.springframework.http.ResponseEntity;
+        import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+        import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -68,8 +69,32 @@ public class StatisticController {
         return statisticService.getTotalPaidOrders();
     }
 
+    //Sản phẩm bán chạy
     @GetMapping("/best-selling-products")
     public List<BestSellingProductResponse> getBestSellingProducts() {
         return statisticService.getBestSellingProducts();
     }
+    //Doanh thu hôm nay
+    @GetMapping("/revenue/today")
+    public TodayRevenueResponse getTodayRevenue() {
+        return statisticService.getTodayRevenue();
+    }
+
+    // Doanh thu tháng này
+    @GetMapping("/revenue/monthly")
+    public MonthlyRevenueResponse getMonthlyRevenue() {
+        return statisticService.getMonthlyRevenue();
+    }
+
+    //Sản phẩm bán tháng này
+    @GetMapping("/monthly-product-sales")
+    public List<ProductSalesResponse> getMonthlyProductSales() {
+        return statisticService.getMonthlyProductSales();
+    }
+
+    @GetMapping("/low-stock-products")
+    public List<LowStockProductResponse> getLowStockProducts() {
+        return statisticService.getLowStockProducts();
+    }
+
 }

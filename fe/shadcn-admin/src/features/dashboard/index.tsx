@@ -8,6 +8,8 @@ import { OrderCountChart } from './components/order-count-chart';
 import { RevenueByProductChart } from './components/revenue-by-product-chart';
 import { BestSellingProductsChart } from './components/best-selling-products-chart';
 import { PaidBillsTable } from './components/paid-bills-table';
+import { LowStockTable } from './components/low-stock-table';
+import { StatsCards } from './components/stats-cards';
 import type { ViewMode } from './types';
 
 export default function Dashboard() {
@@ -27,6 +29,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6">
+      <StatsCards />
       {/* Metrics Section */}
       <Row gutter={16}>
         <Col span={8}>
@@ -75,6 +78,8 @@ export default function Dashboard() {
       <Card title="Hóa đơn đã thanh toán">
         <PaidBillsTable />
       </Card>
+
+      <LowStockTable />
     </div>
   );
 }

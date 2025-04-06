@@ -5,13 +5,36 @@ import { getBestSellingProducts } from '../api/statisticsApi';
 import { BestSellingProduct } from '../types';
 
 export const BestSellingProductsChart = () => {
-  const { data } = useQuery<BestSellingProduct[]>({
+  const { data: rawData } = useQuery<BestSellingProduct[]>({
     queryKey: ['best-selling'],
     queryFn: getBestSellingProducts
   });
 
+  const data = React.useMemo(() => {
+    if (!rawData || rawData.length === 0) return [];
+    
+    // Gộp số lượng các sản phẩm có tên giống nhau
+    const groupedData = rawData.reduce((acc, item) => {
+      if (!acc[item.name]) {
+        acc[item.name] = {
+          name: item.name,
+          totalQuantity: 0,
+          code: item.code // Giữ lại mã của sản phẩm đầu tiên
+        };
+      }
+      acc[item.name].totalQuantity += item.totalQuantity;
+      return acc;
+    }, {} as Record<string, {name: string; totalQuantity: number; code: string}>);
+
+    // Chuyển object thành array và sắp xếp theo số lượng giảm dần
+    return Object.values(groupedData)
+      .sort((a, b) => b.totalQuantity - a.totalQuantity)
+      // Chỉ lấy top 10 sản phẩm bán chạy nhất
+      .slice(0, 10);
+  }, [rawData]);
+
   const config = {
-    data: data || [],
+    data,
     xField: 'name',
     yField: 'totalQuantity',
     label: {
@@ -76,15 +99,15 @@ export const BestSellingProductsChart = () => {
       fill: 'l(270) 0:#1890ff 1:#1890ff',
     },
     tooltip: {
-      title: 'date',
+      title: 'name',
       customItems: (originalItems: any[]) => {
         return originalItems.map(item => ({
           ...item,
-          name: 'Sản phẩm',
-          value: `${item.data.name || ''}\nMã SP: ${item.data.code || ''}\nĐã bán: ${item.value || 0} sản phẩm`
+          name: 'Chi tiết',
+          value: `${item.name}\nMã SP: ${item.code}\nĐã bán: ${item.totalQuantity} sản phẩm`
         }));
       }
-    },
+    }
   };
 
   return (
