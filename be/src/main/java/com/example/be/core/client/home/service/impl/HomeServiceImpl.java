@@ -25,111 +25,66 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public ProductViewResponseAll getProductView() {
 
-        List<Product> products = productRepository.findTop10ByStatusOrderByCreatedAtDesc(StatusCommon.ACTIVE);
+        List<Product> products = productRepository.findByStatusOrderByCreatedAtDesc(StatusCommon.ACTIVE);
         List<Product> products2 = productRepository.findTop10SellingProducts(StatusCommon.ACTIVE);
 
-        List<ProductViewResponse> newestProducts = new ArrayList<>();
-        List<ProductViewResponse> bestSellingProducts = new ArrayList<>();
-        for (Product product:products) {
-            ProductViewResponse productViewResponse = new ProductViewResponse();
-
-
-            List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
-
-            List<ProductDetail> availableProducts = productDetailList.stream()
-                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
-                    .collect(Collectors.toList());
-
-            ProductDetail productDetail = new ProductDetail();
-            if (availableProducts.size() !=0 && !availableProducts.isEmpty()){
-                productDetail = availableProducts.get(0);
-                productViewResponse.setIdProduct(product.getId());
-                productViewResponse.setName(product.getName());
-                productViewResponse.setIdProductDetail(productDetail.getId());
-                productViewResponse.setPrice(productDetail.getPrice());
-                productViewResponse.setPriceSeller(productDetail.getPriceSell());
-                productViewResponse.setImage(productDetail.getImageUrl());
-                // Lấy danh sách capacity duy nhất
-                List<Integer> uniqueRamCapacities = productDetailList.stream()
-                        .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
-                        .map(pd -> pd.getRam().getCapacity())      // Lấy capacity từ Ram
-                        .filter(Objects::nonNull)                  // Loại bỏ capacity null
-                        .distinct()                                // Chỉ giữ giá trị duy nhất
-                        .collect(Collectors.toList());
-
-                List<Integer> uniqueRomCapacities = productDetailList.stream()
-                        .filter(pd -> pd.getRom() != null)
-                        .map(pd -> pd.getRom().getCapacity())
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-                List<String> uniqueColorHex = productDetailList.stream()
-                        .filter(pd -> pd.getColor() != null)
-                        .map(pd -> pd.getColor().getHex())
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-
-                productViewResponse.setRam(uniqueRamCapacities);
-                productViewResponse.setRom(uniqueRomCapacities);
-                productViewResponse.setHex(uniqueColorHex);
-                newestProducts.add(productViewResponse);
-            }
-        }
-
-
-        for (Product product:products2) {
-            ProductViewResponse productViewResponse = new ProductViewResponse();
-
-            List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
-            List<ProductDetail> availableProducts = productDetailList.stream()
-                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
-                    .collect(Collectors.toList());
-            ProductDetail productDetail = new ProductDetail();
-            if (availableProducts.size() !=0 && !availableProducts.isEmpty()){
-                productDetail = availableProducts.get(0);
-                productViewResponse.setIdProduct(product.getId());
-                productViewResponse.setName(product.getName());
-                productViewResponse.setIdProductDetail(productDetail.getId());
-                productViewResponse.setPrice(productDetail.getPrice());
-                productViewResponse.setPriceSeller(productDetail.getPriceSell());
-                productViewResponse.setImage(productDetail.getImageUrl());
-                // Lấy danh sách capacity duy nhất
-                List<Integer> uniqueRamCapacities = productDetailList.stream()
-                        .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
-                        .map(pd -> pd.getRam().getCapacity())      // Lấy capacity từ Ram
-                        .filter(Objects::nonNull)                  // Loại bỏ capacity null
-                        .distinct()                                // Chỉ giữ giá trị duy nhất
-                        .collect(Collectors.toList());
-
-                List<Integer> uniqueRomCapacities = productDetailList.stream()
-                        .filter(pd -> pd.getRom() != null)
-                        .map(pd -> pd.getRom().getCapacity())
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-                List<String> uniqueColorHex = productDetailList.stream()
-                        .filter(pd -> pd.getColor() != null)
-                        .map(pd -> pd.getColor().getHex())
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-
-                productViewResponse.setRam(uniqueRamCapacities);
-                productViewResponse.setRom(uniqueRomCapacities);
-                productViewResponse.setHex(uniqueColorHex);
-                bestSellingProducts.add(productViewResponse);
-            }
-        }
+        List<ProductViewResponse> newestProducts = handlerProductView(products);
+        List<ProductViewResponse> bestSellingProducts = handlerProductView(products2);
 
         ProductViewResponseAll productViewResponseAll = new ProductViewResponseAll();
         productViewResponseAll.setNewestProducts(newestProducts);
         productViewResponseAll.setBestSellingProducts(bestSellingProducts);
         return productViewResponseAll;
+    }
+
+    public List<ProductViewResponse> handlerProductView(List<Product> products){
+        List<ProductViewResponse> productViewResponseList = new ArrayList<>();
+        for (Product product:products) {
+            ProductViewResponse productViewResponse = new ProductViewResponse();
+
+            List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
+            List<ProductDetail> availableProducts = productDetailList.stream()
+                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
+                    .collect(Collectors.toList());
+            ProductDetail productDetail;
+            if (availableProducts.size() !=0){
+                productDetail = availableProducts.get(0);
+                productViewResponse.setIdProduct(product.getId());
+                productViewResponse.setName(product.getName());
+                productViewResponse.setIdProductDetail(productDetail.getId());
+                productViewResponse.setPrice(productDetail.getPrice());
+                productViewResponse.setPriceSeller(productDetail.getPriceSell());
+                productViewResponse.setImage(productDetail.getImageUrl());
+                // Lấy danh sách capacity duy nhất
+                List<Integer> uniqueRamCapacities = productDetailList.stream()
+                        .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
+                        .map(pd -> pd.getRam().getCapacity())      // Lấy capacity từ Ram
+                        .filter(Objects::nonNull)                  // Loại bỏ capacity null
+                        .distinct()                                // Chỉ giữ giá trị duy nhất
+                        .collect(Collectors.toList());
+
+                List<Integer> uniqueRomCapacities = productDetailList.stream()
+                        .filter(pd -> pd.getRom() != null)
+                        .map(pd -> pd.getRom().getCapacity())
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                List<String> uniqueColorHex = productDetailList.stream()
+                        .filter(pd -> pd.getColor() != null)
+                        .map(pd -> pd.getColor().getHex())
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+
+                productViewResponse.setRam(uniqueRamCapacities);
+                productViewResponse.setRom(uniqueRomCapacities);
+                productViewResponse.setHex(uniqueColorHex);
+                productViewResponseList.add(productViewResponse);
+            }
+        }
+        return productViewResponseList;
     }
 
     @Override

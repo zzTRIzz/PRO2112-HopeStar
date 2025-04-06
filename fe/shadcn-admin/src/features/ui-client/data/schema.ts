@@ -1,4 +1,3 @@
-import { addToCartRequest } from './schema';
 import { z } from 'zod'
 
 // Schema cho Profile
@@ -77,7 +76,6 @@ export const productDetailViewResponseSchema = z.object({
   defaultProductDetail: productDetailInfoSchema.optional(),
 })
 
-
 // Types
 export type Profile = z.infer<typeof accountResponseSchema>
 export type productViewResponse = z.infer<typeof productViewResponseSchema>
@@ -88,7 +86,6 @@ export type ProductViewResponseAll = z.infer<
   typeof productViewResponseAllSchema
 >
 
-
 // Schema cho CartDetail
 export const cartDetailResponseSchema = z.object({
   id: z.number(),
@@ -98,16 +95,36 @@ export const cartDetailResponseSchema = z.object({
   rom: z.string(),
   color: z.string(),
   price: z.number(),
-  image:z.string(),
-  priceSell: z.number()
+  image: z.string(),
+  priceSell: z.number(),
 })
 
 // Schema cho Cart
 export const cartResponseSchema = z.object({
   quantityCartDetail: z.number(),
-  cartDetailResponseList: z.array(cartDetailResponseSchema)
+  cartDetailResponseList: z.array(cartDetailResponseSchema),
 })
 export type CartDetailResponse = z.infer<typeof cartDetailResponseSchema>
 export type CartResponse = z.infer<typeof cartResponseSchema>
 
+export interface PhoneFilterRequest {
+  // Price range
+  minPrice?: number
+  maxPrice?: number
 
+  // Sort options
+  sortBy?: 'price' | 'views' | 'promotion'
+  sortDirection?: 'asc' | 'desc'
+
+  // Filter attributes
+  nfc?: boolean
+  usageType?: string[] // ["gaming", "battery", "performance", "slim"]
+  phoneType?: string[] // ["ios", "android", "feature"]
+  brandIds?: number[]
+  chipIds?: number[]
+  ramRange?: string[] // ["<4GB", "4GB-6GB", "8GB-12GB", ">16GB"]
+  romRange?: string[] // ["<32GB", "32GB-64GB", "128GB-256GB", ">512GB"]
+  screenType?: string[] // ["AMOLED", "IPS LCD", etc]
+  refreshRate?: number[] // [60, 90, 120, 144]
+  screenSize?: string[] // ["<6", ">=6"]
+}
