@@ -1,13 +1,12 @@
 package com.example.be.core.client.home.controller;
 
+import com.example.be.core.client.home.dto.request.PhoneFilterRequest;
 import com.example.be.core.client.home.dto.response.ProductDetailViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponseAll;
 import com.example.be.core.client.home.service.HomeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +26,10 @@ public class HomeController {
 
         return homeService.getProductDetailView(id);
 
+    }
+
+    @GetMapping("/search")
+    public List<ProductViewResponse> filterPhone(@ModelAttribute PhoneFilterRequest filterRequest){
+        return homeService.phoneFilter(filterRequest);
     }
 }

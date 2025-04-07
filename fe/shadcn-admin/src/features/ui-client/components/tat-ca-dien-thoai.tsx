@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { IconLoader2 } from '@tabler/icons-react'
 import { Heart, Star } from 'lucide-react'
-import { getHome } from '../data/api-service'
+import { getHome, searchPhones } from '../data/api-service'
 import { productViewResponse } from '../data/schema'
 import { Breadcrumb } from '../pages/breadcrumb'
-import BoLocDienThoai from './bo-loc-dien-thoai'
+import BoLocDienThoai, { PhoneFilterRequest } from './bo-loc-dien-thoai'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
@@ -16,26 +16,61 @@ export default function TatCaDienThoai() {
   const [error, setError] = useState<Error | null>(null)
   const [displayLimit, setDisplayLimit] = useState(20)
 
-  useEffect(() => {
-    const fetchHome = async () => {
-      try {
+  // Add state to track if filters are active
+  const [isFiltered, setIsFiltered] = useState(false)
+
+  const handleFilterChange = async (filters: PhoneFilterRequest) => {
+    try {
+      // Check if any filter is active
+      const hasActiveFilters =
+        filters.priceStart !== 0 ||
+        filters.priceEnd !== 50000000 ||
+        filters.brand ||
+        filters.chip ||
+        filters.category ||
+        filters.os ||
+        filters.priceMax ||
+        filters.priceMin ||
+        filters.productSale
+
+      setIsFiltered(hasActiveFilters)
+
+      if (!hasActiveFilters) {
+        // If no filters active, fetch home data
         const data = await getHome()
         setProducts(data.newestProducts)
-      } catch (error) {
-        setError(error as Error)
-      } finally {
-        setLoading(false)
+      } else {
+        // Otherwise fetch filtered data
+        const data = await searchPhones(filters)
+        setProducts(data)
       }
+    } catch (error) {
+      setError(error as Error)
+    } finally {
+      setLoading(false)
     }
-    fetchHome()
-  }, [])
+  }
 
-  if (loading)
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <IconLoader2 className='h-8 w-8 animate-spin' />
-      </div>
-    )
+  // useEffect(() => {
+  //   const fetchHome = async () => {
+  //     try {
+  //       const data = await getHome()
+  //       setProducts(data.newestProducts)
+  //     } catch (error) {
+  //       setError(error as Error)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+  //   fetchHome()
+  // }, [])
+
+  // if (loading)
+  //   return (
+  //     <div className='flex h-full items-center justify-center'>
+  //       <IconLoader2 className='h-8 w-8 animate-spin' />
+  //     </div>
+  //   )
 
   if (error)
     return (
@@ -46,15 +81,9 @@ export default function TatCaDienThoai() {
 
   return (
     <>
-      <Breadcrumb
-        items={[
-          {
-            label: 'Điện thoại',
-          },
-        ]}
-      />
+      <Breadcrumb items={[{ label: 'Điện thoại' }]} />
       <section className='container py-2'>
-        <BoLocDienThoai />
+        <BoLocDienThoai onFilterChange={handleFilterChange} />
         <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
           {products?.length > 0 ? (
             products.slice(0, displayLimit).map((product) => (

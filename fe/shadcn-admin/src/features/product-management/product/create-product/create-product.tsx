@@ -3,28 +3,27 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { BeatLoader } from 'react-spinners'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import {
+  createProduct,
   getBatteryActive,
   getBluetoothActive,
   getBrandActive,
   getCardActive,
   getCategoryActive,
   getChipActive,
+  getColorActive,
   getFrontCameraActive,
   getOsActive,
+  getRamActive,
   getRearCameraActive,
+  getRomActive,
+  getScreenActive,
   getSimActive,
   getWifiActive,
-  getScreenActive,
-  getColorActive,
-  getRamActive,
-  getRomActive,
 } from '.././data/api-service'
-import { createProduct } from '.././data/api-service'
 import {
   ProductConfigRequest,
   productConfigRequestSchema,
@@ -326,7 +325,7 @@ export default function CreateProduct() {
                 Hủy
               </Button>
               <Button type='submit' disabled={isLoading}>
-                {isLoading ? 'Tạo...' : 'Hoàn tất'}
+                {isLoading ? 'Đang lưu...' : 'Lưu thông tin'}
               </Button>
             </div>
           </form>

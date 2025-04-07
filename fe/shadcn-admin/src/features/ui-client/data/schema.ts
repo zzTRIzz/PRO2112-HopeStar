@@ -107,24 +107,3 @@ export const cartResponseSchema = z.object({
 export type CartDetailResponse = z.infer<typeof cartDetailResponseSchema>
 export type CartResponse = z.infer<typeof cartResponseSchema>
 
-export interface PhoneFilterRequest {
-  // Price range
-  minPrice?: number
-  maxPrice?: number
-
-  // Sort options
-  sortBy?: 'price' | 'views' | 'promotion'
-  sortDirection?: 'asc' | 'desc'
-
-  // Filter attributes
-  nfc?: boolean
-  usageType?: string[] // ["gaming", "battery", "performance", "slim"]
-  phoneType?: string[] // ["ios", "android", "feature"]
-  brandIds?: number[]
-  chipIds?: number[]
-  ramRange?: string[] // ["<4GB", "4GB-6GB", "8GB-12GB", ">16GB"]
-  romRange?: string[] // ["<32GB", "32GB-64GB", "128GB-256GB", ">512GB"]
-  screenType?: string[] // ["AMOLED", "IPS LCD", etc]
-  refreshRate?: number[] // [60, 90, 120, 144]
-  screenSize?: string[] // ["<6", ">=6"]
-}

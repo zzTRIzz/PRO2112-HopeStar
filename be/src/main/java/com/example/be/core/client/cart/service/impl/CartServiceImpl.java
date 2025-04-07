@@ -8,6 +8,7 @@ import com.example.be.entity.Account;
 import com.example.be.entity.CartDetail;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.ShoppingCart;
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusCartDetail;
 import com.example.be.repository.CartDetailRepository;
 import com.example.be.repository.ProductDetailRepository;
@@ -82,8 +83,10 @@ public class CartServiceImpl implements CartService {
         }else {
             cart = shoppingCartRepository.findShoppingCartByGuestId(guestCartId).get();
         }
-        ProductDetail productDetail = productDetailRepository.findById(request.getIdProductDetail())
-                .orElseThrow(() -> new RuntimeException("Product detail not found"));
+        ProductDetail productDetail = productDetailRepository.findByIdAndStatus(request.getIdProductDetail(), ProductDetailStatus.ACTIVE);
+        if(productDetail == null) {
+            throw new Exception("Không tìm thấy sản phẩm này");
+        }
 
         // Check if product already exists in cart
         CartDetail existingDetail = cartDetailRepository
@@ -102,13 +105,13 @@ public class CartServiceImpl implements CartService {
                 throw new Exception("Sản phẩm thêm tối đa là 5. Giỏ hàng đã có: "+existingDetail.getQuantity());
             }
 
-            existingDetail.setQuantity(existingDetail.getQuantity() + 1);
+            existingDetail.setQuantity(existingDetail.getQuantity() + request.getQuantity());
             cartDetailRepository.save(existingDetail);
         } else {
             CartDetail cartDetail = new CartDetail();
             cartDetail.setIdShoppingCart(cart);
             cartDetail.setIdProductDetail(productDetail);
-            cartDetail.setQuantity(1);
+            cartDetail.setQuantity(request.getQuantity());
             cartDetail.setStatus(StatusCartDetail.pending);
             cartDetailRepository.save(cartDetail);
         }
