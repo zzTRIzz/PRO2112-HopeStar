@@ -96,7 +96,7 @@ const HoaDonCho: React.FC<pendingInvoiceList> =
                                         {b.nameBill}
                                         <div className="relative">
                                             <ImCart size={20}  className="text-blue-600"/>
-                                            {b.itemCount > 0 && (
+                                            {b.itemCount >= 0 && (
                                                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
                                                     {b.itemCount}
                                                 </span>

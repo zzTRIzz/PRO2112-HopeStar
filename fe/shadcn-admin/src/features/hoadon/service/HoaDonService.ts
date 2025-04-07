@@ -1,6 +1,5 @@
 import { BillDetailSchema, BillSchema, ImeiSoldSchema } from "@/features/banhang/service/Schema";
 import axios from "axios";
-import { SearchBillRequest } from "./HoaDonSchema";
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -8,16 +7,6 @@ export const getAllBill = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/getAllBill`);
         return response.data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        throw error;
-    }
-}
-
-export const searchBillList = async (searchHoaDon: SearchBillRequest) => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/searchBillList`, { params: searchHoaDon });
-        return response.data || [];
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;

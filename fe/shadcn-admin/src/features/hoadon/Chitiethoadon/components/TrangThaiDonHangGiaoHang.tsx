@@ -18,8 +18,9 @@ export type OrderStatus =
     | "CHO_XAC_NHAN"
     | "DANG_CHUAN_BI_HANG"
     | "DANG_GIAO_HANG"
-    | "DA_GIAO_HANG"
+    // | "DA_GIAO_HANG"
     | "HOAN_THANH"
+    | "DA_HUY"
     ;
 
 interface OrderStepperProps {
@@ -94,8 +95,9 @@ function getStepValue(status: OrderStatus): number {
         CHO_XAC_NHAN: 1,
         DANG_CHUAN_BI_HANG: 2,
         DANG_GIAO_HANG: 3,
-        DA_GIAO_HANG: 4,
-        HOAN_THANH: 5
+        // DA_GIAO_HANG: 4,
+        HOAN_THANH: 4,
+        DA_HUY: 0
     };
 
     return statusMap[status];
@@ -113,8 +115,8 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
             <Step
                 status={currentStatus}
                 step="CHO_XAC_NHAN"
-                title="Đặt hàng thành công"
-                description="Đang chờ xác nhận"
+                title="Đang chờ xác nhận"
+                description="Đặt hàng thành công"
                 icon={<CreditCard className="w-4 h-4" />}
             />
 
@@ -134,13 +136,13 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
                 icon={<Truck className="w-4 h-4" />}
             />
 
-            <Step
+            {/* <Step
                 status={currentStatus}
                 step="DA_GIAO_HANG"
                 title="Đã giao hàng"
                 description="Đơn hàng đã giao"
                 icon={<Package className="w-4 h-4" />}
-            />
+            /> */}
 
             <Step
                 status={currentStatus}
@@ -158,7 +160,6 @@ interface TrangThaiDonHangProps {
     trangThai: OrderStatus;
     searchBill: BillSchema | null;
     loadTongBill: () => void;
-    findBillById: (id: number) => void;
 }
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     ({
@@ -174,7 +175,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             "CHO_XAC_NHAN",
             "DANG_CHUAN_BI_HANG",
             "DANG_GIAO_HANG",
-            "DA_GIAO_HANG",
+            // "DA_GIAO_HANG",
             "HOAN_THANH"
         ];
 
@@ -208,47 +209,44 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                     </div>
 
                     {/* Stepper */}
-                    <div className="p-6 ">
+                    <div className="p-4">
                         <OrderStepper currentStatus={currentStatus} />
                         {/* Buttons */}
                         <div className="flex justify-center gap-4 mt-8">
-                            {currentStatus != "HOAN_THANH" && (
-                                <button
+                                <Button
                                     onClick={handleNextStatus}
-                                    // disabled={currentStatus === "HOAN_THANH"}
+                                    disabled={currentStatus === "HOAN_THANH"}
                                     className={cn(
                                         "px-4 py-2 rounded-md text-white transition-all duration-300",
                                         "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
                                     )}
                                 >
                                     Xác nhận
-                                </button>
-                            )}
-                            {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && (
-                                <button
-                                    onClick={handlePrevStatus}
-                                    // disabled={currentStatus === "CHO_XAC_NHAN"}
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2",
-                                        // currentStatus === "CHO_XAC_NHAN"
-                                        //     ? "bg-gray-300 cursor-not-allowed" :
-                                        "bg-red-600 hover:bg-red-500"
-                                    )}
-                                >
-                                    Hủy đơn
-                                </button>
-                            )}
+                                </Button>
+                           
+                            {/* {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && ( */}
+                            <Button
+                                onClick={handlePrevStatus}
+                                disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH"}
+                                className={cn(
+                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                    "flex items-center gap-2",
+                                    // currentStatus === "CHO_XAC_NHAN"
+                                    //     ? "bg-gray-300 cursor-not-allowed" :
+                                    "bg-red-600 hover:bg-red-500"
+                                )}
+                            >
+                                Hủy đơn
+                            </Button>
+                            {/* )} */}
 
                             <div className="ml-[500px]">
-                                <button
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
-                                    )}
+                                <Button
+                                    
                                 >
                                     In hóa đơn
-                                </button>                            </div>
+                                </Button>
+                            </div>
 
                         </div>
 

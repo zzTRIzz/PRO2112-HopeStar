@@ -76,9 +76,12 @@ public class BanHangTaiQuay {
     @Autowired
     ProductDetailRepository productDetailRepository;
 
+    @Autowired
+    VoucherRepository voucherRepository;
     @GetMapping
     public ResponseEntity<List<?>> getListHoaDonTop6() {
         List<BillDto> billDtos = billService.listBillTop6();
+
         return ResponseEntity.ok(billDtos);
     }
 
@@ -132,17 +135,15 @@ public class BanHangTaiQuay {
                                    @PathVariable("idBill") Integer idBill) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail " + idBillDetail));
-        // Kiểm tra hóa đơn có tồn tại không
         Bill bill = billRepository.findById(idBill)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
-
+                .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail " + idBillDetail));
+        // Kiểm tra hóa đơn có tồn tại không
         imeiSoldService.deleteImeiSold(idBillDetail);
         billDetailService.deleteBillDetail(idBillDetail);
-        billDetailService.tongTienBill(billDetail.getIdBill().getId());
+        billService.tongTienBill(billDetail.getIdBill().getId());
         productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
         productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
-        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
-        billService.apDungVoucher(bill.getId(), accountId);
+        billService.capNhatVoucherKhiChon(idBill,bill.getIdVoucher());
         return "Delete Thanh Cong";
     }
 
@@ -157,9 +158,9 @@ public class BanHangTaiQuay {
     @PutMapping("/addKhachHang")
     public ResponseEntity<?> addKhachHang(@RequestParam("idBill") Integer idBill,
                                           @RequestParam("idAccount") Integer idAccount) {
-        billService.addAccount(idBill, idAccount);
-        BillDto billDto1 = billService.apDungVoucher(idBill, idAccount);
-        return ResponseEntity.ok(billDto1);
+        BillDto billDto = billService.addAccount(idBill, idAccount);
+//        BillDto billDto1 = billService.apDungVoucher(idBill, idAccount);
+        return ResponseEntity.ok(billDto);
     }
 
     @PutMapping("/thanh_toan")
@@ -192,9 +193,10 @@ public class BanHangTaiQuay {
         } else {
             savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
         }
-        billDetailService.tongTienBill(bill.getId());
+        billService.tongTienBill(bill.getId());
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
+        billService.capNhatVoucherKhiChon(bill.getId(),bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
         return ResponseEntity.ok(savebillDetailDto);
@@ -212,15 +214,14 @@ public class BanHangTaiQuay {
                 idBill, idProduct, imeiSoldDto.getId_Imei().size());
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
+        BigDecimal tongTienBill = billService.tongTienBill(idBill);
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billDto.setTotalPrice(tongTienBill);
         billService.saveBillDto(billDto);
         Integer quantyti = imeiSoldDto.getId_Imei().size();
+        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
-        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
-        billService.apDungVoucher(bill.getId(), accountId);
         return ResponseEntity.ok(billDetailDto);
     }
 
@@ -243,14 +244,13 @@ public class BanHangTaiQuay {
         }
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        BigDecimal tongTienBill = billDetailService.tongTienBill(idBill);
+        BigDecimal tongTienBill = billService.tongTienBill(idBill);
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billDto.setTotalPrice(tongTienBill);
         billService.saveBillDto(billDto);
+        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
-        Integer accountId = (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null;
-        billService.apDungVoucher(bill.getId(), accountId);
         return ResponseEntity.ok("");
     }
 
@@ -308,7 +308,9 @@ public class BanHangTaiQuay {
     @PostMapping("/updateVoucher/{idBill}/{idVoucher}")
     public ResponseEntity<?> updateVoucher(@PathVariable("idBill") Integer idBill,
                                            @PathVariable("idVoucher") Integer idVoucher) {
-        BillDto billDto = billService.capNhatVoucherKhiChon(idBill, idVoucher);
+        Voucher voucher = voucherRepository.findById(idVoucher)
+                .orElseThrow(() -> new RuntimeException("Khong tim thay voucher da chon"));
+        BillDto billDto = billService.capNhatVoucherKhiChon(idBill, voucher);
         return ResponseEntity.ok(billDto);
     }
 

@@ -32,7 +32,7 @@ export const OrdersPage = () => {
     fetchBills()
   }, []);
 
-  if (bills.length == 0) return <div>Đang tải...</div>;
+  // if (bills.length == 0) return <div>Đang tải...</div>;
 
 
   const filteredOrders = selected === 'all'

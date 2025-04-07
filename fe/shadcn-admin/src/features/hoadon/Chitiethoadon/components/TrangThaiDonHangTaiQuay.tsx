@@ -16,7 +16,7 @@ interface StepProps {
 
 export type OrderStatusTaiQuay =
     | "CHO_THANH_TOAN"
-    | "DA_THANH_TOAN"
+    | "HOAN_THANH"
     ;
 
 interface OrderStepperProps {
@@ -89,7 +89,7 @@ const Step: React.FC<StepProps> = ({
 function getStepValue(status: OrderStatusTaiQuay): number {
     const statusMap: Record<OrderStatusTaiQuay, number> = {
         CHO_THANH_TOAN: 1,
-        DA_THANH_TOAN:2
+        HOAN_THANH: 2
     };
 
     return statusMap[status];
@@ -138,7 +138,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
             <Step
                 status={currentStatus}
-                step="DA_THANH_TOAN"
+                step="HOAN_THANH"
                 title="Hoàn thành"
                 description="Đơn hàng hoàn tất"
                 icon={<CheckCircle className="w-4 h-4" />}
@@ -166,27 +166,8 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
         // Mảng các trạng thái theo thứ tự
         const statusOrder: OrderStatusTaiQuay[] = [
             "CHO_THANH_TOAN",
-            "DA_THANH_TOAN"
+            "HOAN_THANH"
         ];
-
-        const handleNextStatus = async () => {
-            const currentIndex = statusOrder.indexOf(currentStatus);
-            if (currentIndex < statusOrder.length - 1) {
-                setCurrentStatus(statusOrder[currentIndex + 1]);
-            }
-            if (searchBill != null) {
-                await updateStatus(searchBill?.id, statusOrder[currentIndex + 1]);
-                loadTongBill();
-                console.log(statusOrder[currentIndex + 1]);
-            }
-        };
-
-        const handlePrevStatus = () => {
-            const currentIndex = statusOrder.indexOf(currentStatus);
-            if (currentIndex > 0) {
-                setCurrentStatus(statusOrder[currentIndex - 1]);
-            }
-        };
         return (
             <div className="w-[985px]">
                 <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">
@@ -201,41 +182,37 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
                     {/* Stepper */}
                     <div className="p-6 ">
                         <OrderStepper currentStatus={currentStatus} />
+
                         {/* Buttons */}
                         <div className="flex justify-center gap-4 mt-8">
-                            {/* {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && (
-                                <button
-                                    onClick={handlePrevStatus}
-                                    // disabled={currentStatus === "CHO_XAC_NHAN"}
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2",
-                                        // currentStatus === "CHO_XAC_NHAN"
-                                        //     ? "bg-gray-300 cursor-not-allowed" :
-                                        "bg-orange-500 hover:bg-orange-600"
-                                    )}
-                                >
-                                    Hủy
-                                </button>
-                            )}
-                            {currentStatus != "HOAN_THANH" && (
-                                <button
-                                    onClick={handleNextStatus}
-                                    // disabled={currentStatus === "HOAN_THANH"}
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
-                                    )}
-                                >
-                                    Xác nhận
-                                </button>
-                            )} */}
-                            <div className="ml-[700px]">
-                                <Button>In hóa đơn </Button>
+                            <Button disabled
+                                className={cn(
+                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                    "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                                )}
+                            >
+                                Xác nhận
+                            </Button>
+
+                            <Button
+                                disabled
+                                className={cn(
+                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                    "flex items-center gap-2",
+                                    // currentStatus === "CHO_XAC_NHAN"
+                                    //     ? "bg-gray-300 cursor-not-allowed" :
+                                    "bg-red-600 hover:bg-red-500"
+                                )}
+                            >
+                                Hủy đơn
+                            </Button>
+
+                            <div className="ml-[500px]">
+                                <Button>
+                                    In hóa đơn
+                                </Button>
                             </div>
-
                         </div>
-
                     </div>
 
                 </div>

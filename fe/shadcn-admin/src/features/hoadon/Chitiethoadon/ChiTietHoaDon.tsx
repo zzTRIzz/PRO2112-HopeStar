@@ -76,13 +76,13 @@ interface Voucher {
 import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
 import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
-import ThemSanPham from '@/features/banhang/components/ThemSanPham';
 import { BillSchema } from '@/features/banhang/service/Schema';
 
 import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
 import TrangThaiDonHangGiaoHang from './components/TrangThaiDonHangGiaoHang';
 import TrangThaiDonHangTaiQuay from './components/TrangThaiDonHangTaiQuay';
+import ThemSanPham from './components/ThemSanPham';
 
 
 const ChiTietHoaDon: React.FC = () => {
@@ -338,7 +338,6 @@ const ChiTietHoaDon: React.FC = () => {
                     {searchBill ? (
                         searchBill.billType === 1 ? (
                             <TrangThaiDonHangGiaoHang
-                                findBillById={findBillById}
                                 loadTongBill={loadTongBill}
                                 trangThai={searchBill.status as OrderStatus}
                                 searchBill={searchBill}
@@ -365,14 +364,16 @@ const ChiTietHoaDon: React.FC = () => {
                         <h1 className="font-bold tracking-tight">Hóa đơn chi tiết</h1>
                         <div className="flex space-x-2">
                             {/* Quét Barcode để check sản phẩm */}
-                            {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
-                                <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300">
-                                    Quét Barcode
-                                </Button>
-                            )}
+
+                            <Button className="bg-white-500 border border-blue-500 rounded-sm
+                                                border-opacity-50 text-blue-600 hover:bg-gray-300"
+                                disabled={["DANG_GIAO_HANG", "HOAN_THANH","CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                            >
+                                Quét Barcode
+                            </Button>
 
                             {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
-                            {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && (
+                            {/* {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && ( */}
                                 <ThemSanPham
                                     listProduct={listProduct}
                                     listImei={listImei}
@@ -385,59 +386,65 @@ const ChiTietHoaDon: React.FC = () => {
                                     setDialogContent={setDialogContent}
                                     isDialogOpen={isDialogOpen}
                                     setIsDialogOpen={setIsDialogOpen}
+                                    searchBill={searchBill}
                                 />
-                            )}
+                            {/* )} */}
                         </div>
                     </div>
                     <hr className="border-t-1.5 border-gray-600" />
 
-                    {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
-                    <TableHoaDonChiTiet
-                        product={product}
-                        listImei={listImei}
-                        selectedImei={selectedImei}
-                        isCapNhatImei={isCapNhatImei}
-                        setIsCapNhatImei={setIsCapNhatImei}
-                        handleUpdateProduct={handleUpdateProduct}
-                        handleCheckboxChange={handleCheckboxChange}
-                        updateHandleImeiSold={updateHandleImeiSold}
-                        deleteBillDetail={deleteBillDetail}
-                        searchBill={searchBill} />
-                    <br />
+                    <div className="flex flex-col lg:flex-row gap-2 px-5">
+                        {/* Bảng chi tiết - Chiếm 2/3 màn hình lớn */}
+                        <div className="lg:basis-3/5 xl:basis-3/4 overflow-hidden">
+                            <TableHoaDonChiTiet
+                                product={product}
+                                listImei={listImei}
+                                selectedImei={selectedImei}
+                                isCapNhatImei={isCapNhatImei}
+                                setIsCapNhatImei={setIsCapNhatImei}
+                                handleUpdateProduct={handleUpdateProduct}
+                                handleCheckboxChange={handleCheckboxChange}
+                                updateHandleImeiSold={updateHandleImeiSold}
+                                deleteBillDetail={deleteBillDetail}
+                                searchBill={searchBill}
+                            />
+                        </div>
 
-                    {product.length > 0 && (
-                        <div className="bg-white p-4 ml-auto mr-5 w-fit text-lg mb-2">
-                            <div className="w-[380px] min-w-[380px] ">
-                                <div className="space-y-4">
+                        {/* Khung tổng tiền - Chiếm 1/3 màn hình lớn */}
+                        {product.length > 0 && (
+                            <div className="lg:basis-2/5 xl:basis-1/4 bg-white mt-[10px]">
+                                <h2 className="text-lg font-bold mb-2 border-b pb-2">Tổng tiền </h2>
+                                <div className="space-y-3">
                                     {[
                                         { label: "Tổng tiền hàng:", value: searchBill?.totalPrice },
                                         {
-                                            label: `Giảm giá: ${searchBill?.idVoucher == null ? '' : (voucherDangDung?.code)}`,
+                                            label: `Giảm giá: ${searchBill?.idVoucher ? voucherDangDung?.code : ''}`,
                                             value: searchBill?.discountedTotal
                                         },
-                                        { label: "Phí ship:", value: searchBill?.deliveryFee },
-                                        { label: "Khách cần trả:", value: searchBill?.totalDue },
-                                        { label: "Khách đã trả:", value: searchBill?.customerPayment },
-                                        { label: "Khách còn thiếu:", value: (searchBill != null ? searchBill?.totalDue - searchBill?.customerPayment : 0), highlight: true },
+                                        { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
+                                        { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
+                                        { label: "Đã thanh toán:", value: searchBill?.customerPayment },
+                                        {
+                                            label: "Còn thiếu:",
+                                            value: (searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0),
+                                            highlight: true
+                                        },
                                     ].map((item, index) => (
-                                        <div key={index} className="flex justify-between border-b pb-2">
-                                            <span className={`text-gray-700 text-base ${item.highlight ? "text-red-500 font-semibold" : ""}`}>
+                                        <div key={index} className="flex justify-between items-center">
+                                            <span className={`text-sm ${item.highlight ? "font-semibold" : "text-gray-600"}`}>
                                                 {item.label}
                                             </span>
-                                            <p className={`font-semibold ${item.highlight ? "text-red-500" : ""}`}>
-                                                {item.value == null ? "0 đ" : item.value.toLocaleString('vi-VN') + " đ"}
-                                            </p>
+                                            <span className={`${item.highlight ? "text-red-500 font-bold" : "font-medium"}`}>
+                                                {item.value?.toLocaleString('vi-VN') || '0'} ₫
+                                            </span>
                                         </div>
                                     ))}
-
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-
-
-
+                <br />
             </Main >
 
         </>

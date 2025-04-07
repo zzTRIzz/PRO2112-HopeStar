@@ -11,19 +11,25 @@ import { Bill } from './service/HoaDonSchema';
 import TimKiemHoaDon from './components/TimKiemHoaDon';
 
 const QuanLyHoaDon: React.FC = () => {
-    const [listHoaDon, setListHoaDon] = React.useState<Bill[]>([]);
+    const [originalList, setOriginalList] = React.useState<Bill[]>([]); // Danh sách gốc
+    const [filteredList, setFilteredList] = React.useState<Bill[]>([]); // Danh sách đã lọc
+
     React.useEffect(() => {
         loadHoaDon();
     }, []);
+
     const loadHoaDon = async () => {
         try {
             const data = await getAllBill();
-            setListHoaDon(data || []); // Luôn set thành mảng
+            setOriginalList(data || []);
+            setFilteredList(data || []);
         } catch (error) {
             console.error('Error fetching data:', error);
-            setListHoaDon([]); // Xử lý lỗi bằng mảng rỗng
+            setOriginalList([]);
+            setFilteredList([]);
         }
     }
+
     return (
         <>
             <div>
@@ -42,9 +48,14 @@ const QuanLyHoaDon: React.FC = () => {
                     <div className='mb-[8px]'>
                         <h2 className='text-2xl font-bold tracking-tight'>Quản lý hóa đơn</h2>
                     </div>
-                    <TimKiemHoaDon setListHoaDon={setListHoaDon} /> <br />
-                    <TableHoaDon listHoaDon={listHoaDon} />
-                </div> <br />
+                    <TimKiemHoaDon 
+                        originalList={originalList}
+                        setFilteredList={setFilteredList} 
+                    /> 
+                    <br />
+                    <TableHoaDon listHoaDon={filteredList} />
+                </div> 
+                <br />
             </Main>
         </>
     );

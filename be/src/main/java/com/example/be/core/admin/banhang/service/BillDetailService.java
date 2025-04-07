@@ -19,8 +19,6 @@ public interface BillDetailService {
 
     List<SearchBillDetailDto> getByIdBill(Integer idBill);
 
-    BigDecimal tongTienBill(Integer idBill);
-
     void deleteBillDetail(Integer idBillDetail);
 
     List<ProductDetailDto> getAllProductDetailDto();

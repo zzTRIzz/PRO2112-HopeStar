@@ -5,9 +5,10 @@ import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.request.SearchBillRequest;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
-import com.example.be.entity.Bill;
+import com.example.be.entity.Voucher;
 import com.example.be.entity.status.StatusBill;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface BillService {
@@ -29,11 +30,15 @@ public interface BillService {
 
 //    BillDto updateHoaDonTaiQuay(BillDto billDto);
 
-    void addAccount(Integer idBill, Integer idAccount);
+    BigDecimal tongTienBill(Integer idBill);
 
-    BillDto apDungVoucher(Integer idBill, Integer idAccount);
+    BillDto addAccount(Integer idBill, Integer idAccount);
 
-    BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher);
+//    BillDto apDungVoucher(Integer idBill, Integer idAccount);
+
+//    BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher);
+
+    BillDto capNhatVoucherKhiChon(Integer idBill, Voucher voucher);
 
     BillDto saveBillDto(BillDto billDto);
 

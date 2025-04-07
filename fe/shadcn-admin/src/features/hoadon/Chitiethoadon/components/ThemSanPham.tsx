@@ -13,7 +13,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
-import { BillSchema, Imei, ProductDetail } from '../service/Schema';
+import { BillSchema, Imei, ProductDetail } from '@/features/banhang/service/Schema';
+
 
 
 
@@ -29,7 +30,8 @@ interface SanPhamChiTiet {
     setDialogContent: (content: "product" | "imei") => void;
     isDialogOpen: boolean; 
     setIsDialogOpen: (open: boolean) => void; 
-    
+    searchBill: BillSchema | null;
+
 }
 const ThemSanPham: React.FC<SanPhamChiTiet> =
     ({
@@ -42,7 +44,8 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
         dialogContent,
         setDialogContent,
         isDialogOpen,
-        setIsDialogOpen
+        setIsDialogOpen,
+        searchBill
     }) => {
         return (
             <>
@@ -50,7 +53,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                     <DialogTrigger asChild>
                         <Button variant="outline" className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
                             onClick={() => setDialogContent('product')}
-                            >
+                            disabled={["DANG_GIAO_HANG", "HOAN_THANH","CHO_THANH_TOAN"].includes(searchBill?.status ?? "")}>
                             Thêm sản phẩm
                         </Button>
                     </DialogTrigger>

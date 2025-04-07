@@ -24,7 +24,7 @@ export const billSchema = z.object({
     email: z.string().email().max(255).nullable(),
     note: z.string().max(1000).nullable(),
     phone: z.string().max(255).nullable(),
-    name: z.string().max(255),
+    name: z.string().max(255).nullable(),
     idPayment: z.number().int().positive().nullable(),
     idDelivery: z.number().int().positive().nullable(),
     itemCount: z.number().int().positive(),
@@ -123,4 +123,23 @@ export interface HoaDon {
   khachHang : AccountKhachHang
   totalAmount: number;
   paymentMethod: string;
+}
+
+
+export interface TaiKhoan {
+  id: number
+  code: string
+  fullName: string
+  email: string
+  phone: string
+  address: string
+  imageAvatar: string
+  idRole: {
+    id: number
+    code: string
+    name: string
+  }
+  status: "ACTIVE" | "IN_ACTIVE" 
+  gender: boolean
+  birthDate: string | null
 }

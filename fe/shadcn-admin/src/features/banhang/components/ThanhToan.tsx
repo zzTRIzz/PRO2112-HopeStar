@@ -17,6 +17,8 @@ import { Label } from '@/components/ui/label';
 import { BillSchema, Voucher } from '../service/Schema';
 import InHoaDon from './InHoaDon';
 import "../css/print_hoaDon.css"
+import TaoMaQr from './TaoMaQr';
+import { fromThanhCong, fromThatBai } from './ThongBao';
 interface ThanhToanProps {
     searchBill: BillSchema | undefined;
     setPaymentMethod: any;
@@ -24,9 +26,6 @@ interface ThanhToanProps {
     customerPayment: number;
     setCustomerPayment: any;
     handleThanhToan: any;
-    handlePTThanhToan: any;
-    isPTThanhToan: boolean;
-    setIsPTThanhToan: any;
     ListVoucherTheoAccount: Voucher[];
     setVoucherDangDung: any;
     updateVoucherKhiChon: any;
@@ -51,9 +50,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
         customerPayment,
         setCustomerPayment,
         handleThanhToan,
-        handlePTThanhToan,
-        isPTThanhToan,
-        setIsPTThanhToan,
         ListVoucherTheoAccount,
         setVoucherDangDung,
         updateVoucherKhiChon,
@@ -67,6 +63,9 @@ const ThanhToan: React.FC<ThanhToanProps> =
         setIsThanhToanNhanHang,
         isThanhToanNhanHang
     }) => {
+        const [dateTime, setDateTime] = useState<Date>(new Date());
+        const tongTien = searchBill?.totalDue == null ? 0 : searchBill?.totalDue + phiShip;
+
         const handleSwitchChange = (checked: boolean) => {
             if (checked) {
                 setPaymentMethod(4);
@@ -79,11 +78,18 @@ const ThanhToan: React.FC<ThanhToanProps> =
         };
 
         const handlePaymentMethodChange = (method: number) => {
+            if (!searchBill) return fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán!");
+            if (tongTien <= 0) return fromThatBai("Giá tiền hiện tại là 0đ !");
+
+
             setPaymentMethod(method);
-            if (isThanhToanNhanHang) {
-                setIsThanhToanNhanHang(false); // Tắt "Thanh toán khi nhận hàng" nếu chọn phương thức thanh toán
+            if (method === 2) {
+                setDateTime(new Date());
+                setCustomerPayment(tongTien);
             }
+            if (isThanhToanNhanHang) setIsThanhToanNhanHang(false);
         };
+console.log('tong tien '+customerPayment);
 
         return (
             <>
@@ -98,7 +104,8 @@ const ThanhToan: React.FC<ThanhToanProps> =
                             <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline"
-                                        className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500">
+                                        className="bg-yellow-400 text-black font-semibold 
+                                        px-4 py-2 rounded-md hover:bg-yellow-500">
                                         Chọn Mã Giảm Giá
                                     </Button>
                                 </DialogTrigger>
@@ -171,91 +178,64 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             onClick={() => handlePaymentMethodChange(1)} >
                                             Tiền mặt
                                         </Button>
-                                        {/* Mã qr để chuyển khoản */}
-                                        <Dialog open={isPTThanhToan} onOpenChange={setIsPTThanhToan}>
-                                            <DialogTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className={`border rounded-lg px-3 hover:border-orange-700 hover:text-orange-700 text-2xs 
+                                        <Button
+                                            variant="outline"
+                                            className={`border rounded-lg px-3 hover:border-orange-700 hover:text-orange-700 text-2xs 
                               ${paymentMethod === 2 ? 'border-red-600 text-red-600 bg-slate-300' : 'border-blue-500 text-blue-600'}`}
-                                                >
-                                                    Chuyển khoản
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent className="sm:max-w-[500px]">
-                                                <h2 className='font-semibold '>Mã QR chuyển khoản</h2>
-                                                <div className="flex justify-left pb-2">
-                                                    <p className="text-gray-700 text-base">Mã đơn hàng: </p>
-                                                    <p className="font-semibold text-stone-600 ml-[20px]">
-                                                        {searchBill?.nameBill == null ? "" : searchBill?.nameBill}</p>
-                                                </div>
-                                                <div className="flex justify-left pb-2">
-                                                    <p className="text-gray-700 text-base">Tổng tiền khách cần trả:</p>
-                                                    <p className="font-semibold text-green-600 ml-[20px]">
-                                                        {searchBill?.totalDue == null ? 0 : (searchBill?.totalDue + phiShip - customerPayment).toLocaleString('vi-VN')}  đ</p>
-                                                </div>
-                                                <div >
-                                                    <img src="/images/MaQR.jpg" alt="Mã QR" className='w-[300px] h-[340px] ml-[95px] bg-white p-1 rounded-lg shadow' />
-                                                </div>
-                                                <Button variant="outline"
-                                                    className='bg-blue-600 text-white w-[100px] h-[40px] ml-[340px] hover:bg-sky-600 hover:text-white '
-                                                    onClick={() => {
-                                                        handlePTThanhToan();
-                                                    }}
-                                                >Xác nhận</Button>
-                                            </DialogContent>
-                                        </Dialog>
+                                            onClick={() => handlePaymentMethodChange(2)}>
+                                            Chuyển khoản
+                                        </Button>
                                     </div>
-                                    <div className="flex justify-between border-b pb-2">
-                                        <p className="text-gray-700 text-base"> Khách thanh toán:</p>
-                                        <p className="font-semibold text-green-600">
-                                            <Input
-                                                type="number"
-                                                className="customer-payment w-[150px]"
-                                                placeholder="Nhập số tiền"
-                                                value={paymentMethod === 2 && customerPayment === 0 ? searchBill?.totalDue ?? 0 : customerPayment}
-                                                onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                                                disabled={isThanhToanNhanHang} // Vô hiệu hóa ô input khi "Thanh toán khi nhận hàng" bật
-                                                />
-                                        </p>
+                                    {paymentMethod == 1 && (
+                                        <div>
+                                            <div className="flex justify-between border-b pb-2">
+                                                <p className="text-gray-700 text-base"> Khách thanh toán:</p>
+                                                <p className="font-semibold text-green-600">
+                                                    <Input
+                                                        type="number"
+                                                        className="customer-payment w-[150px]"
+                                                        placeholder="Nhập số tiền"
+                                                        value={customerPayment}
+                                                        onChange={(e) => setCustomerPayment(Number(e.target.value))}
+                                                        disabled={isThanhToanNhanHang} // Vô hiệu hóa ô input khi "Thanh toán khi nhận hàng" bật
+                                                    />
+                                                </p>
+                                            </div>
+                                            {/* Tổng tiền */}
+                                            <div className="mt-4 flex justify-between border-b  pb-2 items-center font-bold text-lg text-red-600">
+                                                <p className='text-base'>Tiền thừa trả khách:</p>
+                                                <p>{tienThua.toLocaleString('vi-VN')} đ</p>
 
-                                    </div>
-
-
-                                    {/* Tổng tiền */}
-                                    <div className="mt-4 flex justify-between border-b  pb-2 items-center font-bold text-lg text-red-600">
-                                        <p className='text-base'>Tiền thừa trả khách:</p>
-                                        <p>{tienThua.toLocaleString('vi-VN')} đ</p>
-
-                                    </div>
-
-                                    <div className="flex items-center  space-x-2 ">
-                                        {/* <Switch id="thanhToanNhanHang" /> */}
-                                        <Switch
-                                            id="thanhToanNhanHang"
-                                            checked={isThanhToanNhanHang}
-                                            onCheckedChange={handleSwitchChange}
-                                        // disabled={paymentMethod !== null} // Vô hiệu hóa nếu đã chọn phương thức thanh toán
+                                            </div>
+                                        </div>
+                                    )}
+                                    {/* // Trong phần return, thêm đoạn này sau phần hiển thị nút chuyển khoản */}
+                                    {paymentMethod === 2 && (
+                                        <TaoMaQr
+                                            searchBill={searchBill}
+                                            tongTien={tongTien}
+                                            dateTime={dateTime}
+                                            handleThanhToan={handleThanhToan}
                                         />
-                                        <Label htmlFor="thanhToanNhanHang">Thanh toán khi nhận hàng </Label>
-                                    </div>
+                                    )}
+
+
+                                    {isBanGiaoHang === true && (
+                                        <div className="flex items-center  space-x-2 ">
+                                            {/* <Switch id="thanhToanNhanHang" /> */}
+                                            <Switch
+                                                id="thanhToanNhanHang"
+                                                checked={isThanhToanNhanHang}
+                                                onCheckedChange={handleSwitchChange} />
+                                            <Label htmlFor="thanhToanNhanHang">Thanh toán khi nhận hàng </Label>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-
-                            {/* {isBanGiaoHang == false ? (
-                                <Button className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px] "
-                                    onClick={() => handleThanhToan("DA_THANH_TOAN", 0)}>
-                                    Xác nhận thanh toán</Button>
-                            ) : (
-                                <Button className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px] "
-                                    onClick={() => handleThanhToan("CHO_XAC_NHAN", 1)}>
-                                    Xác nhận thanh toán</Button>
-                            )} */}
-                            {/* Nút Xác nhận thanh toán */}
-                            {isBanGiaoHang === false ? (
+                            {/* {isBanGiaoHang === false ? (
                                 <Button
                                     className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => handleThanhToan("DA_THANH_TOAN", 0) // Khi Switch tắt
+                                    onClick={() => handleThanhToan("HOAN_THANH", 0) // Khi Switch tắt
                                     }
                                 >
                                     Xác nhận thanh toán
@@ -268,7 +248,26 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                 >
                                     Xác nhận thanh toán
                                 </Button>
+                            )} */}
+
+                            {paymentMethod != 2 && (
+                                <Button
+                                    className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
+                                    onClick={() => {
+                                        if (isBanGiaoHang === false) {
+                                            handleThanhToan("HOAN_THANH", 0) // Khi Switch tắt
+                                        } else {
+                                            handleThanhToan("CHO_XAC_NHAN", 1) // Khi Switch tắt
+                                        }
+                                    }
+                                    }
+
+                                >
+                                    Xác nhận thanh toán
+                                </Button>
                             )}
+
+
                             <div style={{ position: 'fixed', left: '-9999px' }}>
                                 {printData && (
                                     <div ref={printRef} className="invoice-container">

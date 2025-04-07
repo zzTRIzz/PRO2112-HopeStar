@@ -23,7 +23,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public List<BillResponse> getPaidBills() {
-        List<Bill> paidBills = statisticRepository.findByStatus(StatusBill.DA_THANH_TOAN);
+        List<Bill> paidBills = statisticRepository.findByStatus(StatusBill.HOAN_THANH);
         return paidBills.stream().map(statisticMapper::toBillResponse).collect(Collectors.toList());
     }
 

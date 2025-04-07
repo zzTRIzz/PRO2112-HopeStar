@@ -55,7 +55,6 @@ function BanHangTaiQuay() {
   const [customerPayment, setCustomerPayment] = useState<number>(0);
   const [phiShip, setPhiShip] = useState<number>(0);
   const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
-  const [isPTThanhToan, setIsPTThanhToan] = useState(false);
   const tongTien = (searchBill?.totalDue ?? 0) + phiShip;
   const tienThua = Math.max(customerPayment - tongTien);
   const [scanError, setScanError] = useState('');
@@ -325,9 +324,7 @@ function BanHangTaiQuay() {
 
   // Ca
   const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
-    // console.log("ID product detail:", idPD);
-    setSelectedImei([]);  // Reset trước khi cập nhật
-    // setIsCapNhatImei(true);
+    setSelectedImei([]);
     try {
       const data = await findImeiByIdProductDaBan(idPD, billDetaill);
       if (!Array.isArray(data)) {
@@ -347,12 +344,12 @@ function BanHangTaiQuay() {
       updateVoucher(idHoaDon, idVoucher);
       getById(idHoaDon);
       setIsVoucher(false);
-
       fromThanhCong("Cập nhật voucher thành công ")
     } catch (error) {
       console.error("Lỗi khi cập nhật voucher:", error);
     }
   }
+
   // Thêm khách hàng vào hóa đơn
   const handleAddKhachHang = async (idAccount: number) => {
     if (idHoaDon == 0 || idHoaDon == null) {
@@ -378,55 +375,28 @@ function BanHangTaiQuay() {
     }
   }
 
-  const handlePTThanhToan = async () => {
-    try {
-      if (idHoaDon == 0 || idHoaDon == null) {
-        fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
-        setIsPTThanhToan(false);
-        return;
-      }
-      setIsPTThanhToan(false);
-      const result = await showDialog({
-        type: 'confirm',
-        title: 'Xác nhận thanh toán chuyển khoản',
-        message: `Bạn chắc chắn đã nhận được số tiền là: ${(tongTien - customerPayment).toLocaleString()}đ?`,
-        confirmText: 'Xác nhận',
-        cancelText: 'Hủy bỏ'
-      });
-      if (result) {
-        setPaymentMethod(2);
-        setCustomerPayment(tongTien);
-        setIsPTThanhToan(false);
-        setIsThanhToanNhanHang(false); // Tắt "Thanh toán khi nhận hàng" nếu chọn phương thức thanh toán
-        fromThanhCong("Chuyển khoản thành công");
-      } else {
-        fromThatBai("Thanh toán không thành công");
-      }
-    } catch (error) {
-      console.error("Lỗi khi thanh toán:", error);
-    }
-  }
   // chọn check box bán giao hàng 
   const handleBanGiaoHangChange = () => {
     try {
-      if (searchBill?.idAccount == 1 || searchBill?.idAccount == null) {
-        fromThatBai("Khách lẻ không bán giao hàng");
-        return;
-      }
-      if (idHoaDon == 0 || searchBill?.id === undefined) {
-        fromThatBai("Vui lòng chọn hóa đơn");
-        return;
-      }
-      if (product.length === 0) {
-        fromThatBai("Vui lòng thêm sản phẩm ");
-        return;
-      }
+      const errors = [
+        { condition: idHoaDon === 0 || searchBill?.id === undefined, message: "Vui lòng chọn hóa đơn" },
+        { condition: product.length === 0, message: "Vui lòng thêm sản phẩm" },
+        { condition: searchBill?.idAccount === 1, message: "Khách lẻ không bán giao hàng" },
+        { condition: searchBill?.idAccount == null, message: "Vui lòng chọn khách hàng!" }
+      ];
 
-      setIsBanGiaoHang((prev) => !prev);
+      for (const error of errors) {
+        if (error.condition) {
+          fromThatBai(error.message);
+          return;
+        }
+      }
+      setIsBanGiaoHang(prev => !prev);
     } catch (error) {
       console.error("Lỗi khi bán giao hàng:", error);
     }
   };
+
 
   const chuyenPhiShip = async () => {
     try {
@@ -441,48 +411,6 @@ function BanHangTaiQuay() {
       console.error("Lỗi khi bán giao hàng:", error);
     }
   }
-
-  // const handlePrint = (billData: any) => {
-  //   const invoiceData = {
-  //     invoiceNumber: searchBill?.nameBill || "",
-  //     date: searchBill?.paymentDate,
-  //     staff: signupData?.fullName || "Nhân viên",
-  //     customer: listKhachHang?.fullName || "Khách lẻ",
-  //     phone: listKhachHang?.phone || "",
-  //     items: product.map(p => ({
-  //       product: p.nameProduct,
-  //       // imei:0,
-  //       price: p.price,
-  //       quantity: p.quantity
-  //     })),
-  //     total: searchBill?.totalPrice || 0,
-  //     discount: searchBill?.discountedTotal || 0,
-  //     payment: customerPayment,
-  //     change: tienThua
-  //   };
-
-  //   setPrintData(invoiceData);
-  //   setTimeout(() => window.print(), 100);
-  // };
-
-  // const handlePrint = (billData: any) => {
-  //   if (!billData) {
-  //     console.error("Dữ liệu hóa đơn không hợp lệ:", billData);
-  //     return;
-  //   }
-
-  //   console.log("Dữ liệu hóa đơn trước khi in:", billData); // Debug dữ liệu
-  //   setPrintData(billData);
-
-  //   setTimeout(() => {
-  //     if (printRef.current) {
-  //       console.log("Nội dung cần in:", printRef.current.innerHTML); // Debug nội dung
-  //       window.print();
-  //     } else {
-  //       console.error("Không tìm thấy nội dung cần in.");
-  //     }
-  //   }, 100);
-  // };
 
   const handlePrint = (invoiceData: any) => {
     setPrintData(invoiceData);
@@ -511,184 +439,215 @@ function BanHangTaiQuay() {
   };
 
 
-  // Thanh toán hóa đơn
+  // // Thanh toán hóa đơn
+  // const handleThanhToan = async (status: string, billType: number) => {
+
+  //   const result = await showDialog({
+  //     type: 'confirm',
+  //     title: 'Xác nhận thanh toán đơn hàng',
+  //     message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+  //     <strong style="color:rgb(8, 122, 237)">${searchBill?.nameBill ?? ''}</strong>  <br />
+  //     với số tiền đã nhận được là 
+  //     <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
+  //     ${customerPayment.toLocaleString()}đ
+  //     </span>?`,
+  //     confirmText: 'Xác nhận',
+  //     cancelText: 'Hủy bỏ'
+  //   });
+  //   try {
+  //     if (result) {
+  //       if (searchBill == null || searchBill?.id === undefined) {
+  //         fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+  //         return;
+  //       } else if (product.length === 0) {
+  //         fromThatBai("Vui lòng thêm sản phẩm trước khi thanh toán");
+  //         return;
+  //       } else if (searchBill?.idAccount == null) {
+  //         fromThatBai("Vui lòng chọn khách hàng");
+  //         return;
+  //       } else if (paymentMethod == null
+  //         && isThanhToanNhanHang == false) {
+  //         fromThatBai("Vui lòng chọn phương thức thanh toán");
+  //         return;
+  //       } else if (tienThua < 0 && isThanhToanNhanHang == false && paymentMethod === 1) {
+  //         fromThatBai("Số tiền thanh toán không đủ");
+  //         return;
+  //       } else {
+
+
+
+  //         await thanhToan({
+  //           id: searchBill?.id,
+  //           nameBill: searchBill?.nameBill,
+  //           idAccount: searchBill?.idAccount ?? null,
+  //           idNhanVien: searchBill?.idNhanVien ?? null,
+  //           idVoucher: searchBill?.idVoucher ?? null,
+  //           totalPrice: searchBill?.totalPrice ?? 0,
+  //           customerPayment: customerPayment,
+  //           amountChange: tienThua,
+  //           deliveryFee: phiShip ?? 0,
+  //           totalDue: tongTien ?? 0,
+  //           customerRefund: searchBill?.customerRefund ?? 0,
+  //           discountedTotal: searchBill?.discountedTotal ?? 0,
+  //           deliveryDate: searchBill?.deliveryDate ?? null,
+  //           customerPreferred_date: searchBill?.customerPreferred_date ?? null,
+  //           customerAppointment_date: searchBill?.customerAppointment_date ?? null,
+  //           receiptDate: searchBill?.receiptDate ?? null,
+  //           paymentDate: new Date().toISOString(),
+  //           billType: billType,
+  //           status: status,
+  //           address: searchBill?.address ?? null,
+  //           email: searchBill?.email ?? null,
+  //           note: searchBill?.note ?? null,
+  //           phone: searchBill?.phone ?? null,
+  //           name: searchBill?.name ?? null,
+  //           idPayment: paymentMethod,
+  //           idDelivery: searchBill?.idDelivery ?? null,
+  //           itemCount: searchBill?.itemCount ?? 0
+  //         });
+
+  //         const invoiceData = {
+  //           invoiceNumber: searchBill?.nameBill || "",
+  //           date: searchBill?.paymentDate,
+  //           staff: signupData?.name,
+  //           customer: listKhachHang?.fullName || "Khách lẻ",
+  //           phone: listKhachHang?.phone || "",
+  //           items: product.map(p => ({
+  //             product: p.nameProduct,
+  //             imei: listImei.map(i => i.imeiCode),
+  //             price: p.price,
+  //             quantity: p.quantity
+  //           })),
+  //           total: searchBill?.totalPrice,
+  //           discount: searchBill?.discountedTotal || 0,
+  //           payment: customerPayment,
+  //           change: tienThua
+  //         };
+
+  //         // Gọi hàm in
+  //         handlePrint(invoiceData);
+  //         setSearchBill(undefined);
+  //         hienThiKhachHang(undefined);
+  //         setProduct([]);
+  //         setCustomerPayment(0);
+  //         setPaymentMethod(null);
+  //         setIsBanGiaoHang(false);
+  //         fromThanhCong("Thanh toán thành công");
+  //       }
+  //     } else {
+  //       fromThatBai(`Thanh toán đơn hàng ${searchBill?.nameBill ?? ''} không thành công`);
+  //     }
+
+  //   } catch (error) {
+  //     console.error("Lỗi khi thanh toán:", error);
+  //   }
+  // }
   const handleThanhToan = async (status: string, billType: number) => {
-    try {
-      if (searchBill == null || searchBill?.id === undefined) {
-        fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
-        return;
-      } else if (product.length === 0) {
-        fromThatBai("Vui lòng thêm sản phẩm trước khi thanh toán");
-        return;
-      } else if (searchBill?.idAccount == null) {
-        fromThatBai("Vui lòng chọn khách hàng");
-        return;
-      } else if (paymentMethod == null 
-        && isThanhToanNhanHang == false) {
-        fromThatBai("Vui lòng chọn phương thức thanh toán");
-        return;
-      } else if (tienThua < 0  && isThanhToanNhanHang == false) {
-        fromThatBai("Số tiền thanh toán không đủ");
-        return;
-      } else {
-        const result = await showDialog({
-          type: 'confirm',
-          title: 'Xác nhận thanh toán đơn hàng',
-          message: `Bạn chắc chắn muốn thanh toán đơn hàng 
-          <strong style="color:rgb(8, 122, 237)">${searchBill?.nameBill ?? ''}</strong>  <br />
-          với số tiền đã nhận được là 
-          <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
-          ${customerPayment.toLocaleString()}đ
-          </span>?`,
-          confirmText: 'Xác nhận',
-          cancelText: 'Hủy bỏ'
-        });
+    const result = await showDialog({
+      type: 'confirm',
+      title: 'Xác nhận thanh toán đơn hàng',
+      message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+        <strong style="color:rgb(8, 122, 237)">${searchBill?.nameBill ?? ''}</strong> <br />
+        với số tiền đã nhận được là 
+        <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
+        ${customerPayment.toLocaleString()}đ
+        </span>?`,
+      confirmText: 'Xác nhận',
+      cancelText: 'Hủy bỏ'
+    });
 
-        if (result) {
-          await thanhToan({
-            id: searchBill?.id,
-            nameBill: searchBill?.nameBill,
-            idAccount: searchBill?.idAccount ?? null,
-            idNhanVien: searchBill?.idNhanVien ?? null,
-            idVoucher: searchBill?.idVoucher ?? null,
-            totalPrice: searchBill?.totalPrice ?? 0,
-            customerPayment: customerPayment,
-            amountChange: tienThua,
-            deliveryFee: phiShip ?? 0,
-            totalDue: tongTien ?? 0,
-            customerRefund: searchBill?.customerRefund ?? 0,
-            discountedTotal: searchBill?.discountedTotal ?? 0,
-            deliveryDate: searchBill?.deliveryDate ?? null,
-            customerPreferred_date: searchBill?.customerPreferred_date ?? null,
-            customerAppointment_date: searchBill?.customerAppointment_date ?? null,
-            receiptDate: searchBill?.receiptDate ?? null,
-            paymentDate: new Date().toISOString(),
-            billType: billType,
-            status: status,
-            address: searchBill?.address ?? null,
-            email: searchBill?.email ?? null,
-            note: searchBill?.note ?? null,
-            phone: searchBill?.phone ?? null,
-            name: searchBill?.name ?? null,
-            idPayment: paymentMethod,
-            idDelivery: searchBill?.idDelivery ?? null,
-            itemCount: searchBill?.itemCount ?? 0
-          });
-          const invoiceData = {
-            invoiceNumber: searchBill?.nameBill || "",
-            date: searchBill?.paymentDate,
-            staff: signupData?.name,
-            customer: listKhachHang?.fullName || "Khách lẻ",
-            phone: listKhachHang?.phone || "",
-            items: product.map(p => ({
-              product: p.nameProduct,
-              imei: listImei.map(i => i.imeiCode), // Thêm trường IMEI từ dữ liệu
-              price: p.price,
-              quantity: p.quantity
-            })),
-            total: tongTienKhachTra,
-            discount: searchBill?.discountedTotal || 0,
-            payment: customerPayment,
-            change: tienThua
-          };
-          // Gọi hàm in
-          handlePrint(invoiceData);
-          setSearchBill(undefined);
-          hienThiKhachHang(undefined);
-          // await loadBill();
-          // await loadProductDet();
-          setProduct([]);
-          setCustomerPayment(0);
-          setPaymentMethod(null);
-          // await loadBillChoThanhToan();
-          setIsBanGiaoHang(false);
-          fromThanhCong("Thanh toán thành công");
+    if (!result && paymentMethod != 2) {
+      fromThatBai(`Thanh toán đơn hàng ${searchBill?.nameBill ?? ''} không thành công`);
+      return;
+    }
+    if (searchBill == null || searchBill?.id === undefined) {
+      fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
+      return;
+    }
+    // Kiểm tra đầu vào
+    const validations = [
+      { condition: product.length === 0, message: "Vui lòng thêm sản phẩm trước khi thanh toán" },
+      { condition: !searchBill?.idAccount, message: "Vui lòng chọn khách hàng" },
+      { condition: !paymentMethod && !isThanhToanNhanHang, message: "Vui lòng chọn phương thức thanh toán" },
+      { condition: tienThua < 0 && !isThanhToanNhanHang && paymentMethod === 1, message: "Số tiền thanh toán không đủ" }
+    ];
 
-        } else {
-          fromThatBai(`Thanh toán đơn hàng ${searchBill?.nameBill ?? ''} không thành công`);
-        }
+    for (const v of validations) {
+      if (v.condition) {
+        fromThatBai(v.message);
+        return;
       }
+    }
+   
+    try {
+      await thanhToan({
+        id: searchBill?.id,
+        nameBill: searchBill?.nameBill,
+        idAccount: searchBill?.idAccount ?? null,
+        idNhanVien: searchBill?.idNhanVien ?? null,
+        idVoucher: searchBill?.idVoucher ?? null,
+        totalPrice: searchBill?.totalPrice ?? 0,
+        customerPayment: customerPayment,
+        amountChange: tienThua,
+        deliveryFee: phiShip ?? 0,
+        totalDue: tongTien ?? 0,
+        customerRefund: searchBill?.customerRefund ?? 0,
+        discountedTotal: searchBill?.discountedTotal ?? 0,
+        deliveryDate: searchBill?.deliveryDate ?? null,
+        customerPreferred_date: searchBill?.customerPreferred_date ?? null,
+        customerAppointment_date: searchBill?.customerAppointment_date ?? null,
+        receiptDate: searchBill?.receiptDate ?? null,
+        paymentDate: new Date().toISOString(),
+        billType: billType,
+        status: status,
+        address: searchBill?.address ?? null,
+        email: searchBill?.email ?? null,
+        note: searchBill?.note ?? null,
+        phone: searchBill?.phone ?? null,
+        name: searchBill?.name ?? null,
+        idPayment: paymentMethod,
+        idDelivery: searchBill?.idDelivery ?? null,
+        itemCount: searchBill?.itemCount ?? 0
+      });
+
+
+      const invoiceData = {
+        invoiceNumber: searchBill?.nameBill || "",
+        date: searchBill?.paymentDate,
+        staff: signupData?.name,
+        customer: listKhachHang?.fullName || "Khách lẻ",
+        phone: listKhachHang?.phone || "",
+        items: product.map(p => ({
+          product: p.nameProduct,
+          imei: listImei.map(i => i.imeiCode),
+          price: p.price,
+          quantity: p.quantity
+        })),
+        total: searchBill?.totalPrice,
+        discount: searchBill?.discountedTotal || 0,
+        payment: customerPayment,
+        change: tienThua
+      };
+
+      handlePrint(invoiceData);
+
+      // Reset trạng thái
+      setSearchBill(undefined);
+      hienThiKhachHang(undefined);
+      setProduct([]);
+      setCustomerPayment(0);
+      setPaymentMethod(null);
+      setIsBanGiaoHang(false);
+
+      fromThanhCong("Thanh toán thành công");
     } catch (error) {
       console.error("Lỗi khi thanh toán:", error);
+      fromThatBai("Đã xảy ra lỗi khi thanh toán");
     }
-  }
+  };
 
 
-
-
-  // const handleScanSuccess = async (imei: string) => {
-  //   try {
-  //     setIsScanning(true); // Khóa scanner trong khi xử lý
-  //     setScanError('');
-  //     setScanResult(imei);
-  //     // console.log('ID luc trươc:' + idBill);
-
-
-  //     // 1. Kiểm tra IMEI tồn tại và hợp lệ
-  //     const productDetail = await quetBarCode(imei);
-
-  //     if (!productDetail?.idImei) {
-  //       fromThatBai('IMEI không tồn tại trong hệ thống');
-  //     }
-
-  //     // 2. Kiểm tra hóa đơn đã được chọn
-  //     if (!idBill || idBill === 0) {
-  //       fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã');
-  //     }
-
-  //     // 3. Thêm vào hóa đơn chi tiết (HDCT)
-  //     const newBillDetail = await addHDCT({
-  //       idBill: idBill,
-  //       idProductDetail: productDetail.id
-  //     });
-  //     console.log('Phản hồi từ addHDCT:', newBillDetail);
-
-  //     if (!newBillDetail?.id) {
-  //       fromThatBai('Tạo hóa đơn chi tiết thất bại');
-  //     }
-
-  //     // 4. Thêm IMEI vào bảng sold với kiểm tra
-  //     // const imeiResponse = await createImeiSold(
-  //     //   {
-  //     //     id_Imei: [productDetail.idImei],
-  //     //     idBillDetail: newBillDetail.id
-  //     //   },
-  //     //   idBill,
-  //     //   productDetail.id
-  //     // );
-  //     // console.log('Phản hồi từ createImeiSold:', imeiResponse);
-  //     // 5. Xóa dữ liệu trước đó (nếu cần)
-  //     setProduct((prev) => prev.filter((p) => p.idProductDetail !== productDetail.id));
-  //     console.log(product);
-  //     // 5. Cập nhật UI
-  //     await Promise.all([
-  //       loadImei(productDetail.id), // Tải lại danh sách IMEI
-  //       getById(idBill),
-  //     ]);
-  //     console.log('ID luc sau:' + idBill);
-
-  //     fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`);
-  //   } catch (error: any) {
-  //     // Xử lý lỗi chi tiết
-  //     let errorMessage = 'Lỗi không xác định';
-  //     if (error.response) {
-  //       errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
-  //     } else if (error.message) {
-  //       errorMessage = error.message;
-  //     }
-
-  //     setScanError(errorMessage);
-  //     console.error('[SCAN ERROR]', errorMessage, error);
-  //   } finally {
-  //     setIsScanning(false); // Mở lại scanner
-  //     setSelectedImei([]); // Reset IMEI đã chọn
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   console.log("✅ ID hóa đơn đã cập nhật:", idHoaDon);
-  // }, [idHoaDon]);
-
+  // Quét mã vạch
   const isProcessing = useRef(false);
   const handleScanSuccess = async (imei: string) => {
     console.log("id bill khi chon " + idHoaDon);
@@ -923,10 +882,7 @@ function BanHangTaiQuay() {
             paymentMethod={paymentMethod}
             customerPayment={customerPayment}
             setCustomerPayment={setCustomerPayment}
-            handlePTThanhToan={handlePTThanhToan}
             handleThanhToan={handleThanhToan}
-            isPTThanhToan={isPTThanhToan}
-            setIsPTThanhToan={setIsPTThanhToan}
             ListVoucherTheoAccount={ListVoucherTheoAccount}
             setVoucherDangDung={setVoucherDangDung}
             updateVoucherKhiChon={updateVoucherKhiChon}
@@ -943,7 +899,7 @@ function BanHangTaiQuay() {
 
         </div>
       </div > <br />
-    
+
 
       <br />
     </>

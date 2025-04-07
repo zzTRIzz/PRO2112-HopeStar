@@ -27,28 +27,47 @@ const ThongTinDonHang: React.FC<Posp> =
         searchBill,
         listKhachHang
     }) => {
+        const getOrderStatusText = (status: string | undefined) => {
+            switch (status) {
+                case "CHO_THANH_TOAN": return "Chờ thanh toán";
+                case "DA_HUY": return "Đã hủy";
+                case "CHO_XAC_NHAN": return "Chờ xác nhận";
+                case "DA_THANH_TOAN": return "Đã thanh toán";
+                case "HOAN_THANH": return "Hoàn thành";
+                case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
+                case "DANG_GIAO_HANG": return "Đang giao hàng";
+                case "DA_GIAO_HANG": return "Đã giao hàng";
+                default: return "Không rõ trạng thái";
+            }
+        };
+
         const [isDialogOpen, setIsDialogOpen] = useState(false);
         return (
             <div>
                 <div className='bg-white rounded-xl shadow-xl p-4'>
                     <div className="flex items-center justify-between px-4">
                         <h1 className="font-bold text-lg text-gray-600">Thông tin đơn hàng</h1>
-                        {searchBill?.billType == 1 &&(
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <Button onClick={() => setIsDialogOpen(true)}>Cập nhật</Button>
+                        {/* {searchBill?.billType == 1 && ( */}
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <Button onClick={() => setIsDialogOpen(true)}
+                                    disabled={searchBill?.status === "DANG_GIAO_HANG" ||
+                                         searchBill?.status === "HOAN_THANH" ||
+                                         searchBill?.status === "CHO_THANH_TOAN"
+                                        }
+                                >Cập nhật
+                                </Button>
 
-                            <DialogContent className="max-w-3xl">
-                                <DialogHeader>
-                                    <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
-                                </DialogHeader>
-                                <DiaChiGiaoHang
-                                    isBanGiaoHang={true}
-                                    khachHang={listKhachHang}
-                                    onClose={() => setIsDialogOpen(false)}
-                                />
-                            </DialogContent>
-                        </Dialog>
-                        )}
+                                <DialogContent className="max-w-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
+                                    </DialogHeader>
+                                    <DiaChiGiaoHang
+                                        khachHang={listKhachHang}
+                                        onClose={() => setIsDialogOpen(false)}
+                                    />
+                                </DialogContent>
+                            </Dialog>
+                        {/* )} */}
                     </div>
 
                     <hr className=" border-gray-600 mt-[6px]" /><br />
@@ -93,7 +112,7 @@ const ThongTinDonHang: React.FC<Posp> =
                             </div>
                             <div className="flex  pb-2 mt-[13px] ">
                                 <span className="text-base text-gray-700 font-bold ">Trạng thái:</span>
-                                <p className="ml-[14px] text-green-600 font-semibold">{searchBill?.status}</p>
+                                <p className="ml-[14px] text-green-600 font-semibold">{getOrderStatusText(searchBill?.status)}</p>
                             </div>
                         </div>
                     </div>

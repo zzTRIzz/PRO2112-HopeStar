@@ -109,27 +109,7 @@ public class BillDetailServiceImpl implements BillDetailService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public BigDecimal tongTienBill(Integer idBill) {
-        // Lấy hóa đơn theo ID
-        Bill bill = billRepository.findById(idBill)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn: " + idBill));
 
-        // Lấy tổng tiền hàng từ database
-        BigDecimal tongTien = billDetailRepository.getTotalAmountByBillId(idBill);
-
-        // Lấy phí ship (nếu null thì mặc định 0)
-//        BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
-
-        // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
-//        BigDecimal tongTienFinal = tongTien.add(phiShip);
-
-        // Cập nhật lại tổng tiền vào hóa đơn
-        bill.setTotalPrice(tongTien);
-        billRepository.save(bill);
-
-        return tongTien;
-    }
 
 
     @Override

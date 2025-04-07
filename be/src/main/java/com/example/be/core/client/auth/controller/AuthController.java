@@ -46,7 +46,6 @@ public class AuthController {
 
     @GetMapping("/profile")
     public ResponseEntity<AccountResponse> getSellerByJwt(@RequestHeader("Authorization") String jwt) throws Exception {
-
         AccountResponse accountResponse = authService.getAccountProfile(jwt);;
         return new ResponseEntity<>(accountResponse, HttpStatus.OK);
 

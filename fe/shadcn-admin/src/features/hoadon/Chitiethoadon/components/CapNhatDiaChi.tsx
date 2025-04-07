@@ -27,7 +27,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
 import useVietnamAddress from '../../../banhang/service/ApiTichHopDiaChi';
-import { Textarea } from '@/components/ui/textarea';
 
 interface AccountKhachHang {
     id: number,
@@ -52,7 +51,6 @@ const formSchema = z.object({
 });
 
 interface Province {
-    isBanGiaoHang: boolean;
     khachHang: AccountKhachHang | undefined;
     onClose: () => void; // Thêm prop mới
 
@@ -72,7 +70,6 @@ const parseAddress = (fullAddress: string) => {
 };
 const DiaChiGiaoHang: React.FC<Province> =
     ({
-        isBanGiaoHang,
         khachHang,
         onClose
     }) => {
@@ -83,12 +80,11 @@ const DiaChiGiaoHang: React.FC<Province> =
             resolver: zodResolver(formSchema),
         });
         const onSubmit = (data: z.infer<typeof formSchema>) => {
-            // Xử lý logic cập nhật ở đây
             console.log("Data updated:", data);
-            onClose(); // Đóng dialog sau khi cập nhật
+            onClose();
         };
         useEffect(() => {
-            if (isBanGiaoHang == true && khachHang != null) {
+            if (khachHang != null) {
                 const { provinceName } = parseAddress(khachHang.address || "");
                 console.log(khachHang)
                 console.log(provinceName)
@@ -108,7 +104,7 @@ const DiaChiGiaoHang: React.FC<Province> =
                 diaChi.setValue("fullName", "");
                 diaChi.setValue("phone", "");
             }
-        }, [isBanGiaoHang, khachHang, provinces]);
+        }, [khachHang, provinces]);
 
         // Khi danh sách huyện có dữ liệu, tìm mã huyện và tải xã
         useEffect(() => {
@@ -141,16 +137,15 @@ const DiaChiGiaoHang: React.FC<Province> =
 
         return (
             <>
-                <div className={`transition-all duration-300 ${isBanGiaoHang ? "w-full opacity-100 visible" : "w-0 opacity-0 invisible"
-                    }`}
-                    style={{ minWidth: isBanGiaoHang ? "400px" : "0px" }}
-                >            {isBanGiaoHang && (
+                <div className={`transition-all duration-300  "w-full opacity-100 visible" 
+                    `}
+                    style={{ minWidth: "400px" }}
+                >
                     <Form {...diaChi}>
-                        <form  onSubmit={diaChi.handleSubmit(onSubmit)}
-                        className="space-y-8 max-w-2xl mx-auto py-10">
+                        <form onSubmit={diaChi.handleSubmit(onSubmit)}
+                            className="space-y-8 max-w-2xl mx-auto py-10">
                             <div className="grid grid-cols-12 gap-4">
                                 <div className="col-span-6">
-
                                     <FormField
                                         control={diaChi.control}
                                         name="fullName"
@@ -161,9 +156,8 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                     <Input
                                                         placeholder="Họ và tên "
                                                         type=""
-                                                        {...field}   className="w-[250px]"/>
+                                                        {...field} className="w-[250px]" />
                                                 </FormControl>
-
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -181,11 +175,9 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Số điện thoại"
-
                                                         type=""
-                                                        {...field}  className="w-[250px]"/>
+                                                        {...field} className="w-[250px]" />
                                                 </FormControl>
-
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -203,14 +195,15 @@ const DiaChiGiaoHang: React.FC<Province> =
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel>Thành phố/tỉnh</FormLabel>
-                                                <Popover open={openProvince} onOpenChange={setOpenProvince}>
+                                                {/* <Popover open={openProvince} onOpenChange={setOpenProvince}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
-                                                            <Button 
+                                                            <Button
                                                                 variant="outline"
                                                                 role="combobox"
                                                                 className="w-[250px] justify-between font-normal"
-                                                                onClick={() => setOpenProvince(!openProvince)}>
+                                                                onClick={() => setOpenProvince(!openProvince)}
+                                                                >
                                                                 {field.value ? provinces.find((p) => p.code === field.value)?.name : "Chọn tỉnh/thành phố"}
                                                                 <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                                                             </Button>
@@ -237,8 +230,52 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                             </CommandList>
                                                         </Command>
                                                     </PopoverContent>
+                                                </Popover> */}
+                                                <Popover open={openProvince} onOpenChange={setOpenProvince}>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                className="w-[250px] justify-between font-normal"
+                                                            >
+                                                                {field.value
+                                                                    ? provinces.find((p) => p.code === field.value)?.name
+                                                                    : "Chọn tỉnh/thành phố"}
+                                                                <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent
+                                                        className="w-[250px] p-0"
+                                                        onBlur={() => setOpenProvince(false)} // Đóng danh sách khi mất focus
+                                                    >
+                                                        <Command>
+                                                            <CommandInput placeholder="Search" />
+                                                            <CommandList>
+                                                                <CommandEmpty>No language found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {provinces.map((p) => (
+                                                                        <CommandItem
+                                                                            key={p.code}
+                                                                            onSelect={() => {
+                                                                                diaChi.setValue("province", p.code);
+                                                                                fetchDistricts(p.code);
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={
+                                                                                    p.code === field.value ? "opacity-100" : "opacity-0"
+                                                                                }
+                                                                            />
+                                                                            {p.name}
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
                                                 </Popover>
-
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -339,7 +376,7 @@ const DiaChiGiaoHang: React.FC<Province> =
                                             <FormItem>
                                                 <FormLabel>Địa chỉ cụ thể</FormLabel>
                                                 <FormControl>
-                                                    <Input  className="w-[250px]"
+                                                    <Input className="w-[250px]"
                                                         placeholder="Địa chỉ người nhận"
 
                                                         type=""
@@ -352,36 +389,20 @@ const DiaChiGiaoHang: React.FC<Province> =
                                     />
                                 </div>
                             </div>
-                            {/* <FormField
-                                control={diaChi.control}
-                                name="note"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Ghi chú</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="Ghi chú"
-                                                className="resize-none"
-                                                {...field}
-                                            />
-                                        </FormControl>
-
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            /> */}
                         </form>
                     </Form>
-                )}
+
                     <div className="flex justify-end gap-4 pt-6">
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={onClose}
-                        >
+                            onClick={onClose}>
                             Hủy
                         </Button>
-                        <Button type="submit">Lưu thay đổi</Button>
+
+                        <Button type="submit">
+                            Lưu thay đổi
+                        </Button>
                     </div>
                 </div>
 

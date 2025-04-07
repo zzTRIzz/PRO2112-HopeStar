@@ -69,4 +69,6 @@ public class BillDto {
     private Integer idPayment;
 
     private Integer idDelivery;
+
+    private Integer itemCount;
 }

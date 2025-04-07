@@ -53,7 +53,8 @@ public class BillMapper {
                 bill.getCreatedBy(),
                 bill.getUpdatedBy(),
                 (bill.getPayment() != null) ? bill.getPayment().getId() : null,
-                (bill.getDelivery() != null) ? bill.getDelivery().getId() : null
+                (bill.getDelivery() != null) ? bill.getDelivery().getId() : null,
+                null
         );
     }
 

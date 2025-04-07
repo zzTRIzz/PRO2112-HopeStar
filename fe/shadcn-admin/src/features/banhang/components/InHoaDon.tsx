@@ -32,7 +32,7 @@
 //               Email: beephoneshop2023@gmail.com
 //             </p>
 //           </div>
-    
+
 //           {/* Invoice Info */}
 //           <div className="text-center mb-4 border-b pb-2">
 //             <h2 className="text-lg font-bold uppercase">HÓA ĐƠN BÁN HÀNG</h2>
@@ -41,7 +41,7 @@
 //               Ngày {billData.date}
 //             </p>
 //           </div>
-    
+
 //           {/* Customer & Staff Info */}
 //           <div className="flex justify-between mb-4 text-sm">
 //             <div>
@@ -52,7 +52,7 @@
 //               <p><span className="font-semibold">SĐT:</span> {billData.phone}</p>
 //             </div>
 //           </div>
-    
+
 //           {/* Products Table */}
 //           <table className="w-full mb-4 text-xs border-collapse">
 //             <thead>
@@ -78,7 +78,7 @@
 //               ))}
 //             </tbody>
 //           </table>
-    
+
 //           {/* Summary */}
 //           <div className="text-xs">
 //             <div className="flex justify-between mb-1">
@@ -106,7 +106,7 @@
 //               <span>{billData.change.toLocaleString('vi-VN')} đ</span>
 //             </div>
 //           </div>
-    
+
 //           {/* Footer */}
 //           <div className="text-center mt-4 pt-2 border-t text-xs italic">
 //             Cám ơn quý khách. Hẹn gặp lại!
@@ -247,7 +247,17 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Thông tin hóa đơn */}
       <div style={{ marginBottom: "20px" }}>
         <p><strong>Mã hóa đơn:</strong> {billData?.invoiceNumber}</p>
-        <p><strong>Ngày:</strong> {billData?.date}</p>
+        <p><strong>Ngày:</strong>{billData?.date
+            ? new Date(billData?.date).toLocaleDateString("vi-VN", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false
+            })
+            : ""}
+        </p>
         <p><strong>Nhân viên bán hàng:</strong> {billData?.staff}</p>
         <p><strong>Khách hàng:</strong> {billData?.customer}</p>
         <p><strong>SDT:</strong> {billData?.phone}</p>

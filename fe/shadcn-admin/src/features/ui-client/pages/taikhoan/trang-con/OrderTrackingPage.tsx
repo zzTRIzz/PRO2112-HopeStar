@@ -45,7 +45,15 @@ const statusConfig = {
   DA_HUY: { color: '#dc3545', text: 'Đã hủy' },
 }
 
-
+const getPaymentMethod = (method: number | null) => {
+  switch (method) {
+    case 1: return "Chờ thanh toán";
+    case 2: return "Chuyển khoản";
+    case 3: return "Ví VNPAY";
+    case 4: return `COD`;
+    default: return "";
+  }
+};
 const OrderTrackingPage = () => {
   const [bill, setBill] = useState<Bill | null>(null);
   const urlParams = new URLSearchParams(window.location.search);
@@ -100,7 +108,7 @@ const OrderTrackingPage = () => {
             <div className='flex flex-wrap items-center justify-between gap-4'>
               <div className='space-y-1'>
                 <p className='text-sm text-default-500'>
-                  {bill.paymentDate ? new Date(bill.paymentDate).toLocaleDateString("vi-VN", {
+                  {bill?.paymentDate ? new Date(bill?.paymentDate).toLocaleDateString("vi-VN", {
                     year: "numeric",
                     month: "2-digit",
                     day: "2-digit",
@@ -114,7 +122,7 @@ const OrderTrackingPage = () => {
                   <Chip color='primary' variant='flat' size='sm'
                     className='ml-[18px]'
                   >
-                    {statusConfig[bill.status].text}
+                    {statusConfig[bill?.status].text}
                   </Chip>
                 </div>
               </div>
@@ -124,10 +132,10 @@ const OrderTrackingPage = () => {
         </Card>
 
         {/* Order Timeline - Đổi màu chính ở đây */}
-        <Card className='border-none shadow-sm'>
+        {/* <Card className='border-none shadow-sm'>
           <CardBody>
             <div className='relative flex justify-between'>
-              {bill.status !== 'DA_HUY' && (
+              {bill?.status !== 'DA_HUY' && (
                 <Progress
                   aria-label='Order Progress'
                   value={calculateProgress()}
@@ -139,8 +147,8 @@ const OrderTrackingPage = () => {
               {orderStatusSteps.map((step) => {
                 const currentStep = getCurrentStep();
                 const isDone = currentStep >= step.id - 1;
-                const isCurrent = step.statuses.includes(bill.status);
-                const statusColor = statusConfig[bill.status]?.color;
+                const isCurrent = step.statuses.includes(bill?.status);
+                const statusColor = statusConfig[bill?.status]?.color;
 
                 return (
                   <div key={step.id} className='flex flex-col items-center gap-2'>
@@ -168,72 +176,72 @@ const OrderTrackingPage = () => {
                 );
               })}
 
-              {bill.status === 'DA_HUY' && (
+              {bill?.status === 'DA_HUY' && (
                 <div className="absolute inset-0 bg-red-50/80 flex items-center justify-center rounded-lg">
                   <div className="flex items-center gap-2 text-red-600">
                     <Icon icon="lucide:alert-circle" width={24} />
-                    <span className="font-medium">Đơn hàng đã bị hủy</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Order Timeline - Đổi màu chính ở đây */}
-        {/* <Card className='border-none shadow-sm'>
-          <CardBody>
-            <div className='relative flex justify-between'>
-              {bill.status !== 'DA_HUY' && (
-                <Progress
-                  aria-label='Order Progress'
-                  value={calculateProgress()}
-                  className='absolute left-0 right-0 top-1/2 -z-10 h-1'
-                />
-              )}
-
-
-              {orderStatusSteps.map((step) => {
-                const currentStep = getCurrentStep();
-                const isDone = currentStep >= step.id - 1;
-                return (
-                  <div
-                    key={step.id}
-                    className='flex flex-col items-center gap-2'
-                  >
-                    <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-full
-                          ${isDone ? 'bg-primary-500' : 'bg-default-100' // Đổi từ success sang primary
-                        }`}
-                    >
-                      <Icon
-                        icon={step.icon}
-                        // className={
-                        //   step.done ? 'text-white' : 'text-default-400'
-                        // }
-                        // width={24}
-                        className={isDone ? 'text-white' : 'text-default-400'}
-                        width={24}
-                      />
-                    </div>
-                    <span className='text-sm font-medium'>{step.label}</span>
-                  </div>
-                )
-              })}
-
-              {bill.status === 'DA_HUY' && (
-                <div className="absolute inset-0 bg-red-50/80 flex items-center justify-center rounded-lg">
-                  <div className="flex items-center gap-2 text-red-600">
-                    <Icon icon="lucide:alert-circle" width={24} />
-                    <span className="font-medium">Đơn hàng đã bị hủy</span>
+                    <span className="font-medium">Đơn hàng đã hủy</span>
                   </div>
                 </div>
               )}
             </div>
           </CardBody>
         </Card> */}
+        {/* Order Timeline - Đổi màu chính ở đây */}
+        <Card className="border-none shadow-sm h-[110px]">
+          <CardBody>
+            {bill?.status === 'DA_HUY' ? (
+              // Hiển thị thông báo "Đơn hàng đã hủy"
+              <div className="absolute inset-0 bg-red-100 flex items-center justify-center rounded-lg ">
+                <div className="flex items-center gap-2 text-red-600">
+                  <Icon icon="lucide:alert-circle" width={24} />
+                  <span className="font-medium">Đơn hàng đã hủy</span>
+                </div>
+              </div>
+            ) : (
+              // Hiển thị trạng thái đơn hàng nếu không phải "Đã hủy"
+              <div className="relative flex justify-between">
+                <Progress
+                  aria-label="Order Progress"
+                  value={calculateProgress()}
+                  className="absolute left-0 right-0 top-1/2 -z-10 h-1"
+                />
 
+                {orderStatusSteps.map((step) => {
+                  const currentStep = getCurrentStep();
+                  const isDone = currentStep >= step.id - 1;
+                  const isCurrent = step.statuses.includes(bill?.status);
+                  const statusColor = statusConfig[bill?.status]?.color;
 
+                  return (
+                    <div key={step.id} className="flex flex-col items-center gap-2">
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-full ${isDone ? 'bg-opacity-100' : 'bg-default-100'
+                          }`}
+                        style={{
+                          backgroundColor: isDone ? statusColor : undefined,
+                        }}
+                      >
+                        <Icon
+                          icon={step.icon}
+                          className={isDone ? 'text-white' : 'text-default-400'}
+                          width={24}
+                        />
+                      </div>
+                      <span
+                        className={`text-sm font-medium ${isCurrent ? 'text-[${statusColor}]' : ''
+                          }`}
+                        style={{ color: isCurrent ? statusColor : undefined }}
+                      >
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardBody>
+        </Card>
 
 
         <div className='grid gap-4 md:grid-cols-3'>
@@ -260,7 +268,7 @@ const OrderTrackingPage = () => {
                 <h2 className='mb-4 font-semibold'>Nhận hàng tại</h2>
                 <p className='text-sm'>
                   {/* {bill?.address} */}
-                  {bill?.address.replace(/^[^,]+/, '***')};
+                  {bill?.address != null ? bill?.address.replace(/^[^,]+/, '***') : "Chưa có địa chỉ"};
 
                 </p>
               </CardBody>
@@ -314,7 +322,7 @@ const OrderTrackingPage = () => {
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-sm'>Phí vận chuyển</span>
-                  <span>{bill.deliveryFee.toLocaleString("vi-VN")} đ</span>
+                  <span>{bill?.deliveryFee != null ? bill?.deliveryFee.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
                 {/* <div className='flex justify-between'>
                   <span className='text-sm'>Điểm tích lũy</span>
