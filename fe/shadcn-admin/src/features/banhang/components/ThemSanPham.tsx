@@ -347,20 +347,20 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                               )}
                             </div></TableCell>
                             <TableCell>
-                              {product.name +
+                              {product?.name +
                                 ' ' +
-                                product.ram +
+                                product?.ram +
                                 '/' +
-                                product.rom +
+                                product?.rom +
                                 'GB (' +
-                                product.color +
+                                product?.color +
                                 ')'}
                             </TableCell>
                             <TableCell>
-                              {product.priceSell.toLocaleString('vi-VN')}
+                              {product?.priceSell.toLocaleString('vi-VN')}
                             </TableCell>
                             <TableCell align='center'>
-                              {product.inventoryQuantity}
+                              {product?.inventoryQuantity}
                             </TableCell>
                             <TableCell>
                               <Button
