@@ -5,10 +5,10 @@ import AddIcon from '@mui/icons-material/Add'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -149,7 +149,7 @@ export function ProductForm({
 
   return (
     <div className='mx-auto space-y-4 rounded border px-4 py-6 shadow'>
-      <h1 className='text-center text-2xl font-semibold'>Tạo Sản Phẩm</h1>
+      <h1 className='text-center text-2xl font-semibold'>Tạo sản phẩm</h1>
 
       {/* Basic Information */}
       <div className='w-full'>
