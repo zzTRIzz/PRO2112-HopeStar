@@ -1,9 +1,5 @@
-package com.example.be.core.client.bill.respones;
+package com.example.be.core.admin.banhang.respones;
 
-import com.example.be.entity.Account;
-import com.example.be.entity.DeliveryMethod;
-import com.example.be.entity.PaymentMethod;
-import com.example.be.entity.Voucher;
 import com.example.be.entity.status.StatusBill;
 import lombok.Data;
 
@@ -18,9 +14,13 @@ public class BillRespones {
 
     private String code;
 
-    private String fullNameKh;
+    private Integer idAccount;
+
+    private Integer idNhanVien;
 
     private String fullNameNV;
+
+    private Integer idVoucher;
 
     private String codeVoucher;
 

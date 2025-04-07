@@ -41,6 +41,8 @@ public interface ImeiSoldRepository extends JpaRepository<ImeiSold, Integer> {
 
     @Query("select i from ImeiSold i " +
             "where i.idBillDetail.id = :idBillDetail")
-    Imei timkiem(@Param("idBillDetail") Integer idBillDetail);
+    List<ImeiSold> timkiem(@Param("idBillDetail") Integer idBillDetail);
+
+//    List<ImeiSold> findByIdBillDetail(@Param("idBillDetail") Integer idBillDetail);
 
 }

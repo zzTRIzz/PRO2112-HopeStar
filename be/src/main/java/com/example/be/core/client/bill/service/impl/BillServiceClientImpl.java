@@ -91,7 +91,6 @@ public class BillServiceClientImpl implements BillServiceClient {
             } else {
                 billRespones.setBillDetailResponesList(List.of()); // Không có BillDetail nào
             }
-
             return billRespones;
         }).collect(Collectors.toList());
 
@@ -103,7 +102,7 @@ public class BillServiceClientImpl implements BillServiceClient {
         Optional<Bill> optionalBill = billRepository.findById(idBill);
 
         if (optionalBill.isEmpty()) {
-            return null; // Hoặc throw new RuntimeException("Bill not found");
+            return null;
         }
 
         Bill bill = optionalBill.get();

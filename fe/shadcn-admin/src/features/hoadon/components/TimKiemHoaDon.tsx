@@ -30,6 +30,9 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
 
   const applyFilters = () => {
     if (!validateDates()) return;
+    const dateTimeKetThuc = dateKetThuc
+    ? new Date(dateKetThuc.setHours(23, 59, 59, 999))
+    : undefined;
 
     const filtered = originalList.filter((bill) => {
       const matchesKeyword =
@@ -40,7 +43,7 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
       const billDate = bill.paymentDate ? new Date(bill.paymentDate) : null;
       const matchesDate =
         (!dateBatDau || (billDate && billDate >= dateBatDau)) &&
-        (!dateKetThuc || (billDate && billDate <= dateKetThuc));
+        (!dateTimeKetThuc || (billDate && billDate <= dateTimeKetThuc));
 
       const matchesBillType = billType === null || bill.billType === Number(billType);
       const matchesStatus = status === null || bill.status === status;

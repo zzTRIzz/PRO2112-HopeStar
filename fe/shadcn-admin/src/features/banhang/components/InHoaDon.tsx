@@ -117,11 +117,102 @@
 
 // export default InvoiceTemplate;
 
+// <div className="invoice-container p-6 max-w-4xl mx-auto font-sans bg-white">
+//   {/* Header */}
+//   <div className="text-center mb-4 border-b-2 border-black pb-4">
+//     <h1 className="text-3xl font-bold text-blue-800 mb-2">BPSHOP</h1>
+//     <div className="text-sm">
+//       <p className="font-semibold">Địa chỉ: Cao đẳng FPT Polytechnic, Bắc Từ Liêm, Hà Nội</p>
+//       <p>Điện thoại: 0978774487 | Email: beephoneshop2023@gmail.com</p>
+//     </div>
+//   </div>
+
+//   {/* Invoice Info */}
+//   <div className="flex justify-between mb-6 px-4">
+//     <div className="text-left">
+//       <p className="font-bold">Mã hóa đơn: {billData.invoiceNumber}</p>
+//       <p>Ngày: {billData.date}</p>
+//     </div>
+//     <div className="text-center">
+//       <h2 className="text-2xl font-bold uppercase text-red-600">HÓA ĐƠN BÁN HÀNG</h2>
+//     </div>
+//   </div>
+
+//   {/* Customer & Staff Info */}
+//   <div className="flex justify-between mb-6 px-4 text-sm bg-gray-50 p-3 rounded">
+//     <div>
+//       <p className="font-semibold">Nhân viên bán hàng:</p>
+//       <p>{billData.staff}</p>
+//     </div>
+//     <div>
+//       <p className="font-semibold">Khách hàng:</p>
+//       <p>{billData.customer}</p>
+//       <p>SDT: {billData.phone}</p>
+//     </div>
+//   </div>
+
+//   {/* Products Table */}
+//   <table className="w-full mb-4 text-sm border-collapse border-2 border-gray-800">
+//     <thead>
+//       <tr className="bg-gray-200">
+//         <th className="border-2 border-gray-600 p-2 w-12">STT</th>
+//         <th className="border-2 border-gray-600 p-2 text-left">Sản phẩm</th>
+//         <th className="border-2 border-gray-600 p-2 w-48">Số IMEI</th>
+//         <th className="border-2 border-gray-600 p-2 w-32">Đơn giá</th>
+//       </tr>
+//     </thead>
+//     <tbody>
+//       {billData.items.map((item, index) => (
+//         <tr key={index} className="hover:bg-gray-50">
+//           <td className="border-2 border-gray-600 p-2 text-center">{index + 1}</td>
+//           <td className="border-2 border-gray-600 p-2">{item.product}</td>
+//           <td className="border-2 border-gray-600 p-2 font-mono text-xs">
+//             {item.imei.join('\n')}
+//           </td>
+//           <td className="border-2 border-gray-600 p-2 text-right">
+//             {item.price.toLocaleString('vi-VN')} đ
+//           </td>
+//         </tr>
+//       ))}
+//     </tbody>
+//   </table>
+
+//   {/* Summary */}
+//   <div className="text-sm px-4">
+//     <div className="grid grid-cols-2 gap-4 mb-2">
+//       <div className="border-t-2 border-black pt-2">
+//         <p className="font-semibold">Tổng tiền hàng:</p>
+//         <p className="font-semibold">Chiết khấu:</p>
+//         <p className="font-semibold text-red-600">Khách phải trả:</p>
+//         <p className="font-semibold">Tiền khách đưa:</p>
+//         <p className="font-semibold text-green-600">Tiền thừa:</p>
+//       </div>
+//       <div className="border-t-2 border-black pt-2 text-right">
+//         <p>{billData.total.toLocaleString('vi-VN')} đ</p>
+//         <p>{billData.discount.toLocaleString('vi-VN')} đ</p>
+//         <p className="text-red-600">{(billData.total - billData.discount).toLocaleString('vi-VN')} đ</p>
+//         <p>{billData.payment.toLocaleString('vi-VN')} đ</p>
+//         <p className="text-green-600">{billData.change.toLocaleString('vi-VN')} đ</p>
+//       </div>
+//     </div>
+//   </div>
+
+//   {/* Footer */}
+//   <div className="text-center mt-8 pt-4 border-t-2 border-dashed border-gray-400">
+//     <p className="text-xs italic text-gray-600">
+//       Cảm ơn quý khách đã mua hàng! Hẹn gặp lại!
+//     </p>
+//     <p className="text-xs mt-2 text-gray-500">
+//       * Hóa đơn có giá trị khi có chữ ký và dấu của cửa hàng
+//     </p>
+//   </div>
+// </div>
+
 import React from "react";
 interface PrintInvoiceProps {
   billData: {
-    invoiceNumber: string;
-    date: string;
+    code: string;
+    paymentDate: string;
     staff: string;
     customer: string;
     phone: string;
@@ -131,106 +222,15 @@ interface PrintInvoiceProps {
       price: number;
       quantity: number;
     }>;
-    total: number;
-    discount: number;
-    payment: number;
+    totalPrice: number;
+    discountedTotal: number;
+    customerPayment: number;
     change: number;
   };
 }
 
 const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
   return (
-    // <div className="invoice-container p-6 max-w-4xl mx-auto font-sans bg-white">
-    //   {/* Header */}
-    //   <div className="text-center mb-4 border-b-2 border-black pb-4">
-    //     <h1 className="text-3xl font-bold text-blue-800 mb-2">BPSHOP</h1>
-    //     <div className="text-sm">
-    //       <p className="font-semibold">Địa chỉ: Cao đẳng FPT Polytechnic, Bắc Từ Liêm, Hà Nội</p>
-    //       <p>Điện thoại: 0978774487 | Email: beephoneshop2023@gmail.com</p>
-    //     </div>
-    //   </div>
-
-    //   {/* Invoice Info */}
-    //   <div className="flex justify-between mb-6 px-4">
-    //     <div className="text-left">
-    //       <p className="font-bold">Mã hóa đơn: {billData.invoiceNumber}</p>
-    //       <p>Ngày: {billData.date}</p>
-    //     </div>
-    //     <div className="text-center">
-    //       <h2 className="text-2xl font-bold uppercase text-red-600">HÓA ĐƠN BÁN HÀNG</h2>
-    //     </div>
-    //   </div>
-
-    //   {/* Customer & Staff Info */}
-    //   <div className="flex justify-between mb-6 px-4 text-sm bg-gray-50 p-3 rounded">
-    //     <div>
-    //       <p className="font-semibold">Nhân viên bán hàng:</p>
-    //       <p>{billData.staff}</p>
-    //     </div>
-    //     <div>
-    //       <p className="font-semibold">Khách hàng:</p>
-    //       <p>{billData.customer}</p>
-    //       <p>SDT: {billData.phone}</p>
-    //     </div>
-    //   </div>
-
-    //   {/* Products Table */}
-    //   <table className="w-full mb-4 text-sm border-collapse border-2 border-gray-800">
-    //     <thead>
-    //       <tr className="bg-gray-200">
-    //         <th className="border-2 border-gray-600 p-2 w-12">STT</th>
-    //         <th className="border-2 border-gray-600 p-2 text-left">Sản phẩm</th>
-    //         <th className="border-2 border-gray-600 p-2 w-48">Số IMEI</th>
-    //         <th className="border-2 border-gray-600 p-2 w-32">Đơn giá</th>
-    //       </tr>
-    //     </thead>
-    //     <tbody>
-    //       {billData.items.map((item, index) => (
-    //         <tr key={index} className="hover:bg-gray-50">
-    //           <td className="border-2 border-gray-600 p-2 text-center">{index + 1}</td>
-    //           <td className="border-2 border-gray-600 p-2">{item.product}</td>
-    //           <td className="border-2 border-gray-600 p-2 font-mono text-xs">
-    //             {item.imei.join('\n')}
-    //           </td>
-    //           <td className="border-2 border-gray-600 p-2 text-right">
-    //             {item.price.toLocaleString('vi-VN')} đ
-    //           </td>
-    //         </tr>
-    //       ))}
-    //     </tbody>
-    //   </table>
-
-    //   {/* Summary */}
-    //   <div className="text-sm px-4">
-    //     <div className="grid grid-cols-2 gap-4 mb-2">
-    //       <div className="border-t-2 border-black pt-2">
-    //         <p className="font-semibold">Tổng tiền hàng:</p>
-    //         <p className="font-semibold">Chiết khấu:</p>
-    //         <p className="font-semibold text-red-600">Khách phải trả:</p>
-    //         <p className="font-semibold">Tiền khách đưa:</p>
-    //         <p className="font-semibold text-green-600">Tiền thừa:</p>
-    //       </div>
-    //       <div className="border-t-2 border-black pt-2 text-right">
-    //         <p>{billData.total.toLocaleString('vi-VN')} đ</p>
-    //         <p>{billData.discount.toLocaleString('vi-VN')} đ</p>
-    //         <p className="text-red-600">{(billData.total - billData.discount).toLocaleString('vi-VN')} đ</p>
-    //         <p>{billData.payment.toLocaleString('vi-VN')} đ</p>
-    //         <p className="text-green-600">{billData.change.toLocaleString('vi-VN')} đ</p>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {/* Footer */}
-    //   <div className="text-center mt-8 pt-4 border-t-2 border-dashed border-gray-400">
-    //     <p className="text-xs italic text-gray-600">
-    //       Cảm ơn quý khách đã mua hàng! Hẹn gặp lại!
-    //     </p>
-    //     <p className="text-xs mt-2 text-gray-500">
-    //       * Hóa đơn có giá trị khi có chữ ký và dấu của cửa hàng
-    //     </p>
-    //   </div>
-    // </div>
-
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px", width: "800px", margin: "0 auto" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -246,17 +246,17 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
 
       {/* Thông tin hóa đơn */}
       <div style={{ marginBottom: "20px" }}>
-        <p><strong>Mã hóa đơn:</strong> {billData?.invoiceNumber}</p>
-        <p><strong>Ngày:</strong>{billData?.date
-            ? new Date(billData?.date).toLocaleDateString("vi-VN", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false
-            })
-            : ""}
+        <p><strong>Mã hóa đơn:</strong> {billData?.code}</p>
+        <p><strong>Ngày:</strong>  {billData?.paymentDate
+          ? new Date(billData?.paymentDate).toLocaleDateString("vi-VN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          })
+          : ""}
         </p>
         <p><strong>Nhân viên bán hàng:</strong> {billData?.staff}</p>
         <p><strong>Khách hàng:</strong> {billData?.customer}</p>
@@ -296,9 +296,9 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Tổng kết */}
       <div style={{ textAlign: "right", marginBottom: "20px" }}>
         <p><strong>Tổng số lượng:</strong> {billData?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
-        <p><strong>Tổng tiền hàng:</strong> {billData?.total.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Chiết khấu:</strong> {billData?.discount.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Khách trả:</strong> {billData?.payment.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Chiết khấu:</strong> {billData?.discountedTotal.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Khách trả:</strong> {billData?.customerPayment.toLocaleString("vi-VN")} đ</p>
         <p><strong>Tiền thừa:</strong> {billData?.change.toLocaleString("vi-VN")} đ</p>
       </div>
 

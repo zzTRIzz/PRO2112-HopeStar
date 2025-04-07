@@ -11,8 +11,8 @@ import { Bill } from './service/HoaDonSchema';
 import TimKiemHoaDon from './components/TimKiemHoaDon';
 
 const QuanLyHoaDon: React.FC = () => {
-    const [originalList, setOriginalList] = React.useState<Bill[]>([]); // Danh sách gốc
-    const [filteredList, setFilteredList] = React.useState<Bill[]>([]); // Danh sách đã lọc
+    const [originalList, setOriginalList] = React.useState<Bill[]>([]); 
+    const [filteredList, setFilteredList] = React.useState<Bill[]>([]); 
 
     React.useEffect(() => {
         loadHoaDon();

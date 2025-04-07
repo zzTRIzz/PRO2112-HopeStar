@@ -14,13 +14,13 @@ import TableRow from '@mui/material/TableRow';
 import { Input } from "@/components/ui/input"
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { BillSchema, Voucher } from '../service/Schema';
+import { BillRespones, Voucher } from '../service/Schema';
 import InHoaDon from './InHoaDon';
 import "../css/print_hoaDon.css"
 import TaoMaQr from './TaoMaQr';
 import { fromThanhCong, fromThatBai } from './ThongBao';
 interface ThanhToanProps {
-    searchBill: BillSchema | undefined;
+    searchBill: BillRespones | undefined;
     setPaymentMethod: any;
     paymentMethod: number | null;
     customerPayment: number;

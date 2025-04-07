@@ -75,7 +75,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   setListProduct,
 }) => {
   const [searchKey, setSearchKey] = useState('')
-  const [selectedBrand, setSelectedBrand] = useState<number | null>(null)
+  const [selectedBrand, setSelectedBrand] = useState<number>()
   const [selectedChip, setSelectedChip] = useState<number>()
   const [selectedCategory, setSelectedCategory] = useState<number>()
   const [selectedOs, setSelectedOs] = useState<number>()
@@ -173,11 +173,11 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
     selectedOs,
     selectedScreen,
   ])
-  const resetSearch = async () => {
-    setSearchKey('');
-    setSelectedBrand(null);
-    setSelectedChip(undefined);
-    setSelectedCategory(undefined);
+  const resetSearch = async() => {
+    setSearchKey(''); 
+    setSelectedBrand(undefined); 
+    setSelectedChip(undefined); 
+    setSelectedCategory(undefined); 
     setSelectedOs(undefined);
     setSelectedScreen(undefined);
     if (setListProduct) {
@@ -226,7 +226,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                     <SelectContent>
                       <ScrollArea className='h-40'>
 
-                        {brands.map((brand) => (
+                          {brands.map((brand) => (
                           <SelectItem key={brand.id} value={brand.id.toString()}>
                             {brand.name}
                           </SelectItem>
