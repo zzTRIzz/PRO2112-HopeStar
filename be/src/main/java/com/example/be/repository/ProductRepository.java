@@ -38,7 +38,7 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND (:#{#searchRequest.status} IS NULL OR p.status = :#{#searchRequest.getStatusCommon()})")
     List<Product> findAllMatching(@Param("searchRequest") SearchProductRequest searchRequest);
 
-    List<Product> findTop10ByStatusOrderByCreatedAtDesc(StatusCommon status);
+    List<Product> findByStatusOrderByCreatedAtDesc(StatusCommon status);
 
     @Query("SELECT p FROM Product p " +
             "JOIN p.productDetails pd " +

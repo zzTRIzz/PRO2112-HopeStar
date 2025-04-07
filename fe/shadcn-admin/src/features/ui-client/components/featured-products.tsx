@@ -23,6 +23,7 @@ export default function FeaturedProducts() {
   >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [displayLimit] = useState(10)
 
   const queryClient = useQueryClient()
 
@@ -102,7 +103,7 @@ export default function FeaturedProducts() {
         </Button>
       </div>
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-        {newestProducts.map((product) => (
+        {newestProducts.slice(0, displayLimit).map((product) => (
           <Card
             key={product.idProduct}
             className='group flex flex-col overflow-hidden'

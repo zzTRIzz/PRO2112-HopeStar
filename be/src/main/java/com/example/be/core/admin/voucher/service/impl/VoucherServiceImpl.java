@@ -7,8 +7,8 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
-import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.VoucherAccount;
+import com.example.be.entity.status.StatusVoucher;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.VoucherAccountRepository;
 import com.example.be.repository.VoucherRepository;
@@ -21,17 +21,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.*;
-        import java.util.stream.Collectors;
-
+import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -72,16 +69,6 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherMapper.toEntity(id, request);
         voucher = voucherRepository.save(voucher);
         return voucherMapper.toResponse(voucher);
-    }
-
-    @Override
-    public void updateSoLuongVoucher(Integer idVoucher) {
-        Voucher voucher = voucherRepository.findById(idVoucher)
-                .orElseThrow(()->new RuntimeException("Khong tim thay voucher"));
-
-        Integer soLuongConLai = voucher.getQuantity() - 1;
-        voucher.setQuantity(soLuongConLai);
-        voucherRepository.save(voucher);
     }
 
     @Override
@@ -168,6 +155,7 @@ public class VoucherServiceImpl implements VoucherService {
             Voucher voucher = voucherRepository.findById(voucherId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher"));
 
+            // Kiểm tra số lượng voucher còn lại
             if (voucher.getQuantity() < customerIds.size()) {
                 throw new RuntimeException("Số lượng voucher không đủ để phân phối");
             }
@@ -176,13 +164,24 @@ public class VoucherServiceImpl implements VoucherService {
             List<String> alreadyAssigned = new ArrayList<>();
             List<String> newlyAssigned = new ArrayList<>();
             int successCount = 0;
+            if (successCount > 0) {
+                voucher.setQuantity(voucher.getQuantity() - successCount);
 
+                // Update status if quantity becomes 0
+                if (voucher.getQuantity() == 0) {
+                    voucher.setStatus(StatusVoucher.EXPIRE);
+                }
+
+                voucherRepository.save(voucher);
+            }
             for (Account customer : customers) {
                 try {
-                    // Kiểm tra đã được gán chưa
-                    if (voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucherId, customer.getId())) {
-                        log.info("Bỏ qua - {} đã có voucher này", customer.getEmail());
-                        alreadyAssigned.add(customer.getEmail());
+                    // Kiểm tra đã có voucher chưa
+                    if (voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(
+                            voucherId, customer.getId()
+                    )) {
+                        log.info("Bỏ qua - {} đã có voucher này", customer.getFullName());
+                        alreadyAssigned.add(customer.getFullName());
                         continue;
                     }
 
@@ -193,19 +192,14 @@ public class VoucherServiceImpl implements VoucherService {
                     voucherAccountRepository.save(voucherAccount);
 
                     successCount++;
-                    newlyAssigned.add(customer.getEmail());
-                    log.info("Đã gán voucher cho {}", customer.getEmail());
+                    newlyAssigned.add(customer.getFullName());
+                    log.info("Đã gán voucher cho {}", customer.getFullName());
 
                     // Gửi email
-                    try {
-                        sendVoucherEmail(customer, voucher);
-                        log.info("✓ Đã gửi email thành công đến {}", customer.getEmail());
-                    } catch (Exception e) {
-                        log.error("❌ Lỗi gửi email đến {}: {}", customer.getEmail(), e.getMessage());
-                    }
+                    sendVoucherEmail(customer, voucher);
 
                 } catch (Exception e) {
-                    log.error("Lỗi xử lý cho {}: {}", customer.getEmail(), e.getMessage());
+                    log.error("Lỗi xử lý cho {}: {}", customer.getFullName(), e.getMessage());
                 }
             }
 
@@ -217,7 +211,7 @@ public class VoucherServiceImpl implements VoucherService {
 
             // Tạo response
             Map<String, Object> result = new HashMap<>();
-            result.put("success", alreadyAssigned.isEmpty());
+            result.put("success", !newlyAssigned.isEmpty());
             result.put("message", buildResultMessage(alreadyAssigned, newlyAssigned));
             result.put("details", Map.of(
                     "alreadyHasVoucher", alreadyAssigned,
@@ -230,6 +224,31 @@ public class VoucherServiceImpl implements VoucherService {
             log.error("Lỗi gán voucher: {}", e.getMessage());
             throw new RuntimeException("Lỗi gán voucher: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<AccountResponse> getAccountsWithVoucher(Integer voucherId) {
+        return voucherAccountRepository.findByIdVoucherId(voucherId)
+                .stream()
+                .map(voucherAccount -> {
+                    Account account = voucherAccount.getIdAccount();
+                    return AccountResponse.builder()
+                            .id(account.getId())
+                            .fullName(account.getFullName())
+                            .code(account.getCode())
+                            .email(account.getEmail())
+                            .phone(account.getPhone())
+                            .address(account.getAddress())
+                            .imageAvatar(account.getImageAvatar())
+                            .status(account.getStatus().toString())
+                            .idRole(RoleResponse.builder()
+                                    .id(account.getIdRole().getId())
+                                    .name(account.getIdRole().getName())
+                                    .code(account.getIdRole().getCode())
+                                    .build())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     private String buildResultMessage(List<String> alreadyAssigned, List<String> newlyAssigned) {
@@ -270,23 +289,36 @@ public class VoucherServiceImpl implements VoucherService {
             String minPrice = currencyFormat.format(voucher.getConditionPriceMin());
 
             String emailContent = String.format("""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #333;">Xin chào %s!</h2>
-                <p>Bạn vừa được thêm một voucher mới vào tài khoản.</p>
-                <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-                    <p><strong>Chi tiết voucher:</strong></p>
-                    <ul style="list-style: none; padding-left: 0;">
-                        <li style="margin-bottom: 8px;"><strong>Mã voucher:</strong> %s</li>
-                        <li style="margin-bottom: 8px;"><strong>Tên voucher:</strong> %s</li>
-                        <li style="margin-bottom: 8px;"><strong>Giá trị:</strong> %s</li>
-                        <li style="margin-bottom: 8px;"><strong>Điều kiện:</strong> Đơn hàng từ %s đ</li>
-                        <li style="margin-bottom: 8px;"><strong>Thời hạn:</strong> %s - %s</li>
-                    </ul>
-                </div>
-                <p>Hãy sử dụng voucher này cho đơn hàng tiếp theo của bạn!</p>
-                <p style="margin-top: 20px;">Trân trọng,<br>HopeStar</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+            <h2 style="color: #2563eb;">Chào mừng bạn đến với HopeStar, %s!</h2>
+            
+            <p>Cảm ơn bạn đã đồng hành cùng HopeStar trong thời gian qua. Chúng tôi rất vui được thông báo rằng bạn vừa nhận được một <strong>voucher ưu đãi mới</strong> trong tài khoản của mình!</p>
+
+            <div style="background-color: #f0f7ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #1e40af; margin-top: 0;">✨ Thông tin chi tiết về voucher như sau:</h3>
+                
+                <p style="margin: 10px 0;">🔹 <strong>Mã voucher</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Tên voucher</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Giá trị</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Điều kiện áp dụng</strong>: Cho đơn hàng từ %sđ</p>
+                <p style="margin: 10px 0;">🔹 <strong>Thời hạn sử dụng</strong>: Từ %s đến %s</p>
             </div>
-            """,
+
+            <p>Hãy tận dụng voucher này để tiết kiệm cho đơn hàng tiếp theo của bạn. Đừng bỏ lỡ cơ hội nhận thêm nhiều ưu đãi hấp dẫn khác trong tương lai!</p>
+
+            <p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi qua email hoặc hotline hỗ trợ.</p>
+
+            <div style="margin-top: 30px;">
+                <p style="margin: 5px 0;">Trân trọng,<br><strong>Đội ngũ HopeStar</strong></p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📧 Email: support@hopestar.vn</p>
+                <p style="margin: 5px 0;">📞 Hotline: 1900 123 456</p>
+                <p style="margin: 5px 0;">🌐 Website: www.hopestar.vn</p>
+            </div>
+        </div>
+        """,
                     account.getFullName(),
                     voucher.getCode(),
                     voucher.getName(),
@@ -315,28 +347,5 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher với id: " + id));
         return voucherMapper.toResponse(voucher);
-    }
-
-    @Override
-    public List<AccountResponse> getAccountsWithVoucher(Integer voucherId) {
-        List<VoucherAccount> voucherAccounts = voucherAccountRepository
-                .findByIdVoucherId(voucherId);
-
-        return voucherAccounts.stream()
-                .map(voucherAccount -> {
-                    Account account = voucherAccount.getIdAccount();
-                    return AccountResponse.builder()
-                            .id(account.getId())
-                            .fullName(account.getFullName())
-                            .email(account.getEmail())
-                            .phone(account.getPhone())
-                            .status(account.getStatus().toString())
-                            .idRole(RoleResponse.builder()
-                                    .id(account.getIdRole().getId())
-                                    .name(account.getIdRole().getName())
-                                    .build())
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 }

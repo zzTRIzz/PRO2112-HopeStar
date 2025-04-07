@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Integer> {
@@ -19,4 +21,8 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
   String getNewCode();
 
   ShoppingCart findShoppingCartByIdAccount(Account account);
+
+  Optional<ShoppingCart> findShoppingCartByGuestId(String guestId);
+
+  List<ShoppingCart> findByGuestIdIsNotNullAndCreatedAtBefore(LocalDateTime date);
 }

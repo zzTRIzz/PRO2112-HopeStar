@@ -12,7 +12,6 @@ public interface SaleService {
     List<SaleResponse> getAll();
     SaleResponse add(SaleRequest request);
     SaleResponse update(Integer id, SaleRequest request);
-    void delete(Integer id);
     List<SaleResponse> searchSales(String code, LocalDateTime dateStart, LocalDateTime dateEnd);
     Map<String, Object> assignProductsToSale(SaleProductAssignRequest request);
     List<SaleDetailResponse> getProductsInSale(Integer saleId);

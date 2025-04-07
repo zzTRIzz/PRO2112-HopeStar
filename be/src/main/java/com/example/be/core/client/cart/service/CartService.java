@@ -6,5 +6,7 @@ import com.example.be.entity.Account;
 
 public interface CartService {
     CartResponse getCart(Account account);
-    Object addToCart(AddToCartRequest request, Account account) throws Exception;
+    CartResponse getOrCreateGuestCart(String guestCartId);
+    Object addToCart(AddToCartRequest request, Account account, String guestCartId) throws Exception;
+    void mergeGuestCartToAccount(String guestCartId,Account account);
 }

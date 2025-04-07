@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.entity.SaleDetail;
+import com.example.be.entity.status.StatusSale;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,4 +17,5 @@ public interface SaleDetailRepository extends JpaRepository<SaleDetail, Integer>
   @Query("SELECT sd FROM SaleDetail sd JOIN FETCH sd.sale WHERE sd.productDetail.id = :productDetailId")
   List<SaleDetail> findByProductDetailIdWithSale(@Param("productDetailId") Integer productDetailId);
   void deleteAllByIdIn(List<Integer> ids);
+  List<SaleDetail> findByProductDetailIdAndSaleStatus(Integer productDetailId, StatusSale status);
   }

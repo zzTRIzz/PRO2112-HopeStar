@@ -47,4 +47,12 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
   ProductDetail findByIdAndStatus(Integer id, ProductDetailStatus status);
 
+  @Query("SELECT pd FROM ProductDetail pd " +
+          "WHERE pd.product IN :products " +
+          "AND pd.status = :status")
+  List<ProductDetail> findByProductInAndStatus(
+          @Param("products") List<Product> products,
+          @Param("status") ProductDetailStatus status
+  );
+
   }

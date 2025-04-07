@@ -1,5 +1,6 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import { PhoneFilterRequest } from './schema'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -34,3 +35,15 @@ export const getProductDetail = async (id: number) => {
     throw error
   }
 }
+
+export const searchPhones = async (filters: PhoneFilterRequest) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/phones/search`, {
+      params: filters
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching phones:', error);
+    throw error;
+  }
+};

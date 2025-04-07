@@ -4,6 +4,7 @@ import com.example.be.core.admin.sale.dto.response.ProductDetailsResponse;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.Sale;
 import com.example.be.entity.SaleDetail;
+import com.example.be.entity.status.StatusSale;
 import com.example.be.repository.SaleDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -78,7 +79,6 @@ public class ProductDetailsMapper {
 
     private Sale getActiveSaleForProduct(ProductDetail productDetail) {
         List<SaleDetail> saleDetails = saleDetailRepository.findByProductDetailIdWithSale(productDetail.getId());
-        LocalDateTime now = LocalDateTime.now();
 
         Sale bestSale = null;
         BigDecimal maxDiscount = BigDecimal.ZERO;
@@ -86,15 +86,13 @@ public class ProductDetailsMapper {
         for (SaleDetail sd : saleDetails) {
             Sale sale = sd.getSale();
 
-            if (isSaleActive(sale, now)) {
-                // Tính toán mức giảm giá
+            if (sale.getStatus() == StatusSale.ACTIVE) { // Chỉ xét Sale ACTIVE
                 BigDecimal currentDiscount = calculateDiscountAmount(
                         productDetail.getPrice(),
                         sale.getDiscountValue(),
                         sale.getDiscountType()
                 );
 
-                // So sánh để chọn sale tốt nhất
                 if (currentDiscount.compareTo(maxDiscount) > 0) {
                     maxDiscount = currentDiscount;
                     bestSale = sale;
@@ -119,8 +117,9 @@ public class ProductDetailsMapper {
         }
     }
 
+    // ProductDetailsMapper.java
     private boolean isSaleActive(Sale sale, LocalDateTime now) {
-        return now.isAfter(sale.getDateStart()) && now.isBefore(sale.getDateEnd());
+        return sale.getStatus() == StatusSale.ACTIVE;
     }
 
     private BigDecimal calculatePriceSell(BigDecimal originalPrice,

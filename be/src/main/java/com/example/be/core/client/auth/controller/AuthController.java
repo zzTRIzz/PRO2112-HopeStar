@@ -7,9 +7,13 @@ import com.example.be.core.client.auth.dto.request.SignupRequest;
 import com.example.be.core.client.auth.dto.response.AccountResponse;
 import com.example.be.core.client.auth.dto.response.AuthResponse;
 import com.example.be.core.client.auth.service.AuthService;
+import com.example.be.core.client.cart.service.CartService;
 import com.example.be.entity.Account;
+import com.example.be.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final CartService cartService;
+    private final AccountRepository accountRepository;
 
     @PostMapping("/sign-up")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody SignupRequest signupRequest) throws Exception {
@@ -37,10 +43,27 @@ public class AuthController {
     }
 
     @PostMapping("/signing")
-    public ResponseEntity<ApiResponse> loginHandler(@RequestBody LoginRequest req) throws Exception {
+    public ResponseEntity<ApiResponse> loginHandler(@RequestBody LoginRequest req,
+                                                    @CookieValue(value = "guest_cart_id", required = false) String guestCartId) throws Exception {
         AuthResponse authResponse = authService.signing(req);
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setData(authResponse);
+        if (guestCartId != null) {
+            Account account = accountRepository.findByEmail(req.getEmail());
+
+            // Merge giỏ hàng guest vào tài khoản
+            cartService.mergeGuestCartToAccount(guestCartId, account);
+
+            // Xóa cookie guest
+            ResponseCookie deleteCookie = ResponseCookie.from("guest_cart_id", "")
+                    .maxAge(0)
+                    .path("/")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+                    .body(apiResponse);
+        }
         return ResponseEntity.ok(apiResponse);
     }
 

@@ -14,11 +14,13 @@ export default function TatCaDienThoai() {
   const [products, setProducts] = useState<productViewResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [displayLimit, setDisplayLimit] = useState(20)
+
   useEffect(() => {
     const fetchHome = async () => {
       try {
         const data = await getHome()
-        setProducts(data)
+        setProducts(data.newestProducts)
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -52,16 +54,10 @@ export default function TatCaDienThoai() {
         ]}
       />
       <section className='container py-2'>
-        {/* <div className='mb-8 flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
-        <Button variant='outline' asChild>
-          <Link to='/'>Xem tất cả</Link>
-        </Button>
-      </div> */}
         <BoLocDienThoai />
         <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
           {products?.length > 0 ? (
-            products.map((product) => (
+            products.slice(0, displayLimit).map((product) => (
               <Card
                 key={product.idProduct}
                 className='group flex flex-col overflow-hidden'
@@ -113,7 +109,6 @@ export default function TatCaDienThoai() {
                       </div>
                     </div>
 
-                    {/* Hiển thị RAM và ROM trên cùng 1 hàng với dấu / */}
                     <div className='flex items-center gap-2'>
                       {product.ram?.map((ram, i) => (
                         <div
@@ -123,7 +118,6 @@ export default function TatCaDienThoai() {
                           {ram}GB
                         </div>
                       ))}
-                      {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
                       {product.rom?.map((rom, i) => (
                         <div
                           key={`rom-${i}`}
@@ -134,7 +128,6 @@ export default function TatCaDienThoai() {
                       ))}
                     </div>
 
-                    {/* Hiển thị màu sắc */}
                     <div className='flex gap-1.5'>
                       {product.hex?.map((color, i) => (
                         <div
@@ -148,7 +141,6 @@ export default function TatCaDienThoai() {
                 </Link>
 
                 <CardFooter className='flex flex-col gap-3 px-2 py-4 pt-0'>
-                  {/* Giá bán và giá gốc */}
                   <div className='flex items-center gap-2'>
                     <div className='text-lg font-bold text-red-600'>
                       {new Intl.NumberFormat('vi-VN', {
@@ -166,7 +158,6 @@ export default function TatCaDienThoai() {
                     )}
                   </div>
 
-                  {/* Hai button trên cùng một hàng, riêng biệt */}
                   <div className='flex justify-end gap-2'>
                     <Button
                       size='lg'
@@ -193,6 +184,18 @@ export default function TatCaDienThoai() {
             </div>
           )}
         </div>
+
+        {products.length > displayLimit && (
+          <div className='mt-6 flex justify-center'>
+            <Button
+              variant='outline'
+              onClick={() => setDisplayLimit((prev) => prev + 5)}
+              className='px-8'
+            >
+              Xem thêm
+            </Button>
+          </div>
+        )}
       </section>
     </>
   )

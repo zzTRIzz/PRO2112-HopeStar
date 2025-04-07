@@ -35,10 +35,12 @@ public class OrderServiceImpl implements OrderService {
         List<OrderRequest.Products> productsList = orderRequest.getProducts();
 
         //mua lan 1 chua day du thong tin
-        if (account.getPhone() == null || account.getAddress() == null){
-            account.setPhone(customerInfo.getPhone());
-            account.setAddress(location.getFullAddress());
-            accountRepository.save(account);
+        if (account !=null) {
+            if (account.getPhone() == null || account.getAddress() == null){
+                account.setPhone(customerInfo.getPhone());
+                account.setAddress(location.getFullAddress());
+                accountRepository.save(account);
+            }
         }
 
         //tao bill
@@ -55,12 +57,6 @@ public class OrderServiceImpl implements OrderService {
 
         bill.setStatus(StatusBill.CHO_XAC_NHAN);
         Bill creteBill = billRepository.save(bill);
-        //tao bill-detail
-        for (OrderRequest.Products products: productsList) {
-            cartDetailRepository.findById(products.getId()).orElseThrow(() ->
-                    new Exception("Lỗi giỏ hàng!"));
-
-        }
 
         // check loi
         for (OrderRequest.Products products: productsList) {
@@ -93,8 +89,8 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal totalPrice = products.getPriceSell().multiply(BigDecimal.valueOf(products.getQuantity()));
             billDetail.setTotalPrice(totalPrice);
             billDetailRepository.save(billDetail);
-            //productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()-products.getQuantity());
-            //productDetailRepository.save(productDetail);
+            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()-products.getQuantity());
+            productDetailRepository.save(productDetail);
             cartDetail.setStatus(StatusCartDetail.purchased);
             cartDetailRepository.save(cartDetail);
             totalPriceBill = totalPriceBill.add(totalPrice);

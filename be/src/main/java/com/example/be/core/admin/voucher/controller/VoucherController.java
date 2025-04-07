@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/voucher")
@@ -138,16 +140,44 @@ public class VoucherController {
         }
     }
     @PostMapping("/assign")
-    public ResponseEntity<?> assignVoucherToCustomers(@RequestBody VoucherAssignRequest request) {
+    public ResponseData<?> assignVoucherToCustomers(@RequestBody VoucherAssignRequest request) {
         try {
-            voucherService.assignVoucherToCustomers(request.getVoucherId(), request.getCustomerIds());
-            return ResponseEntity.ok(new HashMap<String, String>() {{
-                put("message", "Đã thêm voucher cho khách hàng thành công");
-            }});
+            Map<String, Object> result = voucherService.assignVoucherToCustomers(
+                    request.getVoucherId(),
+                    request.getCustomerIds()
+            );
+
+            return new ResponseData<>(
+                    HttpStatus.OK,
+                    (String) result.get("message"),
+                    result
+            );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-                put("message", e.getMessage());
-            }});
+            log.error("Lỗi khi gán voucher:", e);
+            return new ResponseData<>(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            );
+        }
+    }
+
+    @GetMapping("/{voucherId}/accounts")
+    public ResponseData<List<AccountResponse>> getAccountsWithVoucher(@PathVariable Integer voucherId) {
+        try {
+            List<AccountResponse> accounts = voucherService.getAccountsWithVoucher(voucherId);
+            return new ResponseData<>(
+                    HttpStatus.OK,
+                    "Lấy danh sách tài khoản thành công",
+                    accounts
+            );
+        } catch (Exception e) {
+            log.error("Lỗi khi lấy danh sách tài khoản có voucher:", e);
+            return new ResponseData<>(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            );
         }
     }
     @PostMapping("/send")
@@ -200,9 +230,5 @@ public class VoucherController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @GetMapping("{voucherId}/accounts")
-    public ResponseData<List<AccountResponse>> getAccountsWithVoucher(@PathVariable Integer voucherId) {
-        List<AccountResponse> accounts = voucherService.getAccountsWithVoucher(voucherId);
-        return new ResponseData<>(HttpStatus.OK, "Success", accounts);
-    }
+
 }

@@ -3,16 +3,33 @@ import Cookies from 'js-cookie'
 
 const API_BASE_URL = 'http://localhost:8080/api/client'
 
-export const getCart = async () => {
-  const jwt = Cookies.get('jwt')
-  if (!jwt) return []
+// export const getCart = async () => {
+//   const jwt = Cookies.get('jwt')
+//   if (!jwt) return []
 
-  const response = await axios.get(`${API_BASE_URL}/cart`, {
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
-  })
-  return response.data.data
+//   const response = await axios.get(`${API_BASE_URL}/cart`, {
+//     headers: {
+//       Authorization: `Bearer ${jwt}`,
+//     },
+//   })
+//   return response.data.data
+// }
+
+export const getCart = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/cart`, {
+      withCredentials: true, // Quan trọng: gửi cookie tự động
+      headers: {
+        Authorization: Cookies.get('jwt')
+          ? `Bearer ${Cookies.get('jwt')}`
+          : undefined,
+      },
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching cart:', error)
+    return []
+  }
 }
 
 export const addProductToCart = async (
@@ -20,34 +37,31 @@ export const addProductToCart = async (
   quantity: number
 ) => {
   const jwt = Cookies.get('jwt')
-  if (!jwt) throw new Error('Unauthorized')
 
   const response = await axios.post(
     `${API_BASE_URL}/add-to-cart`,
+    { idProductDetail, quantity },
     {
-      idProductDetail,
-      quantity,
-    },
-    {
+      withCredentials: true, // Quan trọng: gửi cookie guest_cart_id tự động
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
         'Content-Type': 'application/json',
       },
     }
   )
+
   return response.data
 }
 
 export const updateCartItem = async (itemId: number, quantity: number) => {
   const jwt = Cookies.get('jwt')
-  if (!jwt) throw new Error('Unauthorized')
 
   const response = await axios.put(
     `${API_BASE_URL}/cart-detail/update/${itemId}`,
     { quantity },
     {
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
         'Content-Type': 'application/json',
       },
     }
@@ -57,13 +71,13 @@ export const updateCartItem = async (itemId: number, quantity: number) => {
 
 export const deleteCartItem = async (itemId: number) => {
   const jwt = Cookies.get('jwt')
-  if (!jwt) throw new Error('Unauthorized')
 
   const response = await axios.delete(
     `${API_BASE_URL}/cart-detail/delete/${itemId}`,
     {
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        'Content-Type': 'application/json',
       },
     }
   )
@@ -97,11 +111,10 @@ interface OrderData {
 
 export const order = async (orderData: OrderData) => {
   const jwt = Cookies.get('jwt')
-  if (!jwt) throw new Error('Unauthorized')
 
   const response = await axios.post(`${API_BASE_URL}/order`, orderData, {
     headers: {
-      Authorization: `Bearer ${jwt}`,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       'Content-Type': 'application/json',
     },
   })

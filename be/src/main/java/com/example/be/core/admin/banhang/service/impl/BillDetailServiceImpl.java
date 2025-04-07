@@ -7,18 +7,13 @@ import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
 import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
-import com.example.be.entity.Bill;
-import com.example.be.entity.BillDetail;
-import com.example.be.entity.Imei;
-import com.example.be.entity.ProductDetail;
+import com.example.be.entity.*;
 
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
-import com.example.be.repository.BillDetailRepository;
-import com.example.be.repository.BillRepository;
-import com.example.be.repository.ImeiRepository;
-import com.example.be.repository.ProductDetailRepository;
+import com.example.be.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,8 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +44,9 @@ public class BillDetailServiceImpl implements BillDetailService {
 
     @Autowired
     ImeiRepository imeiRepository;
+
+    @Autowired
+    ProductRepository productRepository;
 
 
     @Override
@@ -141,10 +138,18 @@ public class BillDetailServiceImpl implements BillDetailService {
     }
 
     @Override
-    public List<ProductDetailDto> getAllProductDetailDto() {
-        List<ProductDetail> productDetails = productDetailRepository.getAllProductDetail(ProductDetailStatus.ACTIVE);
-        return productDetails.stream().map(this::productDetailDto)
+    public List<ProductDetailDto> getAllProductDetailDto(SearchProductRequest searchRequest) {
+        List<Product> allMatchingProducts = productRepository.findAllMatching(searchRequest);
+        List<ProductDetail> productDetailTong = productDetailRepository.findByProductInAndStatus(allMatchingProducts, ProductDetailStatus.ACTIVE);
+
+
+//        List<ProductDetail> productDetails = productDetailRepository.getAllProductDetail(ProductDetailStatus.ACTIVE);
+        List<ProductDetailDto> result = productDetailTong.stream()
+                .map(this::productDetailDto)
                 .collect(Collectors.toList());
+
+        Collections.reverse(result);
+        return result;
     }
 
 

@@ -18,8 +18,6 @@ public interface VoucherService {
 
     VoucherResponse update(Integer id, VoucherRequest request);
 
-    void updateSoLuongVoucher(Integer idVoucher);
-
     List<Voucher> findByCode(String code);
 
     List<VoucherResponse> findByDate(String startTime, String endTime);

@@ -15,4 +15,8 @@ public interface StatisticService {
     List<OrderCountByYearResponse> getOrderCountByYear();
     TotalPaidOrdersResponse getTotalPaidOrders();
     List<BestSellingProductResponse> getBestSellingProducts();
+    TodayRevenueResponse getTodayRevenue();
+    MonthlyRevenueResponse getMonthlyRevenue();
+    List<ProductSalesResponse> getMonthlyProductSales();
+    List<LowStockProductResponse> getLowStockProducts();
 }

@@ -9,7 +9,11 @@ import type {
   ProductRevenue,
   BestSellingProduct,
   PaidBill,
-  TotalOrders
+  TotalOrders,
+  LowStockProduct,
+  TodayRevenue, 
+  MonthlyRevenue, 
+  DailyProductSale
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080/api/statistics';
@@ -46,7 +50,15 @@ export const getOrderCountByYear = async (): Promise<YearOrderCount[]> => {
 
 export const getRevenueByProduct = async (): Promise<ProductRevenue[]> => {
   const response = await axios.get(`${API_BASE_URL}/revenue-by-product`);
-  return response.data;
+  
+  // Tính toán lại phần trăm sau khi nhận data từ API
+  const data = response.data;
+  const totalRevenue = data.reduce((sum: number, item: ProductRevenue) => sum + item.totalRevenue, 0);
+  
+  return data.map((item: ProductRevenue) => ({
+    ...item,
+    percentage: (item.totalRevenue / totalRevenue) * 100
+  }));
 };
 
 export const getBestSellingProducts = async (): Promise<BestSellingProduct[]> => {
@@ -61,5 +73,25 @@ export const getPaidBills = async (): Promise<PaidBill[]> => {
 
 export const getTotalPaidOrders = async (): Promise<TotalOrders> => {
   const response = await axios.get(`${API_BASE_URL}/total-paid-orders`);
+  return response.data;
+};
+
+export const getLowStockProducts = async (): Promise<LowStockProduct[]> => {
+  const response = await axios.get(`${API_BASE_URL}/low-stock-products`);
+  return response.data;
+};
+
+export const getTodayRevenue = async (): Promise<TodayRevenue> => {
+  const response = await axios.get(`${API_BASE_URL}/revenue/today`);
+  return response.data;
+};
+
+export const getMonthlyRevenue = async (): Promise<MonthlyRevenue> => {
+  const response = await axios.get(`${API_BASE_URL}/revenue/monthly`);
+  return response.data;
+};
+
+export const getMonthlyProductSales = async (): Promise<DailyProductSale[]> => {
+  const response = await axios.get(`${API_BASE_URL}/monthly-product-sales`);
   return response.data;
 };
