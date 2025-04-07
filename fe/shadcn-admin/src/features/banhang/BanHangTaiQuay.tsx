@@ -172,12 +172,23 @@ function BanHangTaiQuay() {
   // Huy hoa don
   const huyHoaDonTheoId = async (idBillHuy: number) => {
     try {
+      const result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận hủy hóa đơn',
+        message: 'Bạn chắc chắn muốn hủy hóa đơn này không?',
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ',
+      })
+      if (!result) {
+        fromThatBai('Hủy hóa đơn không thành công')
+        return
+      }
       await huyHoaDon(idBillHuy)
       await loadBill()
       loadProductDet()
       setProduct([])
       loadBillChoThanhToan()
-      // setIdBill(0);
+      fromThanhCong('Hủy hóa đơn thành công');
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -563,20 +574,36 @@ function BanHangTaiQuay() {
   //   }
   // }
   const handleThanhToan = async (status: string, billType: number) => {
-    const result = await showDialog({
-      type: 'confirm',
-      title: 'Xác nhận thanh toán đơn hàng',
-      message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+    // const result = await showDialog({
+    //   type: 'confirm',
+    //   title: 'Xác nhận thanh toán đơn hàng',
+    //   message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+    //     <strong style="color:rgb(8, 122, 237)">${searchBill?.code ?? ''}</strong> <br />
+    //     với số tiền đã nhận được là 
+    //     <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
+    //     ${customerPayment.toLocaleString()}đ
+    //     </span>?`,
+    //   confirmText: 'Xác nhận',
+    //   cancelText: 'Hủy bỏ'
+    // });
+    let result = true;
+
+    if (paymentMethod !== 2) {
+      result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận thanh toán đơn hàng',
+        message: `Bạn chắc chắn muốn thanh toán đơn hàng 
         <strong style="color:rgb(8, 122, 237)">${searchBill?.code ?? ''}</strong> <br />
         với số tiền đã nhận được là 
         <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
         ${customerPayment.toLocaleString()}đ
         </span>?`,
-      confirmText: 'Xác nhận',
-      cancelText: 'Hủy bỏ'
-    });
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ'
+      });
+    }
 
-   
+
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -595,7 +622,7 @@ function BanHangTaiQuay() {
         return;
       }
     }
-    if (!result && paymentMethod != 2) {
+    if (!result) {
       fromThatBai(`Thanh toán đơn hàng ${searchBill?.code ?? ''} không thành công`);
       return;
     }
@@ -637,7 +664,10 @@ function BanHangTaiQuay() {
         customer: searchBill?.name,
         phone: searchBill?.phone,
         items: searchBill?.billDetailResponesList.map(detail => ({
-          product: detail.productDetail.productName,
+          product: detail.productDetail.productName + ' ' +
+            detail.productDetail.ram + '/' +
+            detail.productDetail.rom + 'GB ( ' +
+            detail.productDetail.color +' )',
           imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
           price: detail.price,
           quantity: detail.quantity,
@@ -647,7 +677,7 @@ function BanHangTaiQuay() {
         customerPayment: customerPayment || 0,
         change: tienThua || 0,
       };
-      
+
 
       handlePrint(invoiceData);
 

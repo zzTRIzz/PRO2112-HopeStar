@@ -352,9 +352,9 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                 product.ram +
                                 '/' +
                                 product.rom +
-                                'GB (' +
+                                'GB ( ' +
                                 product.color +
-                                ')'}
+                                ' )'}
                             </TableCell>
                             <TableCell>
                               {product.priceSell.toLocaleString('vi-VN')}
