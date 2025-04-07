@@ -49,7 +49,7 @@ const Step: React.FC<StepProps> = ({
                 <div className={cn(
                     "absolute top-5 h-0.5",
                     "left-[calc(50%+1.5rem)] right-[calc(-50%+1.5rem)]", // Điều chỉnh vị trí đường nối
-                    isActive ? "bg-orange-500" : "bg-gray-200",
+                    isActive ? "bg-green-500" : "bg-gray-200",
                     "transition-colors duration-300"
                 )}></div>
             )}
@@ -60,7 +60,7 @@ const Step: React.FC<StepProps> = ({
                 "rounded-full", // Bo tròn vòng ngoài
                 "border-2", // Thêm border cho vòng tròn
                 isActive
-                    ? "border-orange-500"
+                    ? "border-green-500"
                     : "border-gray-200",
                 "transition-colors duration-300",
                 "bg-white" // Nền trắng để che đường nối
@@ -68,7 +68,7 @@ const Step: React.FC<StepProps> = ({
                 <div className={cn(
                     "w-8 h-8 rounded-full", // Giảm kích thước icon container
                     "flex items-center justify-center",
-                    isActive ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500",
+                    isActive ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500",
                     "transition-all duration-300 ease-in-out"
                 )}>
                     {icon}
@@ -79,7 +79,7 @@ const Step: React.FC<StepProps> = ({
             <div className="mt-2 text-center max-w-[150px]">
                 <h3 className={cn(
                     "text-sm font-medium ",
-                    isCurrentStep ? "text-orange-500 font-bold" : isActive ? "text-gray-900" : "text-gray-500",
+                    isCurrentStep ? "text-green-500 font-bold" : isActive ? "text-gray-900" : "text-gray-500",
                     "transition-colors duration-300"
                 )}>
                     {title}
@@ -218,7 +218,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                     disabled={currentStatus === "HOAN_THANH"}
                                     className={cn(
                                         "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                                        "flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
                                     )}
                                 >
                                     Xác nhận
