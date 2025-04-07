@@ -45,6 +45,7 @@ import {
 import { showDialog } from './service/ConfirmDialog'
 import {
   AccountKhachHang,
+  BillRespones,
   BillSchema,
   Imei,
   ProductDetail,
@@ -55,7 +56,7 @@ import {
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
   const [billChoThanhToan, setBillChoThanhToan] = useState<BillSchema[]>([]);
-  const [searchBill, setSearchBill] = useState<BillSchema>();
+  const [searchBill, setSearchBill] = useState<BillRespones>();
   const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
   const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
@@ -566,7 +567,7 @@ function BanHangTaiQuay() {
       type: 'confirm',
       title: 'Xác nhận thanh toán đơn hàng',
       message: `Bạn chắc chắn muốn thanh toán đơn hàng 
-        <strong style="color:rgb(8, 122, 237)">${searchBill?.nameBill ?? ''}</strong> <br />
+        <strong style="color:rgb(8, 122, 237)">${searchBill?.code ?? ''}</strong> <br />
         với số tiền đã nhận được là 
         <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
         ${customerPayment.toLocaleString()}đ
@@ -575,10 +576,7 @@ function BanHangTaiQuay() {
       cancelText: 'Hủy bỏ'
     });
 
-    if (!result && paymentMethod != 2) {
-      fromThatBai(`Thanh toán đơn hàng ${searchBill?.nameBill ?? ''} không thành công`);
-      return;
-    }
+   
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -597,11 +595,14 @@ function BanHangTaiQuay() {
         return;
       }
     }
-   
+    if (!result && paymentMethod != 2) {
+      fromThatBai(`Thanh toán đơn hàng ${searchBill?.code ?? ''} không thành công`);
+      return;
+    }
     try {
       await thanhToan({
         id: searchBill?.id,
-        nameBill: searchBill?.nameBill,
+        nameBill: searchBill?.code,
         idAccount: searchBill?.idAccount ?? null,
         idNhanVien: searchBill?.idNhanVien ?? null,
         idVoucher: searchBill?.idVoucher ?? null,
@@ -613,8 +614,8 @@ function BanHangTaiQuay() {
         customerRefund: searchBill?.customerRefund ?? 0,
         discountedTotal: searchBill?.discountedTotal ?? 0,
         deliveryDate: searchBill?.deliveryDate ?? null,
-        customerPreferred_date: searchBill?.customerPreferred_date ?? null,
-        customerAppointment_date: searchBill?.customerAppointment_date ?? null,
+        customerPreferred_date: searchBill?.customerPreferredDate ?? null,
+        customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
         receiptDate: searchBill?.receiptDate ?? null,
         paymentDate: new Date().toISOString(),
         billType: billType,
@@ -625,28 +626,28 @@ function BanHangTaiQuay() {
         phone: searchBill?.phone ?? null,
         name: searchBill?.name ?? null,
         idPayment: paymentMethod,
-        idDelivery: searchBill?.idDelivery ?? null,
-        itemCount: searchBill?.itemCount ?? 0
+        idDelivery: searchBill?.delivery ?? null,
+        itemCount: searchBill?.detailCount ?? 0
       });
 
-
       const invoiceData = {
-        invoiceNumber: searchBill?.nameBill || "",
-        date: searchBill?.paymentDate,
-        staff: signupData?.name,
-        customer: listKhachHang?.fullName || "Khách lẻ",
-        phone: listKhachHang?.phone || "",
-        items: product.map(p => ({
-          product: p.nameProduct,
-          imei: listImei.map(i => i.imeiCode),
-          price: p.price,
-          quantity: p.quantity
-        })),
-        total: searchBill?.totalPrice,
-        discount: searchBill?.discountedTotal || 0,
-        payment: customerPayment,
-        change: tienThua
+        code: searchBill?.code,
+        paymentDate: searchBill?.paymentDate,
+        staff: searchBill?.fullNameNV,
+        customer: searchBill?.name,
+        phone: searchBill?.phone,
+        items: searchBill?.billDetailResponesList.map(detail => ({
+          product: detail.productDetail.productName,
+          imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
+          price: detail.price,
+          quantity: detail.quantity,
+        })) || [],
+        totalPrice: searchBill?.totalPrice || 0,
+        discountedTotal: searchBill?.discountedTotal || 0,
+        customerPayment: customerPayment || 0,
+        change: tienThua || 0,
       };
+      
 
       handlePrint(invoiceData);
 

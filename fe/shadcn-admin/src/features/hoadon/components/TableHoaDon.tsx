@@ -146,26 +146,6 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                         </div>
                     )}
                 </TableContainer>
-
-
-
-
-
-
-                // <TableContainer component={Paper}>
-
-                //     {safeList.length > 0 && (
-                //         <div className="flex justify-between items-center mt-4 ml-[400px] mb-[20px]">
-                //             <DataTablePagination
-                //                 currentPage={currentPage}
-                //                 totalPages={totalPages}
-                //                 pageSize={pageSize}
-                //                 setPageSize={setPageSize}
-                //                 setCurrentPage={setCurrentPage}
-                //             />
-                //         </div>
-                //     )}
-                // </TableContainer>
             )}
         </>
     );

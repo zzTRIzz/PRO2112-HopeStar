@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BillSchema } from '../service/Schema';
+import { BillRespones } from '../service/Schema';
 import { format } from 'date-fns';
 import { fromThanhCong, fromThatBai } from './ThongBao';
 interface Props {
-  searchBill: BillSchema | undefined;
+  searchBill: BillRespones | undefined;
   tongTien: number;
   dateTime: Date
   handleThanhToan: (
@@ -17,7 +17,7 @@ const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime,handleThanhTo
 
   useEffect(() => {
     if (!searchBill || !tongTien) return;
-    const description = `Thanh toan hoa don ${searchBill?.nameBill}`;
+    const description = `Thanh toan hoa don ${searchBill?.code}`;
     const encodedDesc = encodeURIComponent(description);
     console.log('encodedDesc', encodedDesc);
     const qrUrl = `https://qr.sepay.vn/img?acc=VQRQABXEW9226&bank=MBBank&amount=${tongTien}&des=${encodedDesc}`;
@@ -27,7 +27,7 @@ const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime,handleThanhTo
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const desc = `Thanh toan hoa don ${searchBill?.nameBill}`;
+        const desc = `Thanh toan hoa don ${searchBill?.code}`;
         const encodedDesc = encodeURIComponent(desc);
         const date = encodeURIComponent(format(dateTime, "yyyy-MM-dd HH:mm:ss"));
 
