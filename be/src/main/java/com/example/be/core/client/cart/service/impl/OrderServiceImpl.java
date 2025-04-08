@@ -11,6 +11,7 @@ import com.example.be.entity.status.StatusCartDetail;
 import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.math.BigDecimal;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final DeliveryMethodRepository deliveryMethodRepository;
 
     @Override
+    @Transactional
     public Object order(OrderRequest orderRequest, Account account) throws Exception {
 
         OrderRequest.CustomerInfo customerInfo = orderRequest.getCustomerInfo();
@@ -49,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
         Bill bill = new Bill();
         bill.setIdAccount(account);
         bill.setNameBill("HD00" + billRepository.getNewCode());
+        bill.setName(customerInfo.getName());
         bill.setEmail(customerInfo.getEmail());
         bill.setAddress(location.getFullAddress());
         bill.setPhone(customerInfo.getPhone());
