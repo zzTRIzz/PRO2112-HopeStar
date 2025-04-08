@@ -1,15 +1,14 @@
-
+import React, { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import React from 'react'
+import { toast } from '@/hooks/use-toast'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
 import type { CartItem } from '../../components/gio-hang/types/cart'
 import { order } from '../../data/api-cart-service'
-import { toast } from '@/hooks/use-toast'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface CheckoutData {
   customerInfo: {
@@ -23,7 +22,7 @@ interface CheckoutData {
     district?: string
     commune?: string
   }
-  paymentMethod: string
+  paymentMethod: number
   eInvoice: boolean
 }
 
@@ -62,9 +61,29 @@ export function CheckoutPage() {
       district: '',
       commune: '',
     },
-    paymentMethod: 'cod',
+    paymentMethod: 4,
     eInvoice: false,
   })
+
+  const [orderValues, setOrderValues] = useState({
+    subtotal: 0,
+    shippingFee: 0,
+    insuranceFee: 0,
+    voucherDiscount: 0,
+    total: 0,
+    selectedVoucher: null as Voucher | null,
+  })
+
+  const handleOrderSummaryChange = (data: {
+    subtotal: number
+    shippingFee: number
+    insuranceFee: number
+    voucherDiscount: number
+    total: number
+    selectedVoucher: Voucher | null
+  }) => {
+    setOrderValues(data)
+  }
 
   // Add error state
   const [errors, setErrors] = React.useState({
@@ -106,12 +125,18 @@ export function CheckoutPage() {
     return !Object.values(newErrors).some((error) => error !== '')
   }
 
+  const [confirmedAddress, setConfirmedAddress] = useState('')
+
   const handleLocationSubmit = (locationData: {
     deliveryType: string
     province?: string
     district?: string
     commune?: string
+    fullAddress?: string
   }) => {
+    if (locationData.fullAddress) {
+      setConfirmedAddress(locationData.fullAddress)
+    }
     setCheckoutData((prev) => ({
       ...prev,
       location: locationData,
@@ -217,46 +242,47 @@ export function CheckoutPage() {
   const navigate = useNavigate()
 
   const handleCheckout = async () => {
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     try {
-      // Get saved address from profile if exists
       const profile = JSON.parse(localStorage.getItem('profile') || '{}')
       const hasSavedAddress = !!profile.address
 
-      // Prepare order data
       const orderData = {
         customerInfo: checkoutData.customerInfo,
         location: {
           deliveryType: checkoutData.location.deliveryType,
-          fullAddress: hasSavedAddress ? profile.address : checkoutData.location.fullAddress,
+          fullAddress: hasSavedAddress
+            ? profile.address
+            : checkoutData.location.fullAddress,
         },
         paymentMethod: checkoutData.paymentMethod,
         eInvoice: checkoutData.eInvoice,
         products: selectedProducts,
+        totalPrice: orderValues.subtotal,
+        deliveryFee: orderValues.shippingFee,
+        insuranceFee: orderValues.insuranceFee,
+        // discountedTotal: orderValues.subtotal - orderValues.voucherDiscount,
+        totalDue: orderValues.total,
+        discountedTotal: orderValues.voucherDiscount,
+        voucherCode: orderValues.selectedVoucher?.code,
       }
 
-      // Call API to create order
+      console.log('Order data:', orderData)
       await order(orderData)
 
-      // Show success message
       toast({
         title: 'Đặt hàng thành công',
         description: 'Đơn hàng của bạn đã được tạo thành công',
       })
-      await queryClient.invalidateQueries({ queryKey: ['cart'] })
-      // Navigate to orders page
-      navigate({ to: '/gio-hang' })
 
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+      navigate({ to: '/gio-hang' })
     } catch (error) {
       console.error('Checkout error:', error)
       toast({
         title: 'Đặt hàng thất bại',
-        description:
-          error?.response?.data?.message ||
-          'Không thể thêm sản phẩm vào giỏ hàng',
+        description: error?.response?.data?.message || 'Không thể tạo đơn hàng',
         variant: 'destructive',
       })
     }
@@ -362,36 +388,30 @@ export function CheckoutPage() {
                   Phương thức thanh toán
                 </h2>
                 <RadioGroup
-                  value={checkoutData.paymentMethod}
+                  value={checkoutData.paymentMethod.toString()} // Convert to string for RadioGroup
                   onValueChange={(value) =>
                     setCheckoutData((prev) => ({
                       ...prev,
-                      paymentMethod: value,
+                      paymentMethod: parseInt(value, 10), // Convert back to number
                     }))
                   }
                 >
                   <div className='flex flex-col gap-4'>
-                    <Radio value='cod'>
+                    <Radio value='4'>
                       <div className='flex items-center gap-2'>
                         <Icon icon='lucide:credit-card' className='h-8 w-8' />
                         <div>
                           <p className='font-medium'>
                             Thanh toán khi nhận hàng
                           </p>
-                          {/* <p className="text-sm text-gray-500">
-                            (COD - Cash On Delivery)
-                          </p> */}
                         </div>
                       </div>
                     </Radio>
-                    <Radio value='qr'>
+                    <Radio value='3'>
                       <div className='flex items-center gap-2'>
                         <Icon icon='lucide:qr-code' className='h-8 w-8' />
                         <div>
                           <p className='font-medium'>Thanh toán bằng VNPAY</p>
-                          {/* <p className="text-sm text-gray-500">
-                            (Thẻ ATM nội địa/Ví điện tử)
-                          </p> */}
                         </div>
                       </div>
                     </Radio>
@@ -421,7 +441,9 @@ export function CheckoutPage() {
               onCheckout={handleCheckout}
               products={selectedProducts}
               isValid={isFormValid}
+              confirmedAddress={confirmedAddress}
               errors={formErrors}
+              onValuesChange={handleOrderSummaryChange}
             />
           </div>
         </div>

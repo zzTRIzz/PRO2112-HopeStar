@@ -25,7 +25,7 @@ export const ProductDetailResponseSchema = z
     code: z.string(),
     priceSell: z.number(),
     inventoryQuantity: z.number(),
-    status: z.enum(['ACTIVE', 'IN_ACTIVE']),
+    status: z.enum(['ACTIVE', 'IN_ACTIVE','DESIST']),
     colorName: z.string(),
     ramCapacity: z.number(),
     romCapacity: z.number(),

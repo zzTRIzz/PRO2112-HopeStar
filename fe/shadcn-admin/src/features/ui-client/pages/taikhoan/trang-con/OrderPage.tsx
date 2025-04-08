@@ -131,9 +131,9 @@ export const OrdersPage = () => {
                   </div>
                   <div className='flex flex-col items-end gap-2'>
                     <div className='flex items-center gap-2 text-sm font-medium text-default-600'>
-                      <span style={{ color: statusConfig[order.status].color }}>•</span>
-                      <span style={{ color: statusConfig[order.status].color }}>
-                        {statusConfig[order.status].text}
+                      <span style={{ color: statusConfig[order?.status]?.color }}>•</span>
+                      <span style={{ color: statusConfig[order?.status]?.color }}>
+                        {statusConfig[order?.status]?.text}
                       </span>
                     </div>
                   </div>
@@ -165,8 +165,8 @@ export const OrdersPage = () => {
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='text-lg font-bold text-red-500'>
-                        {order?.billDetailResponesList[0]?.totalPrice?.toLocaleString('vi-VN')} đ
+                      <p className='text-lg font-bold'>
+                        {order?.totalDue != null ? order?.totalDue?.toLocaleString('vi-VN'): 0} đ
                       </p>
                     </div>
                   </div>

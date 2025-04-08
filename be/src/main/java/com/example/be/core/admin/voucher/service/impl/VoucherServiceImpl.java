@@ -251,6 +251,64 @@ public class VoucherServiceImpl implements VoucherService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<VoucherResponse> searchVouchers(
+            String keyword,
+            String startTime,
+            String endTime,
+            Boolean isPrivate,
+            String status
+    ) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDateTime startDateTime = null;
+            LocalDateTime endDateTime = null;
+
+            if (startTime != null && endTime != null) {
+                LocalDate parseStartTime = LocalDate.parse(startTime, formatter);
+                LocalDate parseEndTime = LocalDate.parse(endTime, formatter);
+
+                startDateTime = parseStartTime.atStartOfDay();
+                endDateTime = parseEndTime.atTime(23, 59, 59);
+
+                if (startDateTime.isAfter(endDateTime)) {
+                    throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc");
+                }
+            }
+
+            // Convert status string to enum
+            StatusVoucher statusEnum = null;
+            if (status != null && !status.isEmpty()) {
+                try {
+                    statusEnum = StatusVoucher.valueOf(status);
+                    log.info("Searching with status: {}", statusEnum);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid status value: {}", status);
+                }
+            }
+
+            List<Voucher> vouchers = voucherRepository.findByDynamicFilters(
+                    keyword,
+                    startDateTime,
+                    endDateTime,
+                    isPrivate,
+                    statusEnum
+            );
+
+            log.info("Found {} vouchers matching criteria", vouchers.size());
+
+            return vouchers.stream()
+                    .map(voucherMapper::toResponse)
+                    .collect(Collectors.toList());
+
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Ngày không đúng định dạng (dd/MM/yyyy)");
+        } catch (Exception e) {
+            log.error("Lỗi tìm kiếm voucher: ", e);
+            throw new RuntimeException("Lỗi tìm kiếm voucher: " + e.getMessage());
+        }
+    }
+
     private String buildResultMessage(List<String> alreadyAssigned, List<String> newlyAssigned) {
         StringBuilder message = new StringBuilder();
 
