@@ -296,10 +296,10 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Tổng kết */}
       <div style={{ textAlign: "right", marginBottom: "20px" }}>
         <p><strong>Tổng số lượng:</strong> {billData?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
-        <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Chiết khấu:</strong> {billData?.discountedTotal.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Khách trả:</strong> {billData?.customerPayment.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Tiền thừa:</strong> {billData?.change.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice?.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Chiết khấu:</strong> {billData?.discountedTotal?.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Khách trả:</strong> {billData?.customerPayment?.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Tiền thừa:</strong> {billData?.change?.toLocaleString("vi-VN")} đ</p>
       </div>
 
       {/* Footer */}

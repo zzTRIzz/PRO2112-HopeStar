@@ -16,7 +16,6 @@ import ThanhToan from './components/ThanhToan'
 import ThemSanPham from './components/ThemSanPham'
 import './css/print_hoaDon.css'
 import './custom-toast.css'
-// Thêm CSS tùy chỉnh
 import {
   addHDCT,
   addHoaDon,
@@ -584,7 +583,7 @@ function BanHangTaiQuay() {
   //   }
   // }
   const handleThanhToan = async (status: string, billType: number) => {
-    
+
     let result = true;
 
     if (paymentMethod !== 2) {
@@ -601,7 +600,7 @@ function BanHangTaiQuay() {
         cancelText: 'Hủy bỏ'
       });
     }
-    
+
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -665,7 +664,7 @@ function BanHangTaiQuay() {
           product: detail.productDetail.productName + ' ' +
             detail.productDetail.ram + '/' +
             detail.productDetail.rom + 'GB ( ' +
-            detail.productDetail.color +' )',
+            detail.productDetail.color + ' )',
           imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
           price: detail.price,
           quantity: detail.quantity,
@@ -695,7 +694,7 @@ function BanHangTaiQuay() {
   };
 
   useEffect(() => {
-      console.log(idHoaDon)
+    console.log(idHoaDon)
   });
 
   // Quét mã vạch
@@ -713,7 +712,6 @@ function BanHangTaiQuay() {
 
     isProcessing.current = true // Đánh dấu đang xử lý
 
-    // ⛔ Dừng camera ngay lập tức để tránh quét lại
     const quaggaWindow = window as unknown as { Quagga: any };
     if (quaggaWindow.Quagga) {
       quaggaWindow.Quagga.stop();
@@ -722,8 +720,6 @@ function BanHangTaiQuay() {
 
     try {
       setIsScanning(true)
-      // setScanError('')
-      // setScanResult(imei)
       const currentBillId = currentBillRef.current;
       console.log('id bill chuẩn bị xử lý: ' + currentBillId);
       const productDetail = await quetBarCode(imei)
@@ -761,20 +757,19 @@ function BanHangTaiQuay() {
       )
 
       await Promise.all([
-        loadImei(productDetail.id), 
-        getById(currentBillId)  // Use currentBillId to ensure we update correct bill
+        loadImei(productDetail.id),
+        getById(currentBillId)  
       ])
 
       fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
     } catch (error: any) {
       fromThatBai('Lỗi khi thêm sản phẩm !')
-      // console.error("[❌ LỖI]", error);
     } finally {
-      isProcessing.current = false // Cho phép quét tiếp
+      isProcessing.current = false 
       setIsScanning(false)
       setSelectedImei([])
 
-      // ✅ Bật lại camera sau khi xử lý xong
+
       setTimeout(() => {
         const quaggaWindow = window as unknown as { Quagga: any };
         if (quaggaWindow.Quagga) {
@@ -820,33 +815,21 @@ function BanHangTaiQuay() {
             <h1 className='font-bold tracking-tight'>Giỏ hàng</h1>
             <div className='flex space-x-2'>
               {/* Quét Barcode để check sản phẩm */}
-  <Button
-    onClick={() => {
-      // Verify current bill before allowing scan
-      const currentBill = currentBillRef.current;
-      if (!currentBill || currentBill === 0) {
-        fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
-        return;
-      }
-      setIsScanning(true);
-    }}
-    className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
-  >
-    Quét Barcode
-  </Button>
-
-              {/* {scanResult && (
-                <div className="mt-2 p-2 bg-green-100 rounded">
-                  Mã đã quét: <span className="font-bold">{scanResult}</span>
-                </div>
-              )}
-
-              {scanError && (
-                <div className="text-red-500 mt-2 p-2 bg-red-100 rounded">
-                  {scanError}
-                </div>
-              )} */}
-
+              <Button
+                onClick={() => {
+                  // Verify current bill before allowing scan
+                  const currentBill = currentBillRef.current;
+                  if (!currentBill || currentBill === 0) {
+                    fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
+                    return;
+                  }
+                  setIsScanning(true);
+                }}
+                className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
+              >
+                Quét Barcode
+              </Button>
+              
               <BarcodeScannerModal
                 isOpen={isScanning}
                 onClose={() => setIsScanning(false)}
@@ -865,7 +848,7 @@ function BanHangTaiQuay() {
                 setDialogContent={setDialogContent}
                 isDialogOpen={isDialogOpen}
                 setIsDialogOpen={setIsDialogOpen}
-                setListProduct={setListProductDetail} // Pass the state setter
+                setListProduct={setListProductDetail}
               />
             </div>
           </div>
@@ -949,7 +932,7 @@ function BanHangTaiQuay() {
             isThanhToanNhanHang={isThanhToanNhanHang}
           />
         </div>
-      </div > <br />
+      </div >
       <br />
     </>
   )

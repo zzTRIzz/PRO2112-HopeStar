@@ -9,7 +9,7 @@ import Paper from '@mui/material/Paper';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DataTablePagination } from './PhanTrang/data-table-pagination';
-import { Bill } from '../service/HoaDonSchema';
+import { Bill } from '../service/Schema';
 
 
 const statusStyles: Record<string, string> = {

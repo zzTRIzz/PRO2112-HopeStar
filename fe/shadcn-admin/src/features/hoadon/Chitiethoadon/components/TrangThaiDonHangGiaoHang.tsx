@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
-import { BillRespones, BillSchema } from "@/features/banhang/service/Schema";
+import { BillRespones } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
-import { fromThatBai, fromThanhCong } from "../../../banhang/components/ThongBao";
-import { ToastContainer, toast } from "react-toastify";
 import { Icon } from '@iconify/react'
-
+import { showErrorToast, showSuccessToast } from "./ThongBao";
+import { updateTotalDue } from "../../service/HoaDonService";
 interface StepProps {
     status: OrderStatus;
     step: OrderStatus;
@@ -192,34 +191,59 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             "DANG_GIAO_HANG",
             "HOAN_THANH"
         ];
-
         const handleNextStatus = async () => {
-            // Kiểm tra xem có bất kỳ chi tiết sản phẩm nào thiếu imei hay không
-            const isMissingImei = searchBill?.billDetailResponesList.some(detail =>
-                !detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0
+            // Kiểm tra xem có bất kỳ chi tiết sản phẩm nào thiếu IMEI hay không
+            const isMissingImei = searchBill?.billDetailResponesList.some(
+                (detail) => !detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0
             );
 
             if (isMissingImei) {
-                fromThatBai("Một số sản phẩm chưa có IMEI.");
+                showErrorToast("Một số sản phẩm chưa có IMEI.");
                 console.error("Một số sản phẩm chưa có IMEI.");
                 return;
             }
 
             const currentIndex = statusOrder.indexOf(currentStatus);
             if (currentIndex < statusOrder.length - 1) {
-                setCurrentStatus(statusOrder[currentIndex + 1]);
+                const nextStatus = statusOrder[currentIndex + 1];
+
+                // Nếu chuyển từ "ĐANG_GIAO_HANG" sang "HOÀN THÀNH", cập nhật hóa đơn
+                if (nextStatus === "HOAN_THANH") {
+                    try {
+                        const amountChange = searchBill?.amountChange ?? 0;
+                        const totalDue = searchBill?.totalDue ?? 0;
+                        const customerPayment = searchBill?.customerPayment ?? 0;
+
+                        const result = amountChange < 0
+                            ? Math.abs(totalDue)
+                            : (totalDue - customerPayment + amountChange);
+
+                        // Cộng thêm phần payment vào kết quả
+                        const finalAmount = result + customerPayment;
+                        await updateTotalDue(searchBill?.id ?? 0, finalAmount)
+                        showSuccessToast("Cập nhật hóa đơn thành công!");
+                        loadTongBill();
+                    } catch (error) {
+                        showErrorToast("Có lỗi xảy ra khi cập nhật hóa đơn.");
+                        console.error("Error updating bill:", error);
+                        return;
+                    }
+                }
+
+                // Cập nhật trạng thái tiếp theo
+                setCurrentStatus(nextStatus);
+
+                if (searchBill != null) {
+                    await updateStatus(searchBill?.id, nextStatus);
+                    loadTongBill();
+                    console.log(nextStatus);
+                }
+
+                showSuccessToast("Cập nhật trạng thái đơn hàng thành công.");
             }
-            if (searchBill != null) {
-                await updateStatus(searchBill?.id, statusOrder[currentIndex + 1]);
-                loadTongBill();
-                console.log(statusOrder[currentIndex + 1]);
-            }
-            fromThanhCong("Cập nhật trạng thái đơn hàng thành công.");
         };
 
         const handlePrevStatus = async () => {
-            // const currentIndex = statusOrder.indexOf(currentStatus);
-            // console.log(currentIndex);
             setCurrentStatus("DA_HUY");
             if (searchBill != null) {
                 await updateStatus(searchBill?.id, "DA_HUY");
@@ -273,14 +297,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                         )}
                     </div>
                 </div>
-                <ToastContainer
-                    position="top-right"
-                    hideProgressBar
-                    newestOnTop
-                    closeOnClick
-                    pauseOnHover
-                    draggable
-                    theme="colored" />
+
             </div>
 
         );

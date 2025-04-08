@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Bill } from '../service/HoaDonSchema';
+import { Bill } from '../service/Schema';
 
 interface Props {
   originalList: Bill[]; // Danh sách gốc không thay đổi
