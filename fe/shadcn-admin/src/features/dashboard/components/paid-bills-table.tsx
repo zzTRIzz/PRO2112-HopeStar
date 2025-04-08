@@ -32,9 +32,9 @@ export const PaidBillsTable = () => {
 
   const filteredBills = React.useMemo(() => {
     return bills.filter(bill => 
-      bill.name.toLowerCase().includes(search.toLowerCase()) ||
-      bill.email.toLowerCase().includes(search.toLowerCase()) ||
-      bill.phone.includes(search)
+      bill?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      bill?.email?.toLowerCase().includes(search.toLowerCase()) ||
+      bill?.phone?.includes(search)
     );
   }, [bills, search]);
 

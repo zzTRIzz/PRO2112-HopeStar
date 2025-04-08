@@ -318,7 +318,7 @@ const OrderTrackingPage = () => {
                 </div>
                 <div className='flex justify-between text-danger-500'>
                   <span className='text-sm'>Giảm giá voucher</span>
-                  <span>{bill?.discountedTotal.toLocaleString("vi-VN")} đ</span>
+                  <span>{bill?.discountedTotal?.toLocaleString("vi-VN")} đ</span>
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-sm'>Phí vận chuyển</span>
