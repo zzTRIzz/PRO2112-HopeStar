@@ -13,8 +13,8 @@ import {
     updateImeiSold,
 
 } from '@/features/hoadon/service/HoaDonService';
-import { toast } from 'react-toastify';
-
+import { ToastContainer, toast } from "react-toastify";
+import "../../banhang/custom-toast.css"
 
 interface SearchBillDetail {
     id: number
@@ -292,10 +292,11 @@ const ChiTietHoaDon: React.FC = () => {
     };
 
     const fromThanhCong = (message: string) => {
+        toast.dismiss(); // Đóng tất cả các thông báo trước đó
         toast.success(message, {
             position: "top-right",
-            className: "custom-toast", // Áp dụng CSS tùy chỉnh
-            autoClose: 2000,
+            className: "custom-toast",
+            autoClose: 1000,
             hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: true,
@@ -303,8 +304,10 @@ const ChiTietHoaDon: React.FC = () => {
         });
     };
 
+
     const fromThatBai = (message: string) => {
-        toast.success(message, {
+        toast.dismiss(); 
+        toast.error(message, {
             position: "top-right",
             className: "custom-thatBai", // Áp dụng CSS tùy chỉnh
             autoClose: 2000,
@@ -367,7 +370,7 @@ const ChiTietHoaDon: React.FC = () => {
 
                             <Button className="bg-white-500 border border-blue-500 rounded-sm
                                                 border-opacity-50 text-blue-600 hover:bg-gray-300"
-                                disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                                disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                             >
                                 Quét Barcode
                             </Button>
@@ -426,7 +429,7 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Đã trả lại:", value: searchBill?.amountChange },
                                         {
                                             label: "Còn thiếu:",
-                                            value: (searchBill?.amountChange ?? 0) < 0  ? Math.abs(searchBill?.amountChange ?? 0)  : ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
+                                            value: (searchBill?.amountChange ?? 0) < 0 ? Math.abs(searchBill?.amountChange ?? 0) : ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
                                             highlight: true
                                         },
                                     ].map((item, index) => (
@@ -446,7 +449,14 @@ const ChiTietHoaDon: React.FC = () => {
                 </div>
                 <br />
             </Main >
-
+            <ToastContainer
+                position="top-right"
+                hideProgressBar
+                newestOnTop
+                closeOnClick
+                pauseOnHover
+                draggable
+                theme="colored" />
         </>
     );
 };

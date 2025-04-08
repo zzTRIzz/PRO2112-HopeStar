@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { PhoneFilterRequest } from './schema'
+import { PhoneFilterRequest } from '../components/bo-loc-dien-thoai'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -36,10 +36,10 @@ export const getProductDetail = async (id: number) => {
   }
 }
 
-export const searchPhones = async (filters: PhoneFilterRequest) => {
+export const searchPhones = async (filter: PhoneFilterRequest) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/phones/search`, {
-      params: filters
+    const response = await axios.get(`${API_BASE_URL}/search`, {
+      params: filter
     });
     return response.data;
   } catch (error) {

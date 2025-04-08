@@ -14,13 +14,14 @@ import { Bill } from '../service/HoaDonSchema';
 
 const statusStyles: Record<string, string> = {
     "CHO_THANH_TOAN": "bg-slate-500 text-white",
-    "DA_HUY": "bg-sky-500 text-white",
     "CHO_XAC_NHAN": "bg-blue-500 text-white",
-    "DA_THANH_TOAN": "bg-red-500 text-white",
+    "DA_XAC_NHAN": "bg-sky-500 text-white",
     "HOAN_THANH": "bg-teal-500 text-white",
     "DANG_CHUAN_BI_HANG": "bg-pink-500 text-white",
     "DANG_GIAO_HANG": "bg-violet-500 text-white",
-    "DA_GIAO_HANG": "bg-green-500 text-white",
+    // "DA_GIAO_HANG": "bg-green-500 text-white",
+    "DA_HUY": "bg-red-500 text-white",
+
 };
 interface Props {
     listHoaDon?: Bill[];
@@ -56,14 +57,15 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
         const getOrderStatusText = (status: string | null) => {
             switch (status) {
                 case "CHO_THANH_TOAN": return "Chờ thanh toán";
-                case "DA_HUY": return "Đã hủy";
                 case "CHO_XAC_NHAN": return "Chờ xác nhận";
-                case "DA_THANH_TOAN": return "Đã thanh toán";
-                case "HOAN_THANH": return "Hoàn thành";
+                case "DA_XAC_NHAN": return "Đã xác nhận";
                 case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
                 case "DANG_GIAO_HANG": return "Đang giao hàng";
-                case "DA_GIAO_HANG": return "Đã giao hàng";
+                // case "DA_GIAO_HANG": return "Đã giao hàng";
+                case "HOAN_THANH": return "Hoàn thành";
+                case "DA_HUY": return "Đã hủy";
                 default: return "Không rõ trạng thái";
+
             }
         };
 
@@ -99,7 +101,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                     <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                     <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd.nameBill}</p> </TableCell>
                                     <TableCell align="center" >{hd.name}<br />{hd.phone}</TableCell>
-                                    <TableCell align="center" className="w-full whitespace-nowrap">
+                                    <TableCell align="center" className="w-[200px] whitespace-nowrap">
                                         <span className={cn(
                                             "px-4 py-2 text-white font-medium rounded-full text-xs",
                                             hd.billType === 0 ? "bg-emerald-500" : "bg-orange-500"

@@ -37,21 +37,17 @@ public class ProductDetailController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest){
-        try {
+    public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest) throws Exception {
+
             productDetailService.updateProductDetail(id,productDetailRequest);
             return new ResponseData<>(HttpStatus.ACCEPTED,"update product-detail successfully");
-        }catch (Exception e){
-            return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
-        }
+
     }
     @PostMapping("/quantity/{id}")
-    public ResponseData<?> addImeiProductDetail(@PathVariable Integer id,@RequestBody List<ProductImeiRequest> imeiRequest){
-        try {
+    public ResponseData<?> addImeiProductDetail(@PathVariable Integer id,@RequestBody List<ProductImeiRequest> imeiRequest) throws Exception {
+
             productDetailService.addQuantityProductDetail(id, imeiRequest);
             return new ResponseData<>(HttpStatus.ACCEPTED,"add quantity product-detail successfully");
-        }catch (Exception e){
-            return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
-        }
+
     }
 }

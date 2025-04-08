@@ -1,6 +1,7 @@
 package com.example.be.core.client.home.service.impl;
 
 
+import com.example.be.core.client.home.dto.request.PhoneFilterRequest;
 import com.example.be.core.client.home.dto.response.ProductDetailViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponseAll;
@@ -215,6 +216,13 @@ public class HomeServiceImpl implements HomeService {
         }
 
         return response;
+    }
+
+    @Override
+    public List<ProductViewResponse> phoneFilter(PhoneFilterRequest phoneFilterRequest) {
+        List<Product> productList = productRepository.filterProducts(phoneFilterRequest);
+        List<ProductViewResponse> test = handlerProductView(productList);
+        return test;
     }
 
 }

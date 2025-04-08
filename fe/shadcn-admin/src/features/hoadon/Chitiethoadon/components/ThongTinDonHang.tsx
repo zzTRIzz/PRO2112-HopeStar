@@ -48,25 +48,26 @@ const ThongTinDonHang: React.FC<Posp> =
                     <div className="flex items-center justify-between px-4">
                         <h1 className="font-bold text-lg text-gray-600">Thông tin đơn hàng</h1>
                         {/* {searchBill?.billType == 1 && ( */}
-                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                <Button onClick={() => setIsDialogOpen(true)}
-                                    disabled={searchBill?.status === "DANG_GIAO_HANG" ||
-                                         searchBill?.status === "HOAN_THANH" ||
-                                         searchBill?.status === "CHO_THANH_TOAN"
-                                        }
-                                >Cập nhật
-                                </Button>
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <Button onClick={() => setIsDialogOpen(true)}
+                                disabled={searchBill?.status === "DANG_GIAO_HANG" ||
+                                    searchBill?.status === "HOAN_THANH" ||
+                                    searchBill?.status === "CHO_THANH_TOAN" ||
+                                    searchBill?.status === "DA_HUY"
+                                }
+                            >Cập nhật
+                            </Button>
 
-                                <DialogContent className="max-w-2xl">
-                                    <DialogHeader>
-                                        <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
-                                    </DialogHeader>
-                                    <DiaChiGiaoHang
-                                        khachHang={listKhachHang}
-                                        onClose={() => setIsDialogOpen(false)}
-                                    />
-                                </DialogContent>
-                            </Dialog>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
+                                </DialogHeader>
+                                <DiaChiGiaoHang
+                                    khachHang={listKhachHang}
+                                    onClose={() => setIsDialogOpen(false)}
+                                />
+                            </DialogContent>
+                        </Dialog>
                         {/* )} */}
                     </div>
 

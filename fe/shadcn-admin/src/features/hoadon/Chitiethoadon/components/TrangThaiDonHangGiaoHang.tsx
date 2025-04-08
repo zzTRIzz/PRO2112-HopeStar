@@ -4,7 +4,10 @@ import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
 import { BillRespones, BillSchema } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
-import { fromThatBai } from "../../../banhang/components/ThongBao";
+import { fromThatBai, fromThanhCong } from "../../../banhang/components/ThongBao";
+import { ToastContainer, toast } from "react-toastify";
+import { Icon } from '@iconify/react'
+
 interface StepProps {
     status: OrderStatus;
     step: OrderStatus;
@@ -16,9 +19,9 @@ interface StepProps {
 
 export type OrderStatus =
     | "CHO_XAC_NHAN"
+    | "DA_XAC_NHAN"
     | "DANG_CHUAN_BI_HANG"
     | "DANG_GIAO_HANG"
-    // | "DA_GIAO_HANG"
     | "HOAN_THANH"
     | "DA_HUY"
     ;
@@ -49,7 +52,7 @@ const Step: React.FC<StepProps> = ({
                 <div className={cn(
                     "absolute top-5 h-0.5",
                     "left-[calc(50%+1.5rem)] right-[calc(-50%+1.5rem)]", // Điều chỉnh vị trí đường nối
-                    isActive ? "bg-orange-500" : "bg-gray-200",
+                    isActive ? "bg-green-500" : "bg-gray-200",
                     "transition-colors duration-300"
                 )}></div>
             )}
@@ -60,7 +63,7 @@ const Step: React.FC<StepProps> = ({
                 "rounded-full", // Bo tròn vòng ngoài
                 "border-2", // Thêm border cho vòng tròn
                 isActive
-                    ? "border-orange-500"
+                    ? "border-green-500"
                     : "border-gray-200",
                 "transition-colors duration-300",
                 "bg-white" // Nền trắng để che đường nối
@@ -68,7 +71,7 @@ const Step: React.FC<StepProps> = ({
                 <div className={cn(
                     "w-8 h-8 rounded-full", // Giảm kích thước icon container
                     "flex items-center justify-center",
-                    isActive ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500",
+                    isActive ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500",
                     "transition-all duration-300 ease-in-out"
                 )}>
                     {icon}
@@ -79,7 +82,7 @@ const Step: React.FC<StepProps> = ({
             <div className="mt-2 text-center max-w-[150px]">
                 <h3 className={cn(
                     "text-sm font-medium ",
-                    isCurrentStep ? "text-orange-500 font-bold" : isActive ? "text-gray-900" : "text-gray-500",
+                    isCurrentStep ? "text-green-500 font-bold" : isActive ? "text-gray-900" : "text-gray-500",
                     "transition-colors duration-300"
                 )}>
                     {title}
@@ -93,11 +96,11 @@ const Step: React.FC<StepProps> = ({
 function getStepValue(status: OrderStatus): number {
     const statusMap: Record<OrderStatus, number> = {
         CHO_XAC_NHAN: 1,
-        DANG_CHUAN_BI_HANG: 2,
-        DANG_GIAO_HANG: 3,
-        // DA_GIAO_HANG: 4,
-        HOAN_THANH: 4,
-        DA_HUY: 0
+        DA_XAC_NHAN: 2,
+        DANG_CHUAN_BI_HANG: 3,
+        DANG_GIAO_HANG: 4,
+        HOAN_THANH: 5,
+        DA_HUY: -1
     };
 
     return statusMap[status];
@@ -112,46 +115,57 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
             "w-full flex items-start justify-between gap-2 px-4",
             className
         )}>
-            <Step
-                status={currentStatus}
-                step="CHO_XAC_NHAN"
-                title="Đang chờ xác nhận"
-                description="Đặt hàng thành công"
-                icon={<CreditCard className="w-4 h-4" />}
-            />
+            {currentStatus === "DA_HUY" ? (
+                <div className="w-full h-[130px] bg-red-100 rounded-xl flex flex-col items-center justify-center text-red-600 shadow-sm">
+                    <div className="flex items-center gap-2">
+                        <Icon icon="lucide:alert-circle" width={26} />
+                        <span className="text-lg font-semibold">Đơn hàng đã hủy</span>
+                    </div>
+                </div>
 
-            <Step
-                status={currentStatus}
-                step="DANG_CHUAN_BI_HANG"
-                title="Đang chuẩn bị hàng"
-                description="Đơn hàng đang xử lý"
-                icon={<Clock className="w-4 h-4" />}
-            />
+            ) : (
+                <>
+                    <Step
+                        status={currentStatus}
+                        step="CHO_XAC_NHAN"
+                        title="Đang chờ xác nhận"
+                        description="Đặt hàng thành công"
+                        icon={<CreditCard className="w-4 h-4" />}
+                    />
+                    <Step
+                        status={currentStatus}
+                        step="DA_XAC_NHAN"
+                        title="Đã xác nhận"
+                        description="Đơn hàng đã xác nhận"
+                        icon={<CreditCard className="w-4 h-4" />}
+                    />
 
-            <Step
-                status={currentStatus}
-                step="DANG_GIAO_HANG"
-                title="Đang vận chuyển"
-                description="Đơn hàng đang giao"
-                icon={<Truck className="w-4 h-4" />}
-            />
+                    <Step
+                        status={currentStatus}
+                        step="DANG_CHUAN_BI_HANG"
+                        title="Đang chuẩn bị hàng"
+                        description="Đơn hàng đang xử lý"
+                        icon={<Clock className="w-4 h-4" />}
+                    />
 
-            {/* <Step
-                status={currentStatus}
-                step="DA_GIAO_HANG"
-                title="Đã giao hàng"
-                description="Đơn hàng đã giao"
-                icon={<Package className="w-4 h-4" />}
-            /> */}
+                    <Step
+                        status={currentStatus}
+                        step="DANG_GIAO_HANG"
+                        title="Đang vận chuyển"
+                        description="Đơn hàng đang giao"
+                        icon={<Truck className="w-4 h-4" />}
+                    />
 
-            <Step
-                status={currentStatus}
-                step="HOAN_THANH"
-                title="Hoàn thành"
-                description="Đơn hàng hoàn tất"
-                icon={<CheckCircle className="w-4 h-4" />}
-                isLast={true}
-            />
+                    <Step
+                        status={currentStatus}
+                        step="HOAN_THANH"
+                        title="Hoàn thành"
+                        description="Đơn hàng hoàn tất"
+                        icon={<CheckCircle className="w-4 h-4" />}
+                        isLast={true}
+                    />
+                </>
+            )}
         </div>
     );
 };
@@ -173,9 +187,9 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         // Mảng các trạng thái theo thứ tự
         const statusOrder: OrderStatus[] = [
             "CHO_XAC_NHAN",
+            "DA_XAC_NHAN",
             "DANG_CHUAN_BI_HANG",
             "DANG_GIAO_HANG",
-            // "DA_GIAO_HANG",
             "HOAN_THANH"
         ];
 
@@ -187,7 +201,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
             if (isMissingImei) {
                 fromThatBai("Một số sản phẩm chưa có IMEI.");
-                console.log("Một số sản phẩm chưa có IMEI.");
+                console.error("Một số sản phẩm chưa có IMEI.");
                 return;
             }
 
@@ -200,12 +214,16 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 loadTongBill();
                 console.log(statusOrder[currentIndex + 1]);
             }
+            fromThanhCong("Cập nhật trạng thái đơn hàng thành công.");
         };
 
-        const handlePrevStatus = () => {
-            const currentIndex = statusOrder.indexOf(currentStatus);
-            if (currentIndex > 0) {
-                setCurrentStatus(statusOrder[currentIndex - 1]);
+        const handlePrevStatus = async () => {
+            // const currentIndex = statusOrder.indexOf(currentStatus);
+            // console.log(currentIndex);
+            setCurrentStatus("DA_HUY");
+            if (searchBill != null) {
+                await updateStatus(searchBill?.id, "DA_HUY");
+                loadTongBill();
             }
         };
         return (
@@ -219,52 +237,52 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                         </div>
                     </div>
 
-                    {/* Stepper */}
                     <div className="p-4">
+
                         <OrderStepper currentStatus={currentStatus} />
-                        {/* Buttons */}
-                        <div className="flex justify-center gap-4 mt-8">
-                            <Button
-                                onClick={handleNextStatus}
-                                disabled={currentStatus === "HOAN_THANH"}
-                                className={cn(
-                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                    "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
-                                )}
-                            >
-                                Xác nhận
-                            </Button>
 
-                            {/* {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && ( */}
-                            <Button
-                                onClick={handlePrevStatus}
-                                disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH"}
-                                className={cn(
-                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                    "flex items-center gap-2",
-                                    // currentStatus === "CHO_XAC_NHAN"
-                                    //     ? "bg-gray-300 cursor-not-allowed" :
-                                    "bg-red-600 hover:bg-red-500"
-                                )}
-                            >
-                                Hủy đơn
-                            </Button>
-                            {/* )} */}
 
-                            <div className="ml-[500px]">
+                        {currentStatus !== "DA_HUY" && (
+                            <div className="flex justify-center gap-4 mt-8">
                                 <Button
-
-                                >
-                                    In hóa đơn
+                                    onClick={handleNextStatus}
+                                    disabled={currentStatus === "HOAN_THANH"}
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                                    )}>
+                                    Xác nhận
                                 </Button>
+                                <Button
+                                    onClick={handlePrevStatus}
+                                    disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH"}
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2",
+                                        "bg-red-600 hover:bg-red-500"
+                                    )} >
+                                    Hủy đơn
+                                </Button>
+
+                                <div className="ml-[500px]">
+                                    <Button>
+                                        In hóa đơn
+                                    </Button>
+                                </div>
                             </div>
-
-                        </div>
-
+                        )}
                     </div>
-
                 </div>
+                <ToastContainer
+                    position="top-right"
+                    hideProgressBar
+                    newestOnTop
+                    closeOnClick
+                    pauseOnHover
+                    draggable
+                    theme="colored" />
             </div>
+
         );
     }
 

@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
+import com.example.be.core.client.home.dto.request.PhoneFilterRequest;
 import com.example.be.entity.Product;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.StatusCommon;
@@ -50,5 +51,29 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
     List<Product> findTop10SellingProducts(@Param("status") StatusCommon status);
 
     Product findByProductDetails(ProductDetail productDetail);
+
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN p.os o " +
+            "LEFT JOIN p.chip c " +
+            "LEFT JOIN p.screen s " +
+            "LEFT JOIN p.productDetails pd " +
+            "LEFT JOIN pd.ram r " +
+            "LEFT JOIN pd.rom rom " +
+            "LEFT JOIN ProductCategory pc ON p.id = pc.product.id " +
+            "LEFT JOIN pc.category cat " +
+            "WHERE (:#{#filter.priceStart} IS NULL OR pd.priceSell >= :#{#filter.priceStart}) " +
+            "AND (:#{#filter.priceEnd} IS NULL OR pd.priceSell <= :#{#filter.priceEnd}) " +
+            "AND (:#{#filter.nfc} IS NULL OR p.nfc = :#{#filter.nfc}) " +
+            "AND (:#{#filter.category} IS NULL OR cat.id = :#{#filter.category}) " +
+            "AND (:#{#filter.os} IS NULL OR o.id = :#{#filter.os}) " +
+            "AND (:#{#filter.brand} IS NULL OR b.id = :#{#filter.brand}) " +
+            "AND (:#{#filter.chip} IS NULL OR c.id = :#{#filter.chip}) " +
+            "AND (:#{#filter.ram} IS NULL OR r.id = :#{#filter.ram}) " +
+            "AND (:#{#filter.rom} IS NULL OR rom.id = :#{#filter.rom}) " +
+            "AND (:#{#filter.typeScreen} IS NULL OR s.type = :#{#filter.typeScreen}) " +
+            "AND (:#{#filter.sizeScreen} IS NULL OR s.displaySize = :#{#filter.sizeScreen}) " +
+            "AND p.status = 'ACTIVE'")
+    List<Product> filterProducts(@Param("filter") PhoneFilterRequest filter);
 
   }

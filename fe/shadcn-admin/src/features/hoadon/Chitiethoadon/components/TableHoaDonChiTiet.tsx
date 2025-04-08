@@ -125,7 +125,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
                                                             onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}
-                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN","DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                                                         >
                                                             Cập nhật
                                                         </Button>

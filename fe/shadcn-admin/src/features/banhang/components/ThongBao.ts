@@ -14,7 +14,7 @@ export const fromThanhCong = (message: string) => {
 
 
  export const fromThatBai = (message: string) => {
-    toast.success(message, {
+    toast.error(message, {
       position: "top-right",
       className: "custom-thatBai",
       autoClose: 2000,

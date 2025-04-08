@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, Checkbox } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { toast } from '@/hooks/use-toast'
 
-// Define the type for cart item
 interface CartItemType {
   id: number
   productName: string
@@ -18,7 +18,7 @@ interface CartItemProps {
   item: CartItemType
   isSelected: boolean
   onSelect: (isSelected: boolean) => void
-  onUpdateQuantity: (quantity: number) => void
+  onUpdateQuantity: (quantity: number) => Promise<void>
   onDelete: () => void
 }
 
@@ -29,15 +29,36 @@ export function CartItemCard({
   onUpdateQuantity,
   onDelete,
 }: CartItemProps) {
-  const MAX_QUANTITY = 5
+  const handleIncrease = async () => {
+    const newQuantity = item.quantity + 1
 
-  const handleQuantityChange = (delta: number) => {
-    const newQuantity = Math.min(
-      MAX_QUANTITY,
-      Math.max(1, item.quantity + delta)
-    )
-    if (newQuantity !== item.quantity) {
-      onUpdateQuantity(newQuantity)
+    try {
+      await onUpdateQuantity(newQuantity)
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || 'Lỗi khi cập nhật số lượng'
+      toast({
+        title: 'Thông báo',
+        description: errorMessage,
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleDecrease = async () => {
+    const newQuantity = item.quantity - 1
+    if (newQuantity < 1) return
+
+    try {
+      await onUpdateQuantity(newQuantity)
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || 'Lỗi khi cập nhật số lượng'
+      toast({
+        title: 'Thông báo',
+        description: errorMessage,
+        variant: 'destructive',
+      })
     }
   }
 
@@ -51,7 +72,6 @@ export function CartItemCard({
               onValueChange={onSelect}
               aria-label={`Select ${item.productName}`}
             />
-            {/* Add Image display */}
             <div className='h-32 w-24 overflow-hidden rounded-md'>
               {item.image ? (
                 <img
@@ -95,7 +115,7 @@ export function CartItemCard({
                   isIconOnly
                   variant='solid'
                   size='sm'
-                  onPress={() => handleQuantityChange(-1)}
+                  onPress={handleDecrease}
                   aria-label='Decrease quantity'
                   isDisabled={item.quantity <= 1}
                 >
@@ -108,9 +128,8 @@ export function CartItemCard({
                   isIconOnly
                   variant='solid'
                   size='sm'
-                  onPress={() => handleQuantityChange(1)}
+                  onPress={handleIncrease}
                   aria-label='Increase quantity'
-                  isDisabled={item.quantity >= MAX_QUANTITY}
                 >
                   <Icon icon='lucide:plus' className='h-4 w-4' />
                 </Button>
