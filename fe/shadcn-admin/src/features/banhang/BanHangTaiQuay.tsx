@@ -77,7 +77,9 @@ function BanHangTaiQuay() {
   const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
   const [customerPayment, setCustomerPayment] = useState<number>(0);
   const [phiShip, setPhiShip] = useState<number>(0);
+  const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
   const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
+  const currentBillRef = useRef<number>(0);
   const tongTien = (searchBill?.totalDue ?? 0) + phiShip;
   const tienThua = Math.max(customerPayment - tongTien);
   const [scanError, setScanError] = useState('');
@@ -86,13 +88,23 @@ function BanHangTaiQuay() {
   const [barcode, setBarcode] = useState<string | null>(null);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
+  // Keep currentBillRef in sync with idHoaDon
+  useEffect(() => {
+    const previousBill = currentBillRef.current;
+    currentBillRef.current = idHoaDon;
+    console.log(`Bill ID changed from ${previousBill} to ${idHoaDon}`);
+    if (isScanning) {
+      // Force close scanning if bill changes while scanning is active
+      setIsScanning(false);
+    }
+  }, [idHoaDon]);
+
   useEffect(() => {
     loadBill()
     loadProductDet()
     loadAccountKH()
     loadBillChoThanhToan()
     chuyenPhiShip()
-    // console.log("idBill cập nhật:", idBill);
   }, [isBanGiaoHang, tongTien])
   const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
   const { id } = signupData
@@ -197,6 +209,7 @@ function BanHangTaiQuay() {
   // Lấy hóa đơn chi tiet theo ID bill
   const getById = async (id: number) => {
     try {
+      setIsProcessingBillChange(true); // Start processing
       setIdBill(id)
       const data = await getByIdBillDetail(id)
       setProduct(data) // Cập nhật state
@@ -208,11 +221,11 @@ function BanHangTaiQuay() {
       findBillById(id)
       await loadVoucherByAcount(id)
       setIsBanGiaoHang(false)
-      // console.log("id bill khi chon "+ id);
     } catch (error) {
       setProduct([]) // Xóa danh sách cũ
-      // setIdBill(0);
       console.error('Error fetching data:', error)
+    } finally {
+      setIsProcessingBillChange(false); // End processing
     }
   }
 
@@ -696,11 +709,18 @@ function BanHangTaiQuay() {
     }
   };
 
+  useEffect(() => {
+      console.log(idHoaDon)
+  });
 
   // Quét mã vạch
   const isProcessing = useRef(false);
   const handleScanSuccess = async (imei: string) => {
-    console.log('id bill khi chon ' + idHoaDon)
+    if (isProcessingBillChange) {
+      fromThatBai('Đang xử lý chuyển đổi hóa đơn, vui lòng đợi');
+      return;
+    }
+
     if (isProcessing.current) {
       console.log('⚠ handleScanSuccess bị chặn do đã chạy trước đó!')
       return
@@ -709,30 +729,32 @@ function BanHangTaiQuay() {
     isProcessing.current = true // Đánh dấu đang xử lý
 
     // ⛔ Dừng camera ngay lập tức để tránh quét lại
-    if (window.Quagga) {
-      window.Quagga.stop()
-      console.log('📸 Camera đã dừng để tránh quét lại')
+    const quaggaWindow = window as unknown as { Quagga: any };
+    if (quaggaWindow.Quagga) {
+      quaggaWindow.Quagga.stop();
+      console.log('📸 Camera đã dừng để tránh quét lại');
     }
 
     try {
       setIsScanning(true)
       setScanError('')
       setScanResult(imei)
-      console.log('id bill chuẩn bị chon ' + idHoaDon)
+      const currentBillId = currentBillRef.current;
+      console.log('id bill chuẩn bị xử lý: ' + currentBillId);
       const productDetail = await quetBarCode(imei)
       if (!productDetail?.idImei) {
         fromThatBai('IMEI không tồn tại trong hệ thống')
         return
       }
 
-      if (!idHoaDon || idHoaDon === 0) {
+      if (!currentBillId || currentBillId === 0) {
         fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã')
         return
       }
 
-      console.log('id bill trước luc chạy ' + idHoaDon)
+      console.log('Thực hiện thêm vào hóa đơn: ' + currentBillId)
       const newBillDetail = await addHDCT({
-        idBill: idHoaDon,
+        idBill: currentBillId,
         idProductDetail: productDetail.id,
       })
 
@@ -740,13 +762,12 @@ function BanHangTaiQuay() {
         fromThatBai('Tạo hóa đơn chi tiết thất bại')
         return
       }
-      console.log('id bill luc chạy ' + idHoaDon)
       await createImeiSold(
         {
           id_Imei: [productDetail.idImei],
           idBillDetail: newBillDetail.id,
         },
-        idHoaDon,
+        currentBillId,
         productDetail.id
       )
 
@@ -754,7 +775,10 @@ function BanHangTaiQuay() {
         prev.filter((p) => p.idProductDetail !== productDetail.id)
       )
 
-      await Promise.all([loadImei(productDetail.id), getById(idHoaDon)])
+      await Promise.all([
+        loadImei(productDetail.id), 
+        getById(currentBillId)  // Use currentBillId to ensure we update correct bill
+      ])
 
       fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
     } catch (error: any) {
@@ -767,9 +791,10 @@ function BanHangTaiQuay() {
 
       // ✅ Bật lại camera sau khi xử lý xong
       setTimeout(() => {
-        if (window.Quagga) {
-          window.Quagga.start()
-          console.log('📸 Camera đã bật lại để quét tiếp')
+        const quaggaWindow = window as unknown as { Quagga: any };
+        if (quaggaWindow.Quagga) {
+          quaggaWindow.Quagga.start();
+          console.log('📸 Camera đã bật lại để quét tiếp');
         }
       }, 1000) // Delay 1 giây để tránh quét quá nhanh
     }
@@ -833,12 +858,20 @@ function BanHangTaiQuay() {
             <h1 className='font-bold tracking-tight'>Giỏ hàng</h1>
             <div className='flex space-x-2'>
               {/* Quét Barcode để check sản phẩm */}
-              <Button
-                onClick={() => setIsScanning(true)}
-                className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
-              >
-                Quét Barcode
-              </Button>
+  <Button
+    onClick={() => {
+      // Verify current bill before allowing scan
+      const currentBill = currentBillRef.current;
+      if (!currentBill || currentBill === 0) {
+        fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
+        return;
+      }
+      setIsScanning(true);
+    }}
+    className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
+  >
+    Quét Barcode
+  </Button>
 
               {/* {scanResult && (
                 <div className="mt-2 p-2 bg-green-100 rounded">
