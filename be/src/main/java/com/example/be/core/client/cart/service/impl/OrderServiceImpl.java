@@ -26,6 +26,8 @@ public class OrderServiceImpl implements OrderService {
     private final BillRepository billRepository;
     private final BillDetailRepository billDetailRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final DeliveryMethodRepository deliveryMethodRepository;
 
     @Override
     public Object order(OrderRequest orderRequest, Account account) throws Exception {
@@ -78,6 +80,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         BigDecimal totalPriceBill = BigDecimal.ZERO;
+        //products: la cart-detail
         for (OrderRequest.Products products: productsList) {
             CartDetail cartDetail = cartDetailRepository.findById(products.getId()).get();
             ProductDetail productDetail = productDetailRepository.findById(cartDetail.getIdProductDetail().getId()).get();
@@ -97,9 +100,27 @@ public class OrderServiceImpl implements OrderService {
         }
 
         creteBill.setTotalPrice(totalPriceBill);
-        creteBill.setTotalDue(totalPriceBill);
-        billRepository.save(creteBill);
 
+        //chua tru voucher
+        // tien khach da tra
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).get();
+        if (orderRequest.getPaymentMethod() ==4){
+            creteBill.setPayment(paymentMethod);
+            creteBill.setCustomerPayment(BigDecimal.ZERO);
+        }else if(orderRequest.getPaymentMethod() ==3){
+            creteBill.setPayment(paymentMethod);
+            creteBill.setCustomerPayment(totalPriceBill);
+        }
+        //tien giam voucher
+        creteBill.setDiscountedTotal(orderRequest.getDiscountedTotal());
+        // tien ship
+        creteBill.setDeliveryFee(orderRequest.getDeliveryFee());
+        // hinh thuc ship
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(2).get();
+        creteBill.setDelivery(deliveryMethod);
+
+        creteBill.setTotalDue(orderRequest.getTotalDue());
+        billRepository.save(creteBill);
         return "Đặt hàng thành công";
     }
 }

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Input, Select, SelectItem } from '@heroui/react'
+import Ship from './ship'
 import type { CartItem, Voucher } from './types/cart'
 
 // Mock vouchers data (trong thực tế sẽ lấy từ API)
@@ -33,21 +34,34 @@ interface OrderSummaryProps {
   onCheckout: () => void
   products: CartItem[]
   isValid: boolean
+  confirmedAddress?: string
   errors: {
     customerInfo: Record<string, string>
     location: Record<string, string>
   }
+  onValuesChange?: (data: {
+    subtotal: number
+    shippingFee: number
+    insuranceFee: number
+    voucherDiscount: number
+    total: number
+    selectedVoucher: Voucher | null
+  }) => void
 }
 
 export function OrderSummary({
   onCheckout,
   products,
   isValid,
+  confirmedAddress, // Nhận prop
   errors,
+  onValuesChange,
 }: OrderSummaryProps) {
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null)
   const [voucherCode, setVoucherCode] = useState('')
   const [voucherError, setVoucherError] = useState('')
+  const [shippingFee, setShippingFee] = useState(0)
+  const [insuranceFee, setInsuranceFee] = useState(0)
 
   const subtotal = products.reduce(
     (sum, item) => sum + item.priceSell * item.quantity,
@@ -84,8 +98,6 @@ export function OrderSummary({
     }
   }, [subtotal])
 
-  const productDiscount = Math.round(subtotal * 0.1) // 10% product discount
-
   // Tính toán giảm giá voucher
   const calculateVoucherDiscount = (
     voucher: Voucher | null,
@@ -100,9 +112,12 @@ export function OrderSummary({
   }
 
   const voucherDiscount = calculateVoucherDiscount(selectedVoucher, subtotal)
-  const shipping = 0 // Free shipping
-  const total = subtotal - productDiscount - voucherDiscount
-  const points = Math.floor(total * 0.00025) // 0.025% points back
+  const total = subtotal - voucherDiscount + shippingFee + insuranceFee
+
+  const handleShippingFeeChange = (shipping: number, insurance: number) => {
+    setShippingFee(shipping)
+    setInsuranceFee(insurance)
+  }
 
   const renderErrors = () => {
     const errorMessages = []
@@ -129,7 +144,7 @@ export function OrderSummary({
     if (errorMessages.length === 0) return null
 
     return (
-      <div className='mb-4 rounded-lg border border-red-200 bg-red-50 p-3 mt-2'>
+      <div className='mb-4 mt-2 rounded-lg border border-red-200 bg-red-50 p-3'>
         <p className='mb-2 text-sm font-medium text-red-600'>
           Vui lòng kiểm tra lại thông tin:
         </p>
@@ -143,6 +158,41 @@ export function OrderSummary({
       </div>
     )
   }
+
+  // Thêm ref để lưu giá trị trước đó
+  const previousValues = useRef({
+    subtotal: 0,
+    shippingFee: 0,
+    insuranceFee: 0,
+    voucherDiscount: 0,
+    total: 0,
+    selectedVoucher: null,
+  })
+
+  // Callback khi các giá trị thay đổi
+  useEffect(() => {
+    const values = {
+      subtotal,
+      shippingFee,
+      insuranceFee,
+      voucherDiscount,
+      total,
+      selectedVoucher,
+    }
+
+    // So sánh với giá trị trước đó để tránh update không cần thiết
+    if (JSON.stringify(values) !== JSON.stringify(previousValues.current)) {
+      previousValues.current = values
+      onValuesChange?.(values)
+    }
+  }, [
+    subtotal,
+    shippingFee,
+    insuranceFee,
+    voucherDiscount,
+    total,
+    selectedVoucher,
+  ])
 
   return (
     <div className='order-summary-wrapper'>
@@ -222,19 +272,14 @@ export function OrderSummary({
           <div className='space-y-3 pb-2'>
             <div className='flex justify-between'>
               <span>Tổng tiền</span>
-              <span>{subtotal.toLocaleString()}đ</span>
+              <span>{new Intl.NumberFormat('vi-VN').format(subtotal)}đ</span>
             </div>
-            <div className='flex justify-between'>
-              <span>Khuyến mãi sản phẩm</span>
-              <span className='text-[#FF3B30]'>
-                -{productDiscount.toLocaleString()}đ
-              </span>
-            </div>
+
             {selectedVoucher && voucherDiscount > 0 && (
               <div className='flex justify-between'>
                 <span>Giảm giá voucher</span>
                 <span className='text-[#FF3B30]'>
-                  -{voucherDiscount.toLocaleString()}đ
+                  -{new Intl.NumberFormat('vi-VN').format(voucherDiscount)}đ
                 </span>
               </div>
             )}
@@ -244,14 +289,16 @@ export function OrderSummary({
                 thiểu
               </div>
             )}
-            <div className='flex justify-between'>
-              <span>Phí vận chuyển</span>
-              <span>Miễn phí</span>
-            </div>
+            <Ship
+              productValue={subtotal - voucherDiscount}
+              weight={1500}
+              address={confirmedAddress} // Truyền địa chỉ vào Ship
+              onShippingFeeChange={handleShippingFeeChange}
+            />
             <div className='flex justify-between border-t pt-3'>
               <span className='font-bold'>Cần thanh toán</span>
               <span className='font-bold text-[#FF3B30]'>
-                {total.toLocaleString()}đ
+                {new Intl.NumberFormat('vi-VN').format(total)}đ
               </span>
             </div>
           </div>
