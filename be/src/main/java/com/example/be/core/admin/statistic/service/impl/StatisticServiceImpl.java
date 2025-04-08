@@ -148,9 +148,8 @@ public class StatisticServiceImpl implements StatisticService {
 
 
     public TodayRevenueResponse getTodayRevenue() {
-        ZoneId zoneId = ZoneId.systemDefault();
-        Instant startOfDay = LocalDate.now().atStartOfDay(zoneId).toInstant();
-        Instant endOfDay = LocalDate.now().atTime(LocalTime.MAX).atZone(zoneId).toInstant();
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
 
         Tuple result = statisticRepository.getRevenueAndCount(startOfDay, endOfDay);
 
@@ -166,10 +165,9 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     public MonthlyRevenueResponse getMonthlyRevenue() {
-        ZoneId zoneId = ZoneId.systemDefault();
-        Instant startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay(zoneId).toInstant();
-        Instant endOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
-                .atTime(LocalTime.MAX).atZone(zoneId).toInstant();
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+                .atTime(LocalTime.MAX);
 
         Tuple result = statisticRepository.getRevenueAndCount(startOfMonth, endOfMonth);
 
