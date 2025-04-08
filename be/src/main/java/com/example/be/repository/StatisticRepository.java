@@ -20,7 +20,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         SELECT DATE(payment_date) AS paymentDate, 
                SUM(total_price) AS totalRevenue
         FROM bill
-        WHERE status = 'DA_THANH_TOAN'
+        WHERE status = 'HOAN_THANH'
         GROUP BY DATE(payment_date)
         ORDER BY paymentDate DESC
         """, nativeQuery = true)
@@ -28,14 +28,14 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
 
     @Query(value = "SELECT YEAR(payment_date) AS year, SUM(total_price) AS totalRevenue " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN' " +
+            "WHERE status = 'HOAN_THANH' " +
             "GROUP BY YEAR(payment_date) " +
             "ORDER BY year DESC", nativeQuery = true)
     List<Object[]> getRevenueByYear();
 
     @Query(value = "SELECT YEAR(payment_date) AS year, MONTH(payment_date) AS month, SUM(total_price) AS totalRevenue " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN' " +
+            "WHERE status = 'HOAN_THANH' " +
             "GROUP BY YEAR(payment_date), MONTH(payment_date) " +
             "ORDER BY year DESC, month DESC", nativeQuery = true)
     List<Object[]> getRevenueByMonth();
@@ -63,25 +63,25 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getRevenueByProduct();
 
     // Số lượng hóa đơn theo ngày
-    @Query(value = "SELECT DATE(created_at) AS order_date, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT DATE(payment_date) AS order_date, COUNT(*) AS total_orders " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN' " +
+            "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_date " +
             "ORDER BY order_date", nativeQuery = true)
     List<Object[]> getOrderCountByDate();
 
     // Số lượng hóa đơn theo tháng
-    @Query(value = "SELECT YEAR(created_at) AS order_year, MONTH(created_at) AS order_month, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT YEAR(payment_date) AS order_year, MONTH(payment_date) AS order_month, COUNT(*) AS total_orders " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN' " +
+            "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_year, order_month " +
             "ORDER BY order_year, order_month", nativeQuery = true)
     List<Object[]> getOrderCountByMonth();
 
     // Số lượng hóa đơn theo năm
-    @Query(value = "SELECT YEAR(created_at) AS order_year, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT YEAR(payment_date) AS order_year, COUNT(*) AS total_orders " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN' " +
+            "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_year " +
             "ORDER BY order_year", nativeQuery = true)
     List<Object[]> getOrderCountByYear();
@@ -89,7 +89,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     // Tổng số lượng hóa đơn đã thanh toán
     @Query(value = "SELECT COUNT(*) AS total_paid_orders " +
             "FROM bill " +
-            "WHERE status = 'DA_THANH_TOAN'", nativeQuery = true)
+            "WHERE status = 'HOAN_THANH'", nativeQuery = true)
     Long getTotalPaidOrders();
 
     @Query(value = "SELECT " +
@@ -115,12 +115,12 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getBestSellingProducts();
 
     @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
-            "WHERE b.status = 'DA_THANH_TOAN' " +
+            "WHERE b.status = 'HOAN_THANH' " +
             "AND DATE(b.paymentDate) = CURRENT_DATE")
     BigDecimal calculateTodayRevenue();
 
     @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
-            "WHERE b.status = 'DA_THANH_TOAN' " +
+            "WHERE b.status = 'HOAN_THANH' " +
             "AND MONTH(b.paymentDate) = MONTH(CURRENT_DATE) " +
             "AND YEAR(b.paymentDate) = YEAR(CURRENT_DATE)")
     BigDecimal calculateMonthlyRevenue();
@@ -138,10 +138,10 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     @Query("SELECT SUM(b.totalPrice) as revenue, COUNT(b) as count " +
             "FROM Bill b " +
             "WHERE b.paymentDate BETWEEN :start AND :end " +
-            "AND b.status = 'DA_THANH_TOAN'")
+            "AND b.status = 'HOAN_THANH'")
     Tuple getRevenueAndCount(
-            @Param("start") Instant start,
-            @Param("end") Instant end
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 
     @Query(nativeQuery = true, value =
