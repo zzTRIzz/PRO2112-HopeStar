@@ -230,5 +230,25 @@ public class VoucherController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+    @GetMapping("/searchWithFilters")
+    public ResponseEntity<List<VoucherResponse>> searchWithFilters(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) Boolean isPrivate,
+            @RequestParam(required = false) String status
+    ) {
+        try {
+            List<VoucherResponse> vouchers = voucherService.searchVouchers(
+                    keyword,
+                    startTime,
+                    endTime,
+                    isPrivate,
+                    status
+            );
+            return ResponseEntity.ok(vouchers);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 }

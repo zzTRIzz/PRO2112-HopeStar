@@ -47,4 +47,22 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     boolean existsByCode(String code);
     boolean existsByCodeAndIdNot(String code, Integer id);
+    @Query("""
+    SELECT v FROM Voucher v 
+    WHERE (:keyword IS NULL OR 
+           LOWER(v.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+           LOWER(v.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    AND (:startTime IS NULL OR v.startTime >= :startTime)
+    AND (:endTime IS NULL OR v.endTime <= :endTime)
+    AND (:isPrivate IS NULL OR v.isPrivate = :isPrivate)
+    AND (:status IS NULL OR v.status = :status)
+    ORDER BY v.id DESC
+""")
+    List<Voucher> findByDynamicFilters(
+            @Param("keyword") String keyword,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("isPrivate") Boolean isPrivate,
+            @Param("status") StatusVoucher status
+    );
 }

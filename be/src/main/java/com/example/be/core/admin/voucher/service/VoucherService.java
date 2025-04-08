@@ -35,5 +35,11 @@ public interface VoucherService {
     VoucherResponse findById(Integer id);
 
     List<AccountResponse> getAccountsWithVoucher(Integer voucherId);
-
+    List<VoucherResponse> searchVouchers(
+            String keyword,  // Tìm theo code hoặc name
+            String startTime,
+            String endTime,
+            Boolean isPrivate,  // Thêm filter theo loại voucher
+            String status      // Thêm filter theo trạng thái
+    );
 }

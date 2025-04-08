@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
 
@@ -12,137 +13,53 @@ export const getVouchers = async () => {
   }
 };
 
-export const searchVoucherByCode = async (code: string) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/voucher/search`, {
-      params: { code }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error searching vouchers:', error);
-    throw error;
-  }
-};
+// Add interface for search params
+interface VoucherSearchParams {
+    keyword?: string;          // Tìm theo code hoặc name
+    startTime?: string;        // Thời gian bắt đầu
+    endTime?: string;          // Thời gian kết thúc
+    isPrivate?: boolean;       // Loại voucher (public/private)
+    status?: StatusType;       // Trạng thái voucher
+}
 
-export const searchVoucherByDate = async (startTime: string, endTime: string) => {
-  try {
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
+// Thêm type cho status
+type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";
 
-    const formattedStartTime = formatDate(startTime);
-    const formattedEndTime = formatDate(endTime);
+// Update searchVouchers function
+export const searchVouchers = async (params: VoucherSearchParams) => {
+    try {
+        const formatDate = (dateString: string) => {
+            if (!dateString) return undefined;
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
 
-    console.log('Sending dates:', { formattedStartTime, formattedEndTime }); // Debug log
+        // Filter out undefined and empty values
+        const queryParams: Record<string, any> = {};
+        
+        if (params.keyword?.trim()) queryParams.keyword = params.keyword.trim();
+        if (params.startTime) queryParams.startTime = formatDate(params.startTime);
+        if (params.endTime) queryParams.endTime = formatDate(params.endTime);
+        if (params.isPrivate !== undefined) queryParams.isPrivate = params.isPrivate;
+        if (params.status) queryParams.status = params.status;
 
-    const response = await axios.get(`${API_BASE_URL}/voucher/date`, {
-      params: {
-        startTime: formattedStartTime,
-        endTime: formattedEndTime
-      }
-    });
-    
-    // Kiểm tra dữ liệu trả về
-    if (!Array.isArray(response.data)) {
-      console.error('Invalid response data:', response.data);
-      return [];
+        console.log("Search params:", queryParams);
+
+        const response = await axios.get(`${API_BASE_URL}/voucher/searchWithFilters`, {
+            params: queryParams
+        });
+
+        return response.data || [];
+    } catch (error) {
+        console.error('Error searching vouchers:', error);
+        if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi tìm kiếm');
+        }
+        return [];
     }
-
-    // Kiểm tra cấu trúc của từng voucher
-    return response.data.filter(voucher => 
-      voucher && 
-      typeof voucher === 'object' && 
-      'code' in voucher
-    );
-  } catch (error: any) {
-    // Improved error handling
-    if (axios.isAxiosError(error)) {
-      console.error('API Error:', error.response?.data);
-      throw new Error(error.response?.data?.message || 'Có lỗi xảy ra khi tìm kiếm');
-    }
-    throw error;
-  }
-};
-
-export const searchVoucherByDateRange = async (startTime: string, endTime: string) => {
-  try {
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-
-    const formattedStartTime = formatDate(startTime);
-    const formattedEndTime = formatDate(endTime);
-
-    const response = await axios.get(`${API_BASE_URL}/voucher/date`, {
-      params: {
-        startTime: formattedStartTime,
-        endTime: formattedEndTime
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
-  }
-};
-
-export const searchVoucherByCodeAndDate = async (code: string, startTime: string, endTime: string) => {
-  try {
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-
-    // Log để debug
-    console.log('Original dates:', { startTime, endTime });
-
-    const formattedStartTime = formatDate(startTime);
-    const formattedEndTime = formatDate(endTime);
-
-    // Log để debug
-    console.log('Formatted dates:', { formattedStartTime, formattedEndTime });
-
-    const response = await axios.get(`${API_BASE_URL}/voucher/searchByCodeAndDate`, {
-      params: {
-        code,
-        startTime: formattedStartTime,
-        endTime: formattedEndTime
-      }
-    });
-
-    // Log response để debug
-    console.log('API Response:', response.data);
-
-    if (!Array.isArray(response.data)) {
-      console.error('Invalid response data:', response.data);
-      return [];
-    }
-
-    return response.data;
-  } catch (error: any) {
-    // Log chi tiết lỗi để debug
-    console.error('API Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
-    
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || 'Có lỗi xảy ra khi tìm kiếm');
-    }
-    throw error;
-  }
 };
 
 export const checkVoucherCode = async (code: string, excludeId?: number): Promise<boolean> => {
@@ -287,26 +204,33 @@ type BigDecimal = {
 
 // Add a new function to get only customers (role_4)
 export const getCustomers = async (): Promise<AccountResponse[]> => {
-    try {
-        // Update API endpoint to match your backend controller
-        const response = await axios.get(`http://localhost:8080/api/account/list`);
-        
-        // Log the raw response for debugging
-        console.log('Raw API response:', response.data);
+  try {
+      // Update API endpoint to match your backend controller
+      const response = await axios.get(`http://localhost:8080/api/account/list`);
+      
+      // Log the raw response for debugging
+      console.log('Raw API response:', response.data);
 
-        // Get data from ResponseData wrapper
-        const data = response.data.data;
-        console.log('Extracted data:', data);
+      // Get data from ResponseData wrapper
+      const data = response.data.data;
+      console.log('Extracted data:', data);
 
-        // Filter customers with role_4 and ACTIVE status
-        const customers = data.filter((account: AccountResponse) => 
-            account.idRole?.id === 4 && account.status === 'ACTIVE'
-        );
+      // Filter customers with role_4 and ACTIVE status
+      const customers = data.filter((account: AccountResponse) => 
+          account.idRole?.id === 4 && account.status === 'ACTIVE'
+      );
 
-        console.log('Filtered customers:', customers);
-        return customers;
-    } catch (error) {
-        console.error('Error fetching customers:', error);
-        throw new Error('Không thể tải danh sách khách hàng');
-    }
+      console.log('Filtered customers:', customers);
+      return customers;
+  } catch (error) {
+      console.error('Error fetching customers:', error);
+      throw new Error('Không thể tải danh sách khách hàng');
+  }
 };
+
+// Add export for types
+export type { VoucherSearchParams };
+
+// Remove unused functions
+export const searchVoucherByCode = undefined;
+export const searchVoucherByDate = undefined;
