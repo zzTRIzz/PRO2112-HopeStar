@@ -1,5 +1,6 @@
 package com.example.be.core.client.bill.service.impl;
 
+import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.client.bill.respones.BillDetailRespones;
 import com.example.be.core.client.bill.respones.BillRespones;
 import com.example.be.core.client.bill.respones.ProductDetailRespones;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,8 +96,11 @@ public class BillServiceClientImpl implements BillServiceClient {
             return billRespones;
         }).collect(Collectors.toList());
 
-        return billResponesList;
+        return billResponesList.stream().sorted(Comparator.comparing(BillRespones::getPaymentDate).reversed())
+                .collect(Collectors.toList());
     }
+
+
 
     @Override
     public BillRespones getAllBillByAccount(Integer idBill) {

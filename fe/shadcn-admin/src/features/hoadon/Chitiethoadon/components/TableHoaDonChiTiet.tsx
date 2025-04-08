@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
-import { BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
 import { DataTablePagination } from '../../components/PhanTrang/data-table-pagination';
 
 
@@ -40,7 +40,7 @@ interface imei {
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     selectedImei: number[];
     isCapNhatImei: boolean; // Nhận từ file tổng
     setIsCapNhatImei: (open: boolean) => void;
@@ -125,7 +125,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
                                                             onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}
-                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN","DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                                                         >
                                                             Cập nhật
                                                         </Button>

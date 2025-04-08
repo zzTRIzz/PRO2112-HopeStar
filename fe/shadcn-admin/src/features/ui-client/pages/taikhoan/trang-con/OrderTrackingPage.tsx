@@ -47,10 +47,10 @@ const statusConfig = {
 
 const getPaymentMethod = (method: number | null) => {
   switch (method) {
-    case 1: return "Chờ thanh toán";
+    case 1: return "Tiền mặt";
     case 2: return "Chuyển khoản";
     case 3: return "Ví VNPAY";
-    case 4: return `COD`;
+    case 4: return `COD - Thanh toán khi nhận hàng`;
     default: return "";
   }
 };
@@ -130,63 +130,6 @@ const OrderTrackingPage = () => {
             </div>
           </CardBody>
         </Card>
-
-        {/* Order Timeline - Đổi màu chính ở đây */}
-        {/* <Card className='border-none shadow-sm'>
-          <CardBody>
-            <div className='relative flex justify-between'>
-              {bill?.status !== 'DA_HUY' && (
-                <Progress
-                  aria-label='Order Progress'
-                  value={calculateProgress()}
-                  className='absolute left-0 right-0 top-1/2 -z-10 h-1'
-                />
-              )}
-
-
-              {orderStatusSteps.map((step) => {
-                const currentStep = getCurrentStep();
-                const isDone = currentStep >= step.id - 1;
-                const isCurrent = step.statuses.includes(bill?.status);
-                const statusColor = statusConfig[bill?.status]?.color;
-
-                return (
-                  <div key={step.id} className='flex flex-col items-center gap-2'>
-                    <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-full ${isDone ? 'bg-opacity-100' : 'bg-default-100'
-                        }`}
-                      style={{
-                        backgroundColor: isDone ? statusColor : undefined,
-                      }}
-                    >
-                      <Icon
-                        icon={step.icon}
-                        className={isDone ? 'text-white' : 'text-default-400'}
-                        width={24}
-                      />
-                    </div>
-                    <span
-                      className={`text-sm font-medium ${isCurrent ? 'text-[${statusColor}]' : ''
-                        }`}
-                      style={{ color: isCurrent ? statusColor : undefined }}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                );
-              })}
-
-              {bill?.status === 'DA_HUY' && (
-                <div className="absolute inset-0 bg-red-50/80 flex items-center justify-center rounded-lg">
-                  <div className="flex items-center gap-2 text-red-600">
-                    <Icon icon="lucide:alert-circle" width={24} />
-                    <span className="font-medium">Đơn hàng đã hủy</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card> */}
         {/* Order Timeline - Đổi màu chính ở đây */}
         <Card className="border-none shadow-sm h-[110px]">
           <CardBody>
@@ -310,15 +253,15 @@ const OrderTrackingPage = () => {
               <div className='space-y-4'>
                 <div className='flex justify-between'>
                   <span className='text-sm'>Tổng tiền</span>
-                  <span className='font-medium'>{bill?.totalPrice.toLocaleString("vi-VN")} đ</span>
+                  <span className='font-medium'>{bill?.totalPrice != null ? bill?.totalPrice.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
-                <div className='flex justify-between text-danger-500'>
+                {/* <div className='flex justify-between text-danger-500'>
                   <span className='text-sm'>Giảm giá trực tiếp</span>
                   <span>0 đ</span>
-                </div>
+                </div> */}
                 <div className='flex justify-between text-danger-500'>
                   <span className='text-sm'>Giảm giá voucher</span>
-                  <span>{bill?.discountedTotal.toLocaleString("vi-VN")} đ</span>
+                  <span>{bill?.discountedTotal != null ? bill?.discountedTotal.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-sm'>Phí vận chuyển</span>
@@ -335,7 +278,8 @@ const OrderTrackingPage = () => {
                   <div className='flex justify-between'>
                     <span className='font-medium'>Thành tiền</span>
                     <span className='text-xl font-bold text-danger-500'>
-                      {bill?.totalDue.toLocaleString("vi-VN")} đ
+                      {bill?.totalDue ? bill?.totalDue.toLocaleString("vi-VN") : 0} đ
+
                     </span>
                   </div>
                 </div>
@@ -343,7 +287,8 @@ const OrderTrackingPage = () => {
                   <div className='flex flex-1 items-center gap-2'>
                     <Icon icon='lucide:wallet' width={20} />
                     <span className='text-sm font-medium'>
-                      COD - Thanh toán khi nhận hàng
+                      {/* COD - Thanh toán khi nhận hàng */}
+                      {getPaymentMethod(bill?.payment)}
                     </span>
                   </div>
                   {/* <Chip color='warning' size='sm'>

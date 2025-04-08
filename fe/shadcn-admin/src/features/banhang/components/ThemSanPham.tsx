@@ -347,9 +347,9 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                               )}
                             </div></TableCell>
                             <TableCell>
-                              {product.name +
+                              {product?.name +
                                 ' ' +
-                                product.ram +
+                                product?.ram +
                                 '/' +
                                 product.rom +
                                 'GB ( ' +
@@ -357,10 +357,10 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                 ' )'}
                             </TableCell>
                             <TableCell>
-                              {product.priceSell.toLocaleString('vi-VN')}
+                              {product?.priceSell.toLocaleString('vi-VN')}
                             </TableCell>
                             <TableCell align='center'>
-                              {product.inventoryQuantity}
+                              {product?.inventoryQuantity}
                             </TableCell>
                             <TableCell>
                               <Button

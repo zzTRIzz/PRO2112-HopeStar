@@ -197,12 +197,13 @@ public class BanHangTaiQuay {
         } else {
             savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
         }
-        billService.tongTienBill(bill.getId());
+
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
         billService.capNhatVoucherKhiChon(bill.getId(), bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
+        billService.tongTienBill(bill.getId());
         return ResponseEntity.ok(savebillDetailDto);
     }
 
@@ -218,14 +219,14 @@ public class BanHangTaiQuay {
                 idBill, idProduct, imeiSoldDto.getId_Imei().size());
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        BigDecimal tongTienBill = billService.tongTienBill(idBill);
+
         BillDto billDto = billMapper.dtoBillMapper(bill);
-        billDto.setTotalPrice(tongTienBill);
         billService.saveBillDto(billDto);
         Integer quantyti = imeiSoldDto.getId_Imei().size();
         billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
+        billService.tongTienBill(idBill);
         return ResponseEntity.ok(billDetailDto);
     }
 
@@ -248,13 +249,12 @@ public class BanHangTaiQuay {
         }
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        BigDecimal tongTienBill = billService.tongTienBill(idBill);
         BillDto billDto = billMapper.dtoBillMapper(bill);
-        billDto.setTotalPrice(tongTienBill);
         billService.saveBillDto(billDto);
         billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
+        billService.tongTienBill(idBill);
         return ResponseEntity.ok("");
     }
 

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
-import { BillSchema } from "@/features/banhang/service/Schema";
-import { updateStatus } from "../../service/HoaDonService";
+import { BillRespones } from "@/features/banhang/service/Schema";
 import { Button } from "@/components/ui/button";
-
+import { Icon } from '@iconify/react'
 interface StepProps {
     status: OrderStatusTaiQuay;
     step: OrderStatusTaiQuay;
@@ -17,6 +16,7 @@ interface StepProps {
 export type OrderStatusTaiQuay =
     | "CHO_THANH_TOAN"
     | "HOAN_THANH"
+    | "DA_HUY"
     ;
 
 interface OrderStepperProps {
@@ -89,7 +89,8 @@ const Step: React.FC<StepProps> = ({
 function getStepValue(status: OrderStatusTaiQuay): number {
     const statusMap: Record<OrderStatusTaiQuay, number> = {
         CHO_THANH_TOAN: 1,
-        HOAN_THANH: 2
+        HOAN_THANH: 2,
+        DA_HUY: -1
     };
 
     return statusMap[status];
@@ -104,53 +105,40 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
             "w-full flex items-start justify-between gap-2 px-4",
             className
         )}>
-            <Step
-                status={currentStatus}
-                step="CHO_THANH_TOAN"
-                title="Chờ thanh toán đơn hàng "
-                description="Đang chờ mua hàng"
-                icon={<CreditCard className="w-4 h-4" />}
-            />
+            {currentStatus === "DA_HUY" ? (
+                <div className="w-full h-[130px] bg-red-100 rounded-xl flex flex-col items-center justify-center text-red-600 shadow-sm">
+                    <div className="flex items-center gap-2">
+                        <Icon icon="lucide:alert-circle" width={26} />
+                        <span className="text-lg font-semibold">Đơn hàng đã hủy</span>
+                    </div>
+                </div>
 
-            {/* <Step
-                status={currentStatus}
-                step="DA_THANH_TOAN"
-                title="Đã thanh toán đơn hàng "
-                description="Đơn hàng đã hoàn thành "
-                icon={<Clock className="w-4 h-4" />}
-            /> */}
-
-            {/* <Step
-                status={currentStatus}
-                step="DANG_GIAO_HANG"
-                title="Đang vận chuyển"
-                description="Đơn hàng đang giao"
-                icon={<Truck className="w-4 h-4" />}
-            />
-
-            <Step
-                status={currentStatus}
-                step="DA_GIAO_HANG"
-                title="Đã giao hàng"
-                description="Đơn hàng đã giao"
-                icon={<Package className="w-4 h-4" />}
-            /> */}
-
-            <Step
-                status={currentStatus}
-                step="HOAN_THANH"
-                title="Hoàn thành"
-                description="Đơn hàng hoàn tất"
-                icon={<CheckCircle className="w-4 h-4" />}
-                isLast={true}
-            />
+            ) : (
+                <>
+                    <Step
+                        status={currentStatus}
+                        step="CHO_THANH_TOAN"
+                        title="Chờ thanh toán đơn hàng "
+                        description="Đang chờ mua hàng"
+                        icon={<CreditCard className="w-4 h-4" />}
+                    />
+                    <Step
+                        status={currentStatus}
+                        step="HOAN_THANH"
+                        title="Hoàn thành"
+                        description="Đơn hàng hoàn tất"
+                        icon={<CheckCircle className="w-4 h-4" />}
+                        isLast={true}
+                    />
+                </>
+            )}
         </div>
     );
 };
 
 interface TrangThaiDonHangProps {
     trangThai: OrderStatusTaiQuay;
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     loadTongBill: () => void;
     findBillById: (id: number) => void;
 }
@@ -175,7 +163,7 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
                     <div className="p-2 border-b border-gray-100 ml-[10px]">
                         <div className="flex justify-between items-center">
                             <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
-                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.nameBill : ""}</span>
+                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.code : ""}</span>
                         </div>
                     </div>
 
@@ -183,40 +171,38 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
                     <div className="p-6 ">
                         <OrderStepper currentStatus={currentStatus} />
 
-                        {/* Buttons */}
-                        <div className="flex justify-center gap-4 mt-8">
-                            <Button disabled
-                                className={cn(
-                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                    "flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
-                                )}
-                            >
-                                Xác nhận
-                            </Button>
-
-                            <Button
-                                disabled
-                                className={cn(
-                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                    "flex items-center gap-2",
-                                    // currentStatus === "CHO_XAC_NHAN"
-                                    //     ? "bg-gray-300 cursor-not-allowed" :
-                                    "bg-red-600 hover:bg-red-500"
-                                )}
-                            >
-                                Hủy đơn
-                            </Button>
-
-                            <div className="ml-[500px]">
-                                <Button>
-                                    In hóa đơn
+                        {currentStatus !== "DA_HUY" && (
+                            < div className="flex justify-center gap-4 mt-8">
+                                <Button disabled
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
+                                    )}>
+                                    Xác nhận
                                 </Button>
+                                <Button
+                                    disabled
+                                    className={cn(
+                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                        "flex items-center gap-2",
+                                        // currentStatus === "CHO_XAC_NHAN"
+                                        //     ? "bg-gray-300 cursor-not-allowed" :
+                                        "bg-red-600 hover:bg-red-500"
+                                    )}>
+                                    Hủy đơn
+                                </Button>
+
+                                <div className="ml-[500px]">
+                                    <Button>
+                                        In hóa đơn
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                 </div>
-            </div>
+            </div >
         );
     }
 

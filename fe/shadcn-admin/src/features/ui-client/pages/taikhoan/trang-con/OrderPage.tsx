@@ -129,7 +129,7 @@ export const OrdersPage = () => {
                     </div>
                     <div className='text-right'>
                       <p className='text-lg font-bold'>
-                        {order.billDetailResponesList[0].price.toLocaleString('vi-VN')} đ
+                        {order.billDetailResponesList[0].totalPrice.toLocaleString('vi-VN')} đ
                       </p>
                     </div>
                   </div>
