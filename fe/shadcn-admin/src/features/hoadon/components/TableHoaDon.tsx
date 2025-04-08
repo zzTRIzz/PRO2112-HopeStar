@@ -82,7 +82,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                             <TableRow>
                                 <TableCell align="right">STT</TableCell>
                                 <TableCell align="center">Mã đơn hàng</TableCell>
-                                <TableCell align="right" className='w-[200px]'>Khách hàng</TableCell>
+                                <TableCell align="center" className='w-[200px]'>Khách hàng</TableCell>
                                 <TableCell align="right" >Loại hóa đơn </TableCell>
                                 <TableCell align="center">Trạng thái</TableCell>
                                 <TableCell align="center">Tổng tiền</TableCell>
@@ -98,7 +98,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                     <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd.nameBill}</p> </TableCell>
-                                    <TableCell align="center" >{hd.idAccount == null ? "" : hd.tenKhachHang}<br />{hd.soDienThoai}</TableCell>
+                                    <TableCell align="center" >{hd.name}<br />{hd.phone}</TableCell>
                                     <TableCell align="center" className="w-full whitespace-nowrap">
                                         <span className={cn(
                                             "px-4 py-2 text-white font-medium rounded-full text-xs",

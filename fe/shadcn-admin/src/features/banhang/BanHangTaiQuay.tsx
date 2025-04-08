@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Header } from '@/components/layout/header'
@@ -52,6 +51,7 @@ import {
   SearchBillDetail,
   Voucher,
 } from './service/Schema'
+import { fromThatBai, fromThanhCong } from './components/ThongBao'
 
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
@@ -80,10 +80,7 @@ function BanHangTaiQuay() {
   const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
   const tongTien = (searchBill?.totalDue ?? 0) + phiShip;
   const tienThua = Math.max(customerPayment - tongTien);
-  const [scanError, setScanError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState('');
-  const [barcode, setBarcode] = useState<string | null>(null);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   useEffect(() => {
@@ -576,7 +573,7 @@ function BanHangTaiQuay() {
       cancelText: 'Hủy bỏ'
     });
 
-   
+
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -632,7 +629,7 @@ function BanHangTaiQuay() {
 
       const invoiceData = {
         code: searchBill?.code,
-        paymentDate: searchBill?.paymentDate,
+        paymentDate: new Date().toISOString(),
         staff: searchBill?.fullNameNV,
         customer: searchBill?.name,
         phone: searchBill?.phone,
@@ -647,7 +644,7 @@ function BanHangTaiQuay() {
         customerPayment: customerPayment || 0,
         change: tienThua || 0,
       };
-      
+
 
       handlePrint(invoiceData);
 
@@ -686,8 +683,8 @@ function BanHangTaiQuay() {
 
     try {
       setIsScanning(true)
-      setScanError('')
-      setScanResult(imei)
+      // setScanError('')
+      // setScanResult(imei)
       console.log('id bill chuẩn bị chon ' + idHoaDon)
       const productDetail = await quetBarCode(imei)
       if (!productDetail?.idImei) {
@@ -745,29 +742,6 @@ function BanHangTaiQuay() {
     }
   }
 
-  const fromThanhCong = (message: string) => {
-    toast.success(message, {
-      position: 'top-right',
-      className: 'custom-toast',
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
-  }
-
-  const fromThatBai = (message: string) => {
-    toast.success(message, {
-      position: 'top-right',
-      className: 'custom-thatBai',
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
-  }
 
   return (
     <>

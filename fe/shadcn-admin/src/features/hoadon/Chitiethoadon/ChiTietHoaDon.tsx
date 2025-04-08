@@ -76,7 +76,7 @@ interface Voucher {
 import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
 import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
-import { BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
 
 import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
@@ -88,7 +88,7 @@ import ThemSanPham from './components/ThemSanPham';
 const ChiTietHoaDon: React.FC = () => {
 
 
-    const [searchBill, setSearchBill] = useState<BillSchema | null>(null);
+    const [searchBill, setSearchBill] = useState<BillRespones | null>(null);
     const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
     const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
     const [listImei, setListImei] = useState<imei[]>([]);
@@ -128,7 +128,7 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             const data = await findBill(id);
             setSearchBill(data);
-            console.log(searchBill?.totalPrice)
+            console.log(data)
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -367,27 +367,27 @@ const ChiTietHoaDon: React.FC = () => {
 
                             <Button className="bg-white-500 border border-blue-500 rounded-sm
                                                 border-opacity-50 text-blue-600 hover:bg-gray-300"
-                                disabled={["DANG_GIAO_HANG", "HOAN_THANH","CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                                disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                             >
                                 Quét Barcode
                             </Button>
 
                             {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
                             {/* {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && ( */}
-                                <ThemSanPham
-                                    listProduct={listProduct}
-                                    listImei={listImei}
-                                    idBillDetail={idBillDetail}
-                                    selectedImei={selectedImei}
-                                    handleAddImei={handleAddImei}
-                                    handleAddProduct={handleAddProduct}
-                                    handleCheckboxChange={handleCheckboxChange}
-                                    dialogContent={dialogContent}
-                                    setDialogContent={setDialogContent}
-                                    isDialogOpen={isDialogOpen}
-                                    setIsDialogOpen={setIsDialogOpen}
-                                    searchBill={searchBill}
-                                />
+                            <ThemSanPham
+                                listProduct={listProduct}
+                                listImei={listImei}
+                                idBillDetail={idBillDetail}
+                                selectedImei={selectedImei}
+                                handleAddImei={handleAddImei}
+                                handleAddProduct={handleAddProduct}
+                                handleCheckboxChange={handleCheckboxChange}
+                                dialogContent={dialogContent}
+                                setDialogContent={setDialogContent}
+                                isDialogOpen={isDialogOpen}
+                                setIsDialogOpen={setIsDialogOpen}
+                                searchBill={searchBill}
+                            />
                             {/* )} */}
                         </div>
                     </div>
@@ -410,7 +410,6 @@ const ChiTietHoaDon: React.FC = () => {
                             />
                         </div>
 
-                        {/* Khung tổng tiền - Chiếm 1/3 màn hình lớn */}
                         {product.length > 0 && (
                             <div className="lg:basis-2/5 xl:basis-1/4 bg-white mt-[10px]">
                                 <h2 className="text-lg font-bold mb-2 border-b pb-2">Tổng tiền </h2>
@@ -424,9 +423,10 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
+                                        { label: "Đã trả lại:", value: searchBill?.amountChange },
                                         {
                                             label: "Còn thiếu:",
-                                            value: (searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0),
+                                            value: (searchBill?.amountChange ?? 0) < 0  ? Math.abs(searchBill?.amountChange ?? 0)  : ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
                                             highlight: true
                                         },
                                     ].map((item, index) => (

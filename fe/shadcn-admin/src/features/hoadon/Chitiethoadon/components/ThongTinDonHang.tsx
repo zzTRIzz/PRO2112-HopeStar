@@ -1,4 +1,4 @@
-import { BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
 import React, { useState } from 'react';
 import { format } from "date-fns";
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ interface AccountKhachHang {
     googleId: string
 }
 interface Posp {
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     listKhachHang: AccountKhachHang | undefined;
 }
 const ThongTinDonHang: React.FC<Posp> =
@@ -77,7 +77,7 @@ const ThongTinDonHang: React.FC<Posp> =
                         <div className="space-y-2">
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
-                                <p className="ml-[14px]">{searchBill?.nameBill}</p>
+                                <p className="ml-[14px]">{searchBill?.code}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
@@ -85,11 +85,11 @@ const ThongTinDonHang: React.FC<Posp> =
                             </div>
                             <div className="flex  pb-2 mt-[23px]">
                                 <span className="text-base text-gray-700 font-bold">Khách hàng:</span>
-                                <p className="ml-[14px]">{listKhachHang?.fullName}</p>
+                                <p className="ml-[14px]">{searchBill?.name}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px] pt-[21px]">
                                 <span className="text-base text-gray-700 font-bold">Số điện thoại:</span>
-                                <p className="ml-[14px]">{listKhachHang?.phone}</p>
+                                <p className="ml-[14px]">{searchBill?.phone}</p>
                             </div>
 
                         </div>
@@ -108,7 +108,7 @@ const ThongTinDonHang: React.FC<Posp> =
                             </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold w-[100px]">Địa chỉ:</span>
-                                <p className="ml-[14px]">{listKhachHang?.address}</p>
+                                <p className="ml-[14px]">{searchBill?.address}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px] ">
                                 <span className="text-base text-gray-700 font-bold ">Trạng thái:</span>

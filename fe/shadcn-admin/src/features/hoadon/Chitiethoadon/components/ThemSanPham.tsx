@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
-import { BillSchema, Imei, ProductDetail } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema, Imei, ProductDetail } from '@/features/banhang/service/Schema';
 
 
 
@@ -30,7 +30,7 @@ interface SanPhamChiTiet {
     setDialogContent: (content: "product" | "imei") => void;
     isDialogOpen: boolean; 
     setIsDialogOpen: (open: boolean) => void; 
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
 
 }
 const ThemSanPham: React.FC<SanPhamChiTiet> =

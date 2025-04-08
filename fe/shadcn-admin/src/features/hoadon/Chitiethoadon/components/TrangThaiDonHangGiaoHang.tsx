@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
-import { BillSchema } from "@/features/banhang/service/Schema";
+import { BillRespones, BillSchema } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
-
+import { fromThatBai } from "../../../banhang/components/ThongBao";
 interface StepProps {
     status: OrderStatus;
     step: OrderStatus;
@@ -158,7 +158,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
 interface TrangThaiDonHangProps {
     trangThai: OrderStatus;
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     loadTongBill: () => void;
 }
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
@@ -180,6 +180,17 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         ];
 
         const handleNextStatus = async () => {
+            // Kiểm tra xem có bất kỳ chi tiết sản phẩm nào thiếu imei hay không
+            const isMissingImei = searchBill?.billDetailResponesList.some(detail =>
+                !detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0
+            );
+
+            if (isMissingImei) {
+                fromThatBai("Một số sản phẩm chưa có IMEI.");
+                console.log("Một số sản phẩm chưa có IMEI.");
+                return;
+            }
+
             const currentIndex = statusOrder.indexOf(currentStatus);
             if (currentIndex < statusOrder.length - 1) {
                 setCurrentStatus(statusOrder[currentIndex + 1]);
@@ -204,7 +215,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                     <div className="p-2 border-b border-gray-100 ml-[10px]">
                         <div className="flex justify-between items-center">
                             <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
-                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.nameBill : ""}</span>
+                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.code : ""}</span>
                         </div>
                     </div>
 
@@ -213,17 +224,17 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                         <OrderStepper currentStatus={currentStatus} />
                         {/* Buttons */}
                         <div className="flex justify-center gap-4 mt-8">
-                                <Button
-                                    onClick={handleNextStatus}
-                                    disabled={currentStatus === "HOAN_THANH"}
-                                    className={cn(
-                                        "px-4 py-2 rounded-md text-white transition-all duration-300",
-                                        "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
-                                    )}
-                                >
-                                    Xác nhận
-                                </Button>
-                           
+                            <Button
+                                onClick={handleNextStatus}
+                                disabled={currentStatus === "HOAN_THANH"}
+                                className={cn(
+                                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                                    "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                                )}
+                            >
+                                Xác nhận
+                            </Button>
+
                             {/* {(currentStatus == "CHO_XAC_NHAN" || currentStatus == "DANG_CHUAN_BI_HANG") && ( */}
                             <Button
                                 onClick={handlePrevStatus}
@@ -242,7 +253,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
                             <div className="ml-[500px]">
                                 <Button
-                                    
+
                                 >
                                     In hóa đơn
                                 </Button>

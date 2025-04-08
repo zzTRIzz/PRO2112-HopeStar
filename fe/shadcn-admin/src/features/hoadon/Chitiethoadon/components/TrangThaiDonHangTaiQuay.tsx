@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
-import { BillSchema } from "@/features/banhang/service/Schema";
+import { BillRespones, BillSchema } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
 
@@ -150,7 +150,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
 interface TrangThaiDonHangProps {
     trangThai: OrderStatusTaiQuay;
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     loadTongBill: () => void;
     findBillById: (id: number) => void;
 }
@@ -175,7 +175,7 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
                     <div className="p-2 border-b border-gray-100 ml-[10px]">
                         <div className="flex justify-between items-center">
                             <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
-                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.nameBill : ""}</span>
+                            <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.code : ""}</span>
                         </div>
                     </div>
 

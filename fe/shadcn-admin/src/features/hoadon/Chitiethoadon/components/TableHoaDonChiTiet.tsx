@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
-import { BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
 import { DataTablePagination } from '../../components/PhanTrang/data-table-pagination';
 
 
@@ -40,7 +40,7 @@ interface imei {
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     selectedImei: number[];
     isCapNhatImei: boolean; // Nhận từ file tổng
     setIsCapNhatImei: (open: boolean) => void;
