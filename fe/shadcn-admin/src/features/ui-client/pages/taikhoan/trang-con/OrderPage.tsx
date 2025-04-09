@@ -165,7 +165,7 @@ export const OrdersPage = () => {
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='text-lg font-bold'>
+                      <p className='text-lg font-bold text-red-500'>
                         {order?.totalDue != null ? order?.totalDue?.toLocaleString('vi-VN'): 0} đ
                       </p>
                     </div>

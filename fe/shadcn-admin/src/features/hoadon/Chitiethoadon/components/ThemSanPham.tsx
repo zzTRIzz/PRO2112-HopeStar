@@ -28,8 +28,8 @@ interface SanPhamChiTiet {
     selectedImei: number[];
     dialogContent: "product" | "imei";
     setDialogContent: (content: "product" | "imei") => void;
-    isDialogOpen: boolean; 
-    setIsDialogOpen: (open: boolean) => void; 
+    isDialogOpen: boolean;
+    setIsDialogOpen: (open: boolean) => void;
     searchBill: BillRespones | null;
 
 }
@@ -53,7 +53,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                     <DialogTrigger asChild>
                         <Button variant="outline" className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
                             onClick={() => setDialogContent('product')}
-                            disabled={["DANG_GIAO_HANG", "HOAN_THANH","CHO_THANH_TOAN","DA_HUY"].includes(searchBill?.status ?? "")}>
+                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}>
                             Thêm sản phẩm
                         </Button>
                     </DialogTrigger>
@@ -96,15 +96,15 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                         ) : (
-                            <TableContainer>
+                            <TableContainer className='h-[500px] w-[300px]'>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
                                             <TableCell></TableCell>
                                             <TableCell>Stt</TableCell>
                                             <TableCell>Imei code</TableCell>
+                                            <TableCell>Bar code</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -120,6 +120,11 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                                 </TableCell>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>{im.imeiCode}</TableCell>
+                                                <TableCell>
+                                                    <img src={im.barCode}
+                                                        className='h-8 w-64 rounded-lg object-cover'
+                                                    />
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

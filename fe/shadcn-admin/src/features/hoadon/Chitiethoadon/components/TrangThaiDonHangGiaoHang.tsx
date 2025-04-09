@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react'
 import { showErrorToast, showSuccessToast } from "./ThongBao";
 import { updateTotalDue } from "../../service/HoaDonService";
+import { ToastContainer, toast } from "react-toastify";
+
 interface StepProps {
     status: OrderStatus;
     step: OrderStatus;
@@ -174,6 +176,19 @@ interface TrangThaiDonHangProps {
     searchBill: BillRespones | null;
     loadTongBill: () => void;
 }
+
+// export const showErrorGiaoHang = (message: string) => {
+//     toast.dismiss();
+//     toast.success(message, {
+//         position: "top-right",
+//         className: "custom-thatBai",
+//         autoClose: 2000,
+//         hideProgressBar: true,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//     });
+// };
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     ({
         trangThai,
@@ -297,7 +312,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                         )}
                     </div>
                 </div>
-
+                <ToastContainer />
             </div>
 
         );

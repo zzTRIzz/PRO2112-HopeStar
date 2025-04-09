@@ -172,15 +172,12 @@ public class BillServiceImpl implements BillService {
 
         // Tính tổng tiền cuối cùng (tổng tiền sản phẩm - giảm giá + phí ship)
         BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
-//        System.out.println("Tong tien "+tongTien);
-//        System.out.println("Tong giamGia "+giamGia);
-//        System.out.println("Tong phiShip "+phiShip);
-//        System.out.println("Tong tongTienFinal "+tongTienFinal);
+
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
             tongTienFinal = BigDecimal.ZERO; // Không được âm tiền
         }
 
-        // Cập nhật lại tổng tiền vào hóa đơn
+        bill.setReceiptDate(LocalDateTime.now());
         bill.setTotalPrice(tongTien); // Tổng tiền hàng
         bill.setTotalDue(tongTienFinal); // Tổng tiền phải trả (sau giảm giá + ship)
         billRepository.save(bill);

@@ -375,6 +375,7 @@ function BanHangTaiQuay() {
       }
       const ids: number[] = data.map((imei) => imei.id)
       setSelectedImei(ids)
+      setIsCapNhatImei(true)
     } catch (error) {
       console.error('Lỗi khi lấy danh sách IMEI đã bán:', error)
     }
@@ -685,7 +686,6 @@ function BanHangTaiQuay() {
       setCustomerPayment(0);
       setPaymentMethod(null);
       setIsBanGiaoHang(false);
-
       fromThanhCong("Thanh toán thành công");
     } catch (error) {
       console.error("Lỗi khi thanh toán:", error);

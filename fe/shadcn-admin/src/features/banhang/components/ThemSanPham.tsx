@@ -198,7 +198,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
             Thêm sản phẩm
           </Button>
         </DialogTrigger>
-        <DialogContent className='sm:max-w-[980px]'>
+        <DialogContent className={dialogContent === 'product' ? 'sm:max-w-[980px]' : 'sm:max-w-[730px]'}>
           {dialogContent === 'product' ? (
             <div>
               <div className='mb-4 flex flex-wrap gap-4'>
@@ -316,7 +316,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
               </div>
 
               <TableContainer>
-                <ScrollArea className='h-[400px] pr-4'>
+                <ScrollArea className='h-[500px] pr-2'>
                   {listProduct.length > 0 ? (
                     <Table>
                       <TableHead>
@@ -394,15 +394,16 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
             <div>
               <Input placeholder='Tìm mã imei  ' className='max-w-sm' />
 
-              <TableContainer>
-                <ScrollArea className='h-[400px] pr-4'>
+              <TableContainer >
+                <ScrollArea className='h-[500px]'>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell></TableCell>
                         <TableCell>Stt</TableCell>
-                        <TableCell>Imei code</TableCell>
-                        <TableCell>Barcode</TableCell>
+                        <TableCell>Mã imei</TableCell>
+                        <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
+                        {/* <TableCell>Trạng thái</TableCell> */}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -426,6 +427,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                               className='h-8 w-64 rounded-lg object-cover'
                             />
                           </TableCell>
+                          {/* <TableCell>{im.status}</TableCell> */}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -433,7 +435,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 </ScrollArea>
               </TableContainer>
               <Button
-                className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600'
+                className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
                 onClick={() => handleAddImei()}
               >
                 Chọn

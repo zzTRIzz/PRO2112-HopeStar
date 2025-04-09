@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
 import { DataTablePagination } from './PhanTrang/data-table-pagination';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@radix-ui/react-scroll-area';
 
 interface SearchBillDetail {
     id: number
@@ -113,44 +115,62 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="center" style={{}}>
                                             <div className="right space-x-2">
-                                                <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
+                                                <Dialog open={isCapNhatImei} onOpenChange={(open) => setIsCapNhatImei(open)}>
                                                     <DialogTrigger asChild>
                                                         <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50
                                    text-blue-600 hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
                                                             Cập nhật
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[500px]">
-                                                        <TableContainer>
-                                                            <Table>
-                                                                <TableHead>
-                                                                    <TableRow>
-                                                                        <TableCell></TableCell>
-                                                                        <TableCell>Stt</TableCell>
-                                                                        <TableCell>Imei code</TableCell>
-                                                                    </TableRow>
-                                                                </TableHead>
-                                                                <TableBody>
-                                                                    {listImei.map((im, index) => (
-                                                                        <TableRow key={im.id}>
-                                                                            <TableCell>
-                                                                                <div className="flex items-center space-x-2">
-                                                                                    <Checkbox
-                                                                                        checked={selectedImei.includes(im.id)}
-                                                                                        onCheckedChange={() => handleCheckboxChange(im.id)}
-                                                                                    />
-                                                                                </div>
-                                                                            </TableCell>
-                                                                            <TableCell>{index + 1}</TableCell>
-                                                                            <TableCell>{im.imeiCode}</TableCell>
+                                                    <DialogContent className="sm:max-w-[730px] h-[650px]">
+                                                    <Input placeholder='Tìm mã imei' className='max-w-sm' />
+                                                        <TableContainer >
+                                                            <ScrollArea>
+                                                                <Table>
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell></TableCell>
+                                                                            <TableCell>Stt</TableCell>
+                                                                            <TableCell>Mã imei</TableCell>
+                                                                            <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
+                                                                            {/* <TableCell>Trạng thái</TableCell> */}
                                                                         </TableRow>
-                                                                    ))}
-                                                                </TableBody>
-                                                            </Table>
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        {listImei.map((im, index) => (
+                                                                            <TableRow key={im.id}>
+                                                                                <TableCell>
+                                                                                    <div className='flex items-center space-x-2'>
+                                                                                        <Checkbox
+                                                                                            checked={selectedImei.includes(im.id)}
+                                                                                            onCheckedChange={() =>
+                                                                                                handleCheckboxChange(im.id)
+                                                                                            }
+                                                                                        />
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell>{index + 1}</TableCell>
+                                                                                <TableCell>{im.imeiCode}</TableCell>
+                                                                                <TableCell>
+                                                                                    <img
+                                                                                        src={im.barCode}
+                                                                                        className='h-8 w-64 rounded-lg object-cover'
+                                                                                    />
+                                                                                </TableCell>
+                                                                                {/* <TableCell>{im.status}</TableCell> */}
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </ScrollArea>
                                                         </TableContainer>
-                                                        <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
+                                                        <Button
+                                                            className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
+                                                            onClick={() => updateHandleImeiSold(pr.id)}
+                                                        >
                                                             Chọn
                                                         </Button>
+
                                                     </DialogContent>
                                                 </Dialog>
 
