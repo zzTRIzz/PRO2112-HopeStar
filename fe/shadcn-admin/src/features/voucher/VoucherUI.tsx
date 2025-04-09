@@ -5,7 +5,8 @@ import {
     checkVoucherCode,  // Make sure this is imported
     assignVoucherToCustomers,
     VoucherSearchParams,
-    searchVouchers
+    searchVouchers,
+    getVoucherUsageStatuses
 } from "./data/apiVoucher";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -72,6 +73,7 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
+    voucherStatus?: VoucherAccountStatus; // Add voucherStatus field
 }
 
 interface ResponseData<T> {
@@ -85,6 +87,12 @@ enum HttpStatus {
     BAD_REQUEST = 'BAD_REQUEST',
     CREATED = 'CREATED',
     ACCEPTED = 'ACCEPTED'
+}
+
+enum VoucherAccountStatus {
+    NOT_USED = "NOT_USED",
+    USED = "USED",
+    EXPIRED = "EXPIRED"
 }
 
 // Add helper function to check voucher status
@@ -145,6 +153,35 @@ interface AssignVoucherResponse {
         assigned: string[];
     };
 }
+
+const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus }) => {
+    switch (status) {
+        case VoucherAccountStatus.NOT_USED:
+            return (
+                <span className="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    Chưa sử dụng
+                </span>
+            );
+        case VoucherAccountStatus.USED:
+            return (
+                <span className="px-2 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                    Đã sử dụng
+                </span>
+            );
+        case VoucherAccountStatus.EXPIRED:
+            return (
+                <span className="px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                    Hết hạn
+                </span>
+            );
+        default:
+            return (
+                <span className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                    -
+                </span>
+            );
+    }
+};
 
 export default function VoucherUI() {
     const [vouchers, setVouchers] = useState<Voucher[]>([])
@@ -1080,6 +1117,7 @@ export default function VoucherUI() {
                                                             <th className="px-4 py-3 text-left font-medium">Họ tên</th>
                                                             <th className="px-4 py-3 text-left font-medium">Email</th>
                                                             <th className="px-4 py-3 text-left font-medium">Số điện thoại</th>
+                                                            <th className="px-4 py-3 text-left font-medium">Trạng thái sử dụng</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y">
@@ -1103,6 +1141,13 @@ export default function VoucherUI() {
                                                                 <td className="px-4 py-3">{account.fullName}</td>
                                                                 <td className="px-4 py-3">{account.email}</td>
                                                                 <td className="px-4 py-3">{account.phone || '-'}</td>
+                                                                <td className="px-4 py-3">
+                                                                    {account.voucherStatus ? (
+                                                                        <VoucherStatusBadge status={account.voucherStatus} />
+                                                                    ) : (
+                                                                        <span className="text-sm text-gray-500">-</span>
+                                                                    )}
+                                                                </td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -1171,16 +1216,17 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus>>({});
 
     // Fetch customers when component mounts
     useEffect(() => {
-        const fetchCustomers = async () => {
+        const fetchCustomersAndStatus = async () => {
             try {
                 setLoading(true);
-                // First get all customers with role_4
+                // Lấy danh sách khách hàng
                 const response = await axios.get(`${API_BASE_URL}/account/list`);
                 
-                // Get list of accounts that already have this voucher
+                // Lấy danh sách tài khoản đã có voucher này
                 const voucherAccountsResponse = await axios.get(
                     `${API_BASE_URL}/admin/voucher/${voucher.id}/accounts`
                 );
@@ -1189,74 +1235,49 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                     (account: AccountResponse) => account.id
                 );
 
-                // Filter customers: role_4, active, and don't have the voucher yet
+                // Lấy trạng thái sử dụng của voucher
+                const usageStatusResponse = await getVoucherUsageStatuses(voucher.id);
+                const statusMap = usageStatusResponse.reduce((acc, status) => ({
+                    ...acc,
+                    [status.accountId]: status.status
+                }), {});
+                setUsageStatuses(statusMap);
+
+                // Lọc khách hàng
                 const customers = response.data.data.filter((account: AccountResponse) => 
                     account.idRole?.id === 4 && 
-                    account.status === 'ACTIVE' &&
-                    !existingAccountIds.includes(account.id)
+                    account.status === 'ACTIVE'
                 );
 
-                console.log('Available customers:', customers);
                 setAccounts(customers);
             } catch (error) {
-                console.error('Error fetching customers:', error);
+                console.error('Error:', error);
                 setError('Không thể tải danh sách khách hàng');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchCustomers();
+        fetchCustomersAndStatus();
     }, [voucher.id]);
 
     // Handle assign button click
     const handleAssign = async () => {
-        if (selectedAccounts.length === 0) {
-            toast.warning('Vui lòng chọn ít nhất một khách hàng');
-            return;
-        }
-
         try {
             setLoading(true);
-            const selectedCustomers = accounts.filter(account => 
-                selectedAccounts.includes(account.id)
-            );
-            
             const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
                 voucherId: voucher.id,
-                customerIds: selectedCustomers.map(customer => customer.id)
+                customerIds: selectedAccounts
             });
 
-            const result = response.data;
-
-            if (result.success) {
-                toast.success('Thêm voucher và gửi mail thành công');
-                // Immediately refresh data and close modal
+            if (response.data.success) {
+                toast.success('Đã thêm voucher thành công');
                 await onRefresh();
                 onClose();
-            } else {
-                if (result.details?.alreadyHasVoucher?.length > 0) {
-                    toast.warning(
-                        `Các tài khoản sau đã có voucher: ${result.details.alreadyHasVoucher.join(', ')}`
-                    );
-                }
-                if (result.details?.assigned?.length > 0) {
-                    toast.success(
-                        `Đã thêm voucher và gửi mail thành công cho: ${result.details.assigned.join(', ')}`
-                    );
-                    // Refresh even on partial success
-                    await onRefresh();
-                    onClose();
-                }
             }
-
         } catch (error) {
-            console.error('Lỗi khi thêm voucher:', error);
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi thêm voucher');
-            } else {
-                toast.error('Có lỗi xảy ra khi thêm voucher');
-            }
+            console.error('Error:', error);
+            toast.error('Có lỗi xảy ra khi thêm voucher');
         } finally {
             setLoading(false);
         }
@@ -1328,6 +1349,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
@@ -1351,6 +1373,13 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                             <td className="px-4 py-3">{account.fullName}</td>
                                             <td className="px-4 py-3">{account.email}</td>
                                             <td className="px-4 py-3">{account.phone || '-'}</td>
+                                            <td className="px-4 py-3">
+                                                {usageStatuses[account.id] ? (
+                                                    <VoucherStatusBadge status={usageStatuses[account.id]} />
+                                                ) : (
+                                                    <span className="text-sm text-gray-500">Chưa sử dụng</span>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

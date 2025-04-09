@@ -234,3 +234,63 @@ export type { VoucherSearchParams };
 // Remove unused functions
 export const searchVoucherByCode = undefined;
 export const searchVoucherByDate = undefined;
+
+// Add new enums and interfaces for voucher account status
+export enum VoucherAccountStatus {
+    NOT_USED = "NOT_USED",     // Chưa áp dụng
+    USED = "USED",             // Đã áp dụng
+    EXPIRED = "EXPIRED"        // Hết hạn
+}
+
+interface VoucherAccountResponse {
+    id: number;
+    voucherId: number;
+    accountId: number;
+    status: VoucherAccountStatus;
+    usedDate?: string;
+}
+
+// Add new function to get voucher usage status
+export const getVoucherUsageStatus = async (voucherId: number, accountId: number): Promise<VoucherAccountResponse | null> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/voucher-account/status`, {
+            params: {
+                voucherId,
+                accountId
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error getting voucher usage status:', error);
+        return null;
+    }
+};
+
+// Add new function to update voucher account status
+export const updateVoucherAccountStatus = async (
+    id: number, 
+    status: VoucherAccountStatus
+): Promise<VoucherAccountResponse> => {
+    try {
+        const response = await axios.put(
+            `${API_BASE_URL}/admin/voucher-account/${id}/status`,
+            null,
+            { params: { status } }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error updating voucher account status:', error);
+        throw error;
+    }
+};
+
+// Thêm function để lấy trạng thái sử dụng voucher
+export const getVoucherUsageStatuses = async (voucherId: number): Promise<VoucherAccountResponse[]> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/voucher/${voucherId}/usage-status`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting voucher usage statuses:', error);
+        return [];
+    }
+};
