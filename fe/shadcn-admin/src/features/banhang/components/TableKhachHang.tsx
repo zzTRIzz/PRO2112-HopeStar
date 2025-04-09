@@ -32,15 +32,15 @@ const TableKhachHang: React.FC<Props> =
     setIsKhachHang,
     isKhachHang
   }) => {
-    const [searchTerm, setSearchTerm] = useState(''); 
+    const [searchTerm, setSearchTerm] = useState('');
 
     const filteredAccounts = listAccount.filter(
       (account) =>
-        account?.phone.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        account?.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        account?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) 
+        account?.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        account?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        account?.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  
+
     return (
       <>
         <div className='p-2 bg-white
@@ -59,7 +59,7 @@ const TableKhachHang: React.FC<Props> =
                     Chọn khách hàng
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px] h-[650px]">
+                <DialogContent className="sm:max-w-[980px] h-[650px] flex flex-col">
                   <div className="grid grid-cols-10 gap-4">
                     <div className='col-span-7'>
                       <Input
@@ -93,7 +93,7 @@ const TableKhachHang: React.FC<Props> =
                     </div>
                   </div>
                   {/* </div> */}
-                  <TableContainer >
+                  <TableContainer>
                     <Table>
                       <TableHead>
                         <TableRow>
@@ -129,9 +129,9 @@ const TableKhachHang: React.FC<Props> =
                     </Table>
                   </TableContainer>
 
-                    
 
-                  
+
+
                 </DialogContent>
               </Dialog>
               <ToastContainer />

@@ -83,6 +83,8 @@ function BanHangTaiQuay() {
   const tienThua = Math.max(customerPayment - tongTien);
   const [isScanning, setIsScanning] = useState(false);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
+  const [openDialogId, setOpenDialogId] = useState<number | null>(null);
+  
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
   // Keep currentBillRef in sync with idHoaDon
   useEffect(() => {
@@ -375,7 +377,7 @@ function BanHangTaiQuay() {
       }
       const ids: number[] = data.map((imei) => imei.id)
       setSelectedImei(ids)
-      setIsCapNhatImei(true)
+      // setIsCapNhatImei(true)
     } catch (error) {
       console.error('Lỗi khi lấy danh sách IMEI đã bán:', error)
     }
@@ -859,8 +861,8 @@ function BanHangTaiQuay() {
             product={product}
             listImei={listImei}
             selectedImei={selectedImei}
-            isCapNhatImei={isCapNhatImei}
-            setIsCapNhatImei={setIsCapNhatImei}
+            openDialogId={openDialogId}
+            setOpenDialogId={setOpenDialogId}
             handleUpdateProduct={handleUpdateProduct}
             handleCheckboxChange={handleCheckboxChange}
             updateHandleImeiSold={updateHandleImeiSold}

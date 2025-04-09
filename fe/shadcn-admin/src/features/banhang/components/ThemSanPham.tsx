@@ -85,7 +85,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   const [categories, setCategories] = useState([])
   const [os, setOs] = useState([])
   const [screens, setScreens] = useState([])
-
+  const [searchImeiKey, setSearchImeiKey] = useState('');
   useEffect(() => {
     loadCategory()
     loadBrand()
@@ -173,11 +173,11 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
     selectedOs,
     selectedScreen,
   ])
-  const resetSearch = async() => {
-    setSearchKey(''); 
-    setSelectedBrand(undefined); 
-    setSelectedChip(undefined); 
-    setSelectedCategory(undefined); 
+  const resetSearch = async () => {
+    setSearchKey('');
+    setSelectedBrand(undefined);
+    setSelectedChip(undefined);
+    setSelectedCategory(undefined);
     setSelectedOs(undefined);
     setSelectedScreen(undefined);
     if (setListProduct) {
@@ -186,6 +186,12 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
         .catch(error => console.error('Error resetting products:', error));
     }
   };
+
+
+
+  const filteredImeiList = listImei.filter((imei) =>
+    imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
+  );
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -226,7 +232,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                     <SelectContent>
                       <ScrollArea className='h-40'>
 
-                          {brands.map((brand) => (
+                        {brands.map((brand) => (
                           <SelectItem key={brand.id} value={brand.id.toString()}>
                             {brand.name}
                           </SelectItem>
@@ -392,8 +398,12 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
             </div>
           ) : (
             <div>
-              <Input placeholder='Tìm mã imei  ' className='max-w-sm' />
-
+              <Input
+                placeholder="Tìm mã imei"
+                className="max-w-sm"
+                value={searchImeiKey}
+                onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
+              />
               <TableContainer >
                 <ScrollArea className='h-[500px]'>
                   <Table>
@@ -407,7 +417,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {listImei.map((im, index) => (
+                      {filteredImeiList.map((im, index) => (
                         <TableRow key={im.id}>
                           <TableCell>
                             <div className='flex items-center space-x-2'>
