@@ -287,7 +287,7 @@ export const updateVoucherAccountStatus = async (
 // Thêm function để lấy trạng thái sử dụng voucher
 export const getVoucherUsageStatuses = async (voucherId: number): Promise<VoucherAccountResponse[]> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/admin/voucher/${voucherId}/usage-status`);
+        const response = await axios.get(`${API_BASE_URL}/voucher/${voucherId}/usage-status`);
         return response.data;
     } catch (error) {
         console.error('Error getting voucher usage statuses:', error);
