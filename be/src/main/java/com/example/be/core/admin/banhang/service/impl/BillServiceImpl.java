@@ -163,7 +163,6 @@ public class BillServiceImpl implements BillService {
         // Lấy hóa đơn theo ID
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn: " + idBill));
-
         // Lấy tổng tiền hàng từ database
         BigDecimal tongTien = billDetailRepository.getTotalAmountByBillId(idBill);
 
@@ -173,10 +172,10 @@ public class BillServiceImpl implements BillService {
 
         // Tính tổng tiền cuối cùng (tổng tiền sản phẩm - giảm giá + phí ship)
         BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
-        System.out.println("Tong tien "+tongTien);
-        System.out.println("Tong giamGia "+giamGia);
-        System.out.println("Tong phiShip "+phiShip);
-        System.out.println("Tong tongTienFinal "+tongTienFinal);
+//        System.out.println("Tong tien "+tongTien);
+//        System.out.println("Tong giamGia "+giamGia);
+//        System.out.println("Tong phiShip "+phiShip);
+//        System.out.println("Tong tongTienFinal "+tongTienFinal);
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
             tongTienFinal = BigDecimal.ZERO; // Không được âm tiền
         }
@@ -187,6 +186,21 @@ public class BillServiceImpl implements BillService {
         billRepository.save(bill);
 
         return tongTien;
+    }
+
+    @Override
+    public BillDto updateTotalDue(Integer idBill, BigDecimal totalDue) {
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+
+        bill.setCustomerPayment(totalDue);
+
+        if (bill.getAmountChange().compareTo(BigDecimal.ZERO) < 0) {
+            bill.setAmountChange(BigDecimal.ZERO);
+        }
+
+        Bill saveBill = billRepository.save(bill);
+        return billMapper.dtoBillMapper(saveBill);
     }
 
 
@@ -211,6 +225,7 @@ public class BillServiceImpl implements BillService {
             throw new RuntimeException("Lỗi khi thêm khách hàng cho hóa đơn: " + e.getMessage());
         }
     }
+
     @Override
     public BillDto capNhatVoucherKhiChon(Integer idBill, Voucher voucher) {
         try {
@@ -229,7 +244,6 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
-            // Nếu không chọn voucher
             if (voucher == null) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
@@ -238,13 +252,10 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
-            // Lấy thông tin voucher
-//            Voucher voucher = voucherRepository.findById(idVoucher)
-//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher " + idVoucher));
 
             BigDecimal giamGia = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
 
-            // Tính tiền sau giảm, không để âm
+
             BigDecimal tongSauGiam = tongTien.subtract(giamGia);
             if (tongSauGiam.compareTo(BigDecimal.ZERO) < 0) {
                 tongSauGiam = BigDecimal.ZERO;
@@ -439,7 +450,6 @@ public class BillServiceImpl implements BillService {
 
         return billRespones;
     }
-
 
 
 }

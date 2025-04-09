@@ -13,9 +13,7 @@ import {
     updateImeiSold,
 
 } from '@/features/hoadon/service/HoaDonService';
-import { ToastContainer, toast } from "react-toastify";
-import "../../banhang/custom-toast.css"
-
+import { showSuccessToast, showErrorToast } from "./components/ThongBao"
 interface SearchBillDetail {
     id: number
     price: number,
@@ -73,7 +71,7 @@ interface Voucher {
 }
 
 
-import TrangThaiDonHang, { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
+import { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
 import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
 import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
@@ -189,7 +187,7 @@ const ChiTietHoaDon: React.FC = () => {
             await loadProductDet();
             await loadImei(idProductDetail);
             await getById(idBill);
-            fromThanhCong("Xóa sản phẩm chi tiết thành công");
+            showSuccessToast("Xóa sản phẩm chi tiết thành công");
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -200,7 +198,7 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             console.log("ID bill san pham " + idBill);
             if (idBill == 0 || idBill == null) {
-                fromThatBai("Vui lòng chọn hóa đơn");
+                showErrorToast("Vui lòng chọn hóa đơn");
                 setIsDialogOpen(false);
                 return;
             }
@@ -214,7 +212,7 @@ const ChiTietHoaDon: React.FC = () => {
             loadImei(product.id);
             loadTongBill();
             setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
-            fromThanhCong("Thêm sản phẩm vào hóa đơn thành công");
+            showSuccessToast("Thêm sản phẩm vào hóa đơn thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
         }
@@ -245,7 +243,7 @@ const ChiTietHoaDon: React.FC = () => {
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
-            fromThanhCong("Thêm IMEI thành công");
+            showSuccessToast("Thêm IMEI thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
         }
@@ -267,7 +265,7 @@ const ChiTietHoaDon: React.FC = () => {
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
-            fromThanhCong("Cập nhật IMEI thành công");
+            showSuccessToast("Cập nhật IMEI thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
         }
@@ -291,32 +289,6 @@ const ChiTietHoaDon: React.FC = () => {
         findImeiByIdProductDetail(idPD, billDetaill);
     };
 
-    const fromThanhCong = (message: string) => {
-        toast.dismiss(); // Đóng tất cả các thông báo trước đó
-        toast.success(message, {
-            position: "top-right",
-            className: "custom-toast",
-            autoClose: 1000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-        });
-    };
-
-
-    const fromThatBai = (message: string) => {
-        toast.dismiss(); 
-        toast.error(message, {
-            position: "top-right",
-            className: "custom-thatBai", // Áp dụng CSS tùy chỉnh
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-        });
-    };
 
 
     return (
@@ -426,10 +398,12 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
-                                        { label: "Đã trả lại:", value: searchBill?.amountChange },
+                                        { label: "Đã trả lại:", value: (searchBill?.amountChange ?? 0) > 0 ? searchBill?.amountChange : 0},
                                         {
                                             label: "Còn thiếu:",
-                                            value: (searchBill?.amountChange ?? 0) < 0 ? Math.abs(searchBill?.amountChange ?? 0) : ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
+                                            value: (searchBill?.amountChange ?? 0) < 0 ?
+                                                Math.abs(searchBill?.totalDue ?? 0) :
+                                                ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
                                             highlight: true
                                         },
                                     ].map((item, index) => (
@@ -449,14 +423,14 @@ const ChiTietHoaDon: React.FC = () => {
                 </div>
                 <br />
             </Main >
-            <ToastContainer
+            {/* <ToastContainer
                 position="top-right"
                 hideProgressBar
                 newestOnTop
                 closeOnClick
                 pauseOnHover
                 draggable
-                theme="colored" />
+                theme="colored" /> */}
         </>
     );
 };

@@ -25,7 +25,7 @@ export const findBill = async (idBill: number) => {
 }
 
 // Cập nhật trạng thái 
-export const updateStatus = async (idBill: number, status:string) => {
+export const updateStatus = async (idBill: number, status: string) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/updateStatus/${idBill}/${status}`);
         return response.data;
@@ -149,10 +149,20 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     }
 }
 
-// Thêm hóa đơn vào cơ sở dữ liệu
+// Thanh toán hóa đơn 
 export const thanhToan = async (bill: BillSchema) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/thanh_toan`, bill);
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    }
+};
+
+export const updateTotalDue = async (idBill : number,totalDue : number) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/update-totalDue/${idBill}/${totalDue}`);
         return response.data;
     } catch (error) {
         console.error('Error them hoa don data:', error);

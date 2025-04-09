@@ -101,13 +101,6 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDtos);
     }
 
-
-//    @GetMapping("/getByBill/{idBill}")
-//    public ResponseEntity<?> getByIdBill(@PathVariable("idBill") Integer idBill) {
-//        BillDto bill = billService.getByIdBill(idBill);
-//        return ResponseEntity.ok(bill);
-//    }
-
     @GetMapping("/getByBill/{idBill}")
     public ResponseEntity<?> getByIdBill(@PathVariable("idBill") Integer idBill) {
         BillRespones bill = billService.findByIdBill(idBill);
@@ -256,6 +249,14 @@ public class BanHangTaiQuay {
         productDetailService.updateStatusProduct(idProduct);
         billService.tongTienBill(idBill);
         return ResponseEntity.ok("");
+    }
+
+    @PutMapping("/update-totalDue/{id}/{totalDue}")
+    public ResponseEntity<BillDto> updateTotalDue(
+            @PathVariable("id") Integer id,
+            @PathVariable("totalDue") BigDecimal totalDue) {
+        BillDto updatedBill = billService.updateTotalDue(id, totalDue);
+        return ResponseEntity.ok(updatedBill);
     }
 
     @GetMapping("/product_detail")

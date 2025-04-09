@@ -32,11 +32,12 @@ const ThongTinDonHang: React.FC<Posp> =
                 case "CHO_THANH_TOAN": return "Chờ thanh toán";
                 case "DA_HUY": return "Đã hủy";
                 case "CHO_XAC_NHAN": return "Chờ xác nhận";
+                case "DA_XAC_NHAN": return "Đã xác nhận";
                 case "DA_THANH_TOAN": return "Đã thanh toán";
                 case "HOAN_THANH": return "Hoàn thành";
                 case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
                 case "DANG_GIAO_HANG": return "Đang giao hàng";
-                case "DA_GIAO_HANG": return "Đã giao hàng";
+                // case "DA_GIAO_HANG": return "Đã giao hàng";
                 default: return "Không rõ trạng thái";
             }
         };

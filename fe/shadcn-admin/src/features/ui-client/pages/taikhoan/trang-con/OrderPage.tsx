@@ -6,7 +6,7 @@ import { getBillByAccount } from '../service/api-bill-client-service'
 
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
-  CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' }, 
+  CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
@@ -17,7 +17,7 @@ const statusConfig = {
 export const OrdersPage = () => {
   const [selected, setSelected] = React.useState('all')
   const [bills, setBills] = useState<Bill[]>([]);
-
+  const [searchKeyword, setSearchKeyword] = useState('');
   useEffect(() => {
     const fetchBills = async () => {
       try {
@@ -32,27 +32,61 @@ export const OrdersPage = () => {
     fetchBills()
   }, []);
 
-  // if (bills.length == 0) return <div>Đang tải...</div>;
 
 
-  const filteredOrders = selected === 'all'
-    ? bills
-    : bills.filter((bill) =>
-      selected === 'CHO_XAC_NHAN'
-        ? (bill.status === 'CHO_XAC_NHAN' || bill.status === 'CHO_THANH_TOAN')
-        : bill.status === selected
-    )
+  // const filteredOrders = selected === 'all'
+  //   ? bills.filter((bill) => bill.billDetailResponesList && bill.billDetailResponesList.length > 0)
+  //   : bills.filter((bill) =>
+  //     selected === 'CHO_XAC_NHAN'
+  //       ? (bill.status === 'CHO_XAC_NHAN' || bill.status === 'CHO_THANH_TOAN')
+  //       : bill.status === selected &&
+  //       bill.billDetailResponesList && bill.billDetailResponesList.length > 0
+  //   )
+  const filteredOrders = bills
+    .filter((bill) => {
+      // Lọc theo trạng thái
+      if (selected !== 'all') {
+        if (selected === 'CHO_XAC_NHAN') {
+          if (bill.status !== 'CHO_XAC_NHAN' && bill.status !== 'CHO_THANH_TOAN') {
+            return false;
+          }
+        } else if (bill.status !== selected) {
+          return false;
+        }
+      }
+
+      // Lọc theo từ khóa tìm kiếm
+      if (searchKeyword.trim() !== '') {
+        const keyword = searchKeyword.toLowerCase();
+        const matchesCode = bill.code?.toLowerCase().includes(keyword);
+        const matchesProduct = bill.billDetailResponesList?.some((detail) =>
+          detail.productDetail?.productName?.toLowerCase().includes(keyword)
+        );
+        return matchesCode || matchesProduct;
+      }
+
+      return true;
+    })
+    .filter((bill) => bill.billDetailResponesList && bill.billDetailResponesList.length > 0);
+
 
   return (
     <div>
       <div className='mx-auto max-w-5xl'>
-       
+
         <header className='mb-6 flex items-center justify-between'>
           <h1 className='text-xl font-bold text-[#333333]'>Đơn hàng của tôi</h1>
+          {/* <Input
+            placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
+            startContent={<Icon icon='lucide:search' className='text-default-400' />}
+            className='w-96'
+          /> */}
           <Input
             placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
             startContent={<Icon icon='lucide:search' className='text-default-400' />}
             className='w-96'
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)} // Cập nhật từ khóa tìm kiếm
           />
         </header>
 
@@ -75,13 +109,14 @@ export const OrdersPage = () => {
             <p className="text-[#A0A0A0] text-center py-8">Chưa có đơn hàng nào</p>
           </div>
         ) : (
+
           filteredOrders.map((order) => (
-            <Card key={order.id} className='mt-6'>
+            <Card key={order?.id} className='mt-6'>
               <CardBody>
                 <div className='flex items-start justify-between border-b border-default-100 pb-4'>
                   <div className='space-y-1'>
                     <div className='flex items-center gap-4 text-sm text-default-600'>
-                      <span>{order.paymentDate ? new Date(order.paymentDate).toLocaleDateString("vi-VN", {
+                      <span>{order?.paymentDate ? new Date(order?.paymentDate)?.toLocaleDateString("vi-VN", {
                         year: "numeric",
                         month: "2-digit",
                         day: "2-digit",
@@ -91,39 +126,41 @@ export const OrdersPage = () => {
                       })
                         : ""}</span>
                       {/* <span>{order.deliveryMethod}</span> */}
-                      <span>{order.detailCount != null ? order.detailCount : 0} sản phẩm</span>
+                      <span>{order?.detailCount != null ? order?.detailCount : 0} sản phẩm</span>
                     </div>
                   </div>
-
                   <div className='flex flex-col items-end gap-2'>
                     <div className='flex items-center gap-2 text-sm font-medium text-default-600'>
-                      <span style={{ color: statusConfig[order.status]?.color }}>•</span>
-                      <span style={{ color: statusConfig[order.status]?.color }}>
-                        {statusConfig[order.status]?.text}
+                      <span style={{ color: statusConfig[order?.status]?.color }}>•</span>
+                      <span style={{ color: statusConfig[order?.status]?.color }}>
+                        {statusConfig[order?.status]?.text}
                       </span>
                     </div>
                   </div>
                 </div>
-                {order.billDetailResponesList?.[0] && (
+                {order?.billDetailResponesList?.[0] && (
                   <div className='mt-4 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                       <img
-                        src={order.billDetailResponesList[0].productDetail.image}
-                        alt={order.billDetailResponesList[0].productDetail.productName}
+                        src={order?.billDetailResponesList[0]?.productDetail?.image}
+                        alt={order?.billDetailResponesList[0]?.productDetail?.productName}
                         className='h-20 w-20 rounded-lg object-cover'
                       />
                       <div className='space-y-1'>
-                        <Link href={`/taikhoan/don-hang-cua-toi/thong-tin?id=${order.id}`}
+                        <Link href={`/taikhoan/don-hang-cua-toi/thong-tin?id=${order?.id}`}
                           className='text-sm font-medium hover:text-[#4c7eea]'
                         >
-                          {order.billDetailResponesList[0].productDetail.productName
-                            + ' ' + order.billDetailResponesList[0].productDetail.ram
-                            + '/' + order.billDetailResponesList[0].productDetail.rom + 'GB'
-                            + ' - ' + order.billDetailResponesList[0].productDetail.color} <br />
+                          {order?.billDetailResponesList[0]?.productDetail?.productName
+                            + ' ' + order?.billDetailResponesList[0]?.productDetail?.ram
+                            + '/' + order?.billDetailResponesList[0]?.productDetail?.rom + 'GB'
+                            + ' - ' + order?.billDetailResponesList[0]?.productDetail?.color} <br />
 
                         </Link>
                         <p className='text-sm text-default-500'>
-                          Số lượng: {order.billDetailResponesList[0].quantity}
+                          Số lượng: {order?.billDetailResponesList[0]?.quantity}
+                        </p>
+                        <p className='text-sm font-bold'>
+                          {order?.billDetailResponesList[0]?.totalPrice?.toLocaleString('vi-VN')} đ
                         </p>
                       </div>
                     </div>
@@ -161,6 +198,7 @@ export const OrdersPage = () => {
                 </div> */}
               </CardBody>
             </Card>
+
           ))
         )}
       </div>
