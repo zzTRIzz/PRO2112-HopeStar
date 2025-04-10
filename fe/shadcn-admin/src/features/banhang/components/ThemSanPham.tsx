@@ -405,7 +405,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
               />
               <TableContainer >
-                <ScrollArea className='h-[500px]'>
+                <ScrollArea className="h-full max-h-[500px] overflow-auto">
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -437,7 +437,6 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                               className='h-8 w-64 rounded-lg object-cover'
                             />
                           </TableCell>
-                          {/* <TableCell>{im.status}</TableCell> */}
                         </TableRow>
                       ))}
                     </TableBody>

@@ -97,7 +97,7 @@ const ChiTietHoaDon: React.FC = () => {
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-    const [isCapNhatImei, setIsCapNhatImei] = useState(false);
+    const [openDialogId, setOpenDialogId] = useState<number | null>(null);
     const [voucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
 
     // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
@@ -261,7 +261,7 @@ const ChiTietHoaDon: React.FC = () => {
             );
             console.log("Imei mới:", newImei);
             setSelectedImei([]);
-            setIsCapNhatImei(false);
+            // setIsCapNhatImei(false);
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
@@ -375,8 +375,8 @@ const ChiTietHoaDon: React.FC = () => {
                                 product={product}
                                 listImei={listImei}
                                 selectedImei={selectedImei}
-                                isCapNhatImei={isCapNhatImei}
-                                setIsCapNhatImei={setIsCapNhatImei}
+                                openDialogId={openDialogId}
+                                setOpenDialogId={setOpenDialogId}
                                 handleUpdateProduct={handleUpdateProduct}
                                 handleCheckboxChange={handleCheckboxChange}
                                 updateHandleImeiSold={updateHandleImeiSold}
@@ -398,7 +398,7 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
-                                        { label: "Đã trả lại:", value: (searchBill?.amountChange ?? 0) > 0 ? searchBill?.amountChange : 0},
+                                        { label: "Đã trả lại:", value: (searchBill?.amountChange ?? 0) > 0 ? searchBill?.amountChange : 0 },
                                         {
                                             label: "Còn thiếu:",
                                             value: (searchBill?.amountChange ?? 0) < 0 ?

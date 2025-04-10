@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.service.impl;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.*;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
@@ -296,6 +297,7 @@ public class BillServiceImpl implements BillService {
     }
 
 
+
     @Override
     public void updateHuyHoaDon(Integer idBill) {
         try {
@@ -316,6 +318,25 @@ public class BillServiceImpl implements BillService {
         }
     }
 
+
+    @Override
+    public BillDto updateCustomerRequest (UpdateCustomerRequest request) {
+        try {
+            Bill bill = billRepository.findById(request.getId()).orElseThrow(
+                    () -> new RuntimeException("Bill not found with id:" + request.getId())
+            );
+            bill.setAddress(request.getAddress());
+            bill.setNote(request.getNote());
+            bill.setPhone(request.getPhone());
+            bill.setName(request.getName());
+
+            Bill saveBill = billRepository.save(bill);
+            return billMapper.dtoBillMapper(saveBill);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
+        }
+    }
 
     //__________________________________________________________________________________________
 

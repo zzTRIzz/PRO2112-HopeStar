@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.service;
 
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.BillRespones;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Voucher;
@@ -47,6 +48,8 @@ public interface BillService {
     void updateHuyHoaDon(Integer idBill);
 
     //__________________________________________________________________________________________
+
+    BillDto updateCustomerRequest (UpdateCustomerRequest request);
 
     VoucherResponse hienThiVoucherTheoBill(Integer idBill);
 

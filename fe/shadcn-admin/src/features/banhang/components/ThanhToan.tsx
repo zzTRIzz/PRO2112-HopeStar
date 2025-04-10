@@ -15,10 +15,12 @@ import { Input } from "@/components/ui/input"
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { BillRespones, Voucher } from '../service/Schema';
-import InHoaDon from './InHoaDon';
+import InHoaDon from './components_con/InHoaDon';
 import "../css/print_hoaDon.css"
-import TaoMaQr from './TaoMaQr';
-import { fromThanhCong, fromThatBai } from './ThongBao';
+import TaoMaQr from './components_con/TaoMaQr';
+import { fromThanhCong, fromThatBai } from './components_con/ThongBao';
+import Ship from './components_con/ship';
+// import { configConsumerProps } from 'antd/es/config-provider';
 interface ThanhToanProps {
     searchBill: BillRespones | undefined;
     setPaymentMethod: any;
@@ -33,12 +35,14 @@ interface ThanhToanProps {
     setIsVoucher: any;
     tienThua: number;
     isBanGiaoHang: boolean;
-    phiShip: number;
     printData: any;
     printRef: React.RefObject<HTMLDivElement | null>;
     setIsThanhToanNhanHang: (open: boolean) => void;
     isThanhToanNhanHang: boolean;
-
+    setShippingFee: (shipping: number) => void;
+    setInsuranceFee: (insurance: number) => void;
+    tongTien: number;
+    confirmedAddress: any
 }
 
 
@@ -57,14 +61,17 @@ const ThanhToan: React.FC<ThanhToanProps> =
         setIsVoucher,
         tienThua,
         isBanGiaoHang,
-        phiShip,
         printData,
         printRef,
         setIsThanhToanNhanHang,
-        isThanhToanNhanHang
+        isThanhToanNhanHang,
+        setShippingFee,
+        setInsuranceFee,
+        tongTien,
+        confirmedAddress
     }) => {
         const [dateTime, setDateTime] = useState<Date>(new Date());
-        const tongTien = searchBill?.totalDue == null ? 0 : searchBill?.totalDue + phiShip;
+        // const tongTien = searchBill?.totalDue == null ? 0 : searchBill?.totalDue + phiShip;
 
         const handleSwitchChange = (checked: boolean) => {
             if (checked) {
@@ -80,8 +87,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
         const handlePaymentMethodChange = (method: number) => {
             if (!searchBill) return fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán!");
             if (tongTien <= 0) return fromThatBai("Giá tiền hiện tại là 0đ !");
-
-
             setPaymentMethod(method);
             if (method === 2) {
                 setDateTime(new Date());
@@ -89,26 +94,28 @@ const ThanhToan: React.FC<ThanhToanProps> =
             }
             if (isThanhToanNhanHang) setIsThanhToanNhanHang(false);
         };
-        // console.log('tong tien ' + customerPayment);
-        const xacNhanThanhToan = () => {
-            console.log('tong tien ' + customerPayment);
-            console.log('paymentMethod ' + paymentMethod);
-            console.log('isBanGiaoHang ' + isBanGiaoHang);
-            // console.log('tong tien ' + customerPayment);
 
+        const xacNhanThanhToan = () => {
             if (!isBanGiaoHang) {
-                handleThanhToan("HOAN_THANH", 0); // Trường hợp bán tại quầy
+                handleThanhToan("HOAN_THANH", 0);
+
             } else {
-                // Giao hàng
                 if (paymentMethod === 1 || paymentMethod === 2) {
-                    // Đã thanh toán tiền mặt hoặc chuyển khoản
                     handleThanhToan("DA_XAC_NHAN", 1);
                 } else {
-                    // Chưa thanh toán (ví dụ: QR hoặc phương thức khác)
                     handleThanhToan("CHO_XAC_NHAN", 1);
                 }
             }
         };
+        const handleShippingFeeChange = (shipping: number, insurance: number) => {
+            if (isBanGiaoHang == true) {
+                setShippingFee(shipping)
+                setInsuranceFee(insurance)
+            } else {
+                setShippingFee(0);
+                setInsuranceFee(0);
+            }
+        }
 
         return (
             <>
@@ -178,15 +185,23 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <p className="text-gray-700 text-base">Giảm giá:</p>
                                         <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal.toLocaleString('vi-VN')} đ</p>
                                     </div>
-                                    {isBanGiaoHang == true && (
-                                        <div className="flex justify-between border-b pb-2">
+                                    {/* {isBanGiaoHang == true && ( */}
+                                    {/* <div className="flex justify-between border-b pb-2">
                                             <p className="text-gray-700 text-base">Phí ship:</p>
                                             <p className="font-semibold">{phiShip.toLocaleString('vi-VN')} đ</p>
-                                        </div>
+                                        </div> */}
+                                    {/* )} */}
+                                    {isBanGiaoHang == true && (
+                                        <Ship
+                                            productValue={tongTien}
+                                            weight={1500}
+                                            address={confirmedAddress} // Truyền địa chỉ vào Ship
+                                            onShippingFeeChange={handleShippingFeeChange}
+                                        />
                                     )}
                                     <div className="flex justify-between border-b pb-2">
                                         <p className="text-gray-700 text-base">Khách cần trả:</p>
-                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0 : (searchBill?.totalDue + phiShip).toLocaleString('vi-VN')} đ</p>
+                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0 : tongTien.toLocaleString('vi-VN')} đ</p>
                                     </div>
 
                                     <div className="flex gap-x-2 justify-between border-b pb-2 pl-[45px] pr-[40px]">
@@ -251,24 +266,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     )}
                                 </div>
                             </div>
-                            {/* {isBanGiaoHang === false ? (
-                                <Button
-                                    className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => handleThanhToan("HOAN_THANH", 0) // Khi Switch tắt
-                                    }
-                                >
-                                    Xác nhận thanh toán
-                                </Button>
-                            ) : (
-                                <Button
-                                    className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => handleThanhToan("CHO_XAC_NHAN", 1) // Khi Switch tắt
-                                    }
-                                >
-                                    Xác nhận thanh toán
-                                </Button>
-                            )} */}
-
                             {paymentMethod != 2 && (
                                 <Button
                                     className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"

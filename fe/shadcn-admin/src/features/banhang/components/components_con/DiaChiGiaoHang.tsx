@@ -21,12 +21,12 @@ import {
     CommandItem,
     CommandList
 } from "@/components/ui/command"
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
-import useVietnamAddress from '../service/ApiTichHopDiaChi';
+import useVietnamAddress from '../../service/ApiTichHopDiaChi';
 import { Textarea } from '@/components/ui/textarea';
 
 interface AccountKhachHang {
@@ -54,6 +54,8 @@ const formSchema = z.object({
 interface Province {
     isBanGiaoHang: boolean;
     khachHang: AccountKhachHang | undefined;
+    onAddressChange: (fullAddress: string) => void;
+    onDetailChange: (details: { name: string; phone: string; note: string }) => void;
 
 }
 
@@ -72,7 +74,9 @@ const parseAddress = (fullAddress: string) => {
 const DiaChiGiaoHang: React.FC<Province> =
     ({
         isBanGiaoHang,
-        khachHang
+        khachHang,
+        onAddressChange,
+        onDetailChange
     }) => {
         const [openProvince, setOpenProvince] = useState(false);
         const { provinces, districts, wards, fetchDistricts, fetchWards } = useVietnamAddress();
@@ -84,15 +88,12 @@ const DiaChiGiaoHang: React.FC<Province> =
         useEffect(() => {
             if (isBanGiaoHang == true && khachHang != null) {
                 const { provinceName } = parseAddress(khachHang.address || "");
-                console.log(khachHang)
-                console.log(provinceName)
                 // Tìm mã tỉnh
                 const provinceCode = provinces.find(p => p.name === provinceName)?.code || "";
                 if (!provinceCode) return;
                 diaChi.setValue("province", provinceCode);
                 // Gọi API tải huyện
                 fetchDistricts(provinceCode);
-
             }
             else {
                 diaChi.setValue("province", "");
@@ -129,10 +130,39 @@ const DiaChiGiaoHang: React.FC<Province> =
                 diaChi.setValue("ward", wardCode);
                 diaChi.setValue("address", parseAddress(khachHang?.address || "").detailAddress);
                 console.log(khachHang)
-
             }
         }, [wards]);
 
+
+        // Lấy danh sách dữ liệu để thanh toán 
+        useEffect(() => {
+            const getFullAddress = () => {
+                const provinceName = provinces.find((p) => p.code === diaChi.getValues("province"))?.name || "";
+                const districtName = districts.find((d) => d.code === diaChi.getValues("district"))?.name || "";
+                const wardName = wards.find((w) => w.code === diaChi.getValues("ward"))?.name || "";
+                const detailAddress = diaChi.getValues("address") || "";
+                return `${detailAddress}, ${wardName}, ${districtName}, ${provinceName}`;
+            };
+
+            
+            onAddressChange(getFullAddress());
+            onDetailChange({
+                name: diaChi.getValues("fullName") || "",
+                phone: diaChi.getValues("phone") || "",
+                note: diaChi.getValues("note") || ""
+            });
+        }, [
+            diaChi.watch("province"),
+            diaChi.watch("district"),
+            diaChi.watch("ward"),
+            diaChi.watch("address"),
+            diaChi.watch("note"),
+            diaChi.getValues("phone"),
+            diaChi.getValues("fullName"),
+            provinces,
+            districts,
+            wards,
+        ]);
         return (
             <>
                 <div className={`transition-all duration-300 ${isBanGiaoHang ? "w-full opacity-100 visible" : "w-0 opacity-0 invisible"
@@ -174,7 +204,6 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Số điện thoại"
-
                                                         type=""
                                                         {...field} />
                                                 </FormControl>
@@ -307,7 +336,12 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                                 <CommandEmpty>No language found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {wards.map((w) => (
-                                                                        <CommandItem key={w.code} onSelect={() => diaChi.setValue("ward", w.code)}>
+                                                                        <CommandItem
+                                                                            key={w.code}
+                                                                            onSelect={() => {
+                                                                                field.onChange(w.code); // Cập nhật giá trị vào react-hook-form
+                                                                                diaChi.setValue("ward", w.code); // Đảm bảo giá trị được lưu
+                                                                            }}>
                                                                             <Check className={w.code === field.value ? "opacity-100" : "opacity-0"} />
                                                                             {w.name}
                                                                         </CommandItem>
@@ -334,9 +368,12 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Địa chỉ người nhận"
-
-                                                        type=""
-                                                        {...field} />
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.value); // Cập nhật giá trị vào react-hook-form
+                                                            diaChi.setValue("address", e.target.value); // Đảm bảo giá trị được lưu
+                                                        }}
+                                                    />
                                                 </FormControl>
 
                                                 <FormMessage />
@@ -356,6 +393,10 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                 placeholder="Ghi chú"
                                                 className="resize-none"
                                                 {...field}
+                                                onChange={(e) => {
+                                                    field.onChange(e.target.value);
+                                                    diaChi.setValue("note", e.target.value);
+                                                }}
                                             />
                                         </FormControl>
 

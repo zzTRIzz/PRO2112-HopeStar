@@ -88,7 +88,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
         const filteredImeiList = listImei.filter((imei) =>
             imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
-          );
+        );
 
         return (
             <>
@@ -128,7 +128,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                             )}
                                         </div></TableCell>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ( {pr.mauSac} )
+                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ({pr.mauSac})
                                         </TableCell>
                                         <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="right">{pr.quantity}</TableCell>
@@ -146,13 +146,14 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             Cập nhật
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[730px] h-[650px] z-[1000]  flex flex-col">
+                                                    <DialogContent className="sm:max-w-[730px] z-[1000]  flex flex-col">
                                                         <Input
                                                             placeholder="Tìm mã imei"
                                                             className="max-w-sm"
                                                             value={searchImeiKey}
                                                             onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
-                                                        />                                                        <TableContainer >
+                                                        />
+                                                        <TableContainer className="h-full max-h-[450px] overflow-auto">
                                                             <ScrollArea>
                                                                 <Table>
                                                                     <TableHead>
@@ -192,7 +193,11 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         </TableContainer>
                                                         <Button
                                                             className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
-                                                            onClick={() => updateHandleImeiSold(pr.id)}
+                                                            onClick={() => {
+                                                                updateHandleImeiSold(pr.id); 
+                                                                setOpenDialogId(null); 
+                                                              }}
+
                                                         >
                                                             Chọn
                                                         </Button>

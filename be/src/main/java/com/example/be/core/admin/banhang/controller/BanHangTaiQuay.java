@@ -5,6 +5,7 @@ import com.example.be.core.admin.account.service.impl.AccountService;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.core.admin.banhang.dto.*;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.BillRespones;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
@@ -251,11 +252,18 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok("");
     }
 
+
     @PutMapping("/update-totalDue/{id}/{totalDue}")
     public ResponseEntity<BillDto> updateTotalDue(
             @PathVariable("id") Integer id,
             @PathVariable("totalDue") BigDecimal totalDue) {
         BillDto updatedBill = billService.updateTotalDue(id, totalDue);
+        return ResponseEntity.ok(updatedBill);
+    }
+
+    @PutMapping("/updateCustomer")
+    public ResponseEntity<BillDto> updateCustomer(@RequestBody UpdateCustomerRequest request) {
+        BillDto updatedBill = billService.updateCustomerRequest(request);
         return ResponseEntity.ok(updatedBill);
     }
 

@@ -57,7 +57,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                             Thêm sản phẩm
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[980px]">
+                    <DialogContent className={dialogContent === 'product' ? 'sm:max-w-[980px]' : 'sm:max-w-[730px]'}>
                         <Input
                             placeholder="Tìm mã sản phẩm, tên sản phẩm  "
                             className="max-w-sm"
@@ -97,7 +97,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                 </Table>
                             </TableContainer>
                         ) : (
-                            <TableContainer className='h-[500px] w-[300px]'>
+                            <TableContainer className="h-full max-h-[500px] overflow-auto">
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -129,10 +129,20 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         ))}
                                     </TableBody>
                                 </Table>
-                                <Button className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
-                                    onClick={() => handleAddImei()}>
+                                {/* <Button
+                                    className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
+                                    onClick={() => handleAddImei()}
+                                >
                                     Chọn
-                                </Button>
+                                </Button> */}
+                                <div className="absolute bottom-0 left-0 w-full bg-white p-4 shadow-md ">
+                                    <Button
+                                        className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"
+                                        onClick={() => handleAddImei()}
+                                    >
+                                        Chọn
+                                    </Button>
+                                </div>
                             </TableContainer>
                         )}
                     </DialogContent>
