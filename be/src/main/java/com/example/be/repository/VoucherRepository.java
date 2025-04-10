@@ -1,7 +1,9 @@
 package com.example.be.repository;
 
+import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
 import com.example.be.entity.status.StatusVoucher;
+import com.example.be.entity.status.VoucherAccountStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -65,4 +67,15 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
             @Param("isPrivate") Boolean isPrivate,
             @Param("status") StatusVoucher status
     );
+
+    // ... ap dung voucher
+
+    @Query("SELECT va.idVoucher FROM VoucherAccount va WHERE va.idAccount = :account " +
+            "AND va.status = 'NOT_USED'" )
+    List<Voucher> findValidNotUsedVouchers(@Param("account") Account account);
+
+    List<Voucher> findByIsPrivateAndQuantityGreaterThanAndStatus(Boolean isPrivate, Integer quantity, StatusVoucher statusVoucher);
+
+    Voucher findByIdAndStatus(Integer id, StatusVoucher statusVoucher);
+
 }

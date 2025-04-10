@@ -1,6 +1,8 @@
 package com.example.be.core.client.cart.controller;
 
 import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
+import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.core.client.cart.dto.request.AddToCartRequest;
 import com.example.be.core.client.cart.dto.request.CartDetailRequest;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class CartController {
     private final AuthService authService;
     private final CartDetailService cartDetailService;
     private final OrderService orderService;
+    private final VoucherService voucherService;
 
     @GetMapping("/cart")
     public ResponseEntity<ResponseData<?>> getCart(@RequestHeader(value = "Authorization", required = false) String jwt,
@@ -108,6 +112,18 @@ public class CartController {
         }
         Object o = orderService.order(orderRequest,account);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
+
+    }
+
+    @GetMapping("/voucher")
+    public ResponseData<List<?>> getVoucher(@RequestHeader(value = "Authorization", required = false) String jwt) throws Exception {
+
+        Account account = null;
+        if (jwt !=null) {
+            account = authService.findAccountByJwt(jwt);
+        }
+        List<VoucherApplyResponse> list = voucherService.getVoucherApply(account);
+        return new ResponseData<>(HttpStatus.OK,"ok",list);
 
     }
 
