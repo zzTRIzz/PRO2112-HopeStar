@@ -3,6 +3,7 @@ package com.example.be.core.admin.voucher.service.impl;
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.RoleResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
@@ -363,6 +364,41 @@ public class VoucherServiceImpl implements VoucherService {
                 log.info("Updated voucher {} status to {}", voucher.getCode(), newStatus);
             }
         }
+    }
+
+    @Override
+    public List<VoucherApplyResponse> getVoucherApply(Account account) {
+
+        List<VoucherApplyResponse> listVoucher = new ArrayList<>();
+        if (account !=null){
+            List<Voucher> voucherAccountList = voucherRepository.findValidNotUsedVouchers(account);
+            List<VoucherApplyResponse> listOfAccount = handlerVoucherApplyResponses(voucherAccountList);
+            listVoucher.addAll(listOfAccount);
+        }
+        List<Voucher> voucherPublic = voucherRepository.findByIsPrivateAndQuantityGreaterThanAndStatus(false,0,StatusVoucher.ACTIVE);
+        List<VoucherApplyResponse> listOfPublic = handlerVoucherApplyResponses(voucherPublic);
+        listVoucher.addAll(listOfPublic);
+        return listVoucher;
+
+    }
+    private List<VoucherApplyResponse> handlerVoucherApplyResponses(List<Voucher> voucherList){
+
+        List<VoucherApplyResponse> list = new ArrayList<>();
+        for (Voucher voucher:voucherList) {
+            VoucherApplyResponse voucherApplyResponse = new VoucherApplyResponse();
+            voucherApplyResponse.setId(voucher.getId());
+            voucherApplyResponse.setCode(voucher.getCode());
+            voucherApplyResponse.setName(voucher.getName());
+            voucherApplyResponse.setValue(voucher.getDiscountValue());
+            voucherApplyResponse.setType(voucher.getVoucherType());
+            voucherApplyResponse.setDescription(voucher.getMoTa());
+            voucherApplyResponse.setMinOrderValue(voucher.getConditionPriceMin());
+            voucherApplyResponse.setMaxOrderValue(voucher.getConditionPriceMax());
+            voucherApplyResponse.setMaxDiscountAmount(voucher.getMaxDiscountAmount());
+            list.add(voucherApplyResponse);
+        }
+        return list;
+
     }
 
 
