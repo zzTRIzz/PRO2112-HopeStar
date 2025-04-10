@@ -66,9 +66,39 @@ public class VoucherServiceImpl implements VoucherService {
         if (voucherRepository.existsByCodeAndIdNot(request.getCode(), id)) {
             throw new RuntimeException("Mã voucher đã tồn tại");
         }
-        Voucher voucher = voucherMapper.toEntity(id, request);
-        voucher = voucherRepository.save(voucher);
-        return voucherMapper.toResponse(voucher);
+
+        Voucher existingVoucher = voucherRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+        // Update basic fields from request
+        existingVoucher.setName(request.getName());
+        existingVoucher.setMoTa(request.getMoTa());
+        existingVoucher.setDiscountValue(request.getDiscountValue());
+        existingVoucher.setVoucherType(request.getVoucherType());
+        existingVoucher.setConditionPriceMin(request.getConditionPriceMin());
+        existingVoucher.setConditionPriceMax(request.getConditionPriceMax());
+        existingVoucher.setQuantity(request.getQuantity());
+        existingVoucher.setStartTime(request.getStartTime());
+        existingVoucher.setEndTime(request.getEndTime());
+        existingVoucher.setIsPrivate(request.getIsPrivate());
+        existingVoucher.setMaxDiscountAmount(request.getMaxDiscountAmount());
+
+        // Update status based on current time
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = existingVoucher.getStartTime();
+        LocalDateTime endTime = existingVoucher.getEndTime();
+
+        if (now.isBefore(startTime)) {
+            existingVoucher.setStatus(StatusVoucher.UPCOMING);
+        } else if (now.isAfter(endTime)) {
+            existingVoucher.setStatus(StatusVoucher.EXPIRED);
+        } else {
+            existingVoucher.setStatus(StatusVoucher.ACTIVE);
+        }
+
+        // Save updated voucher
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return voucherMapper.toResponse(updatedVoucher);
     }
 
     @Override
@@ -169,7 +199,7 @@ public class VoucherServiceImpl implements VoucherService {
 
                 // Update status if quantity becomes 0
                 if (voucher.getQuantity() == 0) {
-                    voucher.setStatus(StatusVoucher.EXPIRE);
+                    voucher.setStatus(StatusVoucher.EXPIRED);
                 }
 
                 voucherRepository.save(voucher);
@@ -308,6 +338,33 @@ public class VoucherServiceImpl implements VoucherService {
             throw new RuntimeException("Lỗi tìm kiếm voucher: " + e.getMessage());
         }
     }
+
+    @Override
+    @Transactional
+    public void updateAllVoucherStatuses() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Voucher> vouchers = voucherRepository.findAll();
+
+        for (Voucher voucher : vouchers) {
+            StatusVoucher newStatus;
+
+            if (now.isBefore(voucher.getStartTime())) {
+                newStatus = StatusVoucher.UPCOMING;
+            } else if (now.isAfter(voucher.getEndTime())) {
+                newStatus = StatusVoucher.EXPIRED;
+            } else {
+                newStatus = StatusVoucher.ACTIVE;
+            }
+
+            // Chỉ cập nhật nếu trạng thái thay đổi
+            if (voucher.getStatus() != newStatus) {
+                voucher.setStatus(newStatus);
+                voucherRepository.save(voucher);
+                log.info("Updated voucher {} status to {}", voucher.getCode(), newStatus);
+            }
+        }
+    }
+
 
     private String buildResultMessage(List<String> alreadyAssigned, List<String> newlyAssigned) {
         StringBuilder message = new StringBuilder();

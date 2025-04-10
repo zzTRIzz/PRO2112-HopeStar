@@ -6,7 +6,8 @@ import {
     assignVoucherToCustomers,
     VoucherSearchParams,
     searchVouchers,
-    getVoucherUsageStatuses
+    getVoucherUsageStatuses,
+    VoucherStatus
 } from "./data/apiVoucher";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,7 +36,6 @@ api.interceptors.response.use(
 );
 
 // Thêm interface ở đầu file
-type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";
 
 interface Voucher {
     id: number;
@@ -48,8 +48,8 @@ interface Voucher {
     quantity: number;
     startTime: string;
     endTime: string;
-    status: StatusType; // Update this line
-    description?: string;
+    status: VoucherStatus; // Sửa kiểu từ StatusType thành VoucherStatus
+    moTa?: string;
     isPrivate: boolean;  // true = riêng tư, false = công khai
     maxDiscountAmount?: number; // Add this field for percentage vouchers
 }
@@ -95,35 +95,25 @@ enum VoucherAccountStatus {
     EXPIRED = "EXPIRED"
 }
 
+
+
 // Add helper function to check voucher status
-const getVoucherStatus = (startTime: string, endTime: string): "IN_ACTIVE" | "ACTIVE" | "EXPIRE" => {
-    const now = new Date();
-    const startDate = new Date(startTime);
-    const endDate = new Date(endTime);
 
-    if (now < startDate) {
-        return "IN_ACTIVE";
-    } else if (now > endDate) {
-        return "EXPIRE";
-    } else {
-        return "ACTIVE";
-    }
-};
 
-// Update the status display in the table
-const getStatusDisplay = (status: StatusType) => {
+// Sửa lại getStatusDisplay
+const getStatusDisplay = (status: VoucherStatus) => {
     switch (status) {
-        case "IN_ACTIVE":
+        case VoucherStatus.UPCOMING:
             return {
                 text: "Sắp diễn ra",
                 className: "bg-yellow-100 text-yellow-800"
             };
-        case "ACTIVE":
+        case VoucherStatus.ACTIVE:
             return {
                 text: "Đang hoạt động",
                 className: "bg-green-100 text-green-800"
             };
-        case "EXPIRE":
+        case VoucherStatus.EXPIRED:
             return {
                 text: "Đã hết hạn",
                 className: "bg-red-100 text-red-800"
@@ -191,7 +181,7 @@ export default function VoucherUI() {
     const [formData, setFormData] = useState<Omit<Voucher, 'id'>>({
         code: '',
         name: '',
-        description: '',
+        moTa: '',
         conditionPriceMin: 0,
         conditionPriceMax: 0,
         discountValue: 0,
@@ -199,11 +189,23 @@ export default function VoucherUI() {
         quantity: 0,
         startTime: '',
         endTime: '',
-        status: 'IN_ACTIVE', // Sửa giá trị mặc định
-        isPrivate: false,  // Mặc định là công khai
+        status: VoucherStatus.UPCOMING, // Sửa từ 'IN_ACTIVE' thành VoucherStatus.UPCOMING
+        isPrivate: false,
         maxDiscountAmount: 0,
     });
-
+    const getVoucherStatus = useCallback((startTime: string, endTime: string): VoucherStatus => {
+        const now = new Date();
+        const startDate = new Date(startTime);
+        const endDate = new Date(endTime);
+    
+        if (now < startDate) {
+            return VoucherStatus.UPCOMING;
+        } else if (now > endDate) {
+            return VoucherStatus.EXPIRED;
+        } else {
+            return VoucherStatus.ACTIVE;
+        }
+    }, []);
     // Thêm state để track chế độ edit/create
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
@@ -267,43 +269,43 @@ export default function VoucherUI() {
 
     // Thêm useEffect để tự động cập nhật trạng thái
     useEffect(() => {
-        // Hàm cập nhật trạng thái voucher
-        const updateVoucherStatuses = () => {
+        const updateVoucherStatuses = async () => {
             const now = new Date();
-            const updatedVouchers = vouchers.map(voucher => {
-                const startDate = new Date(voucher.startTime);
-                const endDate = new Date(voucher.endTime);
-                let newStatus = voucher.status;
+            const updatedVouchers = await Promise.all(
+                vouchers.map(async (voucher) => {
+                    const startDate = new Date(voucher.startTime);
+                    const endDate = new Date(voucher.endTime);
+                    let newStatus = voucher.status;
 
-                if (now < startDate) {
-                    newStatus = "IN_ACTIVE";
-                } else if (now > endDate) {
-                    newStatus = "EXPIRE";
-                } else {
-                    newStatus = "ACTIVE";
-                }
+                    if (now < startDate) {
+                        newStatus = VoucherStatus.UPCOMING;
+                    } else if (now > endDate) {
+                        newStatus = VoucherStatus.EXPIRED;
+                    } else {
+                        newStatus = VoucherStatus.ACTIVE;
+                    }
 
-                // Chỉ trả về voucher mới nếu trạng thái thay đổi
-                if (newStatus !== voucher.status) {
+                    if (newStatus !== voucher.status) {
+                        try {
+                            // Gọi API để cập nhật status
+                            await axios.put(`${API_BASE_URL}/admin/voucher/update-status/${voucher.id}`);
+                        } catch (error) {
+                            console.error('Error updating voucher status:', error);
+                        }
+                    }
                     return { ...voucher, status: newStatus };
-                }
-                return voucher;
-            });
+                })
+            );
 
-            // Chỉ cập nhật state nếu có sự thay đổi
             if (JSON.stringify(updatedVouchers) !== JSON.stringify(vouchers)) {
                 setVouchers(updatedVouchers);
                 setLastUpdate(now);
             }
         };
 
-        // Kiểm tra mỗi phút
-        const intervalId = setInterval(updateVoucherStatuses, 60000); // 60000ms = 1 phút
-
-        // Chạy lần đầu
+        const intervalId = setInterval(updateVoucherStatuses, 60000);
         updateVoucherStatuses();
 
-        // Cleanup khi component unmount
         return () => clearInterval(intervalId);
     }, [vouchers]);
 
@@ -322,7 +324,7 @@ export default function VoucherUI() {
             startTime: voucher.startTime.split('.')[0], // Loại bỏ milliseconds
             endTime: voucher.endTime.split('.')[0],
             status: voucher.status,
-            description: voucher.description,
+            moTa: voucher.moTa,
             isPrivate: voucher.isPrivate,
             maxDiscountAmount: voucher.maxDiscountAmount || 0,
         });
@@ -480,6 +482,7 @@ export default function VoucherUI() {
         setFormData({
             code: '',
             name: '',
+            moTa: '',
             conditionPriceMin: 0,
             conditionPriceMax: 0,
             discountValue: 0,
@@ -487,8 +490,7 @@ export default function VoucherUI() {
             quantity: 0,
             startTime: '',
             endTime: '',
-            status: 'IN_ACTIVE', // Sửa giá trị mặc định
-            description: '',
+            status: VoucherStatus.UPCOMING, // Sửa từ 'IN_ACTIVE' thành VoucherStatus.UPCOMING
             isPrivate: false,
             maxDiscountAmount: 0,
         });
@@ -559,34 +561,23 @@ export default function VoucherUI() {
         await refreshVouchers(); // Ensure data is refreshed when modal closes
     }, [refreshVouchers]);
 
-    // Sửa lại hàm getVoucherStatus để sử dụng thời gian hiện tại
-    const getVoucherStatus = useCallback((startTime: string, endTime: string): "IN_ACTIVE" | "ACTIVE" | "EXPIRE" => {
-        const now = new Date();
-        const startDate = new Date(startTime);
-        const endDate = new Date(endTime);
-
-        if (now < startDate) {
-            return "IN_ACTIVE";
-        } else if (now > endDate) {
-            return "EXPIRE";
-        } else {
-            return "ACTIVE";
-        }
-    }, []);
-
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
-                const data = await getVouchers()
-                setVouchers(data)
+                setLoading(true);
+                setError(null);
+                const data = await getVouchers();
+                setVouchers(data);
             } catch (error) {
-                setError(error as Error)
+                console.error('Error:', error);
+                setError(error as Error);
+                toast.error('Không thể tải danh sách voucher');
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        }
+        };
 
-        fetchVouchers()
+        fetchVouchers();
     }, [])
 
     return (
@@ -657,17 +648,16 @@ export default function VoucherUI() {
                                     value={searchParams.status || ''}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        console.log("Selected status:", value); // Debug log
                                         setSearchParams({
                                             ...searchParams,
-                                            status: value === '' ? undefined : value as StatusType
+                                            status: value === '' ? undefined : value as VoucherStatus
                                         });
                                     }}
                                 >
                                     <option value="">Tất cả</option>
-                                    <option value="IN_ACTIVE">Sắp diễn ra</option>
-                                    <option value="ACTIVE">Đang hoạt động</option>
-                                    <option value="EXPIRE">Đã hết hạn</option>
+                                    <option value={VoucherStatus.UPCOMING}>Sắp diễn ra</option>
+                                    <option value={VoucherStatus.ACTIVE}>Đang hoạt động</option>
+                                    <option value={VoucherStatus.EXPIRED}>Đã hết hạn</option>
                                 </select>
                             </div>
                         </div>

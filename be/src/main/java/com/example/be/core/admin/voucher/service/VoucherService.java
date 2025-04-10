@@ -42,4 +42,5 @@ public interface VoucherService {
             Boolean isPrivate,  // Thêm filter theo loại voucher
             String status      // Thêm filter theo trạng thái
     );
+    void updateAllVoucherStatuses();
 }
