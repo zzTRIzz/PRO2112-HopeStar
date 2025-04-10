@@ -3,27 +3,44 @@ import { toast } from 'react-toastify';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
 
+// Add axios interceptor for global error handling
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('API Error:', error);
+        const message = error.response?.data?.message || 'Có lỗi xảy ra';
+        toast.error(message);
+        return Promise.reject(error);
+    }
+);
+
 export const getVouchers = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/voucher`);
-    return response.data;
+    const response = await axios.get(`${API_BASE_URL}/voucher/list`); // Thêm /list vào endpoint
+    if (response.data) {
+      return response.data;
+    }
+    return [];
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
+    console.error('Error fetching vouchers:', error);
+    if (axios.isAxiosError(error)) {
+      toast.error(error.response?.data?.message || 'Không thể tải danh sách voucher');
+    }
+    return []; // Return empty array on error
   }
 };
 
 // Add interface for search params
 interface VoucherSearchParams {
-    keyword?: string;          // Tìm theo code hoặc name
-    startTime?: string;        // Thời gian bắt đầu
-    endTime?: string;          // Thời gian kết thúc
-    isPrivate?: boolean;       // Loại voucher (public/private)
-    status?: StatusType;       // Trạng thái voucher
+    keyword?: string;
+    startTime?: string;
+    endTime?: string;
+    isPrivate?: boolean;
+    status?: VoucherStatus; // Sửa từ StatusType thành VoucherStatus
 }
 
-// Thêm type cho status
-type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";
+
+
 
 // Update searchVouchers function
 export const searchVouchers = async (params: VoucherSearchParams) => {
@@ -115,14 +132,18 @@ interface VoucherResponse {
     id: number;
     code: string;
     name: string;
-    discountValue: BigDecimal;
-    voucherType: boolean;
     conditionPriceMin: BigDecimal;
     conditionPriceMax: BigDecimal;
+    discountValue: BigDecimal;
+    maxDiscountAmount: BigDecimal;
+    voucherType: boolean;
     quantity: number;
     startTime: string;
     endTime: string;
-    status: string;
+    status: VoucherStatus; // Sửa kiểu từ string sang VoucherStatus
+    moTa: string;
+    isPrivate: boolean;
+    isApply: boolean;     // Thêm trường này
 }
 
 // Thêm interface cho response gán voucher
@@ -200,7 +221,7 @@ const formatDateTime = (dateStr: string): string => {
 // Type definition for BigDecimal from Java
 type BigDecimal = {
     toString(): string;
-} | number;
+} | number | string;  // Thêm string vào union type
 
 // Add a new function to get only customers (role_4)
 export const getCustomers = async (): Promise<AccountResponse[]> => {
@@ -294,3 +315,12 @@ export const getVoucherUsageStatuses = async (voucherId: number): Promise<Vouche
         return [];
     }
 };
+
+export enum VoucherStatus {
+    UPCOMING = "UPCOMING",
+    ACTIVE = "ACTIVE",
+    EXPIRED = "EXPIRED"
+}
+
+// Xóa type cũ
+// type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";

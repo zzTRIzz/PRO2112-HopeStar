@@ -3,17 +3,16 @@ import Cookies from 'js-cookie'
 
 const API_BASE_URL = 'http://localhost:8080/api/client'
 
-// export const getCart = async () => {
-//   const jwt = Cookies.get('jwt')
-//   if (!jwt) return []
-
-//   const response = await axios.get(`${API_BASE_URL}/cart`, {
-//     headers: {
-//       Authorization: `Bearer ${jwt}`,
-//     },
-//   })
-//   return response.data.data
-// }
+export const getVoucher = async () => {
+  const jwt = Cookies.get('jwt')
+  const response = await axios.get(`${API_BASE_URL}/voucher`, {
+    headers: {
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+      'Content-Type': 'application/json',
+    },
+  })
+  return response.data.data
+}
 
 export const getCart = async () => {
   try {

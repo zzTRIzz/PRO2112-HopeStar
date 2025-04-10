@@ -3,7 +3,9 @@ package com.example.be.core.admin.voucher.service;
 
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
+import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,4 +44,6 @@ public interface VoucherService {
             Boolean isPrivate,  // Thêm filter theo loại voucher
             String status      // Thêm filter theo trạng thái
     );
+    void updateAllVoucherStatuses();
+    List<VoucherApplyResponse> getVoucherApply(Account account);
 }

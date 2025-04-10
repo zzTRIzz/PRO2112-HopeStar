@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
-import type { CartItem } from '../../components/gio-hang/types/cart'
+import type { CartItem, Voucher } from '../../components/gio-hang/types/cart'
 import { order } from '../../data/api-cart-service'
 
 interface CheckoutData {
@@ -248,6 +248,14 @@ export function CheckoutPage() {
       const profile = JSON.parse(localStorage.getItem('profile') || '{}')
       const hasSavedAddress = !!profile.address
 
+      // Kiểm tra điều kiện áp dụng voucher
+      const canApplyVoucher =
+        orderValues.selectedVoucher &&
+        orderValues.subtotal >=
+          (orderValues.selectedVoucher.minOrderValue || 0) &&
+        orderValues.subtotal <=
+          (orderValues.selectedVoucher.maxOrderValue || Infinity)
+
       const orderData = {
         customerInfo: checkoutData.customerInfo,
         location: {
@@ -262,10 +270,11 @@ export function CheckoutPage() {
         totalPrice: orderValues.subtotal,
         deliveryFee: orderValues.shippingFee,
         insuranceFee: orderValues.insuranceFee,
-        // discountedTotal: orderValues.subtotal - orderValues.voucherDiscount,
         totalDue: orderValues.total,
-        discountedTotal: orderValues.voucherDiscount,
-        voucherCode: orderValues.selectedVoucher?.code,
+        discountedTotal: canApplyVoucher ? orderValues.voucherDiscount : 0,
+        idVoucher: canApplyVoucher
+          ? orderValues.selectedVoucher?.id
+          : null,
       }
 
       console.log('Order data:', orderData)

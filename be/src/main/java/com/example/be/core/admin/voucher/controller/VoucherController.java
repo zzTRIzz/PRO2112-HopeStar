@@ -9,10 +9,13 @@ import com.example.be.core.admin.voucher.dto.request.VoucherAssignRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
 import com.example.be.core.admin.voucher.dto.response.ErrorResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
+import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherAccountService;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.Voucher;
+import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
+import com.example.be.repository.VoucherRepository;
 import com.example.be.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,12 +43,22 @@ public class VoucherController {
     private final VoucherService voucherService;
 private final VoucherAccountService voucherAccountService;
     private final EmailService emailService;
+    private final VoucherRepository voucherRepository;
+    private final VoucherMapper voucherMapper;
 
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<VoucherResponse>> getAll() {
-        List<VoucherResponse> responses = voucherService.getAll();
-        return ResponseEntity.ok(responses);
+        try {
+            log.info("Getting all vouchers");
+            List<VoucherResponse> responses = voucherService.getAll();
+            log.info("Found {} vouchers", responses.size());
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            log.error("Error getting vouchers: ", e);
+            throw e;
+        }
     }
+
 
     @PostMapping
     public ResponseEntity<?> add(@RequestBody VoucherRequest voucherRequest) {
@@ -59,9 +73,62 @@ private final VoucherAccountService voucherAccountService;
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody VoucherRequest voucherRequest) {
         try {
+            // Calculate current status based on time
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startTime = voucherRequest.getStartTime();
+            LocalDateTime endTime = voucherRequest.getEndTime();
+
+            // Set status based on time
+            StatusVoucher calculatedStatus;
+            if (now.isBefore(startTime)) {
+                calculatedStatus = StatusVoucher.UPCOMING;
+            } else if (now.isAfter(endTime)) {
+                calculatedStatus = StatusVoucher.EXPIRED;
+            } else {
+                calculatedStatus = StatusVoucher.ACTIVE;
+            }
+
+            // Update the status in the request
+            voucherRequest.setStatus(calculatedStatus);
+
+            // Process the update
             VoucherResponse response = voucherService.update(id, voucherRequest);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+    @Scheduled(fixedRate = 60000) // Chạy mỗi phút
+    public void updateVoucherStatuses() {
+        try {
+            voucherService.updateAllVoucherStatuses();
+        } catch (Exception e) {
+            log.error("Error updating voucher statuses: ", e);
+        }
+    }
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateVoucherStatus(@PathVariable Integer id) {
+        try {
+            Voucher voucher = voucherRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+            LocalDateTime now = LocalDateTime.now();
+            StatusVoucher newStatus;
+
+            if (now.isBefore(voucher.getStartTime())) {
+                newStatus = StatusVoucher.UPCOMING;
+            } else if (now.isAfter(voucher.getEndTime())) {
+                newStatus = StatusVoucher.EXPIRED;
+            } else {
+                newStatus = StatusVoucher.ACTIVE;
+            }
+
+            voucher.setStatus(newStatus);
+            voucherRepository.save(voucher);
+
+            return ResponseEntity.ok(voucherMapper.toResponse(voucher));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
