@@ -3,12 +3,16 @@ package com.example.be.core.admin.voucher.controller;
 
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.admin.voucher.dto.model.VoucherAccountDTO;
 import com.example.be.core.admin.voucher.dto.request.EmailRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherAssignRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.ErrorResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
+import com.example.be.core.admin.voucher.service.VoucherAccountService;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.Voucher;
+import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +37,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VoucherController {
     private final VoucherService voucherService;
-
+private final VoucherAccountService voucherAccountService;
     private final EmailService emailService;
 
     @GetMapping
@@ -230,5 +234,44 @@ public class VoucherController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @GetMapping("/searchWithFilters")
+    public ResponseEntity<List<VoucherResponse>> searchWithFilters(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) Boolean isPrivate,
+            @RequestParam(required = false) String status
+    ) {
+        try {
+            List<VoucherResponse> vouchers = voucherService.searchVouchers(
+                    keyword,
+                    startTime,
+                    endTime,
+                    isPrivate,
+                    status
+            );
+            return ResponseEntity.ok(vouchers);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+    @PutMapping("/voucher-account/{id}/status")
+    public ResponseEntity<?> updateVoucherAccountStatus(
+            @PathVariable Integer id,
+            @RequestParam VoucherAccountStatus status
+    ) {
+        try {
+            VoucherAccountDTO updated = voucherAccountService.updateStatus(id, status);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Không thể cập nhật trạng thái: " + e.getMessage()));
+        }
+    }
 
+    @GetMapping("/{id}/usage-status")
+    public ResponseEntity<List<VoucherAccountDTO>> getVoucherUsageStatus(@PathVariable Integer id) {
+        List<VoucherAccountDTO> statuses = voucherAccountService.getVoucherUsageStatuses(id);
+        return ResponseEntity.ok(statuses);
+    }
 }

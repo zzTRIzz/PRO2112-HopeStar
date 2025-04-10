@@ -7,7 +7,7 @@ import { Main } from '@/components/layout/main';
 import * as React from "react"
 import TableHoaDon from './components/TableHoaDon';
 import { getAllBill } from './service/HoaDonService';
-import { Bill } from './service/HoaDonSchema';
+import { Bill } from './service/Schema';
 import TimKiemHoaDon from './components/TimKiemHoaDon';
 
 const QuanLyHoaDon: React.FC = () => {

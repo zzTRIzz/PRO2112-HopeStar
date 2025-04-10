@@ -10,8 +10,13 @@ public class OrderRequest {
 
     private CustomerInfo customerInfo;
     private Location location;
-    private String paymentMethod;
+    private Integer paymentMethod;
     private List<Products> products;
+    private BigDecimal totalPrice;
+    private BigDecimal deliveryFee; //phi ship
+    private BigDecimal discountedTotal; // gia giam vc
+    private BigDecimal insuranceFee; // phi bao hanh
+    private BigDecimal totalDue;
 
     @Data
     public static class CustomerInfo {

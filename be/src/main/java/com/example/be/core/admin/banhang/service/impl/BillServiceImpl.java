@@ -163,25 +163,46 @@ public class BillServiceImpl implements BillService {
         // Lấy hóa đơn theo ID
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn: " + idBill));
-
         // Lấy tổng tiền hàng từ database
         BigDecimal tongTien = billDetailRepository.getTotalAmountByBillId(idBill);
 
-        // Lấy giá trị giảm giá, nếu null thì gán bằng 0
+        // Lấy giá trị giảm giá và phí ship, nếu null thì gán bằng 0
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
+        BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
 
-        // Tính tổng tiền cuối cùng (tổng tiền sản phẩm - giảm giá)
-        BigDecimal tongTienFinal = tongTien.subtract(giamGia);
+        // Tính tổng tiền cuối cùng (tổng tiền sản phẩm - giảm giá + phí ship)
+        BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
+//        System.out.println("Tong tien "+tongTien);
+//        System.out.println("Tong giamGia "+giamGia);
+//        System.out.println("Tong phiShip "+phiShip);
+//        System.out.println("Tong tongTienFinal "+tongTienFinal);
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
             tongTienFinal = BigDecimal.ZERO; // Không được âm tiền
         }
+
         // Cập nhật lại tổng tiền vào hóa đơn
-        bill.setTotalPrice(tongTien);
-        bill.setTotalDue(tongTienFinal);
+        bill.setTotalPrice(tongTien); // Tổng tiền hàng
+        bill.setTotalDue(tongTienFinal); // Tổng tiền phải trả (sau giảm giá + ship)
         billRepository.save(bill);
 
         return tongTien;
     }
+
+    @Override
+    public BillDto updateTotalDue(Integer idBill, BigDecimal totalDue) {
+        Bill bill = billRepository.findById(idBill)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
+
+        bill.setCustomerPayment(totalDue);
+
+        if (bill.getAmountChange().compareTo(BigDecimal.ZERO) < 0) {
+            bill.setAmountChange(BigDecimal.ZERO);
+        }
+
+        Bill saveBill = billRepository.save(bill);
+        return billMapper.dtoBillMapper(saveBill);
+    }
+
 
     @Override
     public BillDto addAccount(Integer idBill, Integer idAccount) {
@@ -205,53 +226,6 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-//    @Override
-//    public BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher) {
-//        try {
-//            // Kiểm tra hóa đơn có tồn tại không
-//            Bill bill = billRepository.findById(idBill)
-//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
-//
-//            if (idVoucher == null) {
-//                bill.setTotalDue(bill.getTotalPrice()); // Không có giảm giá
-//                bill.setDiscountedTotal(BigDecimal.ZERO); // Giảm giá là 0
-//                bill.setIdVoucher(null); // Không áp dụng voucher
-//                billRepository.save(bill);
-//                return billMapper.dtoBillMapper(bill);
-//            } else {
-//                Voucher voucher = voucherRepository.findById(idVoucher).
-//                        orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
-//                // Nếu idVoucher == null không áp dụng voucher
-//                // Áp dụng giảm giá nếu có voucher
-//                BigDecimal tongSauKhiGiam;
-//                if (voucher == null) {
-//                    tongSauKhiGiam = bill.getTotalPrice();
-//                } else if (voucher.getDiscountValue().compareTo(bill.getTotalPrice()) < 0) {
-//                    tongSauKhiGiam = bill.getTotalPrice().subtract(voucher.getDiscountValue());
-////                voucherService.updateSoLuongVoucher(voucher.getId()); // Giảm số lượng voucher
-//                } else {
-//                    tongSauKhiGiam = BigDecimal.ZERO;
-////                voucherService.updateSoLuongVoucher(voucher.getId());
-//                }
-//                BigDecimal tongTienGiamGia = bill.getTotalPrice().subtract(tongSauKhiGiam);
-//                // Cập nhật lại hóa đơn với khách hàng và voucher
-//                bill.setIdVoucher(voucher);
-//                // Lấy phí ship (nếu null thì mặc định 0)
-////                BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
-//                // Tính tổng tiền cuối cùng (tổng tiền sản phẩm + phí ship)
-////                BigDecimal tongTienFinal = tongSauKhiGiam.add(phiShip);
-//                bill.setTotalDue(tongSauKhiGiam);
-//                bill.setDiscountedTotal(tongTienGiamGia);
-//                billRepository.save(bill);
-//                return billMapper.dtoBillMapper(bill);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("Lỗi khi cập nhật khách hàng cho hóa đơn: " + e.getMessage());
-//        }
-//    }
-
-
     @Override
     public BillDto capNhatVoucherKhiChon(Integer idBill, Voucher voucher) {
         try {
@@ -270,7 +244,6 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
-            // Nếu không chọn voucher
             if (voucher == null) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
@@ -279,13 +252,10 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
-            // Lấy thông tin voucher
-//            Voucher voucher = voucherRepository.findById(idVoucher)
-//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher " + idVoucher));
 
             BigDecimal giamGia = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
 
-            // Tính tiền sau giảm, không để âm
+
             BigDecimal tongSauGiam = tongTien.subtract(giamGia);
             if (tongSauGiam.compareTo(BigDecimal.ZERO) < 0) {
                 tongSauGiam = BigDecimal.ZERO;
@@ -480,7 +450,6 @@ public class BillServiceImpl implements BillService {
 
         return billRespones;
     }
-
 
 
 }

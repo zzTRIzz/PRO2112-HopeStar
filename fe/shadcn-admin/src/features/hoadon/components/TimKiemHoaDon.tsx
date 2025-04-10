@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Bill } from '../service/HoaDonSchema';
+import { Bill } from '../service/Schema';
 
 interface Props {
   originalList: Bill[]; // Danh sách gốc không thay đổi
@@ -160,11 +160,11 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
                     >
                       <option value="">Tất cả</option>
                       <option value="CHO_THANH_TOAN">Chờ thanh toán</option>
-                      <option value="DA_THANH_TOAN">Đã thanh toán</option>
                       <option value="CHO_XAC_NHAN">Chờ xác nhận</option>
+                      <option value="DA_XAC_NHAN">Đã xác nhận</option>
                       <option value="DANG_CHUAN_BI_HANG">Đang chuẩn bị hàng</option>
                       <option value="DANG_GIAO_HANG">Đang giao hàng</option>
-                      <option value="DA_GIAO_HANG">Đã giao hàng</option>
+                      {/* <option value="DA_GIAO_HANG">Đã giao hàng</option> */}
                       <option value="HOAN_THANH">Hoàn thành</option>
                       <option value="DA_HUY">Đã hủy</option>
                     </select>

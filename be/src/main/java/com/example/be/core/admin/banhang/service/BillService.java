@@ -30,6 +30,8 @@ public interface BillService {
 
     BigDecimal tongTienBill(Integer idBill);
 
+    BillDto updateTotalDue(Integer idBill, BigDecimal totalDue);
+
     BillDto addAccount(Integer idBill, Integer idAccount);
 
 //    BillDto apDungVoucher(Integer idBill, Integer idAccount);

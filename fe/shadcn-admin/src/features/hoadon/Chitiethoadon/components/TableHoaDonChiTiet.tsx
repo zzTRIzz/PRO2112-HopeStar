@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
-import { BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
 import { DataTablePagination } from '../../components/PhanTrang/data-table-pagination';
 
 
@@ -40,7 +40,7 @@ interface imei {
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
-    searchBill: BillSchema | null;
+    searchBill: BillRespones | null;
     selectedImei: number[];
     isCapNhatImei: boolean; // Nhận từ file tổng
     setIsCapNhatImei: (open: boolean) => void;
@@ -110,11 +110,22 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell align="right">{index + 1}</TableCell>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
+                                            {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
                                         </TableCell>
-                                        <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
-                                        <TableCell align="right">{pr.quantity}</TableCell>
-                                        <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
+                                        <TableCell align="right" >{pr?.price?.toLocaleString('vi-VN')} VND
+
+                                        </TableCell>
+                                        <TableCell align="right" className='w-[95px]'>{pr?.quantity}
+                                            {searchBill?.billDetailResponesList?.some(
+                                                (item) =>
+                                                    item.productDetail.id === pr.idProductDetail &&
+                                                    (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0)
+                                            ) && (
+                                                    <div className="text-red-500 text-xs font-medium mt-1">Thiếu IMEI</div>
+                                                )}
+                                        </TableCell>
+                                        <TableCell align="right">{pr?.totalPrice?.toLocaleString('vi-VN')} VND
+                                        </TableCell>
                                         <TableCell align="center" style={{}}>
                                             <div className="right space-x-2">
 
@@ -125,7 +136,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
                                                             onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}
-                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
+                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                                                         >
                                                             Cập nhật
                                                         </Button>

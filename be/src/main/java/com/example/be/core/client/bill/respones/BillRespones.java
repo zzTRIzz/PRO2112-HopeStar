@@ -24,19 +24,19 @@ public class BillRespones {
 
     private String codeVoucher;
 
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice; //tong tien bill-detail
 
-    private BigDecimal customerPayment;
+    private BigDecimal customerPayment; //khach tra :nhan hang =0
 
-    private BigDecimal amountChange;
+    private BigDecimal amountChange; //-tong tien da tinh toan
 
-    private BigDecimal deliveryFee;
+    private BigDecimal deliveryFee; // tien ship
 
-    private BigDecimal totalDue;
+    private BigDecimal totalDue; // tong gia da tinh toan
 
-    private BigDecimal customerRefund;
+    private BigDecimal customerRefund; //
 
-    private BigDecimal discountedTotal;
+    private BigDecimal discountedTotal; // tien giam
 
     private LocalDateTime deliveryDate;
 
@@ -48,7 +48,7 @@ public class BillRespones {
 
     private LocalDateTime  paymentDate;
 
-    private Byte billType;
+    private Byte billType; // 1:web, 0:quay
 
     private StatusBill status;
 
@@ -62,9 +62,9 @@ public class BillRespones {
 
     private String name;
 
-    private Integer payment;
+    private Integer payment; //phuong thuc 1->4
 
-    private Integer delivery;
+    private Integer delivery; //hinh thuc 1->2: 1nhan quay, 2 ship;
 
     private Integer detailCount;
 

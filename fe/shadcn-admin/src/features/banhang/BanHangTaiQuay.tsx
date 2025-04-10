@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Header } from '@/components/layout/header'
@@ -17,7 +16,6 @@ import ThanhToan from './components/ThanhToan'
 import ThemSanPham from './components/ThemSanPham'
 import './css/print_hoaDon.css'
 import './custom-toast.css'
-// Thêm CSS tùy chỉnh
 import {
   addHDCT,
   addHoaDon,
@@ -52,6 +50,7 @@ import {
   SearchBillDetail,
   Voucher,
 } from './service/Schema'
+import { fromThatBai, fromThanhCong } from './components/ThongBao'
 
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
@@ -77,22 +76,31 @@ function BanHangTaiQuay() {
   const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
   const [customerPayment, setCustomerPayment] = useState<number>(0);
   const [phiShip, setPhiShip] = useState<number>(0);
+  const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
   const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
+  const currentBillRef = useRef<number>(0);
   const tongTien = (searchBill?.totalDue ?? 0) + phiShip;
   const tienThua = Math.max(customerPayment - tongTien);
-  const [scanError, setScanError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState('');
-  const [barcode, setBarcode] = useState<string | null>(null);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
+  // Keep currentBillRef in sync with idHoaDon
+  useEffect(() => {
+    const previousBill = currentBillRef.current;
+    currentBillRef.current = idHoaDon;
+    console.log(`Bill ID changed from ${previousBill} to ${idHoaDon}`);
+    if (isScanning) {
+      // Force close scanning if bill changes while scanning is active
+      setIsScanning(false);
+    }
+  }, [idHoaDon]);
+
   useEffect(() => {
     loadBill()
     loadProductDet()
     loadAccountKH()
     loadBillChoThanhToan()
     chuyenPhiShip()
-    // console.log("idBill cập nhật:", idBill);
   }, [isBanGiaoHang, tongTien])
   const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
   const { id } = signupData
@@ -172,12 +180,23 @@ function BanHangTaiQuay() {
   // Huy hoa don
   const huyHoaDonTheoId = async (idBillHuy: number) => {
     try {
+      const result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận hủy hóa đơn',
+        message: 'Bạn chắc chắn muốn hủy hóa đơn này không?',
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ',
+      })
+      if (!result) {
+        fromThatBai('Hủy hóa đơn không thành công')
+        return
+      }
       await huyHoaDon(idBillHuy)
       await loadBill()
       loadProductDet()
       setProduct([])
       loadBillChoThanhToan()
-      // setIdBill(0);
+      fromThanhCong('Hủy hóa đơn thành công');
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -186,6 +205,7 @@ function BanHangTaiQuay() {
   // Lấy hóa đơn chi tiet theo ID bill
   const getById = async (id: number) => {
     try {
+      setIsProcessingBillChange(true); // Start processing
       setIdBill(id)
       const data = await getByIdBillDetail(id)
       setProduct(data) // Cập nhật state
@@ -197,11 +217,11 @@ function BanHangTaiQuay() {
       findBillById(id)
       await loadVoucherByAcount(id)
       setIsBanGiaoHang(false)
-      // console.log("id bill khi chon "+ id);
     } catch (error) {
       setProduct([]) // Xóa danh sách cũ
-      // setIdBill(0);
       console.error('Error fetching data:', error)
+    } finally {
+      setIsProcessingBillChange(false); // End processing
     }
   }
 
@@ -563,20 +583,24 @@ function BanHangTaiQuay() {
   //   }
   // }
   const handleThanhToan = async (status: string, billType: number) => {
-    const result = await showDialog({
-      type: 'confirm',
-      title: 'Xác nhận thanh toán đơn hàng',
-      message: `Bạn chắc chắn muốn thanh toán đơn hàng 
+
+    let result = true;
+
+    if (paymentMethod !== 2) {
+      result = await showDialog({
+        type: 'confirm',
+        title: 'Xác nhận thanh toán đơn hàng',
+        message: `Bạn chắc chắn muốn thanh toán đơn hàng 
         <strong style="color:rgb(8, 122, 237)">${searchBill?.code ?? ''}</strong> <br />
         với số tiền đã nhận được là 
         <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
         ${customerPayment.toLocaleString()}đ
         </span>?`,
-      confirmText: 'Xác nhận',
-      cancelText: 'Hủy bỏ'
-    });
+        confirmText: 'Xác nhận',
+        cancelText: 'Hủy bỏ'
+      });
+    }
 
-   
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -595,7 +619,7 @@ function BanHangTaiQuay() {
         return;
       }
     }
-    if (!result && paymentMethod != 2) {
+    if (!result) {
       fromThatBai(`Thanh toán đơn hàng ${searchBill?.code ?? ''} không thành công`);
       return;
     }
@@ -632,12 +656,15 @@ function BanHangTaiQuay() {
 
       const invoiceData = {
         code: searchBill?.code,
-        paymentDate: searchBill?.paymentDate,
+        paymentDate: new Date().toISOString(),
         staff: searchBill?.fullNameNV,
         customer: searchBill?.name,
         phone: searchBill?.phone,
         items: searchBill?.billDetailResponesList.map(detail => ({
-          product: detail.productDetail.productName,
+          product: detail.productDetail.productName + ' ' +
+            detail.productDetail.ram + '/' +
+            detail.productDetail.rom + 'GB ( ' +
+            detail.productDetail.color + ' )',
           imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
           price: detail.price,
           quantity: detail.quantity,
@@ -647,7 +674,7 @@ function BanHangTaiQuay() {
         customerPayment: customerPayment || 0,
         change: tienThua || 0,
       };
-      
+
 
       handlePrint(invoiceData);
 
@@ -666,11 +693,18 @@ function BanHangTaiQuay() {
     }
   };
 
+  useEffect(() => {
+    console.log(idHoaDon)
+  });
 
   // Quét mã vạch
   const isProcessing = useRef(false);
   const handleScanSuccess = async (imei: string) => {
-    console.log('id bill khi chon ' + idHoaDon)
+    if (isProcessingBillChange) {
+      fromThatBai('Đang xử lý chuyển đổi hóa đơn, vui lòng đợi');
+      return;
+    }
+
     if (isProcessing.current) {
       console.log('⚠ handleScanSuccess bị chặn do đã chạy trước đó!')
       return
@@ -678,31 +712,30 @@ function BanHangTaiQuay() {
 
     isProcessing.current = true // Đánh dấu đang xử lý
 
-    // ⛔ Dừng camera ngay lập tức để tránh quét lại
-    if (window.Quagga) {
-      window.Quagga.stop()
-      console.log('📸 Camera đã dừng để tránh quét lại')
+    const quaggaWindow = window as unknown as { Quagga: any };
+    if (quaggaWindow.Quagga) {
+      quaggaWindow.Quagga.stop();
+      console.log('📸 Camera đã dừng để tránh quét lại');
     }
 
     try {
       setIsScanning(true)
-      setScanError('')
-      setScanResult(imei)
-      console.log('id bill chuẩn bị chon ' + idHoaDon)
+      const currentBillId = currentBillRef.current;
+      console.log('id bill chuẩn bị xử lý: ' + currentBillId);
       const productDetail = await quetBarCode(imei)
       if (!productDetail?.idImei) {
         fromThatBai('IMEI không tồn tại trong hệ thống')
         return
       }
 
-      if (!idHoaDon || idHoaDon === 0) {
+      if (!currentBillId || currentBillId === 0) {
         fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã')
         return
       }
 
-      console.log('id bill trước luc chạy ' + idHoaDon)
+      console.log('Thực hiện thêm vào hóa đơn: ' + currentBillId)
       const newBillDetail = await addHDCT({
-        idBill: idHoaDon,
+        idBill: currentBillId,
         idProductDetail: productDetail.id,
       })
 
@@ -710,13 +743,12 @@ function BanHangTaiQuay() {
         fromThatBai('Tạo hóa đơn chi tiết thất bại')
         return
       }
-      console.log('id bill luc chạy ' + idHoaDon)
       await createImeiSold(
         {
           id_Imei: [productDetail.idImei],
           idBillDetail: newBillDetail.id,
         },
-        idHoaDon,
+        currentBillId,
         productDetail.id
       )
 
@@ -724,50 +756,30 @@ function BanHangTaiQuay() {
         prev.filter((p) => p.idProductDetail !== productDetail.id)
       )
 
-      await Promise.all([loadImei(productDetail.id), getById(idHoaDon)])
+      await Promise.all([
+        loadImei(productDetail.id),
+        getById(currentBillId)  
+      ])
 
       fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
     } catch (error: any) {
       fromThatBai('Lỗi khi thêm sản phẩm !')
-      // console.error("[❌ LỖI]", error);
     } finally {
-      isProcessing.current = false // Cho phép quét tiếp
+      isProcessing.current = false 
       setIsScanning(false)
       setSelectedImei([])
 
-      // ✅ Bật lại camera sau khi xử lý xong
+
       setTimeout(() => {
-        if (window.Quagga) {
-          window.Quagga.start()
-          console.log('📸 Camera đã bật lại để quét tiếp')
+        const quaggaWindow = window as unknown as { Quagga: any };
+        if (quaggaWindow.Quagga) {
+          quaggaWindow.Quagga.start();
+          console.log('📸 Camera đã bật lại để quét tiếp');
         }
       }, 1000) // Delay 1 giây để tránh quét quá nhanh
     }
   }
 
-  const fromThanhCong = (message: string) => {
-    toast.success(message, {
-      position: 'top-right',
-      className: 'custom-toast',
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
-  }
-
-  const fromThatBai = (message: string) => {
-    toast.success(message, {
-      position: 'top-right',
-      className: 'custom-thatBai',
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
-  }
 
   return (
     <>
@@ -804,24 +816,20 @@ function BanHangTaiQuay() {
             <div className='flex space-x-2'>
               {/* Quét Barcode để check sản phẩm */}
               <Button
-                onClick={() => setIsScanning(true)}
+                onClick={() => {
+                  // Verify current bill before allowing scan
+                  const currentBill = currentBillRef.current;
+                  if (!currentBill || currentBill === 0) {
+                    fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
+                    return;
+                  }
+                  setIsScanning(true);
+                }}
                 className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
               >
                 Quét Barcode
               </Button>
-
-              {/* {scanResult && (
-                <div className="mt-2 p-2 bg-green-100 rounded">
-                  Mã đã quét: <span className="font-bold">{scanResult}</span>
-                </div>
-              )}
-
-              {scanError && (
-                <div className="text-red-500 mt-2 p-2 bg-red-100 rounded">
-                  {scanError}
-                </div>
-              )} */}
-
+              
               <BarcodeScannerModal
                 isOpen={isScanning}
                 onClose={() => setIsScanning(false)}
@@ -840,7 +848,7 @@ function BanHangTaiQuay() {
                 setDialogContent={setDialogContent}
                 isDialogOpen={isDialogOpen}
                 setIsDialogOpen={setIsDialogOpen}
-                setListProduct={setListProductDetail} // Pass the state setter
+                setListProduct={setListProductDetail}
               />
             </div>
           </div>
@@ -924,7 +932,7 @@ function BanHangTaiQuay() {
             isThanhToanNhanHang={isThanhToanNhanHang}
           />
         </div>
-      </div > <br />
+      </div >
       <br />
     </>
   )

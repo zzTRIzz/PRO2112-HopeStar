@@ -89,7 +89,26 @@ const ThanhToan: React.FC<ThanhToanProps> =
             }
             if (isThanhToanNhanHang) setIsThanhToanNhanHang(false);
         };
-console.log('tong tien '+customerPayment);
+        // console.log('tong tien ' + customerPayment);
+        const xacNhanThanhToan = () => {
+            console.log('tong tien ' + customerPayment);
+            console.log('paymentMethod ' + paymentMethod);
+            console.log('isBanGiaoHang ' + isBanGiaoHang);
+            // console.log('tong tien ' + customerPayment);
+
+            if (!isBanGiaoHang) {
+                handleThanhToan("HOAN_THANH", 0); // Trường hợp bán tại quầy
+            } else {
+                // Giao hàng
+                if (paymentMethod === 1 || paymentMethod === 2) {
+                    // Đã thanh toán tiền mặt hoặc chuyển khoản
+                    handleThanhToan("DA_XAC_NHAN", 1);
+                } else {
+                    // Chưa thanh toán (ví dụ: QR hoặc phương thức khác)
+                    handleThanhToan("CHO_XAC_NHAN", 1);
+                }
+            }
+        };
 
         return (
             <>
@@ -253,16 +272,7 @@ console.log('tong tien '+customerPayment);
                             {paymentMethod != 2 && (
                                 <Button
                                     className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => {
-                                        if (isBanGiaoHang === false) {
-                                            handleThanhToan("HOAN_THANH", 0) // Khi Switch tắt
-                                        } else {
-                                            handleThanhToan("CHO_XAC_NHAN", 1) // Khi Switch tắt
-                                        }
-                                    }
-                                    }
-
-                                >
+                                    onClick={xacNhanThanhToan}>
                                     Xác nhận thanh toán
                                 </Button>
                             )}

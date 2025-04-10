@@ -106,7 +106,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB'}({pr.mauSac})
+                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ( {pr.mauSac} )
                                         </TableCell>
                                         <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="right">{pr.quantity}</TableCell>
