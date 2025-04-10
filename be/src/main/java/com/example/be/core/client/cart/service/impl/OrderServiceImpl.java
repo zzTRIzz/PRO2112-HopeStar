@@ -5,9 +5,7 @@ package com.example.be.core.client.cart.service.impl;
 import com.example.be.core.client.cart.dto.request.OrderRequest;
 import com.example.be.core.client.cart.service.OrderService;
 import com.example.be.entity.*;
-import com.example.be.entity.status.ProductDetailStatus;
-import com.example.be.entity.status.StatusBill;
-import com.example.be.entity.status.StatusCartDetail;
+import com.example.be.entity.status.*;
 import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +27,8 @@ public class OrderServiceImpl implements OrderService {
     private final ProductDetailRepository productDetailRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final DeliveryMethodRepository deliveryMethodRepository;
+    private final VoucherRepository voucherRepository;
+    private final VoucherAccountRepository voucherAccountRepository;
 
     @Override
     @Transactional
@@ -44,6 +44,23 @@ public class OrderServiceImpl implements OrderService {
                 account.setPhone(customerInfo.getPhone());
                 account.setAddress(location.getFullAddress());
                 accountRepository.save(account);
+            }
+
+        }
+        if (orderRequest.getIdVoucher() != null) {
+            Voucher voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
+            if (voucher == null) {
+                throw new Exception("Voucher:" + voucher.getCode() + " hiện đã hết thời gian khuyến mãi");
+            }
+            // xu ly voucher
+            boolean checkVoucherAccount = voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucher.getId(),account.getId());
+            if (account != null && checkVoucherAccount) {
+                VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucherAndIdAccount(voucher.getId(), account.getId()).get();
+                voucherAccount.setStatus(VoucherAccountStatus.USED);
+                voucherAccountRepository.save(voucherAccount);
+            }else {
+                voucher.setQuantity(voucher.getQuantity()-1);
+                voucherRepository.save(voucher);
             }
         }
 
@@ -104,7 +121,6 @@ public class OrderServiceImpl implements OrderService {
 
         creteBill.setTotalPrice(totalPriceBill);
 
-        //chua tru voucher
         // tien khach da tra
         PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).get();
         if (orderRequest.getPaymentMethod() ==4){

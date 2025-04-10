@@ -18,11 +18,16 @@ export interface OrderSummary {
   finalAmount: number;
 }
 
-export interface Voucher {
-  id: string;
-  code: string;
-  value: number;
-  type: 'fixed' | 'percentage';
-  minOrderValue?: number;
-  description: string;
+export interface Voucher{
+  
+  id: number
+  code: string
+  name: string
+  value: number
+  type: boolean // true là phần trăm, false là giá trị cố định
+  description: string
+  minOrderValue?: number
+  maxOrderValue?: number
+  maxDiscountAmount?: number
+  
 }

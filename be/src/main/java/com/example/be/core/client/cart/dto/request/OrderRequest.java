@@ -14,6 +14,7 @@ public class OrderRequest {
     private List<Products> products;
     private BigDecimal totalPrice;
     private BigDecimal deliveryFee; //phi ship
+    private Integer idVoucher;
     private BigDecimal discountedTotal; // gia giam vc
     private BigDecimal insuranceFee; // phi bao hanh
     private BigDecimal totalDue;
