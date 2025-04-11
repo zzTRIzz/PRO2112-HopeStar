@@ -71,7 +71,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
         confirmedAddress
     }) => {
         const [dateTime, setDateTime] = useState<Date>(new Date());
-        // const tongTien = searchBill?.totalDue == null ? 0 : searchBill?.totalDue + phiShip;
 
         const handleSwitchChange = (checked: boolean) => {
             if (checked) {
@@ -125,8 +124,12 @@ const ThanhToan: React.FC<ThanhToanProps> =
                             <p className="font-bold text-base">Mã Giảm Giá</p>
                             <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
                                 <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
-                                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
+                                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700"
+                                 onClick={() => updateVoucherKhiChon(null)}>
+                                    ✖
+                                </button>
                             </div>
+
                             <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline"
@@ -136,6 +139,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[980px]">
+                                    {ListVoucherTheoAccount.length > 0 ? (
                                     <TableContainer>
                                         <Table>
                                             <TableHead>
@@ -150,15 +154,16 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                     <TableCell>Số lượng </TableCell>
                                                 </TableRow>
                                             </TableHead>
+
                                             <TableBody>
                                                 {ListVoucherTheoAccount.map((ac, index) => (
                                                     <TableRow key={ac.id}>
                                                         <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>{ac.code}</TableCell>
-                                                        <TableCell>{ac.conditionPriceMin.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.conditionPriceMax.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.discountValue.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
+                                                        <TableCell>{ac?.code}</TableCell>
+                                                        <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')}</TableCell>
+                                                        <TableCell>{ac?.maxOrderValue?.toLocaleString('vi-VN')}</TableCell>
+                                                        <TableCell>{ac?.value?.toLocaleString('vi-VN')}</TableCell>
+                                                        <TableCell>{ac.type == true ? " % " : " VNĐ "}</TableCell>
                                                         <TableCell>{ac.quantity}</TableCell>
                                                         <TableCell>
                                                             <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
@@ -168,8 +173,21 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
+
                                         </Table>
                                     </TableContainer>
+                                    ) : (
+                                        <div className='flex h-[300px] items-center justify-center'>
+                                            <div className='text-center'>
+                                                <p className='text-lg font-medium text-gray-500'>
+                                                    Không tìm thấy mã giảm giá nào
+                                                </p>
+                                                <p className='mt-1 text-sm text-gray-400'>
+                                                    Vui lòng thêm mã giảm giá
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </DialogContent>
                             </Dialog>
                         </div>
@@ -185,12 +203,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <p className="text-gray-700 text-base">Giảm giá:</p>
                                         <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal.toLocaleString('vi-VN')} đ</p>
                                     </div>
-                                    {/* {isBanGiaoHang == true && ( */}
-                                    {/* <div className="flex justify-between border-b pb-2">
-                                            <p className="text-gray-700 text-base">Phí ship:</p>
-                                            <p className="font-semibold">{phiShip.toLocaleString('vi-VN')} đ</p>
-                                        </div> */}
-                                    {/* )} */}
                                     {isBanGiaoHang == true && (
                                         <Ship
                                             productValue={tongTien}

@@ -6,7 +6,6 @@ const API_BASE_URL = 'http://localhost:8080/bill/client'
 export const getBillByAccount = async () => {
     const jwt = Cookies.get('jwt')
     if (!jwt) return []
-
     const response = await axios.get(`${API_BASE_URL}`, {
         headers: {
             Authorization: `Bearer ${jwt}`,

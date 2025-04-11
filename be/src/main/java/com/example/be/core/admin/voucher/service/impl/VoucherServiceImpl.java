@@ -323,8 +323,8 @@ public class VoucherServiceImpl implements VoucherService {
         List<VoucherApplyResponse> listOfPublic = handlerVoucherApplyResponses(voucherPublic);
         listVoucher.addAll(listOfPublic);
         return listVoucher;
-
     }
+
     private List<VoucherApplyResponse> handlerVoucherApplyResponses(List<Voucher> voucherList){
 
         List<VoucherApplyResponse> list = new ArrayList<>();

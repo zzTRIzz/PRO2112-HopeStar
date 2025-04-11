@@ -24,7 +24,7 @@ public class BillClientController {
 
 
     @GetMapping
-    public ResponseData<List<?>> getBillResponsesByAccount(@RequestHeader("Authorization") String jwt) throws Exception {
+    public ResponseData<List<?>> getBillResponsesByAccount(@RequestHeader(value = "Authorization", required = false) String jwt) throws Exception {
         Account account = authService.findAccountByJwt(jwt);
 
         List<BillRespones> billResponesList = billServiceClient.getBillsByAccount(account.getId());

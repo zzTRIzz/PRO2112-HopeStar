@@ -57,7 +57,7 @@ function BanHangTaiQuay() {
   const [searchBill, setSearchBill] = useState<BillRespones>();
   const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
   const [listAccount, setListAccount] = useState<AccountKhachHang[]>([]);
-  const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
+  const [khachHang, hienThiKhachHang] = useState<AccountKhachHang>();
   const [listImei, setListImei] = useState<Imei[]>([]);
   const [idHoaDon, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
@@ -68,7 +68,6 @@ function BanHangTaiQuay() {
   const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
   const [isKhachHang, setIsKhachHang] = useState(false);
   const [isVoucher, setIsVoucher] = useState(false);
-  // const [isCapNhatImei, setIsCapNhatImei] = useState(false);
   const [setVoucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
   const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
   const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
@@ -77,7 +76,6 @@ function BanHangTaiQuay() {
   const [shippingFee, setShippingFee] = useState(0);
   const [insuranceFee, setInsuranceFee] = useState(0);
   const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
-  // const [tongTienKhachTra, setTongTienKhachTra] = useState(0);
   const currentBillRef = useRef<number>(0);
   const tongTien = (searchBill?.totalDue ?? 0) + (isBanGiaoHang == true ? shippingFee : 0) + insuranceFee;
   const tienThua = Math.max(customerPayment - tongTien);
@@ -91,7 +89,7 @@ function BanHangTaiQuay() {
     note: ""
   });
   useEffect(() => {
-    const previousBill = currentBillRef.current;
+    // const previousBill = currentBillRef.current;
     currentBillRef.current = idHoaDon;
     // console.log(`Bill ID changed from ${previousBill} to ${idHoaDon}`);
     if (isScanning) {
@@ -105,7 +103,7 @@ function BanHangTaiQuay() {
     loadProductDet()
     loadAccountKH()
     loadBillChoThanhToan()
-    chuyenPhiShip()
+    loadVoucherByAcount(khachHang?.id);
   }, [isBanGiaoHang, tongTien])
   const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
   const { id } = signupData
@@ -151,9 +149,9 @@ function BanHangTaiQuay() {
   }
 
   // Lấy danh sách voucher theo account
-  const loadVoucherByAcount = async (idBillAC: number) => {
+  const loadVoucherByAcount = async (idAccount?: number) => {
     try {
-      const data = await findVoucherByAccount(idBillAC)
+      const data = await findVoucherByAccount(idAccount);
       setListVoucherTheoAccount(data)
     } catch (error) {
       setListVoucherTheoAccount([])
@@ -177,6 +175,7 @@ function BanHangTaiQuay() {
     try {
       const data = await findBill(id)
       setSearchBill(data)
+
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -210,20 +209,20 @@ function BanHangTaiQuay() {
   // Lấy hóa đơn chi tiet theo ID bill
   const getById = async (id: number) => {
     try {
-      setIsProcessingBillChange(true); // Start processing
+      setIsProcessingBillChange(true);
       setIdBill(id)
       const data = await getByIdBillDetail(id)
-      setProduct(data) // Cập nhật state
+      setProduct(data)
       const khachHang = await findKhachHang(id)
       hienThiKhachHang(khachHang)
-      findBillById(id)
       const voucher = await getVoucherDangSuDung(id)
       setDuLieuVoucherDangDung(voucher)
+      loadVoucherByAcount(khachHang?.id);
+      console.log("ccccc"+khachHang?.id);
       findBillById(id)
-      await loadVoucherByAcount(id)
       setIsBanGiaoHang(false)
     } catch (error) {
-      setProduct([]) // Xóa danh sách cũ
+      setProduct([])
       console.error('Error fetching data:', error)
     } finally {
       setIsProcessingBillChange(false); // End processing
@@ -263,7 +262,6 @@ function BanHangTaiQuay() {
         await getById(idHoaDon)
         fromThanhCong('Xóa sản phẩm chi tiết thành công')
       } else {
-        // console.log('Hủy thao tác');
         fromThatBai('Xóa sản phẩm chi tiết không thành công')
       }
     } catch (error) {
@@ -274,9 +272,8 @@ function BanHangTaiQuay() {
   // Thêm hóa đơn mới
   const handleAddBill = async () => {
     try {
-      const newBill = await addHoaDon({ idNhanVien: id }) // Truyền trực tiếp idNhanVien
-      // console.log("Hóa đơn mới:", newBill);
-      setListBill([...listBill, newBill]) // Cập nhật danh sách
+      const newBill = await addHoaDon({ idNhanVien: id })
+      setListBill([...listBill, newBill])
       loadBill()
       loadBillChoThanhToan()
       fromThanhCong('Thêm hóa đơn thành công')
@@ -386,17 +383,17 @@ function BanHangTaiQuay() {
     }
     findImeiByIdProductDetail(idPD, billDetaill)
   }
-
-  const updateVoucherKhiChon = (idVoucher: number) => {
+  const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
-      updateVoucher(idHoaDon, idVoucher);
-      getById(idHoaDon);
+      await updateVoucher(idHoaDon, idVoucher);
+      await getById(idHoaDon);
       setIsVoucher(false);
-      fromThanhCong("Cập nhật voucher thành công ")
+      fromThanhCong("Cập nhật voucher thành công");
     } catch (error) {
-      console.error('Lỗi khi cập nhật voucher:', error)
+      console.error('Lỗi khi cập nhật voucher:', error);
     }
-  }
+  };
+
 
   // Thêm khách hàng vào hóa đơn
   const handleAddKhachHang = async (idAccount: number) => {
@@ -406,7 +403,6 @@ function BanHangTaiQuay() {
       return
     }
     try {
-      console.log('Khách hàng mới:', idHoaDon)
       await addKhachHang(idHoaDon, idAccount)
       await loadAccountKH()
       setIsKhachHang(false)
@@ -416,7 +412,7 @@ function BanHangTaiQuay() {
       setIsBanGiaoHang(false)
       const voucher = await getVoucherDangSuDung(idHoaDon)
       setDuLieuVoucherDangDung(voucher)
-      await loadVoucherByAcount(idHoaDon)
+      loadVoucherByAcount(idAccount);
       fromThanhCong('Thêm khách hàng thành công')
     } catch (error) {
       console.error('Lỗi khi thêm khách hàng:', error)
@@ -440,19 +436,6 @@ function BanHangTaiQuay() {
         }
       }
       setIsBanGiaoHang(prev => !prev);
-    } catch (error) {
-      console.error('Lỗi khi bán giao hàng:', error)
-    }
-  }
-
-
-  const chuyenPhiShip = async () => {
-    try {
-      // const newPhiShip = isBanGiaoHang == true ? 30000 : 0
-      // setPhiShip(newPhiShip)
-      // Tính tổng tiền khách cần trả
-      // const newTotal = (searchBill?.totalDue ?? 0) + newPhiShip
-      // setTongTienKhachTra(newTotal)
     } catch (error) {
       console.error('Lỗi khi bán giao hàng:', error)
     }
@@ -557,15 +540,15 @@ function BanHangTaiQuay() {
         deliveryDate: searchBill?.deliveryDate ?? null,
         customerPreferred_date: searchBill?.customerPreferredDate ?? null,
         customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
-        receiptDate: (isBanGiaoHang == true ? searchBill?.receiptDate : new Date().toISOString()),
-        paymentDate: new Date().toISOString(),
+        receiptDate: searchBill?.receiptDate,
+        paymentDate: searchBill?.paymentDate,
         billType: billType,
         status: status,
-        address: deliveryInfo?.fullAddress,
+        address: (isBanGiaoHang == true ? deliveryInfo?.fullAddress : searchBill?.address),
         email: searchBill?.email ?? null,
-        note: deliveryInfo?.note,
-        phone: deliveryInfo?.customerPhone,
-        name: deliveryInfo?.customerName,
+        note: (isBanGiaoHang == true ? deliveryInfo?.note : searchBill?.note),
+        phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
+        name: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
         idPayment: paymentMethod,
         idDelivery: (isBanGiaoHang == true ? 2 : 1),
         itemCount: searchBill?.detailCount ?? 0
@@ -575,8 +558,8 @@ function BanHangTaiQuay() {
         code: searchBill?.code,
         paymentDate: new Date().toISOString(),
         staff: searchBill?.fullNameNV,
-        customer: deliveryInfo?.customerName,
-        phone: deliveryInfo?.customerPhone,
+        customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
+        phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
         items: searchBill?.billDetailResponesList.map(detail => ({
           product: detail.productDetail.productName + ' ' +
             detail.productDetail.ram + '/' +
@@ -797,7 +780,7 @@ function BanHangTaiQuay() {
       </div>
       <br />
       <TableKhachHang
-        listKhachHang={listKhachHang}
+        listKhachHang={khachHang}
         listAccount={listAccount}
         setIsKhachHang={setIsKhachHang}
         isKhachHang={isKhachHang}
@@ -834,7 +817,7 @@ function BanHangTaiQuay() {
           {/* --------- cot 1 ----------- */}
           <DiaChiGiaoHang
             isBanGiaoHang={isBanGiaoHang}
-            khachHang={listKhachHang}
+            khachHang={khachHang}
             onAddressChange={handleAddressUpdate}
             onDetailChange={handleDetailUpdate}
           />

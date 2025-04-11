@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -178,11 +179,9 @@ public class BillServiceImpl implements BillService {
             tongTienFinal = BigDecimal.ZERO; // Không được âm tiền
         }
 
-        bill.setReceiptDate(LocalDateTime.now());
         bill.setTotalPrice(tongTien); // Tổng tiền hàng
         bill.setTotalDue(tongTienFinal); // Tổng tiền phải trả (sau giảm giá + ship)
         billRepository.save(bill);
-
         return tongTien;
     }
 
@@ -196,7 +195,8 @@ public class BillServiceImpl implements BillService {
         if (bill.getAmountChange().compareTo(BigDecimal.ZERO) < 0) {
             bill.setAmountChange(BigDecimal.ZERO);
         }
-
+        LocalDateTime now = LocalDateTime.now();
+        bill.setReceiptDate(now);
         Bill saveBill = billRepository.save(bill);
         return billMapper.dtoBillMapper(saveBill);
     }
@@ -242,6 +242,7 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
+            // Nếu không có voucher
             if (voucher == null) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
@@ -250,20 +251,32 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
+            BigDecimal giamGia;
 
-            BigDecimal giamGia = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
+            // Nếu là dạng %, thì tính theo phần trăm và giới hạn mức giảm tối đa
+            if (Boolean.TRUE.equals(voucher.getVoucherType())) {
+                BigDecimal phanTram = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
+                BigDecimal maxGiam = voucher.getMaxDiscountAmount() != null ? voucher.getMaxDiscountAmount() : BigDecimal.valueOf(Long.MAX_VALUE);
 
+//                BigDecimal tienGiam = tongTien.multiply(phanTram).divide(BigDecimal.valueOf(100));
+                BigDecimal tienGiam = tongTien.multiply(phanTram)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
+                giamGia = tienGiam.min(maxGiam);
+            } else {
+                // Nếu là VNĐ thì giảm đúng số tiền
+                giamGia = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
+            }
+
+            // Tổng sau khi giảm
             BigDecimal tongSauGiam = tongTien.subtract(giamGia);
             if (tongSauGiam.compareTo(BigDecimal.ZERO) < 0) {
                 tongSauGiam = BigDecimal.ZERO;
             }
 
-            BigDecimal tienGiam = tongTien.subtract(tongSauGiam);
-
-            // Cập nhật vào hóa đơn
+            // Cập nhật hóa đơn
             bill.setIdVoucher(voucher);
-            bill.setDiscountedTotal(tienGiam);
+            bill.setDiscountedTotal(giamGia);
             bill.setTotalDue(tongSauGiam);
             billRepository.save(bill);
 
@@ -297,7 +310,6 @@ public class BillServiceImpl implements BillService {
     }
 
 
-
     @Override
     public void updateHuyHoaDon(Integer idBill) {
         try {
@@ -320,7 +332,7 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public BillDto updateCustomerRequest (UpdateCustomerRequest request) {
+    public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
         try {
             Bill bill = billRepository.findById(request.getId()).orElseThrow(
                     () -> new RuntimeException("Bill not found with id:" + request.getId())
@@ -354,22 +366,22 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-    @Override
-    public List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill) {
-        LocalDateTime now = LocalDateTime.now();
-        Bill bill = billRepository.findById(idBill).orElseThrow(
-                () -> new RuntimeException("Bill not found with id: " + idBill));
-
-        if (bill.getIdAccount() == null) {
-            return Collections.emptyList(); // Trả về danh sách rỗng thay vì null
-        }
-
-        List<Voucher> vouchers = voucherRepository.findByIdAccount(bill.getIdAccount().getId(), now);
-
-        return vouchers.stream()
-                .map(voucherMapper::toResponse)
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill) {
+//        LocalDateTime now = LocalDateTime.now();
+//        Bill bill = billRepository.findById(idBill).orElseThrow(
+//                () -> new RuntimeException("Bill not found with id: " + idBill));
+//
+//        if (bill.getIdAccount() == null) {
+//            return Collections.emptyList(); // Trả về danh sách rỗng thay vì null
+//        }
+//
+//        List<Voucher> vouchers = voucherRepository.findByIdAccount(bill.getIdAccount().getId(), now);
+//
+//        return vouchers.stream()
+//                .map(voucherMapper::toResponse)
+//                .collect(Collectors.toList());
+//    }
 
 
     @Override

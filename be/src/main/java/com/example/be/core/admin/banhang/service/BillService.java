@@ -53,7 +53,5 @@ public interface BillService {
 
     VoucherResponse hienThiVoucherTheoBill(Integer idBill);
 
-    List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill);
-
     BillRespones findByIdBill(Integer idBill);
 }

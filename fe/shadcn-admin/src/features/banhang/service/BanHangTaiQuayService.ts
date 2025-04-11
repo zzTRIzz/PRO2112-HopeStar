@@ -84,18 +84,20 @@ export const addKhachHang = async (idBill: number, idAccount: number) => {
         throw error;
     }
 }
-
-
-// Cập nhật voucher vào hóa đơn
-export const updateVoucher = async (idBill: number, idVoucher: number) => {
+export const updateVoucher = async (idBill: number, idVoucher: number | null) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/updateVoucher/${idBill}/${idVoucher}`);
+        const response = await axios.post(`${API_BASE_URL}/updateVoucher`, null, {
+            params: {
+                idBill,
+                idVoucher
+            }
+        });
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi thêm khách hàng:", error);
+        console.error("Lỗi khi cập nhật voucher:", error);
         throw error;
     }
-}
+};
 
 // Tìm kiếm khách hàng theo  bill
 export const findKhachHang = async (idBill: number) => {
@@ -109,22 +111,22 @@ export const findKhachHang = async (idBill: number) => {
 }
 
 // Lấy dữ liệu data của product detail
-interface SearchProductRequest{
-  key?: string
-  idChip?: number
-  idBrand?: number
-  idScreen?: number
-  idOs?: number
-  idCategory?: number
+interface SearchProductRequest {
+    key?: string
+    idChip?: number
+    idBrand?: number
+    idScreen?: number
+    idOs?: number
+    idCategory?: number
 
 }
 
 export const getProductDetail = async (
-  searchProductRequest?: SearchProductRequest
+    searchProductRequest?: SearchProductRequest
 ) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/product_detail`,{
-          params:searchProductRequest,
+        const response = await axios.get(`${API_BASE_URL}/product_detail`, {
+            params: searchProductRequest,
         });
         return response.data;
     } catch (error) {
@@ -237,15 +239,19 @@ export const getVoucherDangSuDung = async (idBillHienTai: number) => {
 }
 
 // Lấy dữ liệu data của vocher theo account
-export const findVoucherByAccount = async (idBillHienTai: number) => {
+export const findVoucherByAccount = async (idAccount?: number) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/hienThiByVoucher/${idBillHienTai}`);
+        const url = idAccount
+            ? `${API_BASE_URL}/voucher?idAccount=${idAccount}`
+            : `${API_BASE_URL}/voucher`;
+
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching vouchers:", error);
         throw error;
     }
-}
+};
 
 // Lấy dữ liệu data của vocher theo account
 export const huyHoaDon = async (idBillCanHuy: number) => {
