@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Card, Input, Select, SelectItem } from '@heroui/react'
+import {
+  Button,
+  Card,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+  useDisclosure,
+} from '@heroui/react'
 import { getVoucher } from '../../data/api-cart-service'
 import Ship from './ship'
 import type { CartItem, Voucher } from './types/cart'
@@ -38,6 +50,7 @@ export function OrderSummary({
   const [voucherError, setVoucherError] = useState('')
   const [shippingFee, setShippingFee] = useState(0)
   const [insuranceFee, setInsuranceFee] = useState(0)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const subtotal = products.reduce(
     (sum, item) => sum + item.priceSell * item.quantity,
@@ -45,53 +58,62 @@ export function OrderSummary({
   )
 
   // Chọn voucher có giá trị cao nhất mặc định có thể áp dụng
-useEffect(() => {
-  if (!selectedVoucher && subtotal > 0) {
-    // Lọc voucher thỏa mãn điều kiện áp dụng
-    const availableVouchers = MOCK_VOUCHERS.filter((v) => {
-      const meetsMinValue = !v.minOrderValue || subtotal >= v.minOrderValue;
-      const meetsMaxValue = !v.maxOrderValue || subtotal <= v.maxOrderValue;
-      return meetsMinValue && meetsMaxValue;
-    });
+  useEffect(() => {
+    if (!selectedVoucher && subtotal > 0) {
+      // Lọc voucher thỏa mãn điều kiện áp dụng
+      const availableVouchers = MOCK_VOUCHERS.filter((v) => {
+        const meetsMinValue = !v.minOrderValue || subtotal >= v.minOrderValue
+        const meetsMaxValue = !v.maxOrderValue || subtotal <= v.maxOrderValue
+        return meetsMinValue && meetsMaxValue
+      })
 
-    if (availableVouchers.length > 0) {
-      // Tính toán giá trị giảm thực tế của từng voucher
-      const highestValueVoucher = availableVouchers.reduce((highest, current) => {
-        // Tính giá trị giảm của voucher hiện tại
-        let currentDiscount = 0;
-        if (current.type) {
-          // Voucher theo phần trăm
-          currentDiscount = Math.round(subtotal * (current.value / 100));
-          if (current.maxDiscountAmount) {
-            currentDiscount = Math.min(currentDiscount, current.maxDiscountAmount);
-          }
-        } else {
-          // Voucher giá trị cố định
-          currentDiscount = current.value;
-        }
+      if (availableVouchers.length > 0) {
+        // Tính toán giá trị giảm thực tế của từng voucher
+        const highestValueVoucher = availableVouchers.reduce(
+          (highest, current) => {
+            // Tính giá trị giảm của voucher hiện tại
+            let currentDiscount = 0
+            if (current.type) {
+              // Voucher theo phần trăm
+              currentDiscount = Math.round(subtotal * (current.value / 100))
+              if (current.maxDiscountAmount) {
+                currentDiscount = Math.min(
+                  currentDiscount,
+                  current.maxDiscountAmount
+                )
+              }
+            } else {
+              // Voucher giá trị cố định
+              currentDiscount = current.value
+            }
 
-        // Tính giá trị giảm của voucher cao nhất hiện tại
-        let highestDiscount = 0;
-        if (highest.type) {
-          // Voucher theo phần trăm
-          highestDiscount = Math.round(subtotal * (highest.value / 100));
-          if (highest.maxDiscountAmount) {
-            highestDiscount = Math.min(highestDiscount, highest.maxDiscountAmount);
-          }
-        } else {
-          // Voucher giá trị cố định
-          highestDiscount = highest.value;
-        }
+            // Tính giá trị giảm của voucher cao nhất hiện tại
+            let highestDiscount = 0
+            if (highest.type) {
+              // Voucher theo phần trăm
+              highestDiscount = Math.round(subtotal * (highest.value / 100))
+              if (highest.maxDiscountAmount) {
+                highestDiscount = Math.min(
+                  highestDiscount,
+                  highest.maxDiscountAmount
+                )
+              }
+            } else {
+              // Voucher giá trị cố định
+              highestDiscount = highest.value
+            }
 
-        return currentDiscount > highestDiscount ? current : highest;
-      }, availableVouchers[0]);
+            return currentDiscount > highestDiscount ? current : highest
+          },
+          availableVouchers[0]
+        )
 
-      setSelectedVoucher(highestValueVoucher);
-    } else {
-      setSelectedVoucher(null);
+        setSelectedVoucher(highestValueVoucher)
+      } else {
+        setSelectedVoucher(null)
+      }
     }
-  }
-}, [subtotal]);
+  }, [subtotal])
 
   // Tính toán giảm giá voucher
   const calculateVoucherDiscount = (
@@ -206,6 +228,11 @@ useEffect(() => {
     return new Intl.NumberFormat('vi-VN').format(value)
   }
 
+  const handleConfirmOrder = () => {
+    onClose()
+    onCheckout()
+  }
+
   return (
     <div className='order-summary-wrapper'>
       <Card className='relative overflow-hidden'>
@@ -238,7 +265,11 @@ useEffect(() => {
               }}
             >
               {MOCK_VOUCHERS.map((voucher) => (
-                <SelectItem key={voucher.id} value={voucher.id.toString()} textValue={`${voucher.code} - ${voucher.name}`}>
+                <SelectItem
+                  key={voucher.id}
+                  value={voucher.id.toString()}
+                  textValue={`${voucher.code} - ${voucher.name}`}
+                >
                   <div className='flex flex-col'>
                     <span className='font-medium'>
                       {voucher.type
@@ -251,7 +282,6 @@ useEffect(() => {
                       {/* {voucher.description} */}
                       {voucher.minOrderValue &&
                         ` Điều kiện: ${formatCurrency(voucher.minOrderValue)} - ${formatCurrency(voucher.maxOrderValue)}đ`}
-                        
                     </span>
                   </div>
                 </SelectItem>
@@ -313,7 +343,7 @@ useEffect(() => {
             </div>
           )}
           <div className='mt-2 text-sm text-red-600'>
-             <span>{voucherError}</span>
+            <span>{voucherError}</span>
           </div>
 
           <div className='space-y-3 pb-2'>
@@ -350,11 +380,42 @@ useEffect(() => {
           <Button
             className='mt-4 h-12 w-full bg-[#338cf1] text-lg font-medium text-white hover:bg-[#338cf1]'
             type='submit'
-            onPress={onCheckout}
+            onPress={onOpen}
             isDisabled={!isValid}
           >
             Đặt hàng
           </Button>
+
+          <Modal isOpen={isOpen} onClose={onClose} size='sm'>
+            <ModalContent>
+              <ModalHeader className='flex flex-col gap-1'>
+                Xác nhận đặt hàng
+              </ModalHeader>
+              <ModalBody>
+                <p>Bạn có chắc chắn muốn đặt đơn hàng này?</p>
+                <div className='mt-2 space-y-2 text-sm'>
+                  <div className='flex justify-between'>
+                    <span>Số lượng sản phẩm:</span>
+                    <span className='font-medium'>{products.length}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Tổng tiền:</span>
+                    <span className='font-medium text-[#FF3B30]'>
+                      {formatCurrency(total)}đ
+                    </span>
+                  </div>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color='danger' variant='light' className='border' onPress={onClose}>
+                  Hủy
+                </Button>
+                <Button color='primary' onPress={handleConfirmOrder}>
+                  Xác nhận
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
 
           <p className='mt-4 text-center text-sm text-default-500'>
             Bằng việc tiến hành đặt mua hàng, bạn đồng ý với{' '}
