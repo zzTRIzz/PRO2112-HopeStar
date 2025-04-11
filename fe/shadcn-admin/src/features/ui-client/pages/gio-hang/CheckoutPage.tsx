@@ -9,6 +9,7 @@ import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
 import type { CartItem, Voucher } from '../../components/gio-hang/types/cart'
 import { order } from '../../data/api-cart-service'
+import axios from 'axios'
 
 interface CheckoutData {
   customerInfo: {
@@ -275,6 +276,33 @@ export function CheckoutPage() {
         idVoucher: canApplyVoucher
           ? orderValues.selectedVoucher?.id
           : null,
+      }
+
+      if(orderData.paymentMethod === 3) {
+        try {
+          localStorage.setItem('order', JSON.stringify({
+            orderData,
+          }));
+      
+          const response = await axios.post(
+            'http://localhost:8080/api/v1/payment/create-payment',
+            orderData,
+          );
+      
+          if (response.data) {
+            window.location.href = response.data;
+          } else {
+            throw new Error('Invalid payment URL');
+          }
+        } catch (error) {
+          console.error('Error creating payment:', error);
+          toast({
+            title: 'Lỗi thanh toán',
+            description: 'Không thể tạo link thanh toán, vui lòng thử lại',
+            variant: 'destructive'
+          });
+        }
+        return; // Exit early for VNPay flow
       }
 
       console.log('Order data:', orderData)
