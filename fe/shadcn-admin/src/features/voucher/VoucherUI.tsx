@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 import { 
     getVouchers, 
 
@@ -784,17 +786,17 @@ export default function VoucherUI() {
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
-                                                    Sửa
+                                                    <SaveAsIcon/>
                                                 </button>
                                                 {voucher.isPrivate && (
                                                     <button
-                                                        className="text-green-600 hover:text-green-800"
+                                                        className=""
                                                         onClick={() => {
                                                             setSelectedVoucher(voucher);
                                                             setShowAssignModal(true);
                                                         }}
                                                     >
-                                                        Thêm KH
+                                                        <PersonAddIcon/>
                                                     </button>
                                                 )}
                                             </td>

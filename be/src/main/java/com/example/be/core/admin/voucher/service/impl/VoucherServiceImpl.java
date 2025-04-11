@@ -363,25 +363,28 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional
     public void updateAllVoucherStatuses() {
         LocalDateTime now = LocalDateTime.now();
-        List<Voucher> vouchers = voucherRepository.findAll();
+        List<Voucher> vouchers = voucherRepository.findAll(); // toi uu hon thi tim khong phai la EXPIRED
 
         for (Voucher voucher : vouchers) {
-            StatusVoucher newStatus;
 
-            if (now.isBefore(voucher.getStartTime())) {
-                newStatus = StatusVoucher.UPCOMING;
-            } else if (now.isAfter(voucher.getEndTime())) {
-                newStatus = StatusVoucher.EXPIRED;
-            } else {
-                newStatus = StatusVoucher.ACTIVE;
-            }
-
-            // Chỉ cập nhật nếu trạng thái thay đổi
-            if (voucher.getStatus() != newStatus) {
-                voucher.setStatus(newStatus);
+            if(now.isAfter(voucher.getStartTime()) && voucher.getStatus().equals(StatusVoucher.UPCOMING)){
+                voucher.setStatus(StatusVoucher.ACTIVE);
                 voucherRepository.save(voucher);
-                log.info("Updated voucher {} status to {}", voucher.getCode(), newStatus);
+                List<VoucherAccount> list = voucherAccountRepository.findByIdVoucherAndStatus(voucher,null);
+                for (VoucherAccount voucherAccount: list) {
+                    voucherAccount.setStatus(VoucherAccountStatus.NOT_USED);
+                    voucherAccountRepository.save(voucherAccount);
+                }
+            }else if(now.isAfter(voucher.getEndTime()) && voucher.getStatus().equals(StatusVoucher.ACTIVE)){
+                voucher.setStatus(StatusVoucher.EXPIRED);
+                voucherRepository.save(voucher);
+                List<VoucherAccount> list = voucherAccountRepository.findByIdVoucherAndStatus(voucher,VoucherAccountStatus.NOT_USED);
+                for (VoucherAccount voucherAccount: list) {
+                    voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
+                    voucherAccountRepository.save(voucherAccount);
+                }
             }
+
         }
     }
 

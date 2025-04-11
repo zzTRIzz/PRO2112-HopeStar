@@ -29,7 +29,7 @@ public class VoucherAccount extends AuditEntity {
     private Voucher idVoucher;
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private VoucherAccountStatus status = VoucherAccountStatus.NOT_USED; // Default status
+    private VoucherAccountStatus status;
 
     @Column(name = "used_date")
     private LocalDateTime usedDate;
