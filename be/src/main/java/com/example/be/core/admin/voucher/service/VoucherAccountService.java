@@ -1,6 +1,7 @@
 package com.example.be.core.admin.voucher.service;
 
 import com.example.be.core.admin.voucher.dto.model.VoucherAccountDTO;
+import com.example.be.entity.VoucherAccount;
 import com.example.be.entity.status.VoucherAccountStatus;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface VoucherAccountService {
     List<VoucherAccountDTO> getVoucherAccountsByAccountId(Integer accountId);
 
     void deleteVoucherAccount(Integer id);
+
     List<VoucherAccountDTO> getVoucherUsageStatuses(Integer voucherId);
+
+    VoucherAccountDTO createVoucherAccount(VoucherAccount voucherAccount);
 }

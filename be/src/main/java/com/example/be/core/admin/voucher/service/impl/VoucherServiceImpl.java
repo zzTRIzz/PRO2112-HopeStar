@@ -10,6 +10,7 @@ import com.example.be.entity.Voucher;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.entity.VoucherAccount;
 import com.example.be.entity.status.StatusVoucher;
+import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.AccountRepository;
 import com.example.be.repository.VoucherAccountRepository;
 import com.example.be.repository.VoucherRepository;
@@ -195,16 +196,15 @@ public class VoucherServiceImpl implements VoucherService {
             List<String> alreadyAssigned = new ArrayList<>();
             List<String> newlyAssigned = new ArrayList<>();
             int successCount = 0;
-            if (successCount > 0) {
-                voucher.setQuantity(voucher.getQuantity() - successCount);
 
-                // Update status if quantity becomes 0
-                if (voucher.getQuantity() == 0) {
-                    voucher.setStatus(StatusVoucher.EXPIRED);
-                }
-
-                voucherRepository.save(voucher);
+            // Xác định trạng thái ban đầu của VoucherAccount dựa trên trạng thái Voucher
+            VoucherAccountStatus initialStatus;
+            if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+                initialStatus = VoucherAccountStatus.NOT_USED;
+            } else {
+                initialStatus = null; // For UPCOMING or EXPIRED vouchers
             }
+
             for (Account customer : customers) {
                 try {
                     // Kiểm tra đã có voucher chưa
@@ -216,18 +216,37 @@ public class VoucherServiceImpl implements VoucherService {
                         continue;
                     }
 
-                    // Gán voucher mới
+                    // Tạo mới VoucherAccount với trạng thái tương ứng
                     VoucherAccount voucherAccount = new VoucherAccount();
                     voucherAccount.setIdVoucher(voucher);
                     voucherAccount.setIdAccount(customer);
+
+                    // Set initial status based on current voucher status
+                    if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+                        voucherAccount.setStatus(VoucherAccountStatus.NOT_USED);
+                    } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
+                        voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
+                    } else {
+                        voucherAccount.setStatus(null); // For UPCOMING vouchers
+                    }
+
                     voucherAccountRepository.save(voucherAccount);
 
                     successCount++;
                     newlyAssigned.add(customer.getFullName());
-                    log.info("Đã gán voucher cho {}", customer.getFullName());
+                    log.info("Đã gán voucher cho {} với trạng thái {}",
+                            customer.getFullName(),
+                            voucherAccount.getStatus());
 
-                    // Gửi email
-                    sendVoucherEmail(customer, voucher);
+                    // Chỉ gửi email nếu voucher đang ACTIVE
+                    if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+                        try {
+                            sendVoucherEmail(customer, voucher);
+                            log.info("Đã gửi email thông báo cho {}", customer.getEmail());
+                        } catch (Exception e) {
+                            log.error("Lỗi gửi email cho {}: {}", customer.getEmail(), e.getMessage());
+                        }
+                    }
 
                 } catch (Exception e) {
                     log.error("Lỗi xử lý cho {}: {}", customer.getFullName(), e.getMessage());
@@ -238,9 +257,9 @@ public class VoucherServiceImpl implements VoucherService {
             if (successCount > 0) {
                 voucher.setQuantity(voucher.getQuantity() - successCount);
                 voucherRepository.save(voucher);
+                log.info("Đã cập nhật số lượng voucher còn lại: {}", voucher.getQuantity());
             }
 
-            // Tạo response
             Map<String, Object> result = new HashMap<>();
             result.put("success", !newlyAssigned.isEmpty());
             result.put("message", buildResultMessage(alreadyAssigned, newlyAssigned));
