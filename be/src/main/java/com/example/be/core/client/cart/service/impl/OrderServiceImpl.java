@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final VoucherAccountRepository voucherAccountRepository;
 
     @Override
-    @Transactional
+//    @Transactional
     public Object order(OrderRequest orderRequest, Account account) throws Exception {
 
         OrderRequest.CustomerInfo customerInfo = orderRequest.getCustomerInfo();
