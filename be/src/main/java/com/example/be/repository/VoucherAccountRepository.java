@@ -2,6 +2,7 @@ package com.example.be.repository;
 
 import com.example.be.entity.Voucher;
 import com.example.be.entity.VoucherAccount;
+import com.example.be.entity.status.VoucherAccountStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,6 @@ public interface VoucherAccountRepository extends JpaRepository<VoucherAccount, 
 
   // Check if account has specific voucher
   boolean existsByIdVoucherIdAndIdAccountId(Integer voucherId, Integer accountId);
+
+  List<VoucherAccount> findByIdVoucherAndStatus(Voucher voucher, VoucherAccountStatus status);
 }

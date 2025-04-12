@@ -3,7 +3,9 @@ package com.example.be.core.admin.voucher.service.impl;
 import com.example.be.core.admin.voucher.dto.model.VoucherAccountDTO;
 import com.example.be.core.admin.voucher.mapper.VoucherAccountMapper;
 import com.example.be.core.admin.voucher.service.VoucherAccountService;
+import com.example.be.entity.Voucher;
 import com.example.be.entity.VoucherAccount;
+import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.VoucherAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,15 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
         VoucherAccount voucherAccount = voucherAccountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher account"));
 
-        voucherAccount.setStatus(status);
+        // Nếu voucher hết hạn, cập nhật trạng thái EXPIRED
+        Voucher voucher = voucherAccount.getIdVoucher();
+        if (voucher.getEndTime() != null && voucher.getEndTime().isBefore(LocalDateTime.now())) {
+            voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
+        } else {
+            voucherAccount.setStatus(status);
+        }
+
+        // Nếu sử dụng voucher thì gán ngày sử dụng
         if (status == VoucherAccountStatus.USED) {
             voucherAccount.setUsedDate(LocalDateTime.now());
         }
@@ -76,6 +86,27 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
         return voucherAccounts.stream()
                 .map(voucherAccountMapper::toDTO)
                 .collect(Collectors.toList());
+    }
 
+    @Override
+    public VoucherAccountDTO createVoucherAccount(VoucherAccount voucherAccount) {
+        // Thiết lập trạng thái khi thêm voucher vào account
+        Voucher voucher = voucherAccount.getIdVoucher();
+
+        if (voucher == null || voucher.getStatus() == null) {
+            voucherAccount.setStatus(null);
+        } else if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+            voucherAccount.setStatus(VoucherAccountStatus.NOT_USED);
+        } else {
+            voucherAccount.setStatus(null);
+        }
+
+        // Nếu voucher đã hết hạn
+        if (voucher.getEndTime() != null && voucher.getEndTime().isBefore(LocalDateTime.now())) {
+            voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
+        }
+
+        VoucherAccount saved = voucherAccountRepository.save(voucherAccount);
+        return voucherAccountMapper.toDTO(saved);
     }
 }
