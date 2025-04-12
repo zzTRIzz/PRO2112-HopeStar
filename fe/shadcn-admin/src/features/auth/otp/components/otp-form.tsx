@@ -47,7 +47,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
 
       // Lưu JWT token vào cookie
       if (response.jwt) {
-        Cookies.set('jwt', response.jwt, { expires: 1 }) // Lưu cookie trong 1 ngày
+        Cookies.set('jwt', response.jwt, { expires: 7 }) // Lưu cookie trong 7 ngày
       }
 
       // Xóa dữ liệu đăng ký khỏi localStorage
