@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
@@ -289,13 +289,12 @@ const ChiTietHoaDon: React.FC = () => {
         findImeiByIdProductDetail(idPD, billDetaill);
     };
 
-
-
     return (
         <>
             <div>
                 <div className='ml-[18px] mt-[10px]'>
-                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý hóa đơn</a><a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
+                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý hóa đơn</a>
+                    <a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
                 </div>
                 <TasksProvider>
                     <Header>

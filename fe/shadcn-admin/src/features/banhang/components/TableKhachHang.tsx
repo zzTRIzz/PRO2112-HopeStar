@@ -139,15 +139,15 @@ const TableKhachHang: React.FC<Props> =
           </div>
           <hr className="border-t-1.5 border-gray-600" />
           {/* Thông tin khách hàng */}
-          <div className="p-4 max-w-3xl" >
+          <div className="p-4 max-w-full" >
             <div className="flex justify-between pb-2 mb-2 gap-4 pt-5">
               <div className="flex items-center gap-2">
                 <span className='whitespace-nowrap pr-5'>Tên khách hàng </span> <Input type="email"
                   placeholder=" Tên khách hàng" disabled className='text-blue-600 text-base font-bold'
                   value={listKhachHang?.fullName == null ? "" : listKhachHang?.fullName} />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-16 whitespace-nowrap">Email</span>
+              <div className="flex items-center gap-2 pr-[172px]">
+                <span className="w-16">Email</span>
                 <Input type="email" disabled placeholder="Email"
                   className='h-[35px] text-blue-600 text-base font-bold' value={listKhachHang?.email == null ? "" : listKhachHang?.email} />
               </div>
@@ -158,6 +158,11 @@ const TableKhachHang: React.FC<Props> =
                 <Input type="email" placeholder="Số điện thoại"
                   className='text-blue-600 text-base font-bold'
                   value={listKhachHang?.phone == null ? "" : listKhachHang?.phone} disabled />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-16 whitespace-nowrap">Địa chỉ</span>
+                <Input type="email" disabled placeholder="Email"
+                  className='h-[35px] w-[400px] text-blue-600 text-base font-bold' value={listKhachHang?.address == null ? "" : listKhachHang?.address} />
               </div>
             </div>
 

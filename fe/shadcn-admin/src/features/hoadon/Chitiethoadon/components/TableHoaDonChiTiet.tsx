@@ -202,7 +202,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             value={searchImeiKey}
                                                             onChange={(e) => setSearchImeiKey(e.target.value)} 
                                                         />
-                                                        <TableContainer className="h-full max-h-[500px] overflow-auto">
+                                                        <TableContainer className="h-full max-h-[470px] overflow-auto">
                                                             <ScrollArea>
                                                                 <Table>
                                                                     <TableHead>
