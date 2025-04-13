@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 import { 
     getVouchers, 
 
@@ -144,7 +146,16 @@ interface AssignVoucherResponse {
     };
 }
 
-const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus }) => {
+// Update VoucherStatusBadge component
+const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus | null }) => {
+    if (status === null) {
+        return (
+            <span className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                Chưa kích hoạt
+            </span>
+        );
+    }
+
     switch (status) {
         case VoucherAccountStatus.NOT_USED:
             return (
@@ -162,12 +173,6 @@ const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus }) => {
             return (
                 <span className="px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
                     Hết hạn
-                </span>
-            );
-        default:
-            return (
-                <span className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
-                    -
                 </span>
             );
     }
@@ -781,17 +786,17 @@ export default function VoucherUI() {
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
-                                                    Sửa
+                                                    <SaveAsIcon/>
                                                 </button>
                                                 {voucher.isPrivate && (
                                                     <button
-                                                        className="text-green-600 hover:text-green-800"
+                                                        className=""
                                                         onClick={() => {
                                                             setSelectedVoucher(voucher);
                                                             setShowAssignModal(true);
                                                         }}
                                                     >
-                                                        Thêm KH
+                                                        <PersonAddIcon/>
                                                     </button>
                                                 )}
                                             </td>
@@ -1255,9 +1260,21 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     const handleAssign = async () => {
         try {
             setLoading(true);
+
+            // Kiểm tra trạng thái hiện tại của voucher
+            const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+            
+            // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
+            let initialStatus = null;
+            if (currentStatus === VoucherStatus.ACTIVE) {
+                initialStatus = VoucherAccountStatus.NOT_USED;
+            }
+            // Nếu UPCOMING hoặc EXPIRED thì giữ null
+
             const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
                 voucherId: voucher.id,
-                customerIds: selectedAccounts
+                customerIds: selectedAccounts,
+                initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
             });
 
             if (response.data.success) {
@@ -1367,7 +1384,16 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                                 {usageStatuses[account.id] ? (
                                                     <VoucherStatusBadge status={usageStatuses[account.id]} />
                                                 ) : (
-                                                    <span className="text-sm text-gray-500">Chưa sử dụng</span>
+                                                    <span className="text-sm text-gray-500">
+                                                        {(() => {
+                                                            const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+                                                            if (voucherStatus === VoucherStatus.ACTIVE) {
+                                                                return "Chưa sử dụng";
+                                                            } else {
+                                                                return "Chưa kích hoạt";
+                                                            }
+                                                        })()}
+                                                    </span>
                                                 )}
                                             </td>
                                         </tr>
@@ -1405,4 +1431,19 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
             </div>
         </div>
     );
+};
+
+// Thêm helper function để xác định trạng thái voucher
+const getVoucherStatus = (startTime: string, endTime: string): VoucherStatus => {
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+
+    if (now < startDate) {
+        return VoucherStatus.UPCOMING;
+    } else if (now > endDate) {
+        return VoucherStatus.EXPIRED;
+    } else {
+        return VoucherStatus.ACTIVE;
+    }
 };

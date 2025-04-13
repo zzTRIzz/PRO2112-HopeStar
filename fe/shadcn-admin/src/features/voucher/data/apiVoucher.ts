@@ -167,9 +167,12 @@ export const assignVoucherToCustomers = async (
             customerIds: customers.map(customer => customer.id)
         });
         
+        // Refresh voucher usage statuses after assignment
+        await getVoucherUsageStatuses(voucherId);
+        
         return response.data;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error assigning voucher:', error);
         throw error;
     }
 };
@@ -258,10 +261,22 @@ export const searchVoucherByDate = undefined;
 
 // Add new enums and interfaces for voucher account status
 export enum VoucherAccountStatus {
-    NOT_USED = "NOT_USED",     // Chưa áp dụng
-    USED = "USED",             // Đã áp dụng
-    EXPIRED = "EXPIRED"        // Hết hạn
+    NOT_USED = "NOT_USED",
+    USED = "USED",
+    EXPIRED = "EXPIRED"
 }
+
+// Add function to check voucher status and determine account status
+export const determineVoucherAccountStatus = (voucherStatus: VoucherStatus): VoucherAccountStatus | null => {
+    switch (voucherStatus) {
+        case VoucherStatus.ACTIVE:
+            return VoucherAccountStatus.NOT_USED;
+        case VoucherStatus.EXPIRED:
+            return VoucherAccountStatus.EXPIRED;
+        default:
+            return null;
+    }
+};
 
 interface VoucherAccountResponse {
     id: number;
@@ -309,10 +324,33 @@ export const updateVoucherAccountStatus = async (
 export const getVoucherUsageStatuses = async (voucherId: number): Promise<VoucherAccountResponse[]> => {
     try {
         const response = await axios.get(`${API_BASE_URL}/voucher/${voucherId}/usage-status`);
-        return response.data;
+        
+        // Get voucher details to check status
+        const voucherResponse = await axios.get(`${API_BASE_URL}/voucher/detail/${voucherId}`);
+        const voucher = voucherResponse.data;
+        
+        // Map response and update statuses based on voucher status
+        return response.data.map((status: VoucherAccountResponse) => {
+            if (voucher.status === VoucherStatus.EXPIRED) {
+                return {...status, status: VoucherAccountStatus.EXPIRED};
+            }
+            if (voucher.status !== VoucherStatus.ACTIVE && status.status === VoucherAccountStatus.NOT_USED) {
+                return {...status, status: null};
+            }
+            return status;
+        });
     } catch (error) {
         console.error('Error getting voucher usage statuses:', error);
         return [];
+    }
+};
+
+// Add function to auto-update expired voucher statuses
+export const updateExpiredVoucherStatuses = async (voucherId: number): Promise<void> => {
+    try {
+        await axios.put(`${API_BASE_URL}/voucher/${voucherId}/update-expired-statuses`);
+    } catch (error) {
+        console.error('Error updating expired voucher statuses:', error);
     }
 };
 
