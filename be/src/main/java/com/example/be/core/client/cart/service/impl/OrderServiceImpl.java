@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final VoucherAccountRepository voucherAccountRepository;
 
     @Override
-    @Transactional
+//    @Transactional
     public Object order(OrderRequest orderRequest, Account account) throws Exception {
 
         OrderRequest.CustomerInfo customerInfo = orderRequest.getCustomerInfo();
@@ -99,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
 
         }
 
-        BigDecimal totalPriceBill = BigDecimal.ZERO;
+
         //products: la cart-detail
         for (OrderRequest.Products products: productsList) {
             CartDetail cartDetail = cartDetailRepository.findById(products.getId()).get();
@@ -116,10 +116,10 @@ public class OrderServiceImpl implements OrderService {
             productDetailRepository.save(productDetail);
             cartDetail.setStatus(StatusCartDetail.purchased);
             cartDetailRepository.save(cartDetail);
-            totalPriceBill = totalPriceBill.add(totalPrice);
+
         }
 
-        creteBill.setTotalPrice(totalPriceBill);
+        creteBill.setTotalPrice(orderRequest.getTotalPrice());
 
         // tien khach da tra
         PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).get();
@@ -128,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
             creteBill.setCustomerPayment(BigDecimal.ZERO);
         }else if(orderRequest.getPaymentMethod() ==3){
             creteBill.setPayment(paymentMethod);
-            creteBill.setCustomerPayment(totalPriceBill);
+            creteBill.setCustomerPayment(orderRequest.getTotalDue());
         }
         //tien giam voucher
         creteBill.setDiscountedTotal(orderRequest.getDiscountedTotal());

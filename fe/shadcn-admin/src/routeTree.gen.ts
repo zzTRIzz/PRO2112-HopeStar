@@ -102,6 +102,9 @@ const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
   '/_authenticated/settings/account',
 )()
+const authDatHangPaymentResultLazyImport = createFileRoute(
+  '/(auth)/dat-hang/payment-result',
+)()
 const authTaikhoanDonHangCuaToiThongTinIndexLazyImport = createFileRoute(
   '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/',
 )()
@@ -364,6 +367,16 @@ const AuthenticatedSettingsAccountLazyRoute =
     import('./routes/_authenticated/settings/account.lazy').then(
       (d) => d.Route,
     ),
+  )
+
+const authDatHangPaymentResultLazyRoute = authDatHangPaymentResultLazyImport
+  .update({
+    id: '/(auth)/dat-hang/payment-result',
+    path: '/dat-hang/payment-result',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/dat-hang/payment-result.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedVoucherCreateRoute = AuthenticatedVoucherCreateImport.update(
@@ -794,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVoucherCreateImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/(auth)/dat-hang/payment-result': {
+      id: '/(auth)/dat-hang/payment-result'
+      path: '/dat-hang/payment-result'
+      fullPath: '/dat-hang/payment-result'
+      preLoaderRoute: typeof authDatHangPaymentResultLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/_authenticated/settings/account': {
       id: '/_authenticated/settings/account'
       path: '/account'
@@ -1098,6 +1118,7 @@ export interface FileRoutesByFullPath {
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
   '/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -1156,6 +1177,7 @@ export interface FileRoutesByTo {
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
   '/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -1217,6 +1239,7 @@ export interface FileRoutesById {
   '/_authenticated/product/sim': typeof AuthenticatedProductSimRoute
   '/_authenticated/product/wifi': typeof AuthenticatedProductWifiRoute
   '/_authenticated/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/(auth)/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -1278,6 +1301,7 @@ export interface FileRouteTypes {
     | '/product/sim'
     | '/product/wifi'
     | '/voucher/create'
+    | '/dat-hang/payment-result'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -1335,6 +1359,7 @@ export interface FileRouteTypes {
     | '/product/sim'
     | '/product/wifi'
     | '/voucher/create'
+    | '/dat-hang/payment-result'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -1394,6 +1419,7 @@ export interface FileRouteTypes {
     | '/_authenticated/product/sim'
     | '/_authenticated/product/wifi'
     | '/_authenticated/voucher/create'
+    | '/(auth)/dat-hang/payment-result'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -1434,6 +1460,7 @@ export interface RootRouteChildren {
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
   authProductIdRoute: typeof authProductIdRoute
+  authDatHangPaymentResultLazyRoute: typeof authDatHangPaymentResultLazyRoute
   authDatHangIndexRoute: typeof authDatHangIndexRoute
   authTaikhoanIndexRoute: typeof authTaikhoanIndexRoute
   authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
@@ -1457,6 +1484,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
   authProductIdRoute: authProductIdRoute,
+  authDatHangPaymentResultLazyRoute: authDatHangPaymentResultLazyRoute,
   authDatHangIndexRoute: authDatHangIndexRoute,
   authTaikhoanIndexRoute: authTaikhoanIndexRoute,
   authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
@@ -1490,6 +1518,7 @@ export const routeTree = rootRoute
         "/(errors)/503",
         "/(auth)/",
         "/(auth)/product/$id",
+        "/(auth)/dat-hang/payment-result",
         "/(auth)/dat-hang/",
         "/(auth)/taikhoan/",
         "/(auth)/dienthoai/",
@@ -1662,6 +1691,9 @@ export const routeTree = rootRoute
     "/_authenticated/voucher/create": {
       "filePath": "_authenticated/voucher/create.tsx",
       "parent": "/_authenticated"
+    },
+    "/(auth)/dat-hang/payment-result": {
+      "filePath": "(auth)/dat-hang/payment-result.lazy.tsx"
     },
     "/_authenticated/settings/account": {
       "filePath": "_authenticated/settings/account.lazy.tsx",
