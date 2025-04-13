@@ -239,14 +239,18 @@ public class VoucherServiceImpl implements VoucherService {
                             voucherAccount.getStatus());
 
                     // Chỉ gửi email nếu voucher đang ACTIVE
-                    if (voucher.getStatus() == StatusVoucher.ACTIVE) {
-                        try {
-                            sendVoucherEmail(customer, voucher);
+                    try {
+                        if (voucher.getStatus() == StatusVoucher.ACTIVE || voucher.getStatus() == StatusVoucher.UPCOMING) {
+                            sendVoucherEmail(customer, voucher); // Gửi email thông báo
                             log.info("Đã gửi email thông báo cho {}", customer.getEmail());
-                        } catch (Exception e) {
-                            log.error("Lỗi gửi email cho {}: {}", customer.getEmail(), e.getMessage());
+                        } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
+                            sendVoucherExpiredEmail(customer, voucher); // Gửi email xin lỗi
+                            log.info("Đã gửi email xin lỗi cho {}", customer.getEmail());
                         }
+                    } catch (Exception e) {
+                        log.error("Lỗi gửi email cho {}: {}", customer.getEmail(), e.getMessage());
                     }
+
 
                 } catch (Exception e) {
                     log.error("Lỗi xử lý cho {}: {}", customer.getFullName(), e.getMessage());
@@ -513,6 +517,64 @@ public class VoucherServiceImpl implements VoucherService {
         } catch (Exception e) {
             log.error("❌ Lỗi gửi email đến {}: {}", account.getEmail(), e.getMessage());
             throw new RuntimeException("Không thể gửi email thông báo voucher: " + e.getMessage());
+        }
+    }
+    public void sendVoucherExpiredEmail(Account account, Voucher voucher) {
+        try {
+            log.info("Bắt đầu gửi email voucher hết hạn cho: {}", account.getEmail());
+
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String endDate = voucher.getEndTime() != null ?
+                    voucher.getEndTime().format(dateFormatter) : "N/A";
+
+            String emailContent = String.format("""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+            <h2 style="color: #dc2626;">Thông báo về voucher đã hết hạn</h2>
+
+            <p>Chào %s,</p>
+
+            <p>Chúng tôi xin thông báo rằng voucher <strong>"%s"</strong> của bạn đã hết hạn vào ngày <strong>%s</strong>.</p>
+
+            <div style="background-color: #fff3f3; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 10px 0;">🔹 <strong>Mã voucher</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Tên voucher</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Ngày hết hạn</strong>: %s</p>
+            </div>
+
+            <p>Chúng tôi rất tiếc vì sự bất tiện này. Tuy nhiên, bạn đừng lo! HopeStar luôn có nhiều chương trình khuyến mãi hấp dẫn dành cho bạn trong thời gian tới.</p>
+
+            <p>Hãy tiếp tục đồng hành cùng chúng tôi và đón chờ những ưu đãi mới nhé!</p>
+
+            <div style="margin-top: 30px;">
+                <p style="margin: 5px 0;">Trân trọng,<br><strong>Đội ngũ HopeStar</strong></p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📧 Email: support@hopestar.vn</p>
+                <p style="margin: 5px 0;">📞 Hotline: 1900 123 456</p>
+                <p style="margin: 5px 0;">🌐 Website: www.hopestar.vn</p>
+            </div>
+        </div>
+        """,
+                    account.getFullName(),
+                    voucher.getName(),
+                    endDate,
+                    voucher.getCode(),
+                    voucher.getName(),
+                    endDate
+            );
+
+            emailService.sendEmail(
+                    account.getEmail(),
+                    "Voucher của bạn đã hết hạn",
+                    emailContent
+            );
+
+            log.info("✓ Đã gửi email hết hạn voucher đến {}", account.getEmail());
+
+        } catch (Exception e) {
+            log.error("❌ Lỗi gửi email hết hạn voucher đến {}: {}", account.getEmail(), e.getMessage());
+            throw new RuntimeException("Không thể gửi email thông báo hết hạn voucher: " + e.getMessage());
         }
     }
     @Override
