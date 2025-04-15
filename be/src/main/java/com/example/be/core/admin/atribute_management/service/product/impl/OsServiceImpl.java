@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class OsServiceImpl implements OsService {
@@ -16,14 +18,16 @@ public class OsServiceImpl implements OsService {
 
     @Override
     public List<Os> getAll() {
-        return osRepository.findAll();
+        return osRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Os create(Os os) throws Exception {
         Os newOs = new Os();
         if (osRepository.existsByNameTrimmedIgnoreCase(os.getName())){
-            throw new Exception("os name already exists");
+            throw new Exception("Hệ điều hành đã tồn tại");
         }
         newOs.setName(os.getName());
         newOs.setStatus(os.getStatus());
@@ -39,7 +43,7 @@ public class OsServiceImpl implements OsService {
                 os.setStatus(entity.getStatus());
                 osRepository.save(os);
             }else {
-                throw new Exception("os name already exists");
+                throw new Exception("Hệ điều hành đã tồn tại");
             }
         }
     }
@@ -52,6 +56,8 @@ public class OsServiceImpl implements OsService {
 
     @Override
     public List<Os> getAllActive() {
-        return osRepository.findByStatus(StatusCommon.ACTIVE);
+        return osRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class SimServiceImpl implements SimService {
@@ -16,7 +18,9 @@ public class SimServiceImpl implements SimService {
 
     @Override
     public List<Sim> getAll() {
-        return simRepository.findAll();
+        return simRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -25,7 +29,7 @@ public class SimServiceImpl implements SimService {
         newSim.setCode("SIMS_"+simRepository.getNewCode());
         newSim.setType(sim.getType());
         if (simRepository.existsByTypeTrimmedIgnoreCase(sim.getType())){
-            throw new Exception("sim type already exists");
+            throw new Exception("Loại sim đã tồn tại");
         }
         newSim.setStatus(sim.getStatus());
         return simRepository.save(newSim);
@@ -40,7 +44,7 @@ public class SimServiceImpl implements SimService {
                 sim.setStatus(entity.getStatus());
                 simRepository.save(sim);
             }else {
-                throw new Exception("sim type already exists");
+                throw new Exception("Loại sim đã tồn tại");
             }
         }
     }
@@ -53,6 +57,8 @@ public class SimServiceImpl implements SimService {
 
     @Override
     public List<Sim> getAllActive() {
-        return simRepository.findByStatus(StatusCommon.ACTIVE);
+        return simRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

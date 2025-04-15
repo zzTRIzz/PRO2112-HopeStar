@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { IconBrandFacebook, IconBrandGoogle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -43,12 +44,24 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       const otpResponse = await sentOtp({ email: data.email })
       console.log('OTP đã được gửi:', otpResponse)
 
-      // Lưu trữ dữ liệu đăng ký tạm thời (có thể sử dụng state hoặc context)
-      localStorage.setItem('signupData', JSON.stringify(data))
+      if (otpResponse.status === 0) {
+        toast({
+          title: 'Thông báo',
+          description: otpResponse.data.message || 'Xác thực OTP đã được gửi',
+        })
 
-      // Chuyển hướng sang form OTP
-      navigate({ to: '/otp' })
-    } catch (error) {
+        // Lưu trữ dữ liệu đăng ký tạm thời (có thể sử dụng state hoặc context)
+        localStorage.setItem('signupData', JSON.stringify(data))
+
+        // Chuyển hướng sang form OTP
+        navigate({ to: '/otp' })
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Thông báo lỗi',
+        variant: 'destructive',
+        description: error.response.data.message || 'Đăng ký thất bại',
+      })
       console.error('Lỗi khi gửi OTP:', error)
     } finally {
       setIsLoading(false)

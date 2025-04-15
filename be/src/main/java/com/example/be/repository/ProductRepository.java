@@ -26,7 +26,9 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "LEFT JOIN p.battery ba " +
             "LEFT JOIN ProductCategory pc ON p.id = pc.product.id " +
             "LEFT JOIN pc.category cat " +
-            "WHERE (:#{#searchRequest.key} IS NULL OR p.code LIKE %:#{#searchRequest.key}% OR p.name LIKE %:#{#searchRequest.key}%) " +
+            "WHERE (:#{#searchRequest.key} IS NULL OR " +
+            "REPLACE(LOWER(TRIM(p.code)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:#{#searchRequest.key}), '%')), ' ', '') OR " +
+            "REPLACE(LOWER(TRIM(p.name)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:#{#searchRequest.key}), '%')), ' ', '')) " +
             "AND (:#{#searchRequest.idChip} IS NULL OR p.chip.id = :#{#searchRequest.idChip}) " +
             "AND (:#{#searchRequest.idBrand} IS NULL OR b.id = :#{#searchRequest.idBrand}) " +
             "AND (:#{#searchRequest.idScreen} IS NULL OR s.id = :#{#searchRequest.idScreen}) " +
@@ -35,7 +37,7 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND (:#{#searchRequest.idWifi} IS NULL OR w.id = :#{#searchRequest.idWifi}) " +
             "AND (:#{#searchRequest.idBluetooth} IS NULL OR bt.id = :#{#searchRequest.idBluetooth}) " +
             "AND (:#{#searchRequest.idBattery} IS NULL OR ba.id = :#{#searchRequest.idBattery}) " +
-            "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory})"+
+            "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory}) " +
             "AND (:#{#searchRequest.status} IS NULL OR p.status = :#{#searchRequest.getStatusCommon()})")
     List<Product> findAllMatching(@Param("searchRequest") SearchProductRequest searchRequest);
 

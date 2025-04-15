@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class RearCameraServiceImpl implements RearCameraService {
@@ -16,7 +18,9 @@ public class RearCameraServiceImpl implements RearCameraService {
 
     @Override
     public List<RearCamera> getAll() {
-        return rearCameraRepository.findAll();
+        return rearCameraRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -24,7 +28,7 @@ public class RearCameraServiceImpl implements RearCameraService {
         RearCamera newRearCamera = new RearCamera();
         newRearCamera.setCode("RECA_"+rearCameraRepository.getNewCode());
         if (rearCameraRepository.existsByTypeAndResolution(rearCamera.getType(), rearCamera.getResolution())){
-            throw new Exception("rearCamera type with resolution already exists");
+            throw new Exception("Camera sau: "+rearCamera.getType()+" với độ phân giải "+rearCamera.getResolution()+" đã tồn tại");
         }
         newRearCamera.setType(rearCamera.getType());
         newRearCamera.setResolution(rearCamera.getResolution());
@@ -42,7 +46,7 @@ public class RearCameraServiceImpl implements RearCameraService {
                 rearCamera.setStatus(entity.getStatus());
                 rearCameraRepository.save(rearCamera);
             }else {
-                throw new Exception("rearCamera type with resolution already exists");
+                throw new Exception("Camera sau: "+entity.getType()+" với độ phân giải "+entity.getResolution()+" đã tồn tại");
             }
         }
     }
@@ -55,6 +59,8 @@ public class RearCameraServiceImpl implements RearCameraService {
 
     @Override
     public List<RearCamera> getAllActive() {
-        return rearCameraRepository.findByStatus(StatusCommon.ACTIVE);
+        return rearCameraRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }
