@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { BillDetailSchema, BillSchema, ImeiSoldSchema } from './Schema';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -48,10 +49,21 @@ export const getByIdBillDetail = async (id: number) => {
 }
 
 // Thêm hóa đơn vào cơ sở dữ liệu
-export const addHoaDon = async (bill: { idNhanVien: number }) => {
+export const addHoaDon = async () => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/addHoaDon`, bill);
-        return response.data;
+        const jwt = Cookies.get('jwt')
+        if (!jwt) throw new Error('Nhân viên chưa đăng nhập');
+        const response = await axios.post(
+            `${API_BASE_URL}/addHoaDon`,
+            {}, // body nếu cần, để trống cũng được
+            {
+                headers: {
+                    Authorization: `Bearer ${jwt}`,
+                },
+            }
+        );
+
+        return response.data
     } catch (error) {
         console.error('Error them hoa don data:', error);
         throw error;

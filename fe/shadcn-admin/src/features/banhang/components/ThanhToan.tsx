@@ -114,7 +114,31 @@ const ThanhToan: React.FC<ThanhToanProps> =
                 setInsuranceFee(0);
             }
         }
+        const checkVoucherCondition = (voucher: Voucher): boolean => {
+            if (!searchBill) {
+                fromThatBai("Vui lòng chọn hóa đơn trước khi áp dụng voucher!");
+                return false;
+            }
 
+            // Kiểm tra giá trị đơn hàng tối thiểu
+            if (voucher.minOrderValue && tongTien < voucher.minOrderValue) {
+                fromThatBai(`Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} đ`);
+                return false;
+            }
+
+            // Kiểm tra giá trị đơn hàng tối đa
+            if (voucher.maxOrderValue && tongTien > voucher.maxOrderValue) {
+                fromThatBai(`Đơn hàng không được vượt quá ${voucher.maxOrderValue.toLocaleString('vi-VN')} đ.`);
+                return false;
+            }
+
+            // Kiểm tra số lượng voucher còn lại
+            if (voucher.quantity && voucher.quantity <= 0 && voucher.isPrivate == true) {
+                fromThatBai("Voucher này đã hết số lượng sử dụng.");
+                return false;
+            }
+            return true;
+        };
         return (
             <>
                 <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
@@ -145,12 +169,10 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                     <TableRow>
                                                         <TableCell>Stt</TableCell>
                                                         <TableCell>Mã</TableCell>
-                                                        <TableCell>Giá min</TableCell>
-                                                        <TableCell>Giá max</TableCell>
+                                                        <TableCell>Điều kiện</TableCell>
                                                         <TableCell>Giá trị giảm</TableCell>
-                                                        <TableCell>Kiểu</TableCell>
-                                                        <TableCell>Số lượng </TableCell>
-                                                        <TableCell>Số lượng </TableCell>
+                                                        <TableCell align='center'>Số lượng </TableCell>
+                                                        <TableCell>Thao tác </TableCell>
                                                     </TableRow>
                                                 </TableHead>
 
@@ -159,13 +181,22 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         <TableRow key={ac.id}>
                                                             <TableCell>{index + 1}</TableCell>
                                                             <TableCell>{ac?.code}</TableCell>
-                                                            <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')}</TableCell>
-                                                            <TableCell>{ac?.maxOrderValue?.toLocaleString('vi-VN')}</TableCell>
-                                                            <TableCell>{ac?.value?.toLocaleString('vi-VN')}</TableCell>
-                                                            <TableCell>{ac.type == true ? " % " : " VNĐ "}</TableCell>
-                                                            <TableCell>{ac.quantity}</TableCell>
+                                                            <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')} đ - {ac?.maxOrderValue?.toLocaleString('vi-VN')} đ</TableCell>
                                                             <TableCell>
-                                                                <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
+                                                                {ac?.value?.toLocaleString('vi-VN')}
+                                                                {ac?.type ? ' %' : ' VNĐ'}
+                                                                {ac?.type && ac?.maxDiscountAmount ? (
+                                                                    <> (Tối đa {ac.maxDiscountAmount.toLocaleString('vi-VN')} đ)</>
+                                                                ) : null}
+                                                            </TableCell>
+                                                            <TableCell align='center'> {ac?.isPrivate ? 'Riêng tư' : ac?.quantity}</TableCell>
+                                                            <TableCell>
+                                                                <Button color="primary"
+                                                                    onClick={() => {
+                                                                        if (checkVoucherCondition(ac)) {
+                                                                            updateVoucherKhiChon(ac.id); 
+                                                                        }
+                                                                    }}                                                                 >
                                                                     Chọn
                                                                 </Button>
                                                             </TableCell>

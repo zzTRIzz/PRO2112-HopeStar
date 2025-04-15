@@ -218,7 +218,6 @@ function BanHangTaiQuay() {
       const voucher = await getVoucherDangSuDung(id)
       setDuLieuVoucherDangDung(voucher)
       loadVoucherByAcount(khachHang?.id);
-      console.log("ccccc" + khachHang?.id);
       findBillById(id)
       setIsBanGiaoHang(false)
     } catch (error) {
@@ -272,14 +271,15 @@ function BanHangTaiQuay() {
   // Thêm hóa đơn mới
   const handleAddBill = async () => {
     try {
-      const newBill = await addHoaDon({ idNhanVien: id })
-      setListBill([...listBill, newBill])
-      loadBill()
+      const newBill = await addHoaDon();
+      setListBill([...listBill, newBill]);
+      loadBill();
       loadBillChoThanhToan()
       fromThanhCong('Thêm hóa đơn thành công')
     } catch (error) {
-      // toast.error("Lỗi khi thêm hóa đơn!");
       console.error('Lỗi API:', error)
+      fromThatBai('Nhân viên chưa đăng nhập!');
+
     }
   }
 
@@ -385,10 +385,11 @@ function BanHangTaiQuay() {
   }
   const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
+
       await updateVoucher(idHoaDon, idVoucher);
       await getById(idHoaDon);
       setIsVoucher(false);
-      fromThanhCong("Cập nhật voucher thành công");
+      fromThanhCong("Áp dụng voucher thành công!");
     } catch (error) {
       console.error('Lỗi khi cập nhật voucher:', error);
     }

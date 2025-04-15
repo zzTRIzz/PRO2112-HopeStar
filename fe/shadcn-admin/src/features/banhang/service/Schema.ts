@@ -44,6 +44,8 @@ export const Voucher = z.object({
   startTime: z.string(),
   endTime: z.string(),
   status: z.string(),
+  isPrivate: z.boolean(),
+
 });
 
 export type Voucher = z.infer<typeof Voucher>;

@@ -25,9 +25,10 @@ public interface BillService {
 
     BillDto updateStatus(Integer idBill, StatusBill status);
 
-    BillDto createHoaDonTaiQuay(BillDto billDto);
 
 //    BillDto updateHoaDonTaiQuay(BillDto billDto);
+
+    BillDto createHoaDonTaiQuay(Integer idNhanVien);
 
     BigDecimal tongTienBill(Integer idBill);
 

@@ -34,12 +34,18 @@ const TableKhachHang: React.FC<Props> =
   }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredAccounts = listAccount.filter(
-      (account) =>
-        account?.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account?.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredAccounts = listAccount.filter((account) => {
+      const phone = account?.phone || "";
+      const email = account?.email || "";
+      const fullName = account?.fullName || "";
+
+      return (
+        phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+
 
     return (
       <>

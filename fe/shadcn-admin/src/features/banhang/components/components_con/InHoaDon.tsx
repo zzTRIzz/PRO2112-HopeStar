@@ -137,7 +137,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             HopeStar Shop
           </h1>
           <img
-            src="https://cdn-icons-png.flaticon.com/512/1043/1043494.png"
+            src="/images/logo.png"
             alt="logo"
             style={{ width: "40px", height: "40px" }}
           />
@@ -223,7 +223,9 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
         <p><strong>Tổng số lượng:</strong> {billData?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
         <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice?.toLocaleString("vi-VN")} đ</p>
         <p><strong>Chiết khấu:</strong> {billData?.discountedTotal?.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Phí ship:</strong> {billData?.deliveryFee?.toLocaleString("vi-VN")} đ</p>
+        {billData?.deliveryFee > 0 && (
+          <p><strong>Phí ship:</strong> {billData?.deliveryFee?.toLocaleString("vi-VN")} đ</p>
+        )}
         <p><strong>Khách trả:</strong> {billData?.customerPayment?.toLocaleString("vi-VN")} đ</p>
         <p><strong>Tiền thừa:</strong> {billData?.change?.toLocaleString("vi-VN")} đ</p>
       </div>

@@ -112,7 +112,7 @@ const ChiTietHoaDon: React.FC = () => {
         const id = Number(urlParams.get("id"));
 
         if (!isNaN(id) && id > 0) {
-            setIdBill(id); // Chỉ cập nhật nếu ID hợp lệ
+            setIdBill(id);
         }
         findBillById(id);
         getById(id);
@@ -288,6 +288,15 @@ const ChiTietHoaDon: React.FC = () => {
         }
         findImeiByIdProductDetail(idPD, billDetaill);
     };
+    // const tienThieu = (searchBill?.amountChange ?? 0) < 0 ?
+    //     Math.abs(searchBill?.totalDue ?? 0) :
+    //     ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0));
+    const tinhTien = (searchBill?.totalDue || 0)
+        - (searchBill?.customerPayment || 0)
+        + (searchBill?.amountChange || 0);
+
+    const tienThieu = tinhTien > 0 ? tinhTien : 0;
+    const tienThua = tinhTien < 0 ? Math.abs(tinhTien) : 0;
 
     return (
         <>
@@ -397,14 +406,25 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
-                                        { label: "Đã trả lại:", value: (searchBill?.amountChange ?? 0) > 0 ? searchBill?.amountChange : 0 },
-                                        {
-                                            label: "Còn thiếu:",
-                                            value: (searchBill?.amountChange ?? 0) < 0 ?
-                                                Math.abs(searchBill?.totalDue ?? 0) :
-                                                ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
-                                            highlight: true
-                                        },
+                                        ...(searchBill?.amountChange ?? 0 > 0
+                                            ? [{
+                                                label: "Đã trả lại:",
+                                                value: searchBill?.amountChange
+                                            }]
+                                            : []),
+                                        ...(tienThieu > 0
+                                            ? [{
+                                                label: "Còn thiếu:",
+                                                value: tienThieu,
+                                                highlight: true
+                                            }]
+                                            : tienThua > 0
+                                                ? [{
+                                                    label: "Tiền thừa:",
+                                                    value: tienThua,
+                                                    highlight: true
+                                                }]
+                                                : [])
                                     ].map((item, index) => (
                                         <div key={index} className="flex justify-between items-center">
                                             <span className={`text-sm ${item.highlight ? "font-semibold" : "text-gray-600"}`}>
@@ -422,14 +442,6 @@ const ChiTietHoaDon: React.FC = () => {
                 </div>
                 <br />
             </Main >
-            {/* <ToastContainer
-                position="top-right"
-                hideProgressBar
-                newestOnTop
-                closeOnClick
-                pauseOnHover
-                draggable
-                theme="colored" /> */}
         </>
     );
 };

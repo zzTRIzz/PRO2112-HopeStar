@@ -16,10 +16,12 @@ import com.example.be.core.admin.products_management.service.ProductService;
 import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.service.VoucherService;
+import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.*;
 
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,9 @@ public class BanHangTaiQuay {
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    AuthService authService;
 
     @Autowired
     VoucherService voucherService;
@@ -152,9 +157,17 @@ public class BanHangTaiQuay {
 
     //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
-    public ResponseEntity<?> addHoaDon(@RequestBody BillDto billDto) {
-        BillDto billDto1 = billService.createHoaDonTaiQuay(billDto);
-        return ResponseEntity.ok(billDto1);
+    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization", required = true) String jwt) throws Exception {
+        try {
+            Account account = authService.findAccountByJwt(jwt);
+            BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
+            return ResponseEntity.ok(billDto1);
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo hóa đơn");
+        }
+
     }
 
     //    Chỉ cần có id Khach hang để gán vào bill là được
