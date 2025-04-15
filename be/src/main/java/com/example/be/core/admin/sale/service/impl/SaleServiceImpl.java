@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,18 +106,30 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public SaleResponse add(SaleRequest request) {
+
         if (saleRepository.existsByCode(request.getCode())) {
             throw new RuntimeException("Mã chương trình đã tồn tại");
         }
+        // Kiểm tra nếu dateStart là trong quá khứ
+        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
+            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
+        }
+
+        // Kiểm tra nếu dateEnd là trước dateStart
         if (request.getDateEnd().isBefore(request.getDateStart())) {
             throw new RuntimeException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu");
         }
+
+        // Kiểm tra giá trị giảm
         if (request.getDiscountType() && request.getDiscountValue() > 100) {
             throw new RuntimeException("Giá trị giảm theo % không được lớn hơn 100%");
         }
 
         Sale sale = saleMapper.toEntity(request);
+        sale.setDateStart(roundToMinute(request.getDateStart())); // Làm tròn đến phút
+        sale.setDateEnd(roundToMinute(request.getDateEnd())); // Làm tròn đến phút
         sale.setStatus(calculateStatus(sale.getDateStart(), sale.getDateEnd()));
+
         if (request.getDiscountType() == null) {
             sale.setDiscountType(false);
         }
@@ -175,18 +188,6 @@ public class SaleServiceImpl implements SaleService {
             }
         }
 
-        for (Integer productDetailId : addedIds) {
-            ProductDetail productDetail = productDetailRepository.findById(productDetailId).orElseThrow();
-            SaleDetail saleDetail = new SaleDetail();
-            saleDetail.setSale(sale);
-            saleDetail.setProductDetail(productDetail);
-            saleDetailRepository.save(saleDetail);
-
-            if (sale.getStatus() == StatusSale.ACTIVE) {
-                updateProductDetailPrice(productDetail);
-            }
-        }
-
         // Bước 4: Trả về kết quả kèm thông tin
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -241,17 +242,27 @@ public class SaleServiceImpl implements SaleService {
         if (!sale.getCode().equals(request.getCode()) && saleRepository.existsByCode(request.getCode())) {
             throw new RuntimeException("Mã chương trình đã tồn tại");
         }
+
+        // Kiểm tra nếu dateStart là trong quá khứ
+        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
+            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
+        }
+
+        // Kiểm tra nếu dateEnd là trước dateStart
         if (request.getDateEnd().isBefore(request.getDateStart())) {
             throw new RuntimeException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu");
         }
+
+        // Kiểm tra giá trị giảm
         if (request.getDiscountType() && request.getDiscountValue() > 100) {
             throw new RuntimeException("Giá trị giảm theo % không được lớn hơn 100%");
         }
 
+        // Cập nhật các trường của sale
         sale.setCode(request.getCode());
         sale.setName(request.getName());
-        sale.setDateStart(request.getDateStart());
-        sale.setDateEnd(request.getDateEnd());
+        sale.setDateStart(roundToMinute(request.getDateStart())); // Làm tròn đến phút
+        sale.setDateEnd(roundToMinute(request.getDateEnd())); // Làm tròn đến phút
         sale.setDescription(request.getDescription());
         sale.setDiscountValue(request.getDiscountValue());
         sale.setDiscountType(request.getDiscountType() != null ? request.getDiscountType() : false);
@@ -260,6 +271,7 @@ public class SaleServiceImpl implements SaleService {
             sale.setStatus(request.getStatus());
         }
 
+        // Lưu và làm mới đối tượng sale
         sale = saleRepository.saveAndFlush(sale);
 
         // Nếu Sale đang active, cập nhật lại price_sell
@@ -293,5 +305,8 @@ public class SaleServiceImpl implements SaleService {
         }
     }
 
+    private LocalDateTime roundToMinute(LocalDateTime dateTime) {
+        return dateTime.truncatedTo(ChronoUnit.MINUTES);
+    }
 }
 

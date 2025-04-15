@@ -103,12 +103,12 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
             "        id_product_detail, " +
             "        SUM(quantity) AS total_quantity " +
             "    FROM " +
-            "        hopestar_store_dev.bill_detail " +
+            "        bill_detail " +
             "    GROUP BY " +
             "        id_product_detail " +
             ") bd " +
-            "JOIN hopestar_store_dev.product_detail pd ON bd.id_product_detail = pd.id " +
-            "JOIN hopestar_store_dev.product p ON pd.product_id = p.id " +
+            "JOIN product_detail pd ON bd.id_product_detail = pd.id " +
+            "JOIN product p ON pd.product_id = p.id " +
             "ORDER BY " +
             "    bd.total_quantity DESC " +
             "LIMIT 1000", nativeQuery = true)

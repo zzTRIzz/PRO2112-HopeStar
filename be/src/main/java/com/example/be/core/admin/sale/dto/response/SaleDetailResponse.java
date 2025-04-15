@@ -1,5 +1,6 @@
 package com.example.be.core.admin.sale.dto.response;
 
+import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 

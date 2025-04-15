@@ -10,10 +10,26 @@ export const saleSchema = z.object({
     .max(255, "Tên chương trình không được vượt quá 255 ký tự"),
 
   dateStart: z.string()
-    .min(1, "Ngày bắt đầu không được để trống"),
+    .min(1, "Ngày bắt đầu không được để trống")
+    .transform((date) => {
+      const d = new Date(date);
+      const now = new Date();
+      d.setHours(now.getHours());
+      d.setMinutes(now.getMinutes());
+      d.setSeconds(now.getSeconds());
+      return d.toISOString();
+    }),
 
   dateEnd: z.string()
-    .min(1, "Ngày kết thúc không được để trống"),
+    .min(1, "Ngày kết thúc không được để trống")
+    .transform((date) => {
+      const d = new Date(date);
+      const now = new Date(); 
+      d.setHours(23);
+      d.setMinutes(59);
+      d.setSeconds(59);
+      return d.toISOString();
+    }),
 
   status: z.enum(["ACTIVE", "INACTIVE", "UPCOMING"]),
 
@@ -32,8 +48,16 @@ export const saleSchema = z.object({
   }
   return true;
 }, {
-  message: "Giá trị phần trăm không được vượt quá 100%",
-  path: ["discountValue"] // Chỉ định lỗi này thuộc về trường discountValue
+  message: "Giá trị phần trăm không được vượt quá 100%", 
+  path: ["discountValue"]
+}).refine((data) => {
+  // Kiểm tra ngày kết thúc phải sau ngày bắt đầu
+  const start = new Date(data.dateStart);
+  const end = new Date(data.dateEnd);
+  return end > start;
+}, {
+  message: "Ngày kết thúc phải sau ngày bắt đầu",
+  path: ["dateEnd"]
 });
 
 export type SaleFormValues = z.infer<typeof saleSchema>

@@ -6,6 +6,7 @@ import lombok.Data;
 
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Data
 public class SaleRequest {
@@ -18,7 +19,6 @@ public class SaleRequest {
     private String name;
 
     @NotNull(message = "Ngày bắt đầu không được để trống")
-    @FutureOrPresent(message = "Ngày bắt đầu không được trong quá khứ")
     private LocalDateTime dateStart;
 
     @NotNull(message = "Ngày kết thúc không được để trống")
@@ -36,4 +36,5 @@ public class SaleRequest {
     private Boolean discountType;
 
     private StatusSale status;
+
 }
