@@ -27,13 +27,20 @@ export const productResponseSchema = z.object({
 })
 
 export const productRequestSchema = z.object({
-  name: z.string().min(1, 'Tên sản phẩm là bắt buộc'),
+  name: z
+    .string()
+    .min(1, 'Tên sản phẩm là bắt buộc')
+    .max(255, 'Tên sản phẩm không được quá 255 ký tự')
+    .trim()
+    .refine((value) => value.length > 0, {
+      message: 'Không được nhập chỉ khoảng trắng',
+    }),
   description: z.string().min(1, 'Mô tả là bắt buộc'),
   weight: z.number().min(1, 'Khối lượng phải lớn hơn 0'),
   idChip: z.number().min(1, 'Chip là bắt buộc'),
   idBrand: z.number().min(1, 'Thương hiệu là bắt buộc'),
   idScreen: z.number().min(1, 'Màn hình là bắt buộc'),
-  idCard: z.number().min(1, 'Card đồ họa là bắt buộc'),
+  idCard: z.number().min(1, 'Thẻ nhớ là bắt buộc'),
   idOs: z.number().min(1, 'Hệ điều hành là bắt buộc'),
   idWifi: z.number().min(1, 'WiFi là bắt buộc'),
   idBluetooth: z.number().min(1, 'Bluetooth là bắt buộc'),
@@ -109,13 +116,20 @@ export interface SearchProductRequest {
 }
 
 export const productUpdate = z.object({
-  name: z.string().min(1, 'Tên sản phẩm là bắt buộc'),
+  name: z
+    .string()
+    .min(1, 'Tên sản phẩm là bắt buộc')
+    .max(255, 'Tên sản phẩm không được quá 255 ký tự')
+    .trim()
+    .refine((value) => value.length > 0, {
+      message: 'Không được nhập chỉ khoảng trắng',
+    }),
   description: z.string().min(1, 'Mô tả là bắt buộc'),
   weight: z.number().min(1, 'Khối lượng phải lớn hơn 0'),
   idChip: z.number().min(1, 'Chip là bắt buộc'),
   idBrand: z.number().min(1, 'Thương hiệu là bắt buộc'),
   idScreen: z.number().min(1, 'Màn hình là bắt buộc'),
-  idCard: z.number().min(1, 'Card đồ họa là bắt buộc'),
+  idCard: z.number().min(1, 'Thẻ nhớ là bắt buộc'),
   idOs: z.number().min(1, 'Hệ điều hành là bắt buộc'),
   idWifi: z.number().min(1, 'WiFi là bắt buộc'),
   idBluetooth: z.number().min(1, 'Bluetooth là bắt buộc'),

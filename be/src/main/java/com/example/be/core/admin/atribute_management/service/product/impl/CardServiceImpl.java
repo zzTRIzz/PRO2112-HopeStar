@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
@@ -15,7 +17,9 @@ public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
     @Override
     public List<Card> getAll() {
-        return cardRepository.findAll();
+        return cardRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -23,7 +27,7 @@ public class CardServiceImpl implements CardService {
         Card newCard = new Card();
         newCard.setCode("CARD_"+cardRepository.getNewCode());
         if (cardRepository.existsByTypeTrimmedIgnoreCase(card.getType())){
-            throw new Exception("card type already exists");
+            throw new Exception("Tên thẻ nhớ đã tồn tại");
         }
         newCard.setType(card.getType());
         newCard.setStatus(card.getStatus());
@@ -39,7 +43,7 @@ public class CardServiceImpl implements CardService {
                 card.setStatus(entity.getStatus());
                 cardRepository.save(card);
             }else {
-                throw new Exception("card type already exists");
+                throw new Exception("Tên thẻ nhớ đã tồn tại");
             }
         }
     }
@@ -52,6 +56,8 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public List<Card> getAllActive() {
-        return cardRepository.findByStatus(StatusCommon.ACTIVE);
+        return cardRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

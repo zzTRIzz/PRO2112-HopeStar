@@ -28,8 +28,8 @@ public class Ram extends AuditEntity {
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
 
-    @Size(max = 1000)
-    @Column(name = "description", length = 1000)
+    @Size(max = 255)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "status")

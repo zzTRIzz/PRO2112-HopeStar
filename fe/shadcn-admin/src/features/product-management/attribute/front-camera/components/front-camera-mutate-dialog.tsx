@@ -74,10 +74,14 @@ export function FrontCameraMutateDialog({
         })
       },
       onError: (error: any) => {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`
+
         toast({
           title: 'Lỗi',
-          description:
-            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`,
+          description: errorMessage,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,

@@ -18,11 +18,13 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    public void sendVerificationOtpEmail(String userEmail, String otp, String subject, String text) throws MessagingException {
+    public void sendVerificationOtpEmail(String userEmail, String subject, String text) throws MessagingException {
 
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,"utf-8");
+            mimeMessageHelper.setFrom("tringuyenquoc15102004@gmail.com");
+            mimeMessageHelper.setTo(userEmail);
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(text,true);
             mimeMessageHelper.setTo(userEmail);
@@ -127,6 +129,21 @@ public class EmailService {
             log.error("❌ Lỗi gửi email đến {}: {}", to, e.getMessage());
             throw new RuntimeException("Không thể gửi email: " + e.getMessage());
         }
+    }
+
+    public void sendVerificationAccount(String userEmail, String url, String subject, String text) throws MessagingException {
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,"utf-8");
+            mimeMessageHelper.setSubject(subject);
+            mimeMessageHelper.setText(text,true);
+            mimeMessageHelper.setTo(userEmail);
+            javaMailSender.send(mimeMessage);
+        }catch (MailException e){
+            throw new MailSendException("failed to send email");
+        }
+
     }
 
 }

@@ -35,11 +35,12 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
     @PostMapping("/sent-otp")
-    public ResponseEntity<String> sentOtpHandler(@RequestBody OtpRequest otpRequest) throws Exception {
+    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody OtpRequest otpRequest) throws Exception {
 
-        authService.sentLoginOtp(otpRequest.getEmail());
-
-        return ResponseEntity.ok("Otp sent successfully");
+        Object o = authService.sentOtp(otpRequest.getEmail());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(o);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PostMapping("/signing")
@@ -73,5 +74,34 @@ public class AuthController {
         return new ResponseEntity<>(accountResponse, HttpStatus.OK);
 
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse> forgotPassword(@RequestBody OtpRequest otpRequest) throws Exception {
+        Object o = authService.forgotPassword(otpRequest.getEmail());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(o);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+//    // Xử lý đặt lại mật khẩu
+//    @PostMapping("/reset-password")
+//    public ResponseEntity<?> resetPassword(
+//            @RequestParam String token,
+//            @RequestParam String newPassword
+//    ) {
+//        PasswordResetToken resetToken = tokenRepository.findByToken(token);
+//        if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+//            return ResponseEntity.badRequest().body("Token không hợp lệ hoặc đã hết hạn");
+//        }
+//
+//        User user = resetToken.getUser();
+//        user.setPassword(passwordEncoder.encode(newPassword));
+//        userRepository.save(user);
+//
+//        // Xóa token đã sử dụng
+//        tokenRepository.delete(resetToken);
+//
+//        return ResponseEntity.ok("Đặt lại mật khẩu thành công");
+//    }
 
 }

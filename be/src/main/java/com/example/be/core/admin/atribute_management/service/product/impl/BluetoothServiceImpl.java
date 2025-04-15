@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class BluetoothServiceImpl implements BluetoothService {
@@ -16,7 +18,9 @@ public class BluetoothServiceImpl implements BluetoothService {
 
     @Override
     public List<Bluetooth> getAll() {
-        return bluetoothRepository.findAll();
+        return bluetoothRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -24,7 +28,7 @@ public class BluetoothServiceImpl implements BluetoothService {
         Bluetooth newBluetooth = new Bluetooth();
         newBluetooth.setCode("BLTO_"+bluetoothRepository.getNewCode());
         if (bluetoothRepository.existsByNameTrimmedIgnoreCase(bluetooth.getName())){
-            throw new Exception("bluetooth name already exists");
+            throw new Exception("Tên bluetooth đã tồn tại");
         }
         newBluetooth.setName(bluetooth.getName());
         newBluetooth.setStatus(bluetooth.getStatus());
@@ -40,7 +44,7 @@ public class BluetoothServiceImpl implements BluetoothService {
                 bluetooth.setStatus(entity.getStatus());
                 bluetoothRepository.save(bluetooth);
             }else {
-                throw new Exception("bluetooth name already exists");
+                throw new Exception("Tên bluetooth đã tồn tại");
             }
         }
     }
@@ -53,6 +57,8 @@ public class BluetoothServiceImpl implements BluetoothService {
 
     @Override
     public List<Bluetooth> getAllActive() {
-        return bluetoothRepository.findByStatus(StatusCommon.ACTIVE);
+        return bluetoothRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }
