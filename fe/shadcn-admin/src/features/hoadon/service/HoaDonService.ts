@@ -1,5 +1,6 @@
 import { BillDetailSchema, BillSchema, ImeiSoldSchema } from "@/features/banhang/service/Schema";
 import axios from "axios";
+import { UpdateCustomerRequest } from "./Schema";
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -181,3 +182,12 @@ export const getVoucherDangSuDung = async (idBillHienTai: number) => {
         throw error;
     }
 }
+export const updateCustomerRequest = async (updateCustomer: UpdateCustomerRequest) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/updateCustomer`, updateCustomer);
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    }
+};

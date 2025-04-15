@@ -26,39 +26,6 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
   return (
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px", width: "800px", margin: "0 auto" }}>
       {/* Header */}
-      {/* <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <img src="" alt="" />
-        <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>HopeStar Shop</h1>
-        <p>Địa chỉ: Cao đẳng FPT Polytechnic, Bắc Từ Liêm, Hà Nội</p>
-        <p>Điện thoại: 0976877427 | Email: hopestarshop2025@gmail.com</p>
-      </div>
-      <QRCodeSVG value={`http://localhost:5173/hoadon/hoadonchitiet?id=${billData.id}`} size={100} />
-
-
-
-      <h2 style={{ textAlign: "center", fontSize: "20px", fontWeight: "bold", marginBottom: "20px", color: "red" }}>
-        HÓA ĐƠN BÁN HÀNG
-      </h2>
-
-      <div style={{ marginBottom: "20px" }}>
-        <p><strong>Mã hóa đơn:</strong> {billData?.code}</p>
-        <p><strong>Ngày:</strong>  {billData?.paymentDate
-          ? new Date(billData?.paymentDate).toLocaleDateString("vi-VN", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-          })
-          : ""}
-        </p>
-        <p><strong>Nhân viên bán hàng:</strong> {billData?.staff}</p>
-        <p><strong>Khách hàng:</strong> {billData?.customer}</p>
-        <p><strong>SDT:</strong> {billData?.phone}</p>
-      </div> */}
-
-
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <h1 style={{ fontSize: "32px", fontWeight: "bold", color: "#007BFF", margin: 0 }}>
@@ -147,7 +114,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       </table>
 
       {/* Tổng kết */}
-      <div style={{ textAlign: "right", marginBottom: "20px",fontSize: "18px" }}>
+      <div style={{ textAlign: "right", marginBottom: "20px", fontSize: "18px" }}>
         <p><strong>Tổng số lượng:</strong> {billData?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
         <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice?.toLocaleString("vi-VN")} đ</p>
         <p><strong>Chiết khấu:</strong> {billData?.discountedTotal?.toLocaleString("vi-VN")} đ</p>
@@ -165,96 +132,3 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
 };
 
 export default InvoiceTemplate;
-
-// import { QRCode } from 'antd';
-// import React, { useRef } from 'react';
-
-// interface PrintInvoiceProps {
-//   billData: {
-//     code: string;
-//     paymentDate: string;
-//     staff: string;
-//     customer: string;
-//     phone: string;
-//     items: Array<{
-//       product: string;
-//       imei: string[];
-//       price: number;
-//       quantity: number;
-//     }>;
-//     totalPrice: number;
-//     discountedTotal: number;
-//     deliveryFee: number;
-//     customerPayment: number;
-//     change: number;
-//   };
-// }
-
-// const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
-//   const printRef = useRef<HTMLDivElement>(null);
-
-
-//   return (
-//     <div className="p-4">
-//       <div ref={printRef} className="max-w-[700px] mx-auto text-black text-sm">
-//         <div className="text-center mb-2">
-//           <h1 className="text-xl font-bold">HopeStar Shop</h1>
-//           <p>Địa chỉ: Cao đẳng FPT Polytechnic, Bắc Từ Liêm, Hà Nội</p>
-//           <p>Điện thoại: 0976877427 | Email: hopestarshop2025@gmail.com</p>
-//           <h2 className="text-red-600 font-bold mt-3 text-lg">HÓA ĐƠN BÁN HÀNG</h2>
-//         </div>
-
-//         <div className="mb-2">
-//           <p><b>Mã hóa đơn:</b> {billData?.code}</p>
-//           <p><b>Ngày:</b> {new Date(billData?.paymentDate).toLocaleString()}</p>
-//           <p><b>Nhân viên bán hàng:</b> {billData?.staff}</p>
-//           <p><b>Khách hàng:</b> {billData?.customer}</p>
-//           <p><b>SDT:</b> {billData?.phone}</p>
-//         </div>
-
-//         <table className="w-full border mt-4">
-//           <thead>
-//             <tr className="bg-gray-200">
-//               <th>STT</th>
-//               <th>Sản phẩm</th>
-//               <th>Số IMEI</th>
-//               <th>Số lượng</th>
-//               <th>Đơn giá</th>
-//               <th>Thành tiền</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {billData?.items.map((item: any, index: number) => (
-//               <tr key={index}>
-//                 <td>{index + 1}</td>
-//                 <td>{item.product}</td>
-//                 <td>{item.imei.join(', ')}</td>
-//                 <td className="text-center">{item.quantity}</td>
-//                 <td className="text-right">{item.price.toLocaleString()}₫</td>
-//                 <td className="text-right">{(item.price * item.quantity).toLocaleString()}₫</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-
-//         <div className="mt-4 w-full flex justify-between items-start">
-//           <div>
-//             <p><b>Tổng số lượng:</b> {billData?.items.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
-//             <p><b>Tổng tiền hàng:</b> {billData?.totalPrice?.toLocaleString()}₫</p>
-//             <p><b>Chiết khấu:</b> {billData?.discountedTotal?.toLocaleString()}₫</p>
-//             <p><b>Khách trả:</b> {billData?.customerPayment?.toLocaleString()}₫</p>
-//             <p><b>Tiền thừa:</b> {billData?.change?.toLocaleString()}₫</p>
-//           </div>
-//           <div className="text-center">
-//             <QRCode value={billData?.code} size={100} />
-//             <p className="mt-2">Mã hóa đơn</p>
-//           </div>
-//         </div>
-
-//         <p className="text-center mt-6">Cảm ơn quý khách. Hẹn gặp lại!</p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default InvoiceTemplate;

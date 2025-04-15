@@ -330,7 +330,6 @@ const ChiTietHoaDon: React.FC = () => {
 
                 <ThongTinDonHang
                     searchBill={searchBill}
-                    listKhachHang={listKhachHang}
                 />
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">

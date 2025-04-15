@@ -27,16 +27,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
 import useVietnamAddress from '../../../banhang/service/ApiTichHopDiaChi';
-
-interface AccountKhachHang {
-    id: number,
-    code: string,
-    fullName: string,
-    email: string,
-    phone: string,
-    address: string,
-    googleId: string
-}
+import { updateCustomerRequest } from '../../service/HoaDonService';
+import { showSuccessToast } from './ThongBao';
 
 const formSchema = z.object({
     id: z.number().optional(),
@@ -51,9 +43,11 @@ const formSchema = z.object({
 });
 
 interface Province {
-    khachHang: AccountKhachHang | undefined;
-    onClose: () => void; // Thêm prop mới
-
+    idBill?: number;
+    onClose: () => void;
+    fullName?: string
+    phone: string
+    address: string
 }
 
 const parseAddress = (fullAddress: string) => {
@@ -70,12 +64,19 @@ const parseAddress = (fullAddress: string) => {
 };
 const DiaChiGiaoHang: React.FC<Province> =
     ({
-        khachHang,
-        onClose
+        idBill,
+        onClose,
+        fullName,
+        phone,
+        address
+
     }) => {
         const [openProvince, setOpenProvince] = useState(false);
         const { provinces, districts, wards, fetchDistricts, fetchWards } = useVietnamAddress();
-
+        const [shippingFee, setShippingFee] = useState(0);
+        const GHTK_API_KEY = '1J1IbLcnWarryPP1TRHTUtWTKqaonUrOqyBoUD3'
+        const [province, setProvince] = useState('')
+        const [district, setDistrict] = useState('')
         const diaChi = useForm<z.infer<typeof formSchema>>({
             resolver: zodResolver(formSchema),
         });
@@ -83,11 +84,10 @@ const DiaChiGiaoHang: React.FC<Province> =
             console.log("Data updated:", data);
             onClose();
         };
+
         useEffect(() => {
-            if (khachHang != null) {
-                const { provinceName } = parseAddress(khachHang.address || "");
-                console.log(khachHang)
-                console.log(provinceName)
+            if (address != null) {
+                const { provinceName } = parseAddress(address || "");
                 // Tìm mã tỉnh
                 const provinceCode = provinces.find(p => p.name === provinceName)?.code || "";
                 if (!provinceCode) return;
@@ -104,11 +104,11 @@ const DiaChiGiaoHang: React.FC<Province> =
                 diaChi.setValue("fullName", "");
                 diaChi.setValue("phone", "");
             }
-        }, [khachHang, provinces]);
+        }, [address, provinces]);
 
         // Khi danh sách huyện có dữ liệu, tìm mã huyện và tải xã
         useEffect(() => {
-            const districtName = parseAddress(khachHang?.address || "").districtName;
+            const districtName = parseAddress(address || "").districtName;
             if (districts.length > 0 && districtName) {
                 const districtCode = districts.find(d => d.name === districtName)?.code || "";
                 if (!districtCode) return;
@@ -119,21 +119,166 @@ const DiaChiGiaoHang: React.FC<Province> =
             }
         }, [districts]);
 
+
         // Khi danh sách xã có dữ liệu, cập nhật vào form
         useEffect(() => {
-            const wardName = parseAddress(khachHang?.address || "").wardName;
+            const wardName = parseAddress(address || "").wardName;
             if (wards.length > 0 && wardName) {
                 const wardCode = wards.find(w => w.name === wardName)?.code || "";
                 if (!wardCode) return;
                 diaChi.setValue("ward", wardCode);
-                diaChi.setValue("address", parseAddress(khachHang?.address || "").detailAddress);
-                diaChi.setValue("fullName", khachHang?.fullName || "");
-                diaChi.setValue("phone", khachHang?.phone || "");
-                diaChi.setValue("id", khachHang?.id);
-                console.log(khachHang)
+                diaChi.setValue("address", parseAddress(address || "").detailAddress);
+                diaChi.setValue("fullName", fullName || "");
+                diaChi.setValue("phone", phone || "");
 
             }
         }, [wards]);
+
+
+
+        // const calculateShippingFee = async () => {
+        //     if (!province || !district) {
+        //         return
+        //     }
+        //     const params = {
+        //         pick_province: 'Hà Nội',
+        //         pick_district: 'Quận Cầu Giấy',
+        //         province: province,
+        //         district: district,
+        //         weight: 1500,
+        //         value: 200000000,
+        //     }
+
+        //     const query = new URLSearchParams(params).toString()
+        //     const apiUrl = `/services/shipment/fee?${query}`
+
+        //     try {
+        //         const response = await fetch(apiUrl, {
+        //             method: 'GET',
+        //             headers: {
+        //                 Token: GHTK_API_KEY,
+        //             },
+        //         })
+
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok')
+        //         }
+
+        //         const data = await response.json()
+
+        //         if (data.success && data.fee) {
+        //             console.log('Shipping fee:', data.fee)
+        //             setShippingFee(data.fee.ship_fee_only);
+        //             console.log('Shipping fee:', data.fee.ship_fee_only)
+
+        //         } else {
+        //             console.error('Invalid response format:', data)
+        //         }
+        //     } catch (error) {
+        //         console.error('Error calculating shipping fee:', error)
+        //     }
+        // }
+        const calculateShippingFee = async () => {
+            const provinceCode = diaChi.getValues("province");
+            const districtCode = diaChi.getValues("district");
+
+            if (!provinceCode || !districtCode) {
+                setShippingFee(0);
+                return;
+            }
+
+            const params = {
+                pick_province: 'Hà Nội',
+                pick_district: 'Quận Cầu Giấy',
+                province: provinces.find((p) => p.code === provinceCode)?.name || "",
+                district: districts.find((d) => d.code === districtCode)?.name || "",
+                weight: 1500,
+                value: 200000000,
+            };
+
+            const query = new URLSearchParams(params).toString();
+            const apiUrl = `/services/shipment/fee?${query}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        Token: GHTK_API_KEY,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.fee) {
+                    setShippingFee(data.fee.ship_fee_only);
+                } else {
+                    console.error('Invalid response format:', data);
+                }
+            } catch (error) {
+                console.error('Error calculating shipping fee:', error);
+            }
+        };
+        useEffect(() => {
+            if (diaChi.getValues("province") && diaChi.getValues("district")) {
+                calculateShippingFee();
+            }
+        }, [diaChi.getValues("province"), diaChi.getValues("district")]);
+        // Lấy danh sách dữ liệu để thanh toán 
+        useEffect(() => {
+            if (province && district) {
+                calculateShippingFee();
+            }
+            console.log("phi ship shippingFee" + shippingFee)
+        }, [
+            shippingFee,
+            diaChi.watch("province"),
+            diaChi.watch("district"),
+            diaChi.watch("ward"),
+            diaChi.watch("address"),
+            diaChi.watch("note"),
+            diaChi.getValues("phone"),
+            diaChi.getValues("fullName"),
+            provinces,
+            districts,
+            wards,
+            province,
+            district,
+        ]);
+
+        const getFullAddress = () => {
+            const provinceName = provinces.find((p) => p.code === diaChi.getValues("province"))?.name || "";
+            setProvince(provinceName);
+            const districtName = districts.find((d) => d.code === diaChi.getValues("district"))?.name || "";
+            setDistrict(districtName);
+            const wardName = wards.find((w) => w.code === diaChi.getValues("ward"))?.name || "";
+            const detailAddress = diaChi.getValues("address") || "";
+            return `${detailAddress}, ${wardName}, ${districtName}, ${provinceName}`;
+        };
+
+        const handleSubmit = async () => {
+            try {
+                await updateCustomerRequest({
+                    address: getFullAddress(),
+                    id: idBill,
+                    name: diaChi.getValues("fullName"),
+                    phone: diaChi.getValues("phone"),
+                    note: diaChi.watch("note"),
+                    deliveryFee: shippingFee,
+                })
+                console.log("phí ship" + shippingFee);
+                onClose();
+                showSuccessToast("Cập nhật thông tin khách hàng thành công ");
+
+            } catch (error) {
+                console.error("Update failed", error);
+            }
+        };
+
+
 
         return (
             <>
@@ -195,42 +340,6 @@ const DiaChiGiaoHang: React.FC<Province> =
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel>Thành phố/tỉnh</FormLabel>
-                                                {/* <Popover open={openProvince} onOpenChange={setOpenProvince}>
-                                                    <PopoverTrigger asChild>
-                                                        <FormControl>
-                                                            <Button
-                                                                variant="outline"
-                                                                role="combobox"
-                                                                className="w-[250px] justify-between font-normal"
-                                                                onClick={() => setOpenProvince(!openProvince)}
-                                                                >
-                                                                {field.value ? provinces.find((p) => p.code === field.value)?.name : "Chọn tỉnh/thành phố"}
-                                                                <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                                                            </Button>
-                                                        </FormControl>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-[250px] p-0">
-                                                        <Command>
-                                                            <CommandInput placeholder="Search" />
-                                                            <CommandList>
-                                                                <CommandEmpty>No language found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    {provinces.map((p) => (
-                                                                        <CommandItem
-                                                                            key={p.code}
-                                                                            onSelect={() => {
-                                                                                diaChi.setValue("province", p.code);
-                                                                                fetchDistricts(p.code);
-                                                                            }}>
-                                                                            <Check className={p.code === field.value ? "opacity-100" : "opacity-0"} />
-                                                                            {p.name}
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            </CommandList>
-                                                        </Command>
-                                                    </PopoverContent>
-                                                </Popover> */}
                                                 <Popover open={openProvince} onOpenChange={setOpenProvince}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
@@ -238,6 +347,7 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                                 variant="outline"
                                                                 role="combobox"
                                                                 className="w-[250px] justify-between font-normal"
+                                                                onClick={() => setOpenProvince(!openProvince)}
                                                             >
                                                                 {field.value
                                                                     ? provinces.find((p) => p.code === field.value)?.name
@@ -248,7 +358,6 @@ const DiaChiGiaoHang: React.FC<Province> =
                                                     </PopoverTrigger>
                                                     <PopoverContent
                                                         className="w-[250px] p-0"
-                                                        onBlur={() => setOpenProvince(false)} // Đóng danh sách khi mất focus
                                                     >
                                                         <Command>
                                                             <CommandInput placeholder="Search" />
@@ -376,11 +485,14 @@ const DiaChiGiaoHang: React.FC<Province> =
                                             <FormItem>
                                                 <FormLabel>Địa chỉ cụ thể</FormLabel>
                                                 <FormControl>
-                                                    <Input className="w-[250px]"
+                                                    <Input
                                                         placeholder="Địa chỉ người nhận"
-
-                                                        type=""
-                                                        {...field} />
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.value); // Cập nhật giá trị vào react-hook-form
+                                                            diaChi.setValue("address", e.target.value); // Đảm bảo giá trị được lưu
+                                                        }}
+                                                    />
                                                 </FormControl>
 
                                                 <FormMessage />
@@ -388,10 +500,26 @@ const DiaChiGiaoHang: React.FC<Province> =
                                         )}
                                     />
                                 </div>
+
                             </div>
                         </form>
                     </Form>
-
+                    <div className="pt-4 mb-4 border-t">
+                        <div className="flex items-center gap-2 text-sm">
+                            {shippingFee > 0 ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium">Phí vận chuyển:</span>
+                                    <span className="text-green-600 font-semibold">
+                                        {shippingFee.toLocaleString()} VND
+                                    </span>
+                                </div>
+                            ) : (
+                                <span className="text-gray-500">
+                                    Vui lòng chọn đầy đủ Tỉnh/Thành và Quận/Huyện để tính phí vận chuyển
+                                </span>
+                            )}
+                        </div>
+                    </div>
                     <div className="flex justify-end gap-4 pt-6">
                         <Button
                             type="button"
@@ -400,8 +528,8 @@ const DiaChiGiaoHang: React.FC<Province> =
                             Hủy
                         </Button>
 
-                        <Button type="submit">
-                            Lưu thay đổi
+                        <Button type="submit" onClick={handleSubmit}>
+                            Cập nhật
                         </Button>
                     </div>
                 </div>

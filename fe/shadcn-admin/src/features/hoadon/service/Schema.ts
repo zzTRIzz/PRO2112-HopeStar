@@ -32,3 +32,21 @@ export interface Bill {
   billType: number;
   status: string;
 }
+
+export interface UpdateCustomerRequest {
+  id?: number;
+  name: string;
+  phone: string;
+  address: string;
+  note?: string;
+  deliveryFee: number;
+}
+export interface AccountKhachHang {
+  id: number,
+  code: string,
+  fullName: string,
+  email: string,
+  phone: string,
+  address: string,
+  googleId: string
+}

@@ -103,7 +103,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="right">Stt</TableCell>
+                                    {/* <TableCell align="right">Stt</TableCell> */}
                                     <TableCell align="center">Sản phẩm</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Số lượng</TableCell>
@@ -116,14 +116,14 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                     <TableRow
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                        <TableCell align="right">{index + 1}</TableCell>
+                                        {/* <TableCell align="right">{index + 1}</TableCell> */}
                                         <TableCell component="th" scope="row" align="center">
                                             {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
                                         </TableCell>
                                         <TableCell align="right" >{pr?.price?.toLocaleString('vi-VN')} VND
 
                                         </TableCell>
-                                        <TableCell align="right" className='w-[95px]'>{pr?.quantity}
+                                        <TableCell align="center" className='w-[95px]'>{pr?.quantity}
                                             {searchBill?.billDetailResponesList?.some(
                                                 (item) =>
                                                     item.productDetail.id === pr.idProductDetail &&

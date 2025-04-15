@@ -128,10 +128,6 @@ const TableKhachHang: React.FC<Props> =
                       </TableBody>
                     </Table>
                   </TableContainer>
-
-
-
-
                 </DialogContent>
               </Dialog>
               <ToastContainer />

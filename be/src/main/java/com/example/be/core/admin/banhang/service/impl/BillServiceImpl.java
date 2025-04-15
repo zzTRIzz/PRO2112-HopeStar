@@ -337,11 +337,15 @@ public class BillServiceImpl implements BillService {
             Bill bill = billRepository.findById(request.getId()).orElseThrow(
                     () -> new RuntimeException("Bill not found with id:" + request.getId())
             );
+            System.out.println("Phi ship"+request.getDeliveryFee());
+
             bill.setAddress(request.getAddress());
             bill.setNote(request.getNote());
             bill.setPhone(request.getPhone());
             bill.setName(request.getName());
-
+            bill.setDeliveryFee(request.getDeliveryFee());
+            BigDecimal tongTien = bill.getTotalDue().subtract(bill.getDeliveryFee()).add(request.getDeliveryFee());
+            bill.setTotalDue(tongTien);
             Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         } catch (Exception e) {

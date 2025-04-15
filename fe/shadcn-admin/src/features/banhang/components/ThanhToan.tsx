@@ -207,7 +207,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <Ship
                                             productValue={tongTien}
                                             weight={1500}
-                                            address={confirmedAddress} // Truyền địa chỉ vào Ship
+                                            address={confirmedAddress} 
                                             onShippingFeeChange={handleShippingFeeChange}
                                         />
                                     )}

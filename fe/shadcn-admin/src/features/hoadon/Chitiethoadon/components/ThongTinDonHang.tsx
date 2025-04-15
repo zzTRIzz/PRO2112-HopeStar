@@ -9,23 +9,14 @@ import {
     DialogTitle
 } from "@/components/ui/dialog";
 import DiaChiGiaoHang from './CapNhatDiaChi';
-interface AccountKhachHang {
-    id: number,
-    code: string,
-    fullName: string,
-    email: string,
-    phone: string,
-    address: string,
-    googleId: string
-}
+import { AccountKhachHang } from '../../service/Schema';
+
 interface Posp {
     searchBill: BillRespones | null;
-    listKhachHang: AccountKhachHang | undefined;
 }
 const ThongTinDonHang: React.FC<Posp> =
     ({
         searchBill,
-        listKhachHang
     }) => {
         const getOrderStatusText = (status: string | undefined) => {
             switch (status) {
@@ -64,7 +55,10 @@ const ThongTinDonHang: React.FC<Posp> =
                                     <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
                                 </DialogHeader>
                                 <DiaChiGiaoHang
-                                    khachHang={listKhachHang}
+                                    idBill={searchBill?.id}
+                                    fullName={searchBill?.name??""}
+                                    phone={searchBill?.phone??""}
+                                    address={searchBill?.address??""}
                                     onClose={() => setIsDialogOpen(false)}
                                 />
                             </DialogContent>
