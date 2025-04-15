@@ -218,7 +218,7 @@ function BanHangTaiQuay() {
       const voucher = await getVoucherDangSuDung(id)
       setDuLieuVoucherDangDung(voucher)
       loadVoucherByAcount(khachHang?.id);
-      console.log("ccccc"+khachHang?.id);
+      console.log("ccccc" + khachHang?.id);
       findBillById(id)
       setIsBanGiaoHang(false)
     } catch (error) {
@@ -522,71 +522,73 @@ function BanHangTaiQuay() {
     if (!result) {
       fromThatBai(`Thanh toán đơn hàng ${searchBill?.code ?? ''} không thành công`);
       return;
-    }
-    try {
-      await thanhToan({
-        id: searchBill?.id,
-        nameBill: searchBill?.code,
-        idAccount: searchBill?.idAccount ?? null,
-        idNhanVien: searchBill?.idNhanVien ?? null,
-        idVoucher: searchBill?.idVoucher ?? null,
-        totalPrice: searchBill?.totalPrice ?? 0,
-        customerPayment: customerPayment,
-        amountChange: tienThua,
-        deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
-        totalDue: tongTien ?? 0,
-        customerRefund: searchBill?.customerRefund ?? 0,
-        discountedTotal: searchBill?.discountedTotal ?? 0,
-        deliveryDate: searchBill?.deliveryDate ?? null,
-        customerPreferred_date: searchBill?.customerPreferredDate ?? null,
-        customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
-        receiptDate: searchBill?.receiptDate,
-        paymentDate: searchBill?.paymentDate,
-        billType: billType,
-        status: status,
-        address: (isBanGiaoHang == true ? deliveryInfo?.fullAddress : searchBill?.address),
-        email: searchBill?.email ?? null,
-        note: (isBanGiaoHang == true ? deliveryInfo?.note : searchBill?.note),
-        phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
-        name: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
-        idPayment: paymentMethod,
-        idDelivery: (isBanGiaoHang == true ? 2 : 1),
-        itemCount: searchBill?.detailCount ?? 0
-      });
+    } else {
+      try {
+        await thanhToan({
+          id: searchBill?.id,
+          nameBill: searchBill?.code,
+          idAccount: searchBill?.idAccount ?? null,
+          idNhanVien: searchBill?.idNhanVien ?? null,
+          idVoucher: searchBill?.idVoucher ?? null,
+          totalPrice: searchBill?.totalPrice ?? 0,
+          customerPayment: customerPayment,
+          amountChange: tienThua,
+          deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
+          totalDue: tongTien ?? 0,
+          customerRefund: searchBill?.customerRefund ?? 0,
+          discountedTotal: searchBill?.discountedTotal ?? 0,
+          deliveryDate: searchBill?.deliveryDate ?? null,
+          customerPreferred_date: searchBill?.customerPreferredDate ?? null,
+          customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
+          receiptDate: searchBill?.receiptDate,
+          paymentDate: searchBill?.paymentDate,
+          billType: billType,
+          status: status,
+          address: (isBanGiaoHang == true ? deliveryInfo?.fullAddress : searchBill?.address),
+          email: searchBill?.email ?? null,
+          note: (isBanGiaoHang == true ? deliveryInfo?.note : searchBill?.note),
+          phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
+          name: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
+          idPayment: paymentMethod,
+          idDelivery: (isBanGiaoHang == true ? 2 : 1),
+          itemCount: searchBill?.detailCount ?? 0
+        });
 
-      const invoiceData = {
-        code: searchBill?.code,
-        paymentDate: new Date().toISOString(),
-        staff: searchBill?.fullNameNV,
-        customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
-        phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
-        items: searchBill?.billDetailResponesList.map(detail => ({
-          product: detail.productDetail.productName + ' ' +
-            detail.productDetail.ram + '/' +
-            detail.productDetail.rom + 'GB ( ' +
-            detail.productDetail.color + ' )',
-          imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
-          price: detail.price,
-          quantity: detail.quantity,
-        })) || [],
-        totalPrice: searchBill?.totalPrice || 0,
-        discountedTotal: searchBill?.discountedTotal || 0,
-        customerPayment: customerPayment || 0,
-        change: tienThua || 0,
-      };
+        const invoiceData = {
+          code: searchBill?.code,
+          paymentDate: new Date().toISOString(),
+          staff: searchBill?.fullNameNV,
+          customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
+          phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
+          items: searchBill?.billDetailResponesList.map(detail => ({
+            product: detail.productDetail.productName + ' ' +
+              detail.productDetail.ram + '/' +
+              detail.productDetail.rom + 'GB ( ' +
+              detail.productDetail.color + ' )',
+            imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
+            price: detail.price,
+            quantity: detail.quantity,
+          })) || [],
+          totalPrice: searchBill?.totalPrice || 0,
+          discountedTotal: searchBill?.discountedTotal || 0,
+          deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
+          customerPayment: customerPayment || 0,
+          change: (tienThua > 0 ? tienThua : 0),
+        };
 
-      handlePrint(invoiceData);
-      // Reset trạng thái
-      setSearchBill(undefined);
-      hienThiKhachHang(undefined);
-      setProduct([]);
-      setCustomerPayment(0);
-      setPaymentMethod(null);
-      setIsBanGiaoHang(false);
-      fromThanhCong("Thanh toán thành công");
-    } catch (error) {
-      console.error("Lỗi khi thanh toán:", error);
-      fromThatBai("Đã xảy ra lỗi khi thanh toán");
+        handlePrint(invoiceData);
+        // Reset trạng thái
+        setSearchBill(undefined);
+        hienThiKhachHang(undefined);
+        setProduct([]);
+        setCustomerPayment(0);
+        setPaymentMethod(null);
+        setIsBanGiaoHang(false);
+        fromThanhCong("Thanh toán thành công");
+      } catch (error) {
+        console.error("Lỗi khi thanh toán:", error);
+        fromThatBai("Đã xảy ra lỗi khi thanh toán");
+      }
     }
   };
 
@@ -816,8 +818,11 @@ function BanHangTaiQuay() {
         <div className='grid grid-cols-2 gap-4'>
           {/* --------- cot 1 ----------- */}
           <DiaChiGiaoHang
+            fullName={searchBill?.name ?? ""}
+            phone={searchBill?.phone ?? ""}
+            address={searchBill?.address ?? ""}
             isBanGiaoHang={isBanGiaoHang}
-            khachHang={khachHang}
+
             onAddressChange={handleAddressUpdate}
             onDetailChange={handleDetailUpdate}
           />

@@ -13,7 +13,7 @@ import {
     updateImeiSold,
 
 } from '@/features/hoadon/service/HoaDonService';
-import { showSuccessToast, showErrorToast } from "./components/ThongBao"
+import { showSuccessToast, showErrorToast } from "./components/components_con/ThongBao"
 interface SearchBillDetail {
     id: number
     price: number,
@@ -330,6 +330,7 @@ const ChiTietHoaDon: React.FC = () => {
 
                 <ThongTinDonHang
                     searchBill={searchBill}
+                    loadTongBill={loadTongBill}
                 />
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">

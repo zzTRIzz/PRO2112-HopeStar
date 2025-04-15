@@ -26,8 +26,8 @@ import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
-import useVietnamAddress from '../../../banhang/service/ApiTichHopDiaChi';
-import { updateCustomerRequest } from '../../service/HoaDonService';
+import useVietnamAddress from '../../../../banhang/service/ApiTichHopDiaChi';
+import { updateCustomerRequest } from '../../../service/HoaDonService';
 import { showSuccessToast } from './ThongBao';
 
 const formSchema = z.object({
@@ -42,13 +42,7 @@ const formSchema = z.object({
     note: z.string().optional()
 });
 
-interface Province {
-    idBill?: number;
-    onClose: () => void;
-    fullName?: string
-    phone: string
-    address: string
-}
+
 
 const parseAddress = (fullAddress: string) => {
     if (!fullAddress) return { provinceName: "", districtName: "", wardName: "", detailAddress: "" };
@@ -62,13 +56,23 @@ const parseAddress = (fullAddress: string) => {
         provinceName: addressParts[3] || ""
     };
 };
+interface Province {
+    idBill?: number;
+    onClose: () => void;
+    fullName?: string
+    phone: string
+    address: string
+    loadTongBill: () => void;
+
+}
 const DiaChiGiaoHang: React.FC<Province> =
     ({
         idBill,
         onClose,
         fullName,
         phone,
-        address
+        address,
+        loadTongBill
 
     }) => {
         const [openProvince, setOpenProvince] = useState(false);
@@ -134,50 +138,6 @@ const DiaChiGiaoHang: React.FC<Province> =
             }
         }, [wards]);
 
-
-
-        // const calculateShippingFee = async () => {
-        //     if (!province || !district) {
-        //         return
-        //     }
-        //     const params = {
-        //         pick_province: 'Hà Nội',
-        //         pick_district: 'Quận Cầu Giấy',
-        //         province: province,
-        //         district: district,
-        //         weight: 1500,
-        //         value: 200000000,
-        //     }
-
-        //     const query = new URLSearchParams(params).toString()
-        //     const apiUrl = `/services/shipment/fee?${query}`
-
-        //     try {
-        //         const response = await fetch(apiUrl, {
-        //             method: 'GET',
-        //             headers: {
-        //                 Token: GHTK_API_KEY,
-        //             },
-        //         })
-
-        //         if (!response.ok) {
-        //             throw new Error('Network response was not ok')
-        //         }
-
-        //         const data = await response.json()
-
-        //         if (data.success && data.fee) {
-        //             console.log('Shipping fee:', data.fee)
-        //             setShippingFee(data.fee.ship_fee_only);
-        //             console.log('Shipping fee:', data.fee.ship_fee_only)
-
-        //         } else {
-        //             console.error('Invalid response format:', data)
-        //         }
-        //     } catch (error) {
-        //         console.error('Error calculating shipping fee:', error)
-        //     }
-        // }
         const calculateShippingFee = async () => {
             const provinceCode = diaChi.getValues("province");
             const districtCode = diaChi.getValues("district");
@@ -270,9 +230,10 @@ const DiaChiGiaoHang: React.FC<Province> =
                     deliveryFee: shippingFee,
                 })
                 console.log("phí ship" + shippingFee);
-                onClose();
-                showSuccessToast("Cập nhật thông tin khách hàng thành công ");
 
+                showSuccessToast("Cập nhật thông tin khách hàng thành công ");
+                onClose();
+                loadTongBill();
             } catch (error) {
                 console.error("Update failed", error);
             }

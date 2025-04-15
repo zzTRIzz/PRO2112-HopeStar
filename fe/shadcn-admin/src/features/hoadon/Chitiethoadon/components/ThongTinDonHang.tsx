@@ -8,15 +8,17 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog";
-import DiaChiGiaoHang from './CapNhatDiaChi';
-import { AccountKhachHang } from '../../service/Schema';
+import DiaChiGiaoHang from '../components/components_con/CapNhatDiaChi';
 
 interface Posp {
     searchBill: BillRespones | null;
+    loadTongBill: () => void;
+
 }
 const ThongTinDonHang: React.FC<Posp> =
     ({
         searchBill,
+        loadTongBill
     }) => {
         const getOrderStatusText = (status: string | undefined) => {
             switch (status) {
@@ -60,6 +62,7 @@ const ThongTinDonHang: React.FC<Posp> =
                                     phone={searchBill?.phone??""}
                                     address={searchBill?.address??""}
                                     onClose={() => setIsDialogOpen(false)}
+                                    loadTongBill={loadTongBill}
                                 />
                             </DialogContent>
                         </Dialog>

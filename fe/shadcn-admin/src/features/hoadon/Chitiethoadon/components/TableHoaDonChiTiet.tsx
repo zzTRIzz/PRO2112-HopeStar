@@ -129,7 +129,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                     item.productDetail.id === pr.idProductDetail &&
                                                     (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0)
                                             ) && (
-                                                    <div className="text-red-500 text-xs font-medium mt-1">Thiếu IMEI</div>
+                                                    <div className="text-red-500 text-xs font-medium mt-1">Thiếu imei</div>
                                                 )}
                                         </TableCell>
                                         <TableCell align="right">{pr?.totalPrice?.toLocaleString('vi-VN')} VND

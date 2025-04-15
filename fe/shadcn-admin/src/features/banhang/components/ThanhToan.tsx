@@ -97,7 +97,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
         const xacNhanThanhToan = () => {
             if (!isBanGiaoHang) {
                 handleThanhToan("HOAN_THANH", 0);
-
             } else {
                 if (paymentMethod === 1 || paymentMethod === 2) {
                     handleThanhToan("DA_XAC_NHAN", 1);
@@ -125,7 +124,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                             <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
                                 <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
                                 <button className="ml-2 text-sm text-gray-500 hover:text-gray-700"
-                                 onClick={() => updateVoucherKhiChon(null)}>
+                                    onClick={() => updateVoucherKhiChon(null)}>
                                     ✖
                                 </button>
                             </div>
@@ -140,42 +139,42 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[980px]">
                                     {ListVoucherTheoAccount.length > 0 ? (
-                                    <TableContainer>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell>Stt</TableCell>
-                                                    <TableCell>Mã</TableCell>
-                                                    <TableCell>Giá min</TableCell>
-                                                    <TableCell>Giá max</TableCell>
-                                                    <TableCell>Giá trị giảm</TableCell>
-                                                    <TableCell>Kiểu</TableCell>
-                                                    <TableCell>Số lượng </TableCell>
-                                                    <TableCell>Số lượng </TableCell>
-                                                </TableRow>
-                                            </TableHead>
-
-                                            <TableBody>
-                                                {ListVoucherTheoAccount.map((ac, index) => (
-                                                    <TableRow key={ac.id}>
-                                                        <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>{ac?.code}</TableCell>
-                                                        <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac?.maxOrderValue?.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac?.value?.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.type == true ? " % " : " VNĐ "}</TableCell>
-                                                        <TableCell>{ac.quantity}</TableCell>
-                                                        <TableCell>
-                                                            <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
-                                                                Chọn
-                                                            </Button>
-                                                        </TableCell>
+                                        <TableContainer>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Stt</TableCell>
+                                                        <TableCell>Mã</TableCell>
+                                                        <TableCell>Giá min</TableCell>
+                                                        <TableCell>Giá max</TableCell>
+                                                        <TableCell>Giá trị giảm</TableCell>
+                                                        <TableCell>Kiểu</TableCell>
+                                                        <TableCell>Số lượng </TableCell>
+                                                        <TableCell>Số lượng </TableCell>
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
+                                                </TableHead>
 
-                                        </Table>
-                                    </TableContainer>
+                                                <TableBody>
+                                                    {ListVoucherTheoAccount.map((ac, index) => (
+                                                        <TableRow key={ac.id}>
+                                                            <TableCell>{index + 1}</TableCell>
+                                                            <TableCell>{ac?.code}</TableCell>
+                                                            <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')}</TableCell>
+                                                            <TableCell>{ac?.maxOrderValue?.toLocaleString('vi-VN')}</TableCell>
+                                                            <TableCell>{ac?.value?.toLocaleString('vi-VN')}</TableCell>
+                                                            <TableCell>{ac.type == true ? " % " : " VNĐ "}</TableCell>
+                                                            <TableCell>{ac.quantity}</TableCell>
+                                                            <TableCell>
+                                                                <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
+                                                                    Chọn
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+
+                                            </Table>
+                                        </TableContainer>
                                     ) : (
                                         <div className='flex h-[300px] items-center justify-center'>
                                             <div className='text-center'>
@@ -207,7 +206,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <Ship
                                             productValue={tongTien}
                                             weight={1500}
-                                            address={confirmedAddress} 
+                                            address={confirmedAddress}
                                             onShippingFeeChange={handleShippingFeeChange}
                                         />
                                     )}
@@ -262,6 +261,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             tongTien={tongTien}
                                             dateTime={dateTime}
                                             handleThanhToan={handleThanhToan}
+                                            isBanGiaoHang={isBanGiaoHang}
                                         />
                                     )}
 

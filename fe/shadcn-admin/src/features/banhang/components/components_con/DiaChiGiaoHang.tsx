@@ -29,16 +29,6 @@ import * as z from "zod"
 import useVietnamAddress from '../../service/ApiTichHopDiaChi';
 import { Textarea } from '@/components/ui/textarea';
 
-interface AccountKhachHang {
-    id: number,
-    code: string,
-    fullName: string,
-    email: string,
-    phone: string,
-    address: string,
-    googleId: string
-}
-
 const formSchema = z.object({
     id: z.number().optional(),
     code: z.string().min(1),
@@ -53,7 +43,9 @@ const formSchema = z.object({
 
 interface Province {
     isBanGiaoHang: boolean;
-    khachHang: AccountKhachHang | undefined;
+    fullName: string
+    phone: string
+    address: string,
     onAddressChange: (fullAddress: string) => void;
     onDetailChange: (details: { name: string; phone: string; note: string }) => void;
 
@@ -73,7 +65,9 @@ const parseAddress = (fullAddress: string) => {
 const DiaChiGiaoHang: React.FC<Province> =
     ({
         isBanGiaoHang,
-        khachHang,
+        address,
+        phone,
+        fullName,
         onAddressChange,
         onDetailChange
     }) => {
@@ -85,8 +79,8 @@ const DiaChiGiaoHang: React.FC<Province> =
 
 
         useEffect(() => {
-            if (isBanGiaoHang == true && khachHang != null) {
-                const { provinceName } = parseAddress(khachHang.address || "");
+            if (isBanGiaoHang == true && address != null) {
+                const { provinceName } = parseAddress(address || "");
                 // Tìm mã tỉnh
                 const provinceCode = provinces.find(p => p.name === provinceName)?.code || "";
                 if (!provinceCode) return;
@@ -102,11 +96,11 @@ const DiaChiGiaoHang: React.FC<Province> =
                 diaChi.setValue("fullName", "");
                 diaChi.setValue("phone", "");
             }
-        }, [isBanGiaoHang, khachHang, provinces]);
+        }, [isBanGiaoHang, provinces]);
 
         // Khi danh sách huyện có dữ liệu, tìm mã huyện và tải xã
         useEffect(() => {
-            const districtName = parseAddress(khachHang?.address || "").districtName;
+            const districtName = parseAddress(address || "").districtName;
             if (districts.length > 0 && districtName) {
                 const districtCode = districts.find(d => d.name === districtName)?.code || "";
                 if (!districtCode) return;
@@ -119,16 +113,14 @@ const DiaChiGiaoHang: React.FC<Province> =
 
         // Khi danh sách xã có dữ liệu, cập nhật vào form
         useEffect(() => {
-            const wardName = parseAddress(khachHang?.address || "").wardName;
+            const wardName = parseAddress(address || "").wardName;
             if (wards.length > 0 && wardName) {
                 const wardCode = wards.find(w => w.name === wardName)?.code || "";
                 if (!wardCode) return;
-                diaChi.setValue("fullName", khachHang?.fullName || "");
-                diaChi.setValue("phone", khachHang?.phone || "");
-                diaChi.setValue("id", khachHang?.id);
+                diaChi.setValue("fullName", fullName || "");
+                diaChi.setValue("phone", phone || "");
                 diaChi.setValue("ward", wardCode);
-                diaChi.setValue("address", parseAddress(khachHang?.address || "").detailAddress);
-                console.log(khachHang)
+                diaChi.setValue("address", parseAddress(address || "").detailAddress);
             }
         }, [wards]);
 

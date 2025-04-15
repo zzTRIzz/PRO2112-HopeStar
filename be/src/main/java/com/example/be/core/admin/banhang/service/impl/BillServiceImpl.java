@@ -138,8 +138,11 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto createHoaDonTaiQuay(BillDto billDto) {
+    public BillDto createHoaDonTaiQuay(Integer idNh) {
         try {
+            if (billDto.getIdNhanVien() == null) {
+                throw new RuntimeException("Vui lòng đăng nhập với vai trò nhân viên");
+            }
             LocalDateTime now = LocalDateTime.now();
             billDto.setPaymentDate(now);
             billDto.setBillType((byte) 0);
@@ -335,24 +338,33 @@ public class BillServiceImpl implements BillService {
     public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
         try {
             Bill bill = billRepository.findById(request.getId()).orElseThrow(
-                    () -> new RuntimeException("Bill not found with id:" + request.getId())
+                    () -> new RuntimeException("Bill not found with id: " + request.getId())
             );
-            System.out.println("Phi ship"+request.getDeliveryFee());
 
+            BigDecimal oldFee = bill.getDeliveryFee();
+            BigDecimal newFee = request.getDeliveryFee();
+
+            BigDecimal tongTien = bill.getTotalDue().subtract(oldFee).add(newFee);
+
+            bill.setTotalDue(tongTien);
             bill.setAddress(request.getAddress());
             bill.setNote(request.getNote());
             bill.setPhone(request.getPhone());
             bill.setName(request.getName());
-            bill.setDeliveryFee(request.getDeliveryFee());
-            BigDecimal tongTien = bill.getTotalDue().subtract(bill.getDeliveryFee()).add(request.getDeliveryFee());
-            bill.setTotalDue(tongTien);
+            bill.setDeliveryFee(newFee);
+
+            System.out.println("Phi ship cũ: " + oldFee);
+            System.out.println("Phi ship mới: " + newFee);
+            System.out.println("Tổng tiền sau cập nhật: " + tongTien);
+
             Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
+            throw new RuntimeException("Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
         }
     }
+
 
     //__________________________________________________________________________________________
 

@@ -5,7 +5,7 @@ import { BillRespones } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react'
-import { showErrorToast, showSuccessToast } from "./ThongBao";
+import { showErrorToast, showSuccessToast } from "./components_con/ThongBao";
 import { updateTotalDue } from "../../service/HoaDonService";
 import { ToastContainer } from "react-toastify";
 import InvoiceTemplate from "./components_con/InHoaDon";
@@ -178,7 +178,6 @@ interface TrangThaiDonHangProps {
     loadTongBill: () => void;
 }
 
-
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     ({
         trangThai,
@@ -346,7 +345,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         // }, [searchBill]);
 
         const invoiceData = {
-            id:searchBill?.id,
+            id: searchBill?.id,
             code: searchBill?.code,
             paymentDate: new Date().toISOString(),
             staff: searchBill?.fullNameNV,
@@ -410,6 +409,12 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                 <div className="ml-[500px]">
                                     <Button onClick={() => handlePrint(invoiceData)}>
                                         In hóa đơn
+                                    </Button>
+                                </div>
+                                <div className="">
+                                    <Button
+                                        className='bg-yellow-500 hover:bg-yellow-600 '>
+                                        Chi tiết
                                     </Button>
                                 </div>
                             </div>

@@ -157,7 +157,7 @@ const TableKhachHang: React.FC<Props> =
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-16 whitespace-nowrap">Địa chỉ</span>
-                <Input type="email" disabled placeholder="Email"
+                <Input type="email" disabled placeholder="Địa chỉ"
                   className='h-[35px] w-[400px] text-blue-600 text-base font-bold' value={listKhachHang?.address == null ? "" : listKhachHang?.address} />
               </div>
             </div>
