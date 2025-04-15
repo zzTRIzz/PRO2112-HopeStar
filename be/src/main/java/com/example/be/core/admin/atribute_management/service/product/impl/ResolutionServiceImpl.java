@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ResolutionServiceImpl implements ResolutionService {
@@ -16,14 +18,16 @@ public class ResolutionServiceImpl implements ResolutionService {
 
     @Override
     public List<Resolution> getAll() {
-        return resolutionRepository.findAll();
+        return resolutionRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Resolution create(Resolution resolution) throws Exception {
         Resolution newResolution = new Resolution();
         if (resolutionRepository.existsByHeightAndWidthAndResolutionTypeTrimmedIgnoreCase(resolution.getHeight(),resolution.getWidth(),resolution.getResolutionType())){
-            throw new Exception("resolution type already exists");
+            throw new Exception("Độ phân giải đã tồn tại");
         }
         newResolution.setWidth(resolution.getWidth());
         newResolution.setHeight(resolution.getHeight());
@@ -41,7 +45,7 @@ public class ResolutionServiceImpl implements ResolutionService {
                 resolution.setResolutionType(entity.getResolutionType());
                 resolutionRepository.save(resolution);
             }else {
-                throw new Exception("resolution type already exists");
+                throw new Exception("Độ phân giải đã tồn tại");
             }
         }
     }

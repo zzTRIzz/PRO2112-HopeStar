@@ -43,26 +43,19 @@ export function DataTable<TData, TValue>({
     refetchInterval: false,
   })
 
-  const sortedData = React.useMemo(() => {
-    return [...(data ?? [])].reverse()
-  }, [data])
-
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const table = useReactTable({
-    data: sortedData,
+    data: data || [],
     columns,
     state: {
-      sorting,
       columnVisibility,
       columnFilters,
     },
-    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),

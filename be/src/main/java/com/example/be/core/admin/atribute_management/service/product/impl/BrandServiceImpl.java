@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -20,7 +21,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public List<Brand> getAll() {
-        return brandRepository.findAll();
+        return brandRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -28,7 +31,7 @@ public class BrandServiceImpl implements BrandService {
         Brand newBrand = new Brand();
         newBrand.setCode("BRAN_"+brandRepository.getNewCode());
         if (brandRepository.existsByNameTrimmedIgnoreCase(brand.getName())){
-            throw new Exception("brand name already exists");
+            throw new Exception("Tên thương hiệu đã tồn tại");
         }
         newBrand.setName(brand.getName());
 //        newBrand.setImageUrl(brand.getImageUrl());
@@ -45,7 +48,7 @@ public class BrandServiceImpl implements BrandService {
                 brand.setStatus(entity.getStatus());
                 brandRepository.save(brand);
             }else {
-                throw new Exception("brand name already exists");
+                throw new Exception("Tên thương hiệu đã tồn tại");
             }
         }
     }
@@ -58,7 +61,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public List<Brand> getAllActive() {
-        return brandRepository.findByStatus(StatusCommon.ACTIVE);
+        return brandRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override

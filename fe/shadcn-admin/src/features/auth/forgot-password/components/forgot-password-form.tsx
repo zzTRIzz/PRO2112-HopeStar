@@ -19,8 +19,8 @@ type ForgotFormProps = HTMLAttributes<HTMLDivElement>
 const formSchema = z.object({
   email: z
     .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
+    .min(1, { message: 'Vui lòng nhập email của bạn' })
+    .email({ message: 'Địa chỉ email không hợp lệ' }),
 })
 
 export function ForgotForm({ className, ...props }: ForgotFormProps) {
@@ -51,16 +51,16 @@ export function ForgotForm({ className, ...props }: ForgotFormProps) {
               name='email'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Địa chỉ email</FormLabel>
                   <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
+                    <Input placeholder='example@gmail.com' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button className='mt-2' disabled={isLoading}>
-              Continue
+              Tiếp tục
             </Button>
           </div>
         </form>

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class BatteryServiceImpl implements BatteryService {
@@ -17,7 +19,9 @@ public class BatteryServiceImpl implements BatteryService {
 
     @Override
     public List<Battery> getAll() {
-        return batteryRepository.findAll();
+        return batteryRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -25,7 +29,7 @@ public class BatteryServiceImpl implements BatteryService {
         Battery newBattery = new Battery();
         newBattery.setCode("BATE_"+batteryRepository.getNewCode());
         if (batteryRepository.existsByTypeAndCapacity(battery.getType(), battery.getCapacity())){
-            throw new Exception("battery type with capacity already exists");
+            throw new Exception("Loại pin: "+ battery.getType()+" với dung lượng "+battery.getCapacity()+" đã tồn tại");
         }
         newBattery.setCapacity(battery.getCapacity());
         newBattery.setType(battery.getType());
@@ -43,7 +47,7 @@ public class BatteryServiceImpl implements BatteryService {
                 battery.setStatus(entity.getStatus());
                 batteryRepository.save(battery);
             }else {
-                throw new Exception("battery type with capacity already exists");
+                throw new Exception("Loại pin: "+ entity.getType()+" với dung lượng "+entity.getCapacity()+" đã tồn tại");
             }
         }
     }
@@ -56,6 +60,8 @@ public class BatteryServiceImpl implements BatteryService {
 
     @Override
     public List<Battery> getAllActive() {
-        return batteryRepository.findByStatus(StatusCommon.ACTIVE);
+        return batteryRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

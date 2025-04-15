@@ -8,13 +8,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ColorServiceImpl implements ColorService {
     private final ColorRepository colorRepository;
     @Override
     public List<Color> getAll() {
-        return colorRepository.findAll();
+        return colorRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -22,7 +26,7 @@ public class ColorServiceImpl implements ColorService {
         Color newColor = new Color();
         newColor.setCode("COLR_"+colorRepository.getNewCode());
         if (colorRepository.existsByNameTrimmedIgnoreCase(color.getName())){
-            throw new Exception("color name already exists");
+            throw new Exception("Tên màu sắc đã tồn tại");
         }
         newColor.setName(color.getName());
         newColor.setDescription(color.getDescription());
@@ -42,7 +46,7 @@ public class ColorServiceImpl implements ColorService {
                 color.setHex(entity.getHex());
                 colorRepository.save(color);
             }else {
-                throw new Exception("color name already exists");
+                throw new Exception("Tên màu sắc đã tồn tại");
             }
         }
     }
@@ -55,6 +59,8 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public List<Color> getAllActive() {
-        return colorRepository.findByStatus(StatusCommon.ACTIVE);
+        return colorRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class ScreenServiceImpl implements ScreenService {
@@ -17,7 +19,9 @@ public class ScreenServiceImpl implements ScreenService {
 
     @Override
     public List<Screen> getAll() {
-        return screenRepository.findAll();
+        return screenRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -36,7 +40,11 @@ public class ScreenServiceImpl implements ScreenService {
     public void update(Integer id, Screen entity) throws Exception {
         Screen screen = getById(id);
         if (screen != null){
-            screenRepository.save(entity);
+            screen.setType(entity.getType());
+            screen.setResolution(entity.getResolution());
+            screen.setDisplaySize(entity.getDisplaySize());
+            screen.setRefreshRate(entity.getRefreshRate());
+            screenRepository.save(screen);
         }
     }
 
@@ -48,6 +56,8 @@ public class ScreenServiceImpl implements ScreenService {
 
     @Override
     public List<Screen> getAllActive() {
-        return screenRepository.findByStatus(StatusCommon.ACTIVE);
+        return screenRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

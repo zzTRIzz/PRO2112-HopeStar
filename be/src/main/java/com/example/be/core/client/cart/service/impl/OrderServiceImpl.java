@@ -53,11 +53,13 @@ public class OrderServiceImpl implements OrderService {
                 throw new Exception("Voucher:" + voucher.getCode() + " hiện đã hết thời gian khuyến mãi");
             }
             // xu ly voucher
-            boolean checkVoucherAccount = voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucher.getId(),account.getId());
-            if (account != null && checkVoucherAccount) {
-                VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucherAndIdAccount(voucher.getId(), account.getId()).get();
-                voucherAccount.setStatus(VoucherAccountStatus.USED);
-                voucherAccountRepository.save(voucherAccount);
+            if (account != null){
+                boolean checkVoucherAccount = voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucher.getId(),account.getId());
+                if (checkVoucherAccount) {
+                    VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucherAndIdAccount(voucher.getId(), account.getId()).get();
+                    voucherAccount.setStatus(VoucherAccountStatus.USED);
+                    voucherAccountRepository.save(voucherAccount);
+                }
             }else {
                 voucher.setQuantity(voucher.getQuantity()-1);
                 voucherRepository.save(voucher);
@@ -122,7 +124,8 @@ public class OrderServiceImpl implements OrderService {
         creteBill.setTotalPrice(orderRequest.getTotalPrice());
 
         // tien khach da tra
-        PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).get();
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).orElseThrow(()->
+                new Exception("error paymentMethod"));
         if (orderRequest.getPaymentMethod() ==4){
             creteBill.setPayment(paymentMethod);
             creteBill.setCustomerPayment(BigDecimal.ZERO);
@@ -135,7 +138,8 @@ public class OrderServiceImpl implements OrderService {
         // tien ship
         creteBill.setDeliveryFee(orderRequest.getDeliveryFee());
         // hinh thuc ship
-        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(2).get();
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(2).orElseThrow(()->
+                new Exception("error deliveryMethod"));
         creteBill.setDelivery(deliveryMethod);
 
         creteBill.setTotalDue(orderRequest.getTotalDue());

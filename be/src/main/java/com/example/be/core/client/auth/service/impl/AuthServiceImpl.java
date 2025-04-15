@@ -18,6 +18,7 @@ import com.example.be.utils.CustomUser;
 import com.example.be.utils.EmailService;
 import com.example.be.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,9 +45,14 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final CustomUser customUser;
 
+    // gui khi dang ki thoi
     @Override
-    public void sentLoginOtp(String email) throws Exception {
+    public Object sentOtp(String email) throws Exception {
 
+        Account account = accountRepository.findByEmail(email);
+        if (account != null){
+            throw new Exception("Email: "+email+" đã được sự dụng");
+        }
         Verification isExit = verificationRepository.findByEmail(email);
         if (isExit != null){
             verificationRepository.delete(isExit);
@@ -57,46 +63,60 @@ public class AuthServiceImpl implements AuthService {
         verification.setOtp(otp);
         verification.setEmail(email);
         verificationRepository.save(verification);
-        String subject ="Hope Star login/signup otp";
-        String text ="<!DOCTYPE html>\n"
-                + "<html lang=\"en\">\n"
-                + "<head>\n"
-                + "  <meta charset=\"UTF-8\">\n"
-                + "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-                + "  <title>Document</title>\n"
-                + "  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n"
-                + "  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n"
-                + "  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap\" rel=\"stylesheet\">\n"
-                + "  <style>\n"
-                + "    body {\n"
-                + "      font-family: 'Inter', sans-serif;\n"
-                + "    }\n"
-                + "  </style>\n"
-                + "</head>\n"
-                + "<body>\n"
-                + "  <div style=\"min-width: 1000px; overflow: auto; line-height: 2;\">\n"
-                + "    <div style=\"margin: 50px auto; width: 70%; padding: 20px 0;\">\n"
-                + "      <div style=\"border-bottom: 1px solid #eee;\">\n"
-                + "        <a href=\"\" style=\"font-size: 1.2em; color: #2365d0; text-decoration: none; font-weight: bold;\">Quản lý tài khoản\n </a>\n"
-                + "      </div>\n"
-                + "      <p style=\"font-size: 1em;\">Xin chào, chúng tôi đã nhận được yêu cầu xác .</p>\n"
-                + "      <p style=\"font-size: 1em;\">Your login/sigup otp is::</p>\n"
-                + "      <h2\n"
-                + "        style=\"background: #e1eefb; margin: 0 auto; width: max-content; padding: 0px 10px; color: #161616; border-radius: 5px; box-shadow: 0 0 0 1px #1877f2; font-size: 1.3em; font-weight: bold;\">\n"
-                + otp
-                + "      </h2>\n"
-                + "      <br>\n"
-                + "      <hr style=\"border: none; border-top: 1px solid #eee;\">\n"
-                + "      <div style=\"float: right; padding: 8px 0; color: #aaa; font-size: 0.9em; line-height: 1; font-weight: 300;\">\n"
-                + "        <p>Website ...</p>\n"
-                + "      </div>\n"
-                + "    </div>\n"
-                + "  </div>\n"
-                + "</body>\n"
-                + "</html>";
+        String subject ="Hope Star xác thực đăng kí tài khoản";
+        String text = "<!DOCTYPE html>\n" +
+                "<html lang=\"vi\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>Hope Star xác thực đăng kí tài khoản</title>\n" +
+                "</head>\n" +
+                "<body style=\"margin: 0; padding: 0; background-color: #fff7ed; font-family: Arial, sans-serif; color: #1a1a1a;\">\n" +
+                "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                "        <tr>\n" +
+                "            <td align=\"center\">\n" +
+                "                <table width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background: #ffffff; border-radius: 16px;\">\n" +
+                "                    <!-- Header -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"background: #ff6200; padding: 24px; text-align: center; color: white;\">\n" +
+                "                            <h1 style=\"font-size: 28px; font-weight: bold; margin: 0;\">HopeStar - Mã xác thực</h1>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    <!-- Content -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"padding: 40px;\">\n" +
+                "                            <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Xin chào,</p>\n" +
+                "                            <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Chúng tôi đã nhận được yêu cầu xác thực cho đăng ký tài khoản HopeStar của bạn. Dùng mã xác thực dưới đây để tiếp tục:</p>\n" +
+                "                            <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                "                                <tr>\n" +
+                "                                    <td align=\"center\" style=\"background: #fff7ed; border-radius: 12px; padding: 24px;\">\n" +
+                "                                        <div style=\"font-size: 40px; font-weight: bold; color: #ff6200; letter-spacing: 8px;\">" +
+                otp +
+                "</div>\n" +
+                "                                    </td>\n" +
+                "                                </tr>\n" +
+                "                            </table>\n" +
+                "                            <p style=\"font-size: 14px; color: #4a4a4a; margin: 20px 0 0 0; line-height: 1.6;\">\n" +
+                "                                <strong>Lưu ý:</strong> Mã xác thực của tài khoản HopeStar. Không chia sẻ với bất kỳ ai.\n" +
+                "                            </p>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    <!-- Footer -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
+                "                            <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng quần áo HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                </table>\n" +
+                "            </td>\n" +
+                "        </tr>\n" +
+                "    </table>\n" +
+                "</body>\n" +
+                "</html>";
 
-        emailService.sendVerificationOtpEmail(email,otp,subject,text);
 
+        emailService.sendVerificationOtpEmail(email,subject,text);
+        return "Đã gửi otp thành công";
     }
 
     @Override
@@ -187,6 +207,79 @@ public class AuthServiceImpl implements AuthService {
             throw new Exception("account not found");
         }
         return account;
+    }
+
+    @Override
+    public Object forgotPassword(String email) throws Exception {
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            throw new Exception("Email không tồn tại.");
+        }
+
+        Verification isExit = verificationRepository.findByEmail(email);
+        if (isExit != null){
+            verificationRepository.delete(isExit);
+        }
+        String otp = OtpUtil.generateOtp();
+        // Gửi email
+        String resetLink = "http://localhost:5173//reset-password?token=" + otp;
+        System.out.println("otp"+otp);
+        Verification verification = new Verification();
+        verification.setOtp(otp);
+        verification.setEmail(email);
+        verificationRepository.save(verification);
+        String subject ="Hope Star xác thực thông tin tài khoản";
+        String text = "<!DOCTYPE html>\n" +
+                "<html lang=\"vi\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>Hope Star xác thực thông tin tài khoản</title>\n" +
+                "</head>\n" +
+                "<body style=\"margin: 0; padding: 0; background-color: #fff7ed; font-family: Arial, sans-serif; color: #1a1a1a;\">\n" +
+                "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                "        <tr>\n" +
+                "            <td align=\"center\">\n" +
+                "                <table width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background: #ffffff; border-radius: 16px;\">\n" +
+                "                    <!-- Header -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"background: #ff6200; padding: 24px; text-align: center; color: white;\">\n" +
+                "                            <h1 style=\"font-size: 28px; font-weight: bold; margin: 0;\">HopeStar - Đường dẫn xác thực</h1>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    <!-- Content -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"padding: 40px;\">\n" +
+                "                            <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Xin chào,</p>\n" +
+                "<p style=\"font-size: 16px; margin: 0 0 24px 0;\">Chúng tôi đã nhận được yêu cầu xác thực tài khoản HopeStar của bạn. Nhấp vào nút dưới đây để tiếp tục:</p>\n" +
+                "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                "    <tr>\n" +
+                "        <td align=\"center\">\n" +
+                "            <a href=\"" + resetLink + "\" style=\"background: #ff6200; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;\">Đặt lại mật khẩu</a>\n" +
+                "        </td>\n" +
+                "    </tr>\n" +
+                "</table>\n" +
+                "                            <p style=\"font-size: 14px; color: #4a4a4a; margin: 20px 0 0 0; line-height: 1.6;\">\n" +
+                "                                <strong>Lưu ý:</strong> Đường dẫn xác thực của tài khoản HopeStar. Không chia sẻ với bất kỳ ai.\n" +
+                "                            </p>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    <!-- Footer -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
+                "                            <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng quần áo HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                </table>\n" +
+                "            </td>\n" +
+                "        </tr>\n" +
+                "    </table>\n" +
+                "</body>\n" +
+                "</html>";
+
+
+        emailService.sendVerificationOtpEmail(email,subject,text);
+        return "Đã gửi đường dẫn xác thực thành công";
     }
 
 
