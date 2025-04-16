@@ -50,3 +50,24 @@ export interface AccountKhachHang {
   address: string,
   googleId: string
 }
+
+export interface BillHistory {
+  id: number;
+  actionType: StatusBillHistory;
+  note: string;
+  actionTime: Date;
+  idNhanVien: number;
+  fullName: string;
+}
+
+
+export enum StatusBillHistory {
+  CHO_THANH_TOAN = 'Chờ thanh toán',
+  CHO_XAC_NHAN = 'Chờ xác nhận',
+  DA_XAC_NHAN = 'Đã xác nhận ',
+  DANG_CHUAN_BI_HANG = 'Đang chuẩn bị hàng ',
+  DANG_GIAO_HANG = 'Đang giao hàng ',
+  HOAN_THANH = 'Hoàn thành ',
+  DA_HUY = 'Đã hủy',
+  CAP_NHAT_DON_HANG = 'Cập nhật đơn hàng ',
+}

@@ -5,9 +5,11 @@ import com.example.be.core.admin.account.service.impl.AccountService;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.core.admin.banhang.dto.*;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.BillHistoryRequest;
 import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.BillRespones;
 import com.example.be.core.admin.banhang.service.BillDetailService;
+import com.example.be.core.admin.banhang.service.BillHistoryService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
@@ -18,6 +20,7 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.*;
+import com.example.be.entity.status.StartusBillHistory;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.*;
 
@@ -86,6 +89,9 @@ public class BanHangTaiQuay {
     @Autowired
     VoucherService voucherService;
 
+    @Autowired
+    BillHistoryService billHistoryService;
+
     @GetMapping
     public ResponseEntity<List<?>> getListHoaDonTop6() {
         List<BillDto> billDtos = billService.listBillTop6();
@@ -98,13 +104,6 @@ public class BanHangTaiQuay {
         List<SearchBill> billDtos = billService.getAllBill();
         return ResponseEntity.ok(billDtos);
     }
-
-//    @GetMapping("/searchBillList")
-//    public ResponseEntity<List<SearchBill>> searchBillList(@ModelAttribute SearchBillRequest searchBillRequest) {
-//        List<SearchBill> billDtos = billService.searchBillList(searchBillRequest);
-//        // Luôn trả về list kể cả rỗng
-//        return ResponseEntity.ok(billDtos != null ? billDtos : Collections.emptyList());
-//    }
 
     @GetMapping("/listBill")
     public ResponseEntity<List<?>> getListHoaDonAll() {
@@ -185,6 +184,22 @@ public class BanHangTaiQuay {
         billDto.setPaymentDate(now);
         billDto.setReceiptDate(now);
         BillDto saveBillDto = billService.saveBillDto(billDto);
+
+        BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+        if (billDto.getIdDelivery() == 1) {
+            billHistoryRequest.setNote("Đơn hàng đã thanh toán và hoàn tất");
+            billHistoryRequest.setActionType(StartusBillHistory.HOAN_THANH);
+        } else if (billDto.getIdDelivery() == 2 && billDto.getIdPayment() == 4) {
+            billHistoryRequest.setNote("Đơn hàng đã được đặt thành công ");
+            billHistoryRequest.setActionType(StartusBillHistory.CHO_XAC_NHAN);
+        } else {
+            billHistoryRequest.setNote("Đơn hàng đã được đặt và thanh toán thành công");
+            billHistoryRequest.setActionType(StartusBillHistory.DA_XAC_NHAN);
+        }
+        billHistoryRequest.setIdBill(billDto.getId());
+        billHistoryRequest.setIdNhanVien(billDto.getIdNhanVien());
+        billHistoryService.addBillHistory(billHistoryRequest);
+
         return ResponseEntity.ok(saveBillDto);
     }
 

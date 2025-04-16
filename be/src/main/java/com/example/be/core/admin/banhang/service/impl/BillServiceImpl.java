@@ -3,8 +3,10 @@ package com.example.be.core.admin.banhang.service.impl;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.BillHistoryRequest;
 import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.*;
+import com.example.be.core.admin.banhang.service.BillHistoryService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
@@ -12,6 +14,7 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.*;
+import com.example.be.entity.status.StartusBillHistory;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
@@ -30,10 +33,6 @@ import java.util.stream.Collectors;
 @Service
 
 public class BillServiceImpl implements BillService {
-
-//loại trạng thái bán hàng
-//    0 là bán hàng tại quầy
-//    1 là bán hàng trên web
 
 
     @Autowired
@@ -75,6 +74,12 @@ public class BillServiceImpl implements BillService {
     @Autowired
     ImeiSoldService imeiSoldService;
 
+    @Autowired
+    BillHistoryService billHistoryService;
+
+    @Autowired
+    BillHistoryRepository billHistoryRepository;
+
     @Override
     public List<SearchBill> getAllBill() {
         List<Bill> bills = billRepository.findAll();
@@ -82,18 +87,6 @@ public class BillServiceImpl implements BillService {
                 .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
                 .collect(Collectors.toList());
     }
-
-//    @Override
-//    public List<SearchBill> searchBillList(SearchBillRequest searchBillRequest) {
-//        List<Bill> bills = billRepository.searchBills(searchBillRequest);
-//        if (bills.isEmpty()) {
-//            return new ArrayList<>();
-//        } else {
-//            return bills.stream().map(billMapper::getAllBillMapperDto)
-//                    .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
-//                    .collect(Collectors.toList());
-//        }
-//    }
 
     @Override
     public List<BillDto> listTaiQuay() {
@@ -160,6 +153,14 @@ public class BillServiceImpl implements BillService {
             Bill bill = billMapper.entityBillMapper(billDto);
 
             Bill savedBill = billRepository.save(bill);
+
+            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+            billHistoryRequest.setIdBill(savedBill.getId());
+            billHistoryRequest.setNote("Tạo hóa đơn thành công");
+            billHistoryRequest.setActionType(StartusBillHistory.CHO_THANH_TOAN);
+            billHistoryRequest.setIdNhanVien(idNhanVien);
+            billHistoryService.addBillHistory(billHistoryRequest);
+
 
             return billMapper.dtoBillMapper(savedBill);
 
@@ -379,6 +380,14 @@ public class BillServiceImpl implements BillService {
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
+
+            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+            billHistoryRequest.setIdBill(bill.getId());
+            billHistoryRequest.setNote("Đơn hàng đã hủy ");
+            billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
+            billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
+            billHistoryService.addBillHistory(billHistoryRequest);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
@@ -433,23 +442,6 @@ public class BillServiceImpl implements BillService {
             return new VoucherResponse();
         }
     }
-
-//    @Override
-//    public List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill) {
-//        LocalDateTime now = LocalDateTime.now();
-//        Bill bill = billRepository.findById(idBill).orElseThrow(
-//                () -> new RuntimeException("Bill not found with id: " + idBill));
-//
-//        if (bill.getIdAccount() == null) {
-//            return Collections.emptyList(); // Trả về danh sách rỗng thay vì null
-//        }
-//
-//        List<Voucher> vouchers = voucherRepository.findByIdAccount(bill.getIdAccount().getId(), now);
-//
-//        return vouchers.stream()
-//                .map(voucherMapper::toResponse)
-//                .collect(Collectors.toList());
-//    }
 
 
     @Override
@@ -544,6 +536,25 @@ public class BillServiceImpl implements BillService {
         } else {
             billRespones.setBillDetailResponesList(List.of());
             billRespones.setDetailCount(0);
+        }
+
+
+        List<BillHistory> billHistories = billHistoryRepository.findBillHistoryByIdBill(bill.getId());
+        if (billHistories != null && !billHistories.isEmpty()) {
+            List<BillHistoryRespones> billHistoryResponesList = new ArrayList<>();
+            for (BillHistory billHistory : billHistories) {
+                BillHistoryRespones billHistoryRespones = new BillHistoryRespones();
+                billHistoryRespones.setId(billHistory.getId());
+                billHistoryRespones.setActionType(billHistory.getActionType());
+                billHistoryRespones.setNote(billHistory.getNote());
+                billHistoryRespones.setActionTime(billHistory.getActionTime());
+                billHistoryRespones.setIdNhanVien(billHistory.getNhanVien().getId());
+                billHistoryRespones.setFullName(billHistory.getNhanVien().getFullName());
+                billHistoryResponesList.add(billHistoryRespones);
+            }
+            billRespones.setBillHistoryRespones(billHistoryResponesList);
+        } else {
+            billRespones.setBillHistoryRespones(List.of());
         }
 
         return billRespones;
