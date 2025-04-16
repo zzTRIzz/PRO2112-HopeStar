@@ -94,6 +94,7 @@ public class CartServiceImpl implements CartService {
         if (request.getQuantity()>productDetail.getInventoryQuantity()){
             throw new Exception("Sản phẩm bạn thêm chỉ còn: "+productDetail.getInventoryQuantity());
         }
+        CartResponse cartResponse = new CartResponse();
         if (existingDetail != null) {
 
             if ((request.getQuantity()+existingDetail.getQuantity())>productDetail.getInventoryQuantity()){
@@ -113,10 +114,13 @@ public class CartServiceImpl implements CartService {
             cartDetail.setIdProductDetail(productDetail);
             cartDetail.setQuantity(request.getQuantity());
             cartDetail.setStatus(StatusCartDetail.pending);
-            cartDetailRepository.save(cartDetail);
+            CartDetail test = cartDetailRepository.save(cartDetail);
+            List<CartDetail> list = new ArrayList<>();
+            list.add(test);
+            cartResponse = cartMapCartResponse(list);
         }
 
-        return "Product added to cart successfully";
+        return cartResponse;
     }
 
     @Override

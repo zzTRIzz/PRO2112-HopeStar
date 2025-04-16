@@ -18,7 +18,6 @@ import {
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
-import { getProfile } from '@/features/ui-client/data/api-service'
 
 const adminNavGroups = [
   {
@@ -214,11 +213,6 @@ const staffNavGroups = [
     title: 'Tổng quan',
     items: [
       {
-        title: 'Sản phẩm',
-        url: '/product',
-        icon: IconDeviceMobile,
-      },
-      {
         title: 'Bán hàng tại quầy',
         url: '/banhang',
         icon: IconShoppingCart,
@@ -229,14 +223,9 @@ const staffNavGroups = [
         icon: IconFileDollar,
       },
       {
-        title: 'Voucher',
-        url: '/voucher',
-        icon: IconDiscount,
-      },
-      {
-        title: 'Sale',
-        url: '/sale',
-        icon: IconPercentage,
+        title: 'Khách hàng',
+        url: '/taikhoan/khachhang',
+        icon: IconUser,
       },
     ],
   },

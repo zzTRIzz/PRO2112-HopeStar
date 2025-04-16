@@ -294,6 +294,7 @@ export function CheckoutPage() {
           } else {
             throw new Error('Invalid payment URL');
           }
+          return;
         } catch (error) {
           console.error('Error creating payment:', error);
           toast({

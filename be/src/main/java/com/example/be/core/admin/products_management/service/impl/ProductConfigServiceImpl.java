@@ -49,6 +49,9 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
     @Override
     public ProductConfigResponse create(ProductConfigRequest productConfigRequest) throws Exception {
+        if (productRepository.existsProductsByNameEquals(productConfigRequest.getProductRequest().getName().trim())){
+            throw new Exception("Tên sản phẩm đã tồn tại");
+        }
         ProductDTO productDTO = productMapper.requestToDTO(productConfigRequest.getProductRequest());
         productDTO.setCode("PRDU_"+productRepository.getNewCode());
         productDTO.setStatus(StatusCommon.ACTIVE);
