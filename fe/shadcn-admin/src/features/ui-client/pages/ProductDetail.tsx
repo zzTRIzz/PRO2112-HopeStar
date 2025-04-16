@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link,useNavigate } from '@tanstack/react-router'
 import { Route } from '@/routes/(auth)/product.$id'
 import {
   Badge,
@@ -36,7 +36,7 @@ export default function ProductDetail() {
   // add cart
 
   const queryClient = useQueryClient()
-
+  const navigate = useNavigate()
   const addToCart = async (productDetailId: number | undefined) => {
     try {
       if (!productDetailId) {
@@ -67,6 +67,46 @@ export default function ProductDetail() {
       })
     }
   }
+  const handleBuyNow = async (idProductDetail: number | undefined) => {
+      try {
+        if (!idProductDetail) {
+          toast({
+            title: 'Lỗi',
+            description: 'Không thể mua sản phẩm này',
+            variant: 'destructive',
+          })
+          return
+        }
+  
+        // Add to cart first
+        const data = await addProductToCart(idProductDetail, 1)
+        await queryClient.invalidateQueries({ queryKey: ['cart'] })
+        const cartItems = data?.cartDetailResponseList || []
+  
+        console.log('Buy now data:', cartItems)
+        const addedProduct = cartItems[0]
+  
+        if (!addedProduct) {
+          throw new Error('Không thể thêm sản phẩm vào giỏ hàng')
+        }
+    
+        // Navigate to checkout with only this product
+        navigate({
+          to: '/dat-hang',
+          search: {
+            selectedProducts: JSON.stringify([addedProduct]),
+          },
+        })
+  
+      } catch (error) {
+        console.error('Buy now error:', error)
+        toast({
+          title: 'Lỗi',
+          description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
+          variant: 'destructive',
+        })
+      }
+    }
 
   // Lấy dữ liệu sản phẩm chi tiết từ API
   useEffect(() => {
@@ -331,7 +371,10 @@ export default function ProductDetail() {
               >
                 Thêm vào giỏ hàng
               </Button>
-              <Button color='success' size='lg' className='flex-1'>
+              <Button color='success' size='lg' className='flex-1' onClick={(e) => {
+                    e.preventDefault()
+                    handleBuyNow(currentProductDetail?.productDetailId)
+                  }}>
                 Mua ngay
               </Button>
             </div>

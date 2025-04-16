@@ -49,7 +49,7 @@ export const addProductToCart = async (
     }
   )
 
-  return response.data
+  return response.data.data
 }
 
 export const updateCartItem = async (itemId: number, quantity: number) => {

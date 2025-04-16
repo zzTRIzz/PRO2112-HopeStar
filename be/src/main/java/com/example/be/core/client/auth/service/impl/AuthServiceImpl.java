@@ -28,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -126,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
         if (verification == null || !verification.getOtp().equals(signupRequest.getOtp())){
             throw new Exception("wrong otp ...");
         }
-        Account account = accountRepository.findByEmail(signupRequest.getEmail());
+        Account account = accountRepository.findByEmail(signupRequest.getEmail()); //bo di duoc do ko ket hop sign-in
         if (account == null){
             Account accountNew = new Account();
             accountNew.setEmail(signupRequest.getEmail());
@@ -136,7 +137,7 @@ public class AuthServiceImpl implements AuthService {
             accountNew.setCode("USER_"+ accountRepository.getNewCode());
             accountNew.setStatus(StatusCommon.ACTIVE);
             accountRepository.save(accountNew);
-
+            verificationRepository.delete(verification);
             ShoppingCart shoppingCart = new ShoppingCart();
             shoppingCart.setIdAccount(accountNew);
             shoppingCartRepository.save(shoppingCart);
@@ -157,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
         String password = loginRequest .getPassword();
         AuthResponse authResponse = new AuthResponse();
         if (email == null || email.isEmpty() || password == null || password.isEmpty()){
-            throw new Exception("email and password not null");
+            throw new Exception("email hoặc mật khẩu không trống");
         }else {
             Account account = accountRepository.findByEmail(email);
             if (account != null && passwordEncoder.matches(password,account.getPassword())){
@@ -166,7 +167,7 @@ public class AuthServiceImpl implements AuthService {
 
                 String token = jwtProvider.generateToken(authentication);
                 authResponse.setJwt(token);
-                authResponse.setMessage("Login success");
+                authResponse.setMessage("Chào mừng đến với HopeStar");
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
                 String roleName = authorities.isEmpty()?null:authorities.iterator().next().getAuthority();
                 authResponse.setRole(roleName);
@@ -226,6 +227,7 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("otp"+otp);
         Verification verification = new Verification();
         verification.setOtp(otp);
+        verification.setExpiryDate(LocalDateTime.now().plusMinutes(15));
         verification.setEmail(email);
         verificationRepository.save(verification);
         String subject ="Hope Star xác thực thông tin tài khoản";
@@ -279,7 +281,22 @@ public class AuthServiceImpl implements AuthService {
 
 
         emailService.sendVerificationOtpEmail(email,subject,text);
-        return "Đã gửi đường dẫn xác thực thành công";
+        return "Đã gửi đường dẫn xác thực thành công. Vui lòng kiểm tra email";
+    }
+
+    @Override
+    public Object resetPassword(String token, String newPassword) throws Exception {
+        Verification resetToken = verificationRepository.findByOtp(token);
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new Exception("Đường dẫn xác thực đã hết hạn");
+        }
+
+        Account account = accountRepository.findByEmail(resetToken.getEmail());
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+
+        verificationRepository.delete(resetToken);
+        return "Đặt lại mật khẩu thành công";
     }
 
 
