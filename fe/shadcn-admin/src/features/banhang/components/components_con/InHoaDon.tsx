@@ -137,7 +137,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             HopeStar Shop
           </h1>
           <img
-            src="/images/logo.png"
+            src="/images/favicon.png"
             alt="logo"
             style={{ width: "40px", height: "40px" }}
           />

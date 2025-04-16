@@ -51,7 +51,8 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
             <>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
+                        <Button variant="outline" 
+                        className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
                             onClick={() => setDialogContent('product')}
                             disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}>
                             Thêm sản phẩm

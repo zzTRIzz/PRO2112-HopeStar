@@ -411,12 +411,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                         In hóa đơn
                                     </Button>
                                 </div>
-                                <div className="">
-                                    <Button
-                                        className='bg-yellow-500 hover:bg-yellow-600 '>
-                                        Chi tiết
-                                    </Button>
-                                </div>
+                                
                             </div>
                         )}
                     </div>

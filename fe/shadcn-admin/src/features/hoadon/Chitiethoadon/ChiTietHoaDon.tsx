@@ -348,12 +348,12 @@ const ChiTietHoaDon: React.FC = () => {
                         <div className="flex space-x-2">
                             {/* Quét Barcode để check sản phẩm */}
 
-                            <Button className="bg-white-500 border border-blue-500 rounded-sm
+                            {/* <Button className="bg-white-500 border border-blue-500 rounded-sm
                                                 border-opacity-50 text-blue-600 hover:bg-gray-300"
                                 disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
                             >
                                 Quét Barcode
-                            </Button>
+                            </Button> */}
 
                             {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
                             {/* {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && ( */}
