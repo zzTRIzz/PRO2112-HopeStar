@@ -405,8 +405,8 @@ public class VoucherServiceImpl implements VoucherService {
         List<VoucherApplyResponse> listOfPublic = handlerVoucherApplyResponses(voucherPublic);
         listVoucher.addAll(listOfPublic);
         return listVoucher;
-
     }
+
     private List<VoucherApplyResponse> handlerVoucherApplyResponses(List<Voucher> voucherList){
 
         List<VoucherApplyResponse> list = new ArrayList<>();
@@ -421,6 +421,8 @@ public class VoucherServiceImpl implements VoucherService {
             voucherApplyResponse.setMinOrderValue(voucher.getConditionPriceMin());
             voucherApplyResponse.setMaxOrderValue(voucher.getConditionPriceMax());
             voucherApplyResponse.setMaxDiscountAmount(voucher.getMaxDiscountAmount());
+            voucherApplyResponse.setQuantity(voucher.getQuantity());
+            voucherApplyResponse.setIsPrivate(voucher.getIsPrivate());
             list.add(voucherApplyResponse);
         }
         return list;

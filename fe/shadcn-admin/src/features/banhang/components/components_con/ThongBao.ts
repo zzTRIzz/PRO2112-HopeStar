@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import "../custom-toast.css"
+import "../../css/custom-toast.css"
 export const fromThanhCong = (message: string) => {
     toast.success(message, {
       position: "top-right",

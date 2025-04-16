@@ -35,14 +35,17 @@ export const Voucher = z.object({
   id: z.number(),
   code: z.string(),
   name: z.string(),
-  conditionPriceMin: z.number(),
-  conditionPriceMax: z.number(),
-  discountValue: z.number(),
-  voucherType: z.boolean(),
+  minOrderValue: z.number(),
+  maxOrderValue: z.number(),
+  maxDiscountAmount: z.number(),
+  value: z.number(),
+  type: z.boolean(),
   quantity: z.number(),
   startTime: z.string(),
   endTime: z.string(),
   status: z.string(),
+  isPrivate: z.boolean(),
+
 });
 
 export type Voucher = z.infer<typeof Voucher>;
@@ -178,6 +181,7 @@ export interface BillRespones {
   delivery: number | null;
   detailCount: number;
   billDetailResponesList: BillDetailRespones[];
+  billHistoryRespones:BillHistory[];
 }
 
 export interface BillDetailRespones {
@@ -214,3 +218,24 @@ export interface ImeiRespones {
   status: string;
 }
 
+
+export interface BillHistory {
+  id: number;
+  actionType: StatusBillHistory;
+  note: string;
+  actionTime: Date;
+  idNhanVien: number;
+  fullName: string;
+}
+
+
+export enum StatusBillHistory {
+  CHO_THANH_TOAN = 'Chờ thanh toán',
+  CHO_XAC_NHAN = 'Chờ xác nhận',
+  DA_XAC_NHAN = 'Đã xác nhận ',
+  DANG_CHUAN_BI_HANG = 'Đang chuẩn bị hàng ',
+  DANG_GIAO_HANG = 'Đang giao hàng ',
+  HOAN_THANH = 'Hoàn thành ',
+  DA_HUY = 'Đã hủy',
+  CAP_NHAT_DON_HANG = 'Cập nhật đơn hàng ',
+}

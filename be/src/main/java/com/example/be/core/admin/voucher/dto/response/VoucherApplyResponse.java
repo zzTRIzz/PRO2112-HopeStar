@@ -16,5 +16,8 @@ public class VoucherApplyResponse {
     private BigDecimal minOrderValue;
     private BigDecimal maxOrderValue;
     private BigDecimal maxDiscountAmount;
+    private Integer quantity;
+    private Boolean isPrivate;
+
 
 }
