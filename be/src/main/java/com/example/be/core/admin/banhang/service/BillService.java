@@ -3,6 +3,7 @@ package com.example.be.core.admin.banhang.service;
 
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.BillRespones;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Voucher;
@@ -24,9 +25,10 @@ public interface BillService {
 
     BillDto updateStatus(Integer idBill, StatusBill status);
 
-    BillDto createHoaDonTaiQuay(BillDto billDto);
 
 //    BillDto updateHoaDonTaiQuay(BillDto billDto);
+
+    BillDto createHoaDonTaiQuay(Integer idNhanVien);
 
     BigDecimal tongTienBill(Integer idBill);
 
@@ -48,9 +50,9 @@ public interface BillService {
 
     //__________________________________________________________________________________________
 
-    VoucherResponse hienThiVoucherTheoBill(Integer idBill);
+    BillDto updateCustomerRequest (UpdateCustomerRequest request);
 
-    List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill);
+    VoucherResponse hienThiVoucherTheoBill(Integer idBill);
 
     BillRespones findByIdBill(Integer idBill);
 }

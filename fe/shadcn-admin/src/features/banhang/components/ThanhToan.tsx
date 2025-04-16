@@ -15,10 +15,12 @@ import { Input } from "@/components/ui/input"
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { BillRespones, Voucher } from '../service/Schema';
-import InHoaDon from './InHoaDon';
+import InHoaDon from './components_con/InHoaDon';
 import "../css/print_hoaDon.css"
-import TaoMaQr from './TaoMaQr';
-import { fromThanhCong, fromThatBai } from './ThongBao';
+import TaoMaQr from './components_con/TaoMaQr';
+import { fromThanhCong, fromThatBai } from './components_con/ThongBao';
+import Ship from './components_con/ship';
+// import { configConsumerProps } from 'antd/es/config-provider';
 interface ThanhToanProps {
     searchBill: BillRespones | undefined;
     setPaymentMethod: any;
@@ -33,12 +35,14 @@ interface ThanhToanProps {
     setIsVoucher: any;
     tienThua: number;
     isBanGiaoHang: boolean;
-    phiShip: number;
     printData: any;
     printRef: React.RefObject<HTMLDivElement | null>;
     setIsThanhToanNhanHang: (open: boolean) => void;
     isThanhToanNhanHang: boolean;
-
+    setShippingFee: (shipping: number) => void;
+    setInsuranceFee: (insurance: number) => void;
+    tongTien: number;
+    confirmedAddress: any
 }
 
 
@@ -57,14 +61,16 @@ const ThanhToan: React.FC<ThanhToanProps> =
         setIsVoucher,
         tienThua,
         isBanGiaoHang,
-        phiShip,
         printData,
         printRef,
         setIsThanhToanNhanHang,
-        isThanhToanNhanHang
+        isThanhToanNhanHang,
+        setShippingFee,
+        setInsuranceFee,
+        tongTien,
+        confirmedAddress
     }) => {
         const [dateTime, setDateTime] = useState<Date>(new Date());
-        const tongTien = searchBill?.totalDue == null ? 0 : searchBill?.totalDue + phiShip;
 
         const handleSwitchChange = (checked: boolean) => {
             if (checked) {
@@ -80,8 +86,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
         const handlePaymentMethodChange = (method: number) => {
             if (!searchBill) return fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán!");
             if (tongTien <= 0) return fromThatBai("Giá tiền hiện tại là 0đ !");
-
-
             setPaymentMethod(method);
             if (method === 2) {
                 setDateTime(new Date());
@@ -89,27 +93,52 @@ const ThanhToan: React.FC<ThanhToanProps> =
             }
             if (isThanhToanNhanHang) setIsThanhToanNhanHang(false);
         };
-        // console.log('tong tien ' + customerPayment);
-        const xacNhanThanhToan = () => {
-            console.log('tong tien ' + customerPayment);
-            console.log('paymentMethod ' + paymentMethod);
-            console.log('isBanGiaoHang ' + isBanGiaoHang);
-            // console.log('tong tien ' + customerPayment);
 
+        const xacNhanThanhToan = () => {
             if (!isBanGiaoHang) {
-                handleThanhToan("HOAN_THANH", 0); // Trường hợp bán tại quầy
+                handleThanhToan("HOAN_THANH", 0);
             } else {
-                // Giao hàng
                 if (paymentMethod === 1 || paymentMethod === 2) {
-                    // Đã thanh toán tiền mặt hoặc chuyển khoản
                     handleThanhToan("DA_XAC_NHAN", 1);
                 } else {
-                    // Chưa thanh toán (ví dụ: QR hoặc phương thức khác)
                     handleThanhToan("CHO_XAC_NHAN", 1);
                 }
             }
         };
+        const handleShippingFeeChange = (shipping: number, insurance: number) => {
+            if (isBanGiaoHang == true) {
+                setShippingFee(shipping)
+                setInsuranceFee(insurance)
+            } else {
+                setShippingFee(0);
+                setInsuranceFee(0);
+            }
+        }
+        const checkVoucherCondition = (voucher: Voucher): boolean => {
+            if (!searchBill) {
+                fromThatBai("Vui lòng chọn hóa đơn trước khi áp dụng voucher!");
+                return false;
+            }
 
+            // Kiểm tra giá trị đơn hàng tối thiểu
+            if (voucher.minOrderValue && tongTien < voucher.minOrderValue) {
+                fromThatBai(`Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} đ`);
+                return false;
+            }
+
+            // Kiểm tra giá trị đơn hàng tối đa
+            if (voucher.maxOrderValue && tongTien > voucher.maxOrderValue) {
+                fromThatBai(`Đơn hàng không được vượt quá ${voucher.maxOrderValue.toLocaleString('vi-VN')} đ.`);
+                return false;
+            }
+
+            // Kiểm tra số lượng voucher còn lại
+            if (voucher.quantity && voucher.quantity <= 0 && voucher.isPrivate == true) {
+                fromThatBai("Voucher này đã hết số lượng sử dụng.");
+                return false;
+            }
+            return true;
+        };
         return (
             <>
                 <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
@@ -118,8 +147,12 @@ const ThanhToan: React.FC<ThanhToanProps> =
                             <p className="font-bold text-base">Mã Giảm Giá</p>
                             <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
                                 <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
-                                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700">✖</button>
+                                <button className="ml-2 text-sm text-gray-500 hover:text-gray-700"
+                                    onClick={() => updateVoucherKhiChon(null)}>
+                                    ✖
+                                </button>
                             </div>
+
                             <Dialog open={isVoucher} onOpenChange={setIsVoucher}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline"
@@ -129,40 +162,62 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[980px]">
-                                    <TableContainer>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell>Stt</TableCell>
-                                                    <TableCell>Mã</TableCell>
-                                                    <TableCell>Giá min</TableCell>
-                                                    <TableCell>Giá max</TableCell>
-                                                    <TableCell>Giá trị giảm</TableCell>
-                                                    <TableCell>Kiểu</TableCell>
-                                                    <TableCell>Số lượng </TableCell>
-                                                    <TableCell>Số lượng </TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {ListVoucherTheoAccount.map((ac, index) => (
-                                                    <TableRow key={ac.id}>
-                                                        <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>{ac.code}</TableCell>
-                                                        <TableCell>{ac.conditionPriceMin.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.conditionPriceMax.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.discountValue.toLocaleString('vi-VN')}</TableCell>
-                                                        <TableCell>{ac.voucherType == true ? " % " : " VNĐ "}</TableCell>
-                                                        <TableCell>{ac.quantity}</TableCell>
-                                                        <TableCell>
-                                                            <Button color="primary" onClick={() => updateVoucherKhiChon(ac.id)}>
-                                                                Chọn
-                                                            </Button>
-                                                        </TableCell>
+                                    {ListVoucherTheoAccount.length > 0 ? (
+                                        <TableContainer>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Stt</TableCell>
+                                                        <TableCell>Mã</TableCell>
+                                                        <TableCell>Điều kiện</TableCell>
+                                                        <TableCell>Giá trị giảm</TableCell>
+                                                        <TableCell align='center'>Số lượng </TableCell>
+                                                        <TableCell>Thao tác </TableCell>
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
+                                                </TableHead>
+
+                                                <TableBody>
+                                                    {ListVoucherTheoAccount.map((ac, index) => (
+                                                        <TableRow key={ac.id}>
+                                                            <TableCell>{index + 1}</TableCell>
+                                                            <TableCell>{ac?.code}</TableCell>
+                                                            <TableCell>{ac?.minOrderValue?.toLocaleString('vi-VN')} đ - {ac?.maxOrderValue?.toLocaleString('vi-VN')} đ</TableCell>
+                                                            <TableCell>
+                                                                {ac?.value?.toLocaleString('vi-VN')}
+                                                                {ac?.type ? ' %' : ' VNĐ'}
+                                                                {ac?.type && ac?.maxDiscountAmount ? (
+                                                                    <> (Tối đa {ac.maxDiscountAmount.toLocaleString('vi-VN')} đ)</>
+                                                                ) : null}
+                                                            </TableCell>
+                                                            <TableCell align='center'> {ac?.isPrivate ? 'Riêng tư' : ac?.quantity}</TableCell>
+                                                            <TableCell>
+                                                                <Button color="primary"
+                                                                    onClick={() => {
+                                                                        if (checkVoucherCondition(ac)) {
+                                                                            updateVoucherKhiChon(ac.id); 
+                                                                        }
+                                                                    }}                                                                 >
+                                                                    Chọn
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+
+                                            </Table>
+                                        </TableContainer>
+                                    ) : (
+                                        <div className='flex h-[300px] items-center justify-center'>
+                                            <div className='text-center'>
+                                                <p className='text-lg font-medium text-gray-500'>
+                                                    Không tìm thấy mã giảm giá nào
+                                                </p>
+                                                <p className='mt-1 text-sm text-gray-400'>
+                                                    Vui lòng thêm mã giảm giá
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </DialogContent>
                             </Dialog>
                         </div>
@@ -179,14 +234,16 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                         <p className="font-semibold">{searchBill?.discountedTotal == null ? 0 : searchBill?.discountedTotal.toLocaleString('vi-VN')} đ</p>
                                     </div>
                                     {isBanGiaoHang == true && (
-                                        <div className="flex justify-between border-b pb-2">
-                                            <p className="text-gray-700 text-base">Phí ship:</p>
-                                            <p className="font-semibold">{phiShip.toLocaleString('vi-VN')} đ</p>
-                                        </div>
+                                        <Ship
+                                            productValue={tongTien}
+                                            weight={1500}
+                                            address={confirmedAddress}
+                                            onShippingFeeChange={handleShippingFeeChange}
+                                        />
                                     )}
                                     <div className="flex justify-between border-b pb-2">
                                         <p className="text-gray-700 text-base">Khách cần trả:</p>
-                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0 : (searchBill?.totalDue + phiShip).toLocaleString('vi-VN')} đ</p>
+                                        <p className="font-semibold text-green-600">{searchBill?.totalDue == null ? 0 : tongTien.toLocaleString('vi-VN')} đ</p>
                                     </div>
 
                                     <div className="flex gap-x-2 justify-between border-b pb-2 pl-[45px] pr-[40px]">
@@ -235,6 +292,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             tongTien={tongTien}
                                             dateTime={dateTime}
                                             handleThanhToan={handleThanhToan}
+                                            isBanGiaoHang={isBanGiaoHang}
                                         />
                                     )}
 
@@ -251,24 +309,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     )}
                                 </div>
                             </div>
-                            {/* {isBanGiaoHang === false ? (
-                                <Button
-                                    className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => handleThanhToan("HOAN_THANH", 0) // Khi Switch tắt
-                                    }
-                                >
-                                    Xác nhận thanh toán
-                                </Button>
-                            ) : (
-                                <Button
-                                    className="w-[270px] h-[50px] bg-red-500 text-white hover:bg-blue-600 ml-[60px]"
-                                    onClick={() => handleThanhToan("CHO_XAC_NHAN", 1) // Khi Switch tắt
-                                    }
-                                >
-                                    Xác nhận thanh toán
-                                </Button>
-                            )} */}
-
                             {paymentMethod != 2 && (
                                 <Button
                                     className="w-[270px] h-[50px] bg-blue-500 text-white hover:bg-blue-600 ml-[60px]"

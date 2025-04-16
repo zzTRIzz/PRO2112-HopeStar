@@ -3,42 +3,76 @@ import { Icon } from '@iconify/react'
 import { Bill } from '../service/schema'
 import { useState, useEffect } from 'react'
 import { getBillAllClientByAccount } from '../service/api-bill-client-service'
-import { useParams } from '@tanstack/react-router'
-const orderStatuses = [
-  { id: 1, label: 'Đặt hàng', icon: 'lucide:receipt', done: true },
-  { id: 2, label: 'Đang xử lý', icon: 'lucide:package', done: false },
-  { id: 3, label: 'Đang giao hàng', icon: 'lucide:truck', done: false },
-  { id: 4, label: 'Hoàn tất', icon: 'lucide:check-circle', done: false },
-]
+
+// const orderStatusSteps = [
+//   {
+//     id: 1,
+//     statuses: ['CHO_XAC_NHAN', 'CHO_THANH_TOAN'],
+//     label: 'Chờ xác nhận',
+//     icon: 'lucide:receipt',
+//   },
+//   {
+//     id: 2,
+//     statuses: ['DA_XAC_NHAN'],
+//     label: 'Đã xác nhận đơn hàng',
+//     icon: 'lucide:package',
+//   },
+//   {
+//     id: 2,
+//     statuses: ['DANG_CHUAN_BI_HANG'],
+//     label: 'Đang chuẩn bị hàng',
+//     icon: 'lucide:package',
+//   },
+//   {
+//     id: 3,
+//     statuses: ['DANG_GIAO_HANG'],
+//     label: 'Đang giao hàng',
+//     icon: 'lucide:truck',
+//   },
+//   {
+//     id: 4,
+//     statuses: ['HOAN_THANH'],
+//     label: 'Hoàn tất',
+//     icon: 'lucide:check-circle',
+//   },
+// ];
 const orderStatusSteps = [
   {
     id: 1,
     statuses: ['CHO_XAC_NHAN', 'CHO_THANH_TOAN'],
     label: 'Chờ xác nhận',
-    icon: 'lucide:receipt',
+    icon: 'lucide:hourglass', 
   },
   {
     id: 2,
-    statuses: ['DANG_CHUAN_BI_HANG'],
-    label: 'Đang chuẩn bị hàng',
-    icon: 'lucide:package',
+    statuses: ['DA_XAC_NHAN'],
+    label: 'Đã xác nhận',
+    icon: 'lucide:check-square', 
   },
   {
     id: 3,
-    statuses: ['DANG_GIAO_HANG'],
-    label: 'Đang giao hàng',
-    icon: 'lucide:truck',
+    statuses: ['DANG_CHUAN_BI_HANG'],
+    label: 'Đang chuẩn bị hàng',
+    icon: 'lucide:box', 
   },
   {
     id: 4,
+    statuses: ['DANG_GIAO_HANG'],
+    label: 'Đang giao hàng',
+    icon: 'lucide:truck', 
+  },
+  {
+    id: 5,
     statuses: ['HOAN_THANH'],
     label: 'Hoàn tất',
     icon: 'lucide:check-circle',
   },
 ];
+
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },

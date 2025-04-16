@@ -28,8 +28,8 @@ interface SanPhamChiTiet {
     selectedImei: number[];
     dialogContent: "product" | "imei";
     setDialogContent: (content: "product" | "imei") => void;
-    isDialogOpen: boolean; 
-    setIsDialogOpen: (open: boolean) => void; 
+    isDialogOpen: boolean;
+    setIsDialogOpen: (open: boolean) => void;
     searchBill: BillRespones | null;
 
 }
@@ -53,11 +53,11 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                     <DialogTrigger asChild>
                         <Button variant="outline" className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
                             onClick={() => setDialogContent('product')}
-                            disabled={["DANG_GIAO_HANG", "HOAN_THANH","CHO_THANH_TOAN","DA_HUY"].includes(searchBill?.status ?? "")}>
+                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}>
                             Thêm sản phẩm
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[980px]">
+                    <DialogContent className={dialogContent === 'product' ? 'sm:max-w-[980px]' : 'sm:max-w-[730px]'}>
                         <Input
                             placeholder="Tìm mã sản phẩm, tên sản phẩm  "
                             className="max-w-sm"
@@ -96,15 +96,15 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                         ) : (
-                            <TableContainer>
+                            <TableContainer className="h-full max-h-[500px] overflow-auto">
                                 <Table>
                                     <TableHead>
                                         <TableRow>
                                             <TableCell></TableCell>
                                             <TableCell>Stt</TableCell>
                                             <TableCell>Imei code</TableCell>
+                                            <TableCell>Bar code</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -120,14 +120,29 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                                 </TableCell>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>{im.imeiCode}</TableCell>
+                                                <TableCell>
+                                                    <img src={im.barCode}
+                                                        className='h-8 w-64 rounded-lg object-cover'
+                                                    />
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                                <Button className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
-                                    onClick={() => handleAddImei()}>
+                                {/* <Button
+                                    className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
+                                    onClick={() => handleAddImei()}
+                                >
                                     Chọn
-                                </Button>
+                                </Button> */}
+                                <div className="absolute bottom-0 left-0 w-full bg-white p-4 shadow-md ">
+                                    <Button
+                                        className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"
+                                        onClick={() => handleAddImei()}
+                                    >
+                                        Chọn
+                                    </Button>
+                                </div>
                             </TableContainer>
                         )}
                     </DialogContent>

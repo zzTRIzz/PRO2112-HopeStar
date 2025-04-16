@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle, Clock, Package, Truck, CreditCard } from "lucide-react";
+import { CheckCircle, Clock, Truck, CreditCard } from "lucide-react";
 import { BillRespones } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react'
-import { showErrorToast, showSuccessToast } from "./ThongBao";
+import { showErrorToast, showSuccessToast } from "./components_con/ThongBao";
 import { updateTotalDue } from "../../service/HoaDonService";
+import { ToastContainer } from "react-toastify";
+import InvoiceTemplate from "./components_con/InHoaDon";
+
 interface StepProps {
     status: OrderStatus;
     step: OrderStatus;
@@ -174,6 +177,7 @@ interface TrangThaiDonHangProps {
     searchBill: BillRespones | null;
     loadTongBill: () => void;
 }
+
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     ({
         trangThai,
@@ -250,6 +254,120 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 loadTongBill();
             }
         };
+        const printRef = useRef<HTMLDivElement>(null)
+        const [printData, setPrintData] = useState<any>(null)
+
+
+        const handlePrint = (invoiceData: any) => {
+            setPrintData(invoiceData)
+
+            // Đợi React cập nhật DOM trước khi in
+            setTimeout(() => {
+                const printElement = printRef.current
+                if (printElement) {
+                    const printWindow = window.open('', '_blank')
+                    if (printWindow) {
+                        printWindow.document.write(`
+                    <html>
+                      <head>
+                        <title>In hóa đơn</title>
+                        <link rel="stylesheet" href="/path-to-your-tailwind.css">
+                      </head>
+                      <body onload="window.print()">
+                        ${printElement.innerHTML}
+                      </body>
+                    </html>
+                  `)
+                        printWindow.document.close()
+                    }
+                }
+            }, 100)
+        }
+        // const handlePrint = useCallback((invoiceData: any) => {
+        //     setPrintData(invoiceData)
+
+        //     const printElement = printRef.current;
+        //     if (printElement) {
+        //         const printWindow = window.open('', '_blank');
+        //         if (printWindow) {
+        //             // Thêm CSS cần thiết cho in ấn
+        //             printWindow.document.write(`
+        //                 <html>
+        //                     <head>
+        //                         <title>In hóa đơn - ${searchBill?.code}</title>
+        //                         <style>
+        //                             body { 
+        //                                 font-family: Arial, sans-serif; 
+        //                                 width: 80mm; 
+        //                                 margin: 0 auto; 
+        //                                 padding: 10px;
+        //                             }
+        //                             table {
+        //                                 width: 100%;
+        //                                 border-collapse: collapse;
+        //                                 margin: 10px 0;
+        //                             }
+        //                             th, td {
+        //                                 border: 1px solid #ddd;
+        //                                 padding: 8px;
+        //                                 font-size: 12px;
+        //                             }
+        //                             .text-right {
+        //                                 text-align: right;
+        //                             }
+        //                             .text-center {
+        //                                 text-align: center;
+        //                             }
+        //                             .qrcode {
+        //                                 margin-top: 10px;
+        //                             }
+        //                             @media print {
+        //                                 @page {
+        //                                     size: 80mm 150mm;
+        //                                     margin: 0;
+        //                                 }
+        //                                 body {
+        //                                     width: 100% !important;
+        //                                     margin: 0 !important;
+        //                                     padding: 5px !important;
+        //                                 }
+        //                             }
+        //                         </style>
+        //                     </head>
+        //                     <body onload="window.print(); window.close()">
+        //                         ${printElement.innerHTML}
+        //                     </body>
+        //                 </html>
+        //             `);
+        //             printWindow.document.close();
+        //         }
+        //     }
+        // }, [searchBill]);
+
+        const invoiceData = {
+            id: searchBill?.id,
+            code: searchBill?.code,
+            paymentDate: new Date().toISOString(),
+            staff: searchBill?.fullNameNV,
+            customer: searchBill?.name,
+            phone: searchBill?.phone,
+            items: searchBill?.billDetailResponesList.map(detail => ({
+                product: detail.productDetail.productName + ' ' +
+                    detail.productDetail.ram + '/' +
+                    detail.productDetail.rom + 'GB ( ' +
+                    detail.productDetail.color + ' )',
+                imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
+                price: detail.price,
+                quantity: detail.quantity,
+            })) || [],
+            totalPrice: searchBill?.totalPrice || 0,
+            deliveryFee: searchBill?.deliveryFee || 0,
+            discountedTotal: searchBill?.discountedTotal || 0,
+            customerPayment: searchBill?.customerPayment || 0,
+            change: searchBill?.amountChange || 0,
+        };
+
+
         return (
             <div className="w-[985px]">
                 <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">
@@ -289,15 +407,28 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                 </Button>
 
                                 <div className="ml-[500px]">
-                                    <Button>
+                                    <Button onClick={() => handlePrint(invoiceData)}>
                                         In hóa đơn
+                                    </Button>
+                                </div>
+                                <div className="">
+                                    <Button
+                                        className='bg-yellow-500 hover:bg-yellow-600 '>
+                                        Chi tiết
                                     </Button>
                                 </div>
                             </div>
                         )}
                     </div>
+                    <div style={{ position: 'fixed', left: '-9999px' }}>
+                        {printData && (
+                            <div ref={printRef} className="invoice-container">
+                                <InvoiceTemplate billData={printData} />
+                            </div>
+                        )}
+                    </div>
                 </div>
-
+                <ToastContainer />
             </div>
 
         );

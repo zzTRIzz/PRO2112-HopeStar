@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
@@ -13,7 +13,7 @@ import {
     updateImeiSold,
 
 } from '@/features/hoadon/service/HoaDonService';
-import { showSuccessToast, showErrorToast } from "./components/ThongBao"
+import { showSuccessToast, showErrorToast } from "./components/components_con/ThongBao"
 interface SearchBillDetail {
     id: number
     price: number,
@@ -97,7 +97,7 @@ const ChiTietHoaDon: React.FC = () => {
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
-    const [isCapNhatImei, setIsCapNhatImei] = useState(false);
+    const [openDialogId, setOpenDialogId] = useState<number | null>(null);
     const [voucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
 
     // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
@@ -112,7 +112,7 @@ const ChiTietHoaDon: React.FC = () => {
         const id = Number(urlParams.get("id"));
 
         if (!isNaN(id) && id > 0) {
-            setIdBill(id); // Chỉ cập nhật nếu ID hợp lệ
+            setIdBill(id);
         }
         findBillById(id);
         getById(id);
@@ -261,7 +261,7 @@ const ChiTietHoaDon: React.FC = () => {
             );
             console.log("Imei mới:", newImei);
             setSelectedImei([]);
-            setIsCapNhatImei(false);
+            // setIsCapNhatImei(false);
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
@@ -288,14 +288,22 @@ const ChiTietHoaDon: React.FC = () => {
         }
         findImeiByIdProductDetail(idPD, billDetaill);
     };
+    // const tienThieu = (searchBill?.amountChange ?? 0) < 0 ?
+    //     Math.abs(searchBill?.totalDue ?? 0) :
+    //     ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0));
+    const tinhTien = (searchBill?.totalDue || 0)
+        - (searchBill?.customerPayment || 0)
+        + (searchBill?.amountChange || 0);
 
-
+    const tienThieu = tinhTien > 0 ? tinhTien : 0;
+    const tienThua = tinhTien < 0 ? Math.abs(tinhTien) : 0;
 
     return (
         <>
             <div>
                 <div className='ml-[18px] mt-[10px]'>
-                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý hóa đơn</a><a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
+                    <a href="/hoadon" className='text-sm text-blue-600'>Quản lý hóa đơn</a>
+                    <a href="/hoadon/hoadonchitiet" className='text-sm text-cyan-600'>{' > '}chi tiết đơn hàng</a>
                 </div>
                 <TasksProvider>
                     <Header>
@@ -331,7 +339,7 @@ const ChiTietHoaDon: React.FC = () => {
 
                 <ThongTinDonHang
                     searchBill={searchBill}
-                    listKhachHang={listKhachHang}
+                    loadTongBill={loadTongBill}
                 />
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">
@@ -375,8 +383,8 @@ const ChiTietHoaDon: React.FC = () => {
                                 product={product}
                                 listImei={listImei}
                                 selectedImei={selectedImei}
-                                isCapNhatImei={isCapNhatImei}
-                                setIsCapNhatImei={setIsCapNhatImei}
+                                openDialogId={openDialogId}
+                                setOpenDialogId={setOpenDialogId}
                                 handleUpdateProduct={handleUpdateProduct}
                                 handleCheckboxChange={handleCheckboxChange}
                                 updateHandleImeiSold={updateHandleImeiSold}
@@ -398,14 +406,25 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
-                                        { label: "Đã trả lại:", value: (searchBill?.amountChange ?? 0) > 0 ? searchBill?.amountChange : 0},
-                                        {
-                                            label: "Còn thiếu:",
-                                            value: (searchBill?.amountChange ?? 0) < 0 ?
-                                                Math.abs(searchBill?.totalDue ?? 0) :
-                                                ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0)),
-                                            highlight: true
-                                        },
+                                        ...(searchBill?.amountChange ?? 0 > 0
+                                            ? [{
+                                                label: "Đã trả lại:",
+                                                value: searchBill?.amountChange
+                                            }]
+                                            : []),
+                                        ...(tienThieu > 0
+                                            ? [{
+                                                label: "Còn thiếu:",
+                                                value: tienThieu,
+                                                highlight: true
+                                            }]
+                                            : tienThua > 0
+                                                ? [{
+                                                    label: "Tiền thừa:",
+                                                    value: tienThua,
+                                                    highlight: true
+                                                }]
+                                                : [])
                                     ].map((item, index) => (
                                         <div key={index} className="flex justify-between items-center">
                                             <span className={`text-sm ${item.highlight ? "font-semibold" : "text-gray-600"}`}>
@@ -423,14 +442,6 @@ const ChiTietHoaDon: React.FC = () => {
                 </div>
                 <br />
             </Main >
-            {/* <ToastContainer
-                position="top-right"
-                hideProgressBar
-                newestOnTop
-                closeOnClick
-                pauseOnHover
-                draggable
-                theme="colored" /> */}
         </>
     );
 };

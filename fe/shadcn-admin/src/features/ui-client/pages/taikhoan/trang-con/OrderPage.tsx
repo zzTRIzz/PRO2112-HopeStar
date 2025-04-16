@@ -7,12 +7,23 @@ import { getBillByAccount } from '../service/api-bill-client-service'
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
   DA_HUY: { color: 'red', text: 'Đã hủy' },
-  // returned: { color: '#6c757d', text: 'Trả hàng' },
 }
+// const statusConfig = {
+//   CHO_XAC_NHAN: { color: '#facc15', text: 'Chờ xác nhận' },         // Vàng sáng (amber-400)
+//   CHO_THANH_TOAN: { color: '#facc15', text: 'Chờ thanh toán' },     // Vàng sáng (same group)
+//   DA_XAC_NHAN: { color: '#22c55e', text: 'Đã xác nhận' },           // Xanh lá (green-500)
+//   DANG_CHUAN_BI_HANG: { color: '#3b82f6', text: 'Đang chuẩn bị hàng' }, // Xanh dương (blue-500)
+//   DANG_GIAO_HANG: { color: '#0ea5e9', text: 'Đang giao hàng' },     // Xanh dương nhạt (sky-500)
+//   HOAN_THANH: { color: '#16a34a', text: 'Hoàn tất' },               // Xanh lá đậm (green-600)
+//   DA_HUY: { color: '#ef4444', text: 'Đã hủy' },                     // Đỏ tươi (red-500)
+//   // RETURNED: { color: '#6b7280', text: 'Trả hàng' },              // Xám trung tính (gray-500)
+// };
+
 
 export const OrdersPage = () => {
   const [selected, setSelected] = React.useState('all')
@@ -97,6 +108,7 @@ export const OrdersPage = () => {
         >
           <Tab key='all' title='Tất cả' />
           <Tab key='CHO_XAC_NHAN' title='Chờ xác nhận' />
+          <Tab key='DA_XAC_NHAN' title='Đã xác nhận' />
           <Tab key='DANG_CHUAN_BI_HANG' title='Đang chuẩn bị hàng' />
           <Tab key='DANG_GIAO_HANG' title='Đang giao hàng' />
           <Tab key='HOAN_THANH' title='Hoàn thành' />
@@ -165,7 +177,7 @@ export const OrdersPage = () => {
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='text-lg font-bold'>
+                      <p className='text-lg font-bold text-red-500'>
                         {order?.totalDue != null ? order?.totalDue?.toLocaleString('vi-VN'): 0} đ
                       </p>
                     </div>

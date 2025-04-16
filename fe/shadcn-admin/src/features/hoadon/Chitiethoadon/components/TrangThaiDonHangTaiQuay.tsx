@@ -146,16 +146,10 @@ const TrangThaiDonHangTaiQuay: React.FC<TrangThaiDonHangProps> =
     ({
         trangThai,
         searchBill,
-        loadTongBill
     }) => {
 
-        const [currentStatus, setCurrentStatus] = useState<OrderStatusTaiQuay>(trangThai);
+        const [currentStatus] = useState<OrderStatusTaiQuay>(trangThai);
 
-        // Mảng các trạng thái theo thứ tự
-        const statusOrder: OrderStatusTaiQuay[] = [
-            "CHO_THANH_TOAN",
-            "HOAN_THANH"
-        ];
         return (
             <div className="w-[985px]">
                 <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">

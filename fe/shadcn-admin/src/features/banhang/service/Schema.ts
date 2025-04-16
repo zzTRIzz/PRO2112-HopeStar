@@ -35,14 +35,17 @@ export const Voucher = z.object({
   id: z.number(),
   code: z.string(),
   name: z.string(),
-  conditionPriceMin: z.number(),
-  conditionPriceMax: z.number(),
-  discountValue: z.number(),
-  voucherType: z.boolean(),
+  minOrderValue: z.number(),
+  maxOrderValue: z.number(),
+  maxDiscountAmount: z.number(),
+  value: z.number(),
+  type: z.boolean(),
   quantity: z.number(),
   startTime: z.string(),
   endTime: z.string(),
   status: z.string(),
+  isPrivate: z.boolean(),
+
 });
 
 export type Voucher = z.infer<typeof Voucher>;

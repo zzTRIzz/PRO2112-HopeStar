@@ -19,41 +19,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CgAdd } from "react-icons/cg";
 import { BillSchema } from "../service/Schema";
-// Định nghĩa kiểu dữ liệu cho sản phẩm trong giỏ hàng
 
-interface Bill {
-    id: number;
-    nameBill: string;
-    idAccount: number | null;
-    idNhanVien: number | null;
-    idVoucher: number | null;
-    totalPrice: number;
-    customerPayment: number;
-    amountChange: number;
-    deliveryFee: number;
-    totalDue: number;
-    customerRefund: number;
-    discountedTotal: number;
-    deliveryDate: string | null;
-    customerPreferred_date: string | null;
-    customerAppointment_date: string | null;
-    receiptDate: string | null;
-    paymentDate: string | null;
-    billType: number;
-    status: number;
-    address: string | null;
-    email: string | null;
-    note: string | null;
-    phone: string | null;
-    name: string;
-    paymentId: number | null;
-    deliveryId: number | null;
-    itemCount: number;
-
-  }
-  
-
-// Định nghĩa kiểu dữ liệu cho props của Cart
 interface pendingInvoiceList {
     listBill: BillSchema[]; // Danh sách hóa đơn
     billChoThanhToan: BillSchema[]; // Danh sách hóa đơn

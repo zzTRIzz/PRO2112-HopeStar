@@ -5,6 +5,7 @@ import com.example.be.core.admin.account.service.impl.AccountService;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.core.admin.banhang.dto.*;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.BillRespones;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.BillService;
@@ -12,14 +13,15 @@ import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
+import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
+import com.example.be.core.admin.voucher.service.VoucherService;
+import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
-import com.example.be.repository.BillDetailRepository;
-import com.example.be.repository.BillRepository;
-import com.example.be.repository.ProductDetailRepository;
+import com.example.be.repository.*;
 
-import com.example.be.repository.VoucherRepository;
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +76,15 @@ public class BanHangTaiQuay {
 
     @Autowired
     VoucherRepository voucherRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    AuthService authService;
+
+    @Autowired
+    VoucherService voucherService;
 
     @GetMapping
     public ResponseEntity<List<?>> getListHoaDonTop6() {
@@ -146,9 +157,17 @@ public class BanHangTaiQuay {
 
     //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
-    public ResponseEntity<?> addHoaDon(@RequestBody BillDto billDto) {
-        BillDto billDto1 = billService.createHoaDonTaiQuay(billDto);
-        return ResponseEntity.ok(billDto1);
+    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization", required = true) String jwt) throws Exception {
+        try {
+            Account account = authService.findAccountByJwt(jwt);
+            BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
+            return ResponseEntity.ok(billDto1);
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo hóa đơn");
+        }
+
     }
 
     //    Chỉ cần có id Khach hang để gán vào bill là được
@@ -164,6 +183,7 @@ public class BanHangTaiQuay {
     public ResponseEntity<?> thanhToan(@RequestBody BillDto billDto) {
         LocalDateTime now = LocalDateTime.now();
         billDto.setPaymentDate(now);
+        billDto.setReceiptDate(now);
         BillDto saveBillDto = billService.saveBillDto(billDto);
         return ResponseEntity.ok(saveBillDto);
     }
@@ -193,9 +213,9 @@ public class BanHangTaiQuay {
 
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
-        billService.capNhatVoucherKhiChon(bill.getId(), bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
+        billService.capNhatVoucherKhiChon(bill.getId(), bill.getIdVoucher());
         billService.tongTienBill(bill.getId());
         return ResponseEntity.ok(savebillDetailDto);
     }
@@ -216,9 +236,9 @@ public class BanHangTaiQuay {
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
         Integer quantyti = imeiSoldDto.getId_Imei().size();
-        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
+        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         billService.tongTienBill(idBill);
         return ResponseEntity.ok(billDetailDto);
     }
@@ -244,18 +264,25 @@ public class BanHangTaiQuay {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
-        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
         productDetailService.updateStatusProduct(idProduct);
+        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         billService.tongTienBill(idBill);
         return ResponseEntity.ok("");
     }
+
 
     @PutMapping("/update-totalDue/{id}/{totalDue}")
     public ResponseEntity<BillDto> updateTotalDue(
             @PathVariable("id") Integer id,
             @PathVariable("totalDue") BigDecimal totalDue) {
         BillDto updatedBill = billService.updateTotalDue(id, totalDue);
+        return ResponseEntity.ok(updatedBill);
+    }
+
+    @PutMapping("/updateCustomer")
+    public ResponseEntity<BillDto> updateCustomer(@RequestBody UpdateCustomerRequest request) {
+        BillDto updatedBill = billService.updateCustomerRequest(request);
         return ResponseEntity.ok(updatedBill);
     }
 
@@ -310,18 +337,31 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(voucherResponse);
     }
 
-    @PostMapping("/updateVoucher/{idBill}/{idVoucher}")
-    public ResponseEntity<?> updateVoucher(@PathVariable("idBill") Integer idBill,
-                                           @PathVariable("idVoucher") Integer idVoucher) {
-        Voucher voucher = voucherRepository.findById(idVoucher)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay voucher da chon"));
+    @PostMapping("/updateVoucher")
+    public ResponseEntity<?> updateVoucher(@RequestParam("idBill") Integer idBill,
+                                           @RequestParam(value = "idVoucher", required = false) Integer idVoucher) {
+        Voucher voucher = null;
+        if (idVoucher != null) {
+            voucher = voucherRepository.findById(idVoucher)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher đã chọn"));
+        }
         BillDto billDto = billService.capNhatVoucherKhiChon(idBill, voucher);
         return ResponseEntity.ok(billDto);
     }
 
-    @GetMapping("/hienThiByVoucher/{idBill}")
-    public ResponseEntity<List<?>> findVoucherByAccount(@PathVariable("idBill") Integer idBill) {
-        List<VoucherResponse> voucherResponse = billService.timKiemVoucherTheoAccount(idBill);
-        return ResponseEntity.ok(voucherResponse);
+
+    @GetMapping("/voucher")
+    public ResponseEntity<List<VoucherApplyResponse>> getVouchers(
+            @RequestParam(value = "idAccount", required = false) Integer idAccount) {
+
+        Account account = null;
+        if (idAccount != null) {
+            account = accountRepository.findById(idAccount)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy account"));
+        }
+
+        List<VoucherApplyResponse> voucherApplyResponses = voucherService.getVoucherApply(account);
+        return ResponseEntity.ok(voucherApplyResponses);
     }
+
 }
