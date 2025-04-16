@@ -103,7 +103,7 @@ public class CartServiceImpl implements CartService {
 
             Integer sum = request.getQuantity() + existingDetail.getQuantity();
             if (sum > 5){
-                throw new Exception("Sản phẩm thêm tối đa là 5. Giỏ hàng đã có: "+existingDetail.getQuantity());
+                throw new Exception("Sản phẩm thêm tối đa là 5. Giỏ hàng đã có: "+existingDetail.getQuantity()+" .Bạn muốn mua số lượng hãy liên hệ với chúng tôi.");
             }
 
             existingDetail.setQuantity(existingDetail.getQuantity() + request.getQuantity());
