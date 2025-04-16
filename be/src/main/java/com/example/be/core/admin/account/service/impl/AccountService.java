@@ -32,7 +32,24 @@ public class AccountService {
     private final EmailService guiEmail;
 
 
+    private void kiemTraEmail_SDT_biTrung(String email, String sdt) {
+        // Kiểm tra trùng email
+        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
+            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+        }
+        if (accountRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email đã tồn tại: " + email);
+        }
+        // Kiểm tra trùng số điện thoại
+        if (accountRepository.existsByPhone(sdt)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+        }
+    }
+
+
+
     public AccountResponse create(AccountRequest request) {
+        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
         String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
@@ -58,6 +75,7 @@ public class AccountService {
     }
 
     public AccountResponse createNhanVien(NhanVienRequest request){
+        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
         String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
 
         Role role = roleRepository.findById(3).orElseThrow(
@@ -134,7 +152,27 @@ public class AccountService {
     }
 
 
+    private void kiemTraEmail_SDT_biTrungKhiUpdate(Integer id,String email, String sdt) {
+        AccountResponse accountHienTai = getById(id);
+        if (accountHienTai == null) {
+            throw new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id);
+        }
+        // Kiểm tra trùng email
+        if (!accountHienTai.getEmail().equals(email) && !accountHienTai.getPhone().equals(sdt) && accountRepository.existsByEmailAndPhone(email, sdt)) {
+            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+        }
+        // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
+        if (!accountHienTai.getEmail().equals(email) && accountRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email đã tồn tại: " + email);
+        }
+        // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
+        if (!accountHienTai.getPhone().equals(sdt) && accountRepository.existsByPhone(sdt)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+        }
+    }
+
     public AccountResponse update(Integer id, AccountRequest request) {
+        kiemTraEmail_SDT_biTrungKhiUpdate(id,request.getEmail(), request.getPhone());
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
@@ -154,6 +192,7 @@ public class AccountService {
     }
 
     public AccountResponse updateNhanVien(Integer id, NhanVienRequest request){
+        kiemTraEmail_SDT_biTrungKhiUpdate(id,request.getEmail(), request.getPhone());
         Role role = roleRepository.findById(3).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );

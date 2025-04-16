@@ -87,7 +87,8 @@ const formSchema = z.object({
     .string()
     .min(10, 'Số điện thoại phải có ít nhất 10 số')
     .max(15, 'Số điện thoại không được quá 15 số')
-    .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +'),
+    .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +')
+    .regex(/^(?:\+?84|0[35789])[0-9]{8}$/, 'Số điện thoại không đúng định dạng'),
   address: z
     .string()
     .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
@@ -104,8 +105,8 @@ const formSchema = z.object({
     ) {
       age--
     }
-    return age >= 15
-  }, 'Người dùng phải đủ 15 tuổi'),
+    return age >= 15 && age < 61
+  }, 'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
   googleId: z.string().default('string'),
   imageAvatar: z
@@ -270,7 +271,7 @@ export default function MyForm() {
       if (error.response) {
         // Lỗi từ server
         const message = error.response.data?.message || 'Lỗi server'
-        toast.error(`Lỗi: ${message}`)
+        toast.error(`${message}`)
       } else if (error.request) {
         // Lỗi kết nối
         toast.error(
