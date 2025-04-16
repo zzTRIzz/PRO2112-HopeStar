@@ -74,7 +74,7 @@ interface Voucher {
 import { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
 import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
-import { BillRespones, BillSchema } from '@/features/banhang/service/Schema';
+import { BillRespones } from '@/features/banhang/service/Schema';
 
 import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
@@ -297,7 +297,8 @@ const ChiTietHoaDon: React.FC = () => {
 
     const tienThieu = tinhTien > 0 ? tinhTien : 0;
     const tienThua = tinhTien < 0 ? Math.abs(tinhTien) : 0;
-
+    // console.log("Tien thieu" + tienThieu)
+    // console.log("Tien thua" + tienThua)
     return (
         <>
             <div>

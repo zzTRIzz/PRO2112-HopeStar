@@ -402,7 +402,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 placeholder="Tìm mã imei"
                 className="max-w-sm"
                 value={searchImeiKey}
-                onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
+                onChange={(e) => setSearchImeiKey(e.target.value)} 
               />
               <TableContainer >
                 <ScrollArea className="h-full max-h-[500px] overflow-auto">

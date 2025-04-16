@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
-import { BillRespones, BillSchema, Imei, ProductDetail } from '@/features/banhang/service/Schema';
+import { BillRespones, Imei, ProductDetail } from '@/features/banhang/service/Schema';
 
 
 

@@ -9,6 +9,7 @@ import { showErrorToast, showSuccessToast } from "./components_con/ThongBao";
 import { updateTotalDue } from "../../service/HoaDonService";
 import { ToastContainer } from "react-toastify";
 import InvoiceTemplate from "./components_con/InHoaDon";
+import ChiTiet from "./components_con/ChiTiet";
 
 interface StepProps {
     status: OrderStatus;
@@ -59,19 +60,19 @@ const Step: React.FC<StepProps> = ({
                 )}></div>
             )}
 
-            {/* Icon với vòng tròn */}
+
             <div className={cn(
-                "relative z-10 p-1", // Thêm padding cho vòng tròn ngoài
-                "rounded-full", // Bo tròn vòng ngoài
-                "border-2", // Thêm border cho vòng tròn
+                "relative z-10 p-1",
+                "rounded-full",
+                "border-2",
                 isActive
                     ? "border-green-500"
                     : "border-gray-200",
                 "transition-colors duration-300",
-                "bg-white" // Nền trắng để che đường nối
+                "bg-white"
             )}>
                 <div className={cn(
-                    "w-8 h-8 rounded-full", // Giảm kích thước icon container
+                    "w-8 h-8 rounded-full",
                     "flex items-center justify-center",
                     isActive ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500",
                     "transition-all duration-300 ease-in-out"
@@ -80,7 +81,6 @@ const Step: React.FC<StepProps> = ({
                 </div>
             </div>
 
-            {/* Text */}
             <div className="mt-2 text-center max-w-[150px]">
                 <h3 className={cn(
                     "text-sm font-medium ",
@@ -107,6 +107,33 @@ function getStepValue(status: OrderStatus): number {
 
     return statusMap[status];
 }
+const actions = [
+    {
+        time: "15:45:11 - 22/01/2024",
+        title: "Đặt Hàng Thành Công",
+        color: "green",
+        icon: "📝",
+    },
+    {
+        time: "15:45:57 - 22/01/2024",
+        title: "Cập Nhật Đơn Hàng",
+        color: "yellow",
+        icon: "✏️",
+    },
+    {
+        time: "15:47:42 - 22/01/2024",
+        title: "Chờ Giao Hàng",
+        color: "green",
+        icon: "💵",
+    }
+    ,
+    {
+        time: "15:47:42 - 22/01/2024",
+        title: "Chờ Giao Hàng",
+        color: "green",
+        icon: "💵",
+    }
+];
 
 const OrderStepper: React.FC<OrderStepperProps> = ({
     currentStatus,
@@ -166,6 +193,17 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
                         icon={<CheckCircle className="w-4 h-4" />}
                         isLast={true}
                     />
+                    {/* <div className="timeline flex">
+                        {actions.map((item, index) => (
+                            <div key={index} className="step text-center mx-2">
+                                <div className={`icon-circle bg-${item.color}-500 text-white p-2 rounded-full`}>
+                                    {item.icon}
+                                </div>
+                                <div className="title font-bold mt-1">{item.title}</div>
+                                <div className="time text-sm text-gray-500">{item.time}</div>
+                            </div>
+                        ))}
+                    </div> */}
                 </>
             )}
         </div>
@@ -283,67 +321,6 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 }
             }, 100)
         }
-        // const handlePrint = useCallback((invoiceData: any) => {
-        //     setPrintData(invoiceData)
-
-        //     const printElement = printRef.current;
-        //     if (printElement) {
-        //         const printWindow = window.open('', '_blank');
-        //         if (printWindow) {
-        //             // Thêm CSS cần thiết cho in ấn
-        //             printWindow.document.write(`
-        //                 <html>
-        //                     <head>
-        //                         <title>In hóa đơn - ${searchBill?.code}</title>
-        //                         <style>
-        //                             body { 
-        //                                 font-family: Arial, sans-serif; 
-        //                                 width: 80mm; 
-        //                                 margin: 0 auto; 
-        //                                 padding: 10px;
-        //                             }
-        //                             table {
-        //                                 width: 100%;
-        //                                 border-collapse: collapse;
-        //                                 margin: 10px 0;
-        //                             }
-        //                             th, td {
-        //                                 border: 1px solid #ddd;
-        //                                 padding: 8px;
-        //                                 font-size: 12px;
-        //                             }
-        //                             .text-right {
-        //                                 text-align: right;
-        //                             }
-        //                             .text-center {
-        //                                 text-align: center;
-        //                             }
-        //                             .qrcode {
-        //                                 margin-top: 10px;
-        //                             }
-        //                             @media print {
-        //                                 @page {
-        //                                     size: 80mm 150mm;
-        //                                     margin: 0;
-        //                                 }
-        //                                 body {
-        //                                     width: 100% !important;
-        //                                     margin: 0 !important;
-        //                                     padding: 5px !important;
-        //                                 }
-        //                             }
-        //                         </style>
-        //                     </head>
-        //                     <body onload="window.print(); window.close()">
-        //                         ${printElement.innerHTML}
-        //                     </body>
-        //                 </html>
-        //             `);
-        //             printWindow.document.close();
-        //         }
-        //     }
-        // }, [searchBill]);
-
         const invoiceData = {
             id: searchBill?.id,
             code: searchBill?.code,
@@ -411,7 +388,8 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                                         In hóa đơn
                                     </Button>
                                 </div>
-                                
+                                <ChiTiet
+                                    searchBill={searchBill} />
                             </div>
                         )}
                     </div>
@@ -430,3 +408,5 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     }
 
 export default TrangThaiDonHangGiaoHang;
+
+

@@ -32,7 +32,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             HopeStar Shop
           </h1>
           <img
-            src="https://cdn-icons-png.flaticon.com/512/1043/1043494.png"
+            src="/images/favicon.png"
             alt="logo"
             style={{ width: "40px", height: "40px" }}
           />
@@ -65,9 +65,13 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
           <p><strong>Mã hóa đơn:</strong> {billData?.code}</p>
           <p><strong>Ngày:</strong>  {billData?.paymentDate
             ? new Date(billData?.paymentDate).toLocaleDateString("vi-VN", {
-              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              day: "2-digit",
               month: "2-digit",
-              day: "2-digit"
+              year: "numeric",
+              hour12: false
             })
             : ""}
           </p>
