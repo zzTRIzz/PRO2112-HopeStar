@@ -3,7 +3,10 @@ package com.example.be.core.admin.banhang.service.impl;
 import com.example.be.core.admin.banhang.dto.BillDto;
 import com.example.be.core.admin.banhang.dto.SearchBill;
 import com.example.be.core.admin.banhang.mapper.BillMapper;
+import com.example.be.core.admin.banhang.request.BillHistoryRequest;
+import com.example.be.core.admin.banhang.request.UpdateCustomerRequest;
 import com.example.be.core.admin.banhang.respones.*;
+import com.example.be.core.admin.banhang.service.BillHistoryService;
 import com.example.be.core.admin.banhang.service.BillService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
@@ -11,7 +14,10 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.*;
+import com.example.be.entity.status.StartusBillHistory;
 import com.example.be.entity.status.StatusBill;
+import com.example.be.entity.status.StatusVoucher;
+import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,10 +33,6 @@ import java.util.stream.Collectors;
 @Service
 
 public class BillServiceImpl implements BillService {
-
-//loại trạng thái bán hàng
-//    0 là bán hàng tại quầy
-//    1 là bán hàng trên web
 
 
     @Autowired
@@ -66,7 +69,16 @@ public class BillServiceImpl implements BillService {
     ProductDetailService productDetailService;
 
     @Autowired
+    VoucherAccountRepository voucherAccountRepository;
+
+    @Autowired
     ImeiSoldService imeiSoldService;
+
+    @Autowired
+    BillHistoryService billHistoryService;
+
+    @Autowired
+    BillHistoryRepository billHistoryRepository;
 
     @Override
     public List<SearchBill> getAllBill() {
@@ -75,18 +87,6 @@ public class BillServiceImpl implements BillService {
                 .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
                 .collect(Collectors.toList());
     }
-
-//    @Override
-//    public List<SearchBill> searchBillList(SearchBillRequest searchBillRequest) {
-//        List<Bill> bills = billRepository.searchBills(searchBillRequest);
-//        if (bills.isEmpty()) {
-//            return new ArrayList<>();
-//        } else {
-//            return bills.stream().map(billMapper::getAllBillMapperDto)
-//                    .sorted(Comparator.comparing(SearchBill::getPaymentDate).reversed()) // Sắp xếp giảm dần theo ngày.
-//                    .collect(Collectors.toList());
-//        }
-//    }
 
     @Override
     public List<BillDto> listTaiQuay() {
@@ -136,19 +136,32 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto createHoaDonTaiQuay(BillDto billDto) {
+    public BillDto createHoaDonTaiQuay(Integer idNhanVien) {
         try {
+            BillDto billDto = new BillDto();
+            if (idNhanVien == null) {
+                throw new RuntimeException("Vui lòng đăng nhập với vai trò nhân viên");
+            }
             LocalDateTime now = LocalDateTime.now();
             billDto.setPaymentDate(now);
             billDto.setBillType((byte) 0);
+            billDto.setIdNhanVien(idNhanVien);
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
             System.out.println(billRepository.getNewCode());
-//            Chuyển DTO sang Entity
+
             Bill bill = billMapper.entityBillMapper(billDto);
-            // Lưu vào database
+
             Bill savedBill = billRepository.save(bill);
-            // Trả về DTO
+
+            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+            billHistoryRequest.setIdBill(savedBill.getId());
+            billHistoryRequest.setNote("Tạo hóa đơn thành công");
+            billHistoryRequest.setActionType(StartusBillHistory.CHO_THANH_TOAN);
+            billHistoryRequest.setIdNhanVien(idNhanVien);
+            billHistoryService.addBillHistory(billHistoryRequest);
+
+
             return billMapper.dtoBillMapper(savedBill);
 
         } catch (Exception e) {
@@ -160,31 +173,26 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BigDecimal tongTienBill(Integer idBill) {
-        // Lấy hóa đơn theo ID
+
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn: " + idBill));
-        // Lấy tổng tiền hàng từ database
+
         BigDecimal tongTien = billDetailRepository.getTotalAmountByBillId(idBill);
 
-        // Lấy giá trị giảm giá và phí ship, nếu null thì gán bằng 0
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
         BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
 
-        // Tính tổng tiền cuối cùng (tổng tiền sản phẩm - giảm giá + phí ship)
+
         BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
-//        System.out.println("Tong tien "+tongTien);
-//        System.out.println("Tong giamGia "+giamGia);
-//        System.out.println("Tong phiShip "+phiShip);
-//        System.out.println("Tong tongTienFinal "+tongTienFinal);
+
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
-            tongTienFinal = BigDecimal.ZERO; // Không được âm tiền
+            tongTienFinal = BigDecimal.ZERO;
+
         }
 
-        // Cập nhật lại tổng tiền vào hóa đơn
-        bill.setTotalPrice(tongTien); // Tổng tiền hàng
-        bill.setTotalDue(tongTienFinal); // Tổng tiền phải trả (sau giảm giá + ship)
+        bill.setTotalPrice(tongTien);
+        bill.setTotalDue(tongTienFinal);
         billRepository.save(bill);
-
         return tongTien;
     }
 
@@ -198,7 +206,8 @@ public class BillServiceImpl implements BillService {
         if (bill.getAmountChange().compareTo(BigDecimal.ZERO) < 0) {
             bill.setAmountChange(BigDecimal.ZERO);
         }
-
+        LocalDateTime now = LocalDateTime.now();
+        bill.setReceiptDate(now);
         Bill saveBill = billRepository.save(bill);
         return billMapper.dtoBillMapper(saveBill);
     }
@@ -207,10 +216,10 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto addAccount(Integer idBill, Integer idAccount) {
         try {
-            // Kiểm tra hóa đơn có tồn tại không
+
             Bill bill = billRepository.findById(idBill)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
-            // Kiểm tra khách hàng có tồn tại không
+
             Account accountKhachHang = accountRepository.findById(idAccount)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng " + idAccount));
             bill.setIdAccount(accountKhachHang);
@@ -227,15 +236,17 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto capNhatVoucherKhiChon(Integer idBill, Voucher voucher) {
+    public BillDto capNhatVoucherKhiChon(Integer idBill, Voucher newVoucher) {
         try {
-            // Lấy hóa đơn
             Bill bill = billRepository.findById(idBill)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + idBill));
 
             BigDecimal tongTien = bill.getTotalPrice() != null ? bill.getTotalPrice() : BigDecimal.ZERO;
 
-            // Nếu tổng tiền bằng 0 thì không được áp dụng voucher
+
+            Voucher oldVoucher = bill.getIdVoucher();
+
+
             if (tongTien.compareTo(BigDecimal.ZERO) == 0) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
@@ -244,7 +255,27 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
-            if (voucher == null) {
+
+            if (oldVoucher != null) {
+                if (Boolean.FALSE.equals(oldVoucher.getIsPrivate())) {
+
+                    int quantity = oldVoucher.getQuantity() != null ? oldVoucher.getQuantity() : 0;
+                    oldVoucher.setQuantity(quantity + 1);
+                    voucherRepository.save(oldVoucher);
+                } else {
+
+                    VoucherAccount va = voucherAccountRepository
+                            .findByIdVoucherAndIdAccount(oldVoucher.getId(), bill.getIdAccount().getId())
+                            .orElse(null);
+                    if (va != null && va.getStatus() == VoucherAccountStatus.USED) {
+                        va.setStatus(VoucherAccountStatus.NOT_USED);
+                        voucherAccountRepository.save(va);
+                    }
+                }
+            }
+
+
+            if (newVoucher == null) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
                 bill.setTotalDue(tongTien);
@@ -252,20 +283,56 @@ public class BillServiceImpl implements BillService {
                 return billMapper.dtoBillMapper(bill);
             }
 
+            BigDecimal totalDue = bill.getTotalDue() != null ? bill.getTotalDue() : BigDecimal.ZERO;
+            BigDecimal priceMin = newVoucher.getConditionPriceMin() != null ? newVoucher.getConditionPriceMin() : BigDecimal.ZERO;
+            BigDecimal priceMax = newVoucher.getConditionPriceMax() != null ? newVoucher.getConditionPriceMax() : BigDecimal.valueOf(Long.MAX_VALUE);
 
-            BigDecimal giamGia = voucher.getDiscountValue() != null ? voucher.getDiscountValue() : BigDecimal.ZERO;
+            if (totalDue.compareTo(priceMin) < 0 || totalDue.compareTo(priceMax) > 0) {
+                throw new RuntimeException("Giá trị hóa đơn không nằm trong khoảng áp dụng của voucher.");
+            }
 
+
+            BigDecimal giamGia;
+            if (Boolean.TRUE.equals(newVoucher.getVoucherType())) {
+
+                BigDecimal phanTram = newVoucher.getDiscountValue() != null ? newVoucher.getDiscountValue() : BigDecimal.ZERO;
+                BigDecimal maxGiam = newVoucher.getMaxDiscountAmount() != null ? newVoucher.getMaxDiscountAmount() : BigDecimal.valueOf(Long.MAX_VALUE);
+
+                BigDecimal tienGiam = tongTien.multiply(phanTram).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                giamGia = tienGiam.min(maxGiam);
+            } else {
+
+                giamGia = newVoucher.getDiscountValue() != null ? newVoucher.getDiscountValue() : BigDecimal.ZERO;
+            }
 
             BigDecimal tongSauGiam = tongTien.subtract(giamGia);
             if (tongSauGiam.compareTo(BigDecimal.ZERO) < 0) {
                 tongSauGiam = BigDecimal.ZERO;
             }
 
-            BigDecimal tienGiam = tongTien.subtract(tongSauGiam);
 
-            // Cập nhật vào hóa đơn
-            bill.setIdVoucher(voucher);
-            bill.setDiscountedTotal(tienGiam);
+            if (Boolean.FALSE.equals(newVoucher.getIsPrivate())) {
+
+                int currentQuantity = newVoucher.getQuantity() != null ? newVoucher.getQuantity() : 0;
+                if (currentQuantity <= 0) {
+                    throw new RuntimeException("Voucher đã hết lượt sử dụng");
+                }
+                newVoucher.setQuantity(currentQuantity - 1);
+                voucherRepository.save(newVoucher);
+            } else {
+
+                VoucherAccount va = voucherAccountRepository
+                        .findByIdVoucherAndIdAccount(newVoucher.getId(), bill.getIdAccount().getId())
+                        .orElse(null);
+                if (va != null && va.getStatus() == VoucherAccountStatus.NOT_USED) {
+                    va.setStatus(VoucherAccountStatus.USED);
+                    va.setUsedDate(LocalDateTime.now());
+                    voucherAccountRepository.save(va);
+                }
+            }
+
+            bill.setIdVoucher(newVoucher);
+            bill.setDiscountedTotal(giamGia);
             bill.setTotalDue(tongSauGiam);
             billRepository.save(bill);
 
@@ -313,9 +380,49 @@ public class BillServiceImpl implements BillService {
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
+
+            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+            billHistoryRequest.setIdBill(bill.getId());
+            billHistoryRequest.setNote("Đơn hàng đã hủy ");
+            billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
+            billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
+            billHistoryService.addBillHistory(billHistoryRequest);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
+        }
+    }
+
+
+    @Override
+    public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
+        try {
+            Bill bill = billRepository.findById(request.getId()).orElseThrow(
+                    () -> new RuntimeException("Bill not found with id: " + request.getId())
+            );
+
+            BigDecimal oldFee = bill.getDeliveryFee();
+            BigDecimal newFee = request.getDeliveryFee();
+
+            BigDecimal tongTien = bill.getTotalDue().subtract(oldFee).add(newFee);
+
+            bill.setTotalDue(tongTien);
+            bill.setAddress(request.getAddress());
+            bill.setNote(request.getNote());
+            bill.setPhone(request.getPhone());
+            bill.setName(request.getName());
+            bill.setDeliveryFee(newFee);
+
+            System.out.println("Phi ship cũ: " + oldFee);
+            System.out.println("Phi ship mới: " + newFee);
+            System.out.println("Tổng tiền sau cập nhật: " + tongTien);
+
+            Bill saveBill = billRepository.save(bill);
+            return billMapper.dtoBillMapper(saveBill);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
         }
     }
 
@@ -334,23 +441,6 @@ public class BillServiceImpl implements BillService {
         } else {
             return new VoucherResponse();
         }
-    }
-
-    @Override
-    public List<VoucherResponse> timKiemVoucherTheoAccount(Integer idBill) {
-        LocalDateTime now = LocalDateTime.now();
-        Bill bill = billRepository.findById(idBill).orElseThrow(
-                () -> new RuntimeException("Bill not found with id: " + idBill));
-
-        if (bill.getIdAccount() == null) {
-            return Collections.emptyList(); // Trả về danh sách rỗng thay vì null
-        }
-
-        List<Voucher> vouchers = voucherRepository.findByIdAccount(bill.getIdAccount().getId(), now);
-
-        return vouchers.stream()
-                .map(voucherMapper::toResponse)
-                .collect(Collectors.toList());
     }
 
 
@@ -446,6 +536,25 @@ public class BillServiceImpl implements BillService {
         } else {
             billRespones.setBillDetailResponesList(List.of());
             billRespones.setDetailCount(0);
+        }
+
+
+        List<BillHistory> billHistories = billHistoryRepository.findBillHistoryByIdBill(bill.getId());
+        if (billHistories != null && !billHistories.isEmpty()) {
+            List<BillHistoryRespones> billHistoryResponesList = new ArrayList<>();
+            for (BillHistory billHistory : billHistories) {
+                BillHistoryRespones billHistoryRespones = new BillHistoryRespones();
+                billHistoryRespones.setId(billHistory.getId());
+                billHistoryRespones.setActionType(billHistory.getActionType());
+                billHistoryRespones.setNote(billHistory.getNote());
+                billHistoryRespones.setActionTime(billHistory.getActionTime());
+                billHistoryRespones.setIdNhanVien(billHistory.getNhanVien().getId());
+                billHistoryRespones.setFullName(billHistory.getNhanVien().getFullName());
+                billHistoryResponesList.add(billHistoryRespones);
+            }
+            billRespones.setBillHistoryRespones(billHistoryResponesList);
+        } else {
+            billRespones.setBillHistoryRespones(List.of());
         }
 
         return billRespones;

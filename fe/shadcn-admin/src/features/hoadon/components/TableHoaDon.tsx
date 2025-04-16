@@ -89,7 +89,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                 <TableCell align="center">Trạng thái</TableCell>
                                 <TableCell align="center">Tổng tiền</TableCell>
                                 <TableCell align="center" >Thanh toán</TableCell>
-                                <TableCell align="center">Ngày tạo</TableCell>
+                                <TableCell align="center">Ngày mua hàng</TableCell>
                                 <TableCell align="center" >Thao tác</TableCell>
                             </TableRow>
                         </TableHead>

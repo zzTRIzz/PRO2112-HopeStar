@@ -70,4 +70,5 @@ public class BillRespones {
 
     List<BillDetailRespones> billDetailResponesList;
 
+    List<BillHistoryRespones> billHistoryRespones;
 }
