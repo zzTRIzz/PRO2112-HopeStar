@@ -24,7 +24,6 @@ public class SaleRequest {
     @NotNull(message = "Ngày kết thúc không được để trống")
     private LocalDateTime dateEnd;
 
-    @NotBlank(message = "Mô tả không được để trống")
     @Size(max = 1000, message = "Mô tả không được vượt quá 1000 ký tự")
     private String description;
 

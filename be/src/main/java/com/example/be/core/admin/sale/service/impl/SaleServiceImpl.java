@@ -107,12 +107,14 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public SaleResponse add(SaleRequest request) {
 
+
         if (saleRepository.existsByCode(request.getCode())) {
             throw new RuntimeException("Mã chương trình đã tồn tại");
+
         }
         // Kiểm tra nếu dateStart là trong quá khứ
         if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
-            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
+            throw new RuntimeException("Ngày bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại");
         }
 
         // Kiểm tra nếu dateEnd là trước dateStart
@@ -244,9 +246,9 @@ public class SaleServiceImpl implements SaleService {
         }
 
         // Kiểm tra nếu dateStart là trong quá khứ
-        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
-            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
-        }
+//        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
+//            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
+//        }
 
         // Kiểm tra nếu dateEnd là trước dateStart
         if (request.getDateEnd().isBefore(request.getDateStart())) {
