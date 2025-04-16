@@ -27,14 +27,10 @@ public class ProductDetailController {
         return ResponseEntity.ok(productImeiRespons1s);
     }
     @PatchMapping("/{id}")
-    public ResponseData<?> updateStatus(@PathVariable Integer id){
+    public ResponseData<?> updateStatus(@PathVariable Integer id) throws Exception {
 
-        try {
             productDetailService.updateStatus(id);
-            return new ResponseData<>(HttpStatus.ACCEPTED,"update status product-detail successfully");
-        }catch (Exception e){
-            return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
-        }
+            return new ResponseData<>(HttpStatus.ACCEPTED,"Cập nhật trạng thái thành công");
     }
     @PutMapping("/{id}")
     public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest) throws Exception {

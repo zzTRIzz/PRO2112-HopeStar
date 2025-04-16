@@ -29,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final DeliveryMethodRepository deliveryMethodRepository;
     private final VoucherRepository voucherRepository;
     private final VoucherAccountRepository voucherAccountRepository;
+    private final BillHistoryRepository billHistoryRepository;
 
     @Override
 //    @Transactional
@@ -79,7 +80,6 @@ public class OrderServiceImpl implements OrderService {
 
         //phuong thuc thanh toan ...
 
-        bill.setStatus(StatusBill.CHO_XAC_NHAN);
         Bill creteBill = billRepository.save(bill);
 
         // check loi
@@ -126,12 +126,26 @@ public class OrderServiceImpl implements OrderService {
         // tien khach da tra
         PaymentMethod paymentMethod = paymentMethodRepository.findById(orderRequest.getPaymentMethod()).orElseThrow(()->
                 new Exception("error paymentMethod"));
+
+        BillHistory billHistory = new BillHistory();
         if (orderRequest.getPaymentMethod() ==4){
             creteBill.setPayment(paymentMethod);
             creteBill.setCustomerPayment(BigDecimal.ZERO);
+            creteBill.setStatus(StatusBill.CHO_XAC_NHAN);
+            billHistory.setBill(creteBill);
+            billHistory.setActionTime(LocalDateTime.now());
+            billHistory.setNote("Đơn hàng đã được đặt thành công ");
+            billHistory.setActionType(StartusBillHistory.CHO_XAC_NHAN);
+            billHistoryRepository.save(billHistory);
         }else if(orderRequest.getPaymentMethod() ==3){
             creteBill.setPayment(paymentMethod);
             creteBill.setCustomerPayment(orderRequest.getTotalDue());
+            creteBill.setStatus(StatusBill.DA_XAC_NHAN);
+            billHistory.setBill(creteBill);
+            billHistory.setNote("Đơn hàng đã được đặt và thanh toán thành công");
+            billHistory.setActionTime(LocalDateTime.now());
+            billHistory.setActionType(StartusBillHistory.DA_XAC_NHAN);
+            billHistoryRepository.save(billHistory);
         }
         //tien giam voucher
         creteBill.setDiscountedTotal(orderRequest.getDiscountedTotal());
