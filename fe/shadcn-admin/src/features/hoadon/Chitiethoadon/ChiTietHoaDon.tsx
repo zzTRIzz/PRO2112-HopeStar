@@ -330,13 +330,13 @@ const ChiTietHoaDon: React.FC = () => {
                 <div >
                     {/* {searchBill ? (
                         searchBill.billType === 1 ? ( */}
-                            <TrangThaiDonHangGiaoHang
-                                loadTongBill={loadTongBill}
-                                trangThai={searchBill?.status as OrderStatus}
-                                searchBill={searchBill}
-                                themBillHistory={themBillHistory}
-                            />
-                        {/* ) : (
+                    <TrangThaiDonHangGiaoHang
+                        loadTongBill={loadTongBill}
+                        trangThai={searchBill?.status as OrderStatus}
+                        searchBill={searchBill}
+                        themBillHistory={themBillHistory}
+                    />
+                    {/* ) : (
                             <TrangThaiDonHangTaiQuay
                                 findBillById={findBillById}
                                 loadTongBill={loadTongBill}
@@ -416,6 +416,12 @@ const ChiTietHoaDon: React.FC = () => {
                                             value: searchBill?.discountedTotal
                                         },
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
+                                        ...(searchBill?.payInsurance ?? 0 > 0
+                                            ? [{
+                                                label: "Tiền bảo hiểm:",
+                                                value: searchBill?.payInsurance
+                                            }]
+                                            : []),
                                         { label: "Tổng thanh toán:", value: searchBill?.totalDue, highlight: true },
                                         { label: "Đã thanh toán:", value: searchBill?.customerPayment },
                                         ...(searchBill?.amountChange ?? 0 > 0
