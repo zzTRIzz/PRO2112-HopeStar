@@ -13,6 +13,7 @@ import com.example.be.repository.RoleRepository;
 import com.example.be.utils.EmailService;
 import com.example.be.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -336,6 +337,20 @@ public class AccountService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());
+        }
+    }
+
+    public Boolean isAccountActiveByEmail(String email) {
+        try {
+            Account account = accountRepository.findByEmail(email);
+            if (account == null) {
+                System.out.println("No account found for email: " + email);
+                return false;
+            }
+            return account.getStatus().equals(StatusCommon.ACTIVE);
+        } catch (DataAccessException e) {
+            System.out.println("Database error while checking account status for email " + email + ": " + e.getMessage());
+            throw new RuntimeException("Lỗi cơ sở dữ liệu khi kiểm tra trạng thái tài khoản: " + e.getMessage());
         }
     }
 
