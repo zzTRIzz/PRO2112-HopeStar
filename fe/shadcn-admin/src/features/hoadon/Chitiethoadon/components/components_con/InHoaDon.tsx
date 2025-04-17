@@ -28,7 +28,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: "bold", color: "#007BFF", margin: 0 }}>
+          <h1 style={{ fontSize: "32px", fontWeight: "bold", color: "blue", margin: 0 }}>
             HopeStar Shop
           </h1>
           <img
@@ -57,7 +57,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             textAlign: "center",
             fontSize: "24px",
             fontWeight: "bold",
-            color: "red",
+            color: "blue",
             margin: "20px 0"
           }}>
             HÓA ĐƠN BÁN HÀNG

@@ -12,48 +12,49 @@ export function PaymentResultPage() {
   const navigate = useNavigate()
   const [isProcessing, setIsProcessing] = useState(true)
   const queryClient = useQueryClient()
-  const processPaymentResult = async () => {
-    try {
-      if (!vnp_ResponseCode || !vnp_TransactionStatus) {
-        throw new Error('Missing payment response parameters')
-      }
-
-      // Fix the data retrieval to match CheckoutPage format
-      const orderJson = localStorage.getItem('order')
-      if (!orderJson) {
-        throw new Error('No order data found')
-      }
-
-      const { orderData } = JSON.parse(orderJson)
-
-      if (vnp_ResponseCode === '00' && vnp_TransactionStatus === '00') {
-        // Payment successful
-        await order(orderData)
-        toast({
-          title: 'Thanh toán thành công',
-          description: 'Đơn hàng của bạn đã được tạo thành công',
-        })
-        // Clear pending order
-        localStorage.removeItem('order')
-        await queryClient.invalidateQueries({ queryKey: ['cart'] })
-        navigate({ to: '/gio-hang' })
-      } else {
-        // Payment failed
-        throw new Error('Thanh toán không thành công')
-      }
-    } catch (error) {
-      console.error('Payment processing error:', error)
-      toast({
-        title: 'Lỗi xử lý thanh toán',
-        description: error?.response?.data?.message || 'Vui lòng thử lại',
-        variant: 'destructive',
-      })
-    } finally {
-      setIsProcessing(false)
-    }
-  }
   useEffect(() => {
-      processPaymentResult()
+    const processPaymentResult = async () => {
+      try {
+        if (!vnp_ResponseCode || !vnp_TransactionStatus) {
+          throw new Error('Missing payment response parameters')
+        }
+
+        // Fix the data retrieval to match CheckoutPage format
+        const orderJson = localStorage.getItem('order')
+        if (!orderJson) {
+          throw new Error('No order data found')
+        }
+
+        const { orderData } = JSON.parse(orderJson)
+
+        if (vnp_ResponseCode === '00' && vnp_TransactionStatus === '00') {
+          // Payment successful
+          await order(orderData)
+          toast({
+            title: 'Thanh toán thành công',
+            description: 'Đơn hàng của bạn đã được tạo thành công',
+          })
+          // Clear pending order
+          localStorage.removeItem('order')
+          await queryClient.invalidateQueries({ queryKey: ['cart'] })
+          navigate({ to: '/gio-hang' })
+        } else {
+          // Payment failed
+          throw new Error('Thanh toán không thành công')
+        }
+      } catch (error) {
+        console.error('Payment processing error:', error)
+        toast({
+          title: 'Lỗi xử lý thanh toán',
+          description: error?.response?.data?.message || 'Vui lòng thử lại',
+          variant: 'destructive',
+        })
+      } finally {
+        setIsProcessing(false)
+      }
+    }
+
+    processPaymentResult()
   }, [vnp_ResponseCode, vnp_TransactionStatus, navigate])
 
   return (
