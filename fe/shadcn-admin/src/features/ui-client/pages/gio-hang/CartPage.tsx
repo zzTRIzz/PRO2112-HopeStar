@@ -3,6 +3,8 @@ import { Button, Card, Checkbox, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { CartItemCard } from '../../components/gio-hang/cart-item'
 import { useCart } from '../../hooks/use-cart'
+import { checkCartDetail } from '../../data/api-cart-service'
+import { toast } from '@/hooks/use-toast'
 
 export function CartPage() {
   const {
@@ -28,13 +30,29 @@ export function CartPage() {
     0
   )
 
-  const handleProceedToCheckout = () => {
-    navigate({
-      to: '/dat-hang',
-      search: {
-        selectedProducts: JSON.stringify(selectedProducts),
-      },
-    })
+  const handleProceedToCheckout = async () => {
+    try {
+      // Get selected cart item IDs
+      const selectedIds = selectedProducts.map(cartdetail => cartdetail.id)
+      console.log('Selected IDs:', selectedIds)
+      // Check cart items availability
+      await checkCartDetail(selectedIds)
+  
+      // If all items are available, proceed to checkout
+      navigate({
+        to: '/dat-hang',
+        search: {
+          selectedProducts: JSON.stringify(selectedProducts),
+        },
+      })
+    } catch (error) {
+      console.error('Error checking cart items:', error)
+      toast({
+        title: 'Lỗi',
+        description: error?.response?.data?.message || 'Không thể tiến hành đặt hàng. Vui lòng thử lại',
+        variant: 'destructive'
+      })
+    }
   }
 
   if (isLoading) {

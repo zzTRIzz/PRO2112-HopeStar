@@ -119,3 +119,19 @@ export const order = async (orderData: OrderData) => {
   })
   return response.data
 }
+
+export const checkCartDetail = async (idCartDetailList: number[]) => {
+  const jwt = Cookies.get('jwt')
+
+  const response = await axios.post(
+    `${API_BASE_URL}/cart-detail/check-product`,
+    idCartDetailList,
+    {
+      headers: {
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  return response.data
+}

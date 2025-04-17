@@ -162,6 +162,9 @@ public class AuthServiceImpl implements AuthService {
         }else {
             Account account = accountRepository.findByEmail(email);
             if (account != null && passwordEncoder.matches(password,account.getPassword())){
+                if (account.getStatus().equals(StatusCommon.IN_ACTIVE)){
+                    throw new Exception("Tài khoản của bạn đã bị vô hiệu");
+                }
                 Authentication authentication = authentication(email);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
