@@ -16,18 +16,18 @@ const statuses = [
     label: "Hoạt động",
   },
   {
-    value: "INACTIVE",
+    value: "IN_ACTIVE",
     label: "Không hoạt động",
   },
 ]
 
 const genders = [
   {
-    value: "true",
+    value: "Nam",
     label: "Nam",
   },
   {
-    value: "false",
+    value: "Nữ",
     label: "Nữ",
   },
 ]

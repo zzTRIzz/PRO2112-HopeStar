@@ -46,17 +46,37 @@ public class AccountService {
         }
     }
 
+    private void kiemTraEmail_SDT_biTrung(String email, String sdt, String code) {
+        // Kiểm tra trùng email
+        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
+            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+        }
+        if (accountRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email đã tồn tại: " + email);
+        }
+        // Kiểm tra trùng số điện thoại
+        if (accountRepository.existsByPhone(sdt)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+        }
+        if (code != null) {
+            if (accountRepository.existsByCode(code)) {
+                throw new IllegalArgumentException("Mã tài khoản đã tồn tại: " + code);
+            }
+        }
+    }
+
 
 
     public AccountResponse create(AccountRequest request) {
-        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
         String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
         Account account = new Account();
         account.setFullName(request.getFullName());
-        account.setCode("USER_"+ accountRepository.getNewCode());
+
+        String newCode = "USER_"+ accountRepository.getNewCode();
+        account.setCode(newCode);
         account.setEmail(request.getEmail());
         account.setPassword(
                 new BCryptPasswordEncoder().encode(matKhauDuocTaoRa)
@@ -70,12 +90,17 @@ public class AccountService {
         account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.ACTIVE);
 
+        //kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
+        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone(), newCode);
         guiEmail.sendPassWordEmail(account.getEmail(), matKhauDuocTaoRa );
         return convertToResponse(accountRepository.save(account));
     }
 
     public AccountResponse createNhanVien(NhanVienRequest request){
-        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
+//        if (request.getCode() == null || request.getCode().isEmpty()) {
+//            throw new IllegalArgumentException("Mã tài khoản không được để trống");
+//        }
+
         String matKhauDuocTaoRa = "PASSWORD" + OtpUtil.generateOtp();
 
         Role role = roleRepository.findById(3).orElseThrow(
@@ -97,6 +122,8 @@ public class AccountService {
         account.setGender(request.getGender());
         account.setStatus(StatusCommon.ACTIVE);
 
+        //kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone());
+        kiemTraEmail_SDT_biTrung(request.getEmail(), request.getPhone(), request.getCode());
         guiEmail.sendPassWordEmail(account.getEmail(), matKhauDuocTaoRa );
         return convertToResponse(accountRepository.save(account));
     }
@@ -152,27 +179,88 @@ public class AccountService {
     }
 
 
-    private void kiemTraEmail_SDT_biTrungKhiUpdate(Integer id,String email, String sdt) {
+//    private void kiemTraEmail_SDT_biTrungKhiUpdate(Integer id,String email, String sdt) {
+//        AccountResponse accountHienTai = getById(id);
+//        if (accountHienTai == null) {
+//            throw new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id);
+//        }
+//        // Kiểm tra trùng email
+//        if (!accountHienTai.getEmail().equals(email) && !accountHienTai.getPhone().equals(sdt) && accountRepository.existsByEmailAndPhone(email, sdt)) {
+//            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+//        }
+//        // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
+//        if (!accountHienTai.getEmail().equals(email) && accountRepository.existsByEmail(email)) {
+//            throw new IllegalArgumentException("Email đã tồn tại: " + email);
+//        }
+//        // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
+//        if (!accountHienTai.getPhone().equals(sdt) && accountRepository.existsByPhone(sdt)) {
+//            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+//        }
+//    }
+
+    private void kiemTraEmail_SDT_biTrungKhiUpdate(Integer id, String email, String sdt) {
         AccountResponse accountHienTai = getById(id);
         if (accountHienTai == null) {
             throw new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id);
         }
-        // Kiểm tra trùng email
-        if (!accountHienTai.getEmail().equals(email) && !accountHienTai.getPhone().equals(sdt) && accountRepository.existsByEmailAndPhone(email, sdt)) {
+
+        // Kiểm tra trùng email và số điện thoại
+        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+                accountRepository.existsByEmailAndPhone(email, sdt)) {
             throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
         }
+
         // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
-        if (!accountHienTai.getEmail().equals(email) && accountRepository.existsByEmail(email)) {
+        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+                accountRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại: " + email);
         }
+
         // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
-        if (!accountHienTai.getPhone().equals(sdt) && accountRepository.existsByPhone(sdt)) {
+        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+                accountRepository.existsByPhone(sdt)) {
             throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+        }
+
+
+    }
+
+    private void kiemTraEmail_SDT_biTrungKhiUpdate(Integer id, String email, String sdt, String code) {
+        AccountResponse accountHienTai = getById(id);
+        if (accountHienTai == null) {
+            throw new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id);
+        }
+
+        // Kiểm tra trùng email và số điện thoại
+        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+                accountRepository.existsByEmailAndPhone(email, sdt)) {
+            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+        }
+
+        // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
+        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+                accountRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email đã tồn tại: " + email);
+        }
+
+        // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
+        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+                accountRepository.existsByPhone(sdt)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+        }
+
+        if ((accountHienTai.getCode() != null && !accountHienTai.getCode().equals(code)) &&
+                accountRepository.existsByCode(code)) { // Sửa thành existsByCode
+            throw new IllegalArgumentException("Mã tài khoản đã tồn tại: " + code);
         }
     }
 
+
     public AccountResponse update(Integer id, AccountRequest request) {
         kiemTraEmail_SDT_biTrungKhiUpdate(id,request.getEmail(), request.getPhone());
+
         Role role = roleRepository.findById(request.getIdRole()).orElseThrow(
                 () -> new RuntimeException("Role not found")
         );
@@ -188,6 +276,9 @@ public class AccountService {
         account.setGender(request.getGender());
         account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.valueOf(request.getStatus()));
+
+
+        //kiemTraEmail_SDT_biTrungKhiUpdate(id,request.getEmail(), request.getPhone(), request.getCode());
         return convertToResponse(accountRepository.save(account));
     }
 
@@ -209,13 +300,16 @@ public class AccountService {
         account.setGender(request.getGender());
         account.setBirthDate(request.getBirthDate());
         account.setStatus(StatusCommon.valueOf(request.getStatus()));
+
+
+        //kiemTraEmail_SDT_biTrungKhiUpdate(id,request.getEmail(), request.getPhone(), request.getCode());
         return convertToResponse(accountRepository.save(account));
     }
 
     public AccountResponse getById(Integer id) {
         return accountRepository.findById(id)
                 .map(this::convertToResponse)
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id));
     }
 
     public List<AccountResponse> getAllKhachHang() {

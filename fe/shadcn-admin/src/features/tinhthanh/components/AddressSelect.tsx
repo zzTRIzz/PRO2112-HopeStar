@@ -22,9 +22,11 @@ import { Province, District, Ward } from '../schema/types'
 
 interface AddressSelectProps {
   onAddressChange: (address: string) => void
+  showValidation?: boolean
+  onValidationChange?: (isValid: boolean) => void
 }
 
-export function AddressSelect({ onAddressChange }: AddressSelectProps) {
+export function AddressSelect({ onAddressChange, showValidation = false, onValidationChange }: AddressSelectProps) {
   const [provinces, setProvinces] = useState<Province[]>([])
   const [districts, setDistricts] = useState<District[]>([])
   const [wards, setWards] = useState<Ward[]>([])
@@ -36,6 +38,12 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
     provinces: true,
     districts: false,
     wards: false,
+  })
+  const [errors, setErrors] = useState({
+    province: '',
+    district: '',
+    ward: '',
+    street: ''
   })
 
   // Fetch provinces on component mount
@@ -107,10 +115,32 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
     if (street && selectedWard && selectedDistrict && selectedProvince) {
       const fullAddress = `${street}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`
       onAddressChange(fullAddress)
+      if (onValidationChange) onValidationChange(true)
     } else {
       onAddressChange('')
+      if (onValidationChange) onValidationChange(false)
     }
-  }, [street, selectedWard, selectedDistrict, selectedProvince, onAddressChange])
+  }, [street, selectedWard, selectedDistrict, selectedProvince, onAddressChange, onValidationChange])
+
+  // Validate fields when showValidation changes
+  useEffect(() => {
+    if (showValidation) {
+      validateFields()
+    }
+  }, [showValidation, selectedProvince, selectedDistrict, selectedWard, street])
+
+  const validateFields = () => {
+    const newErrors = {
+      province: !selectedProvince ? 'Vui lòng chọn tỉnh/thành phố' : '',
+      district: !selectedDistrict && selectedProvince ? 'Vui lòng chọn quận/huyện' : '',
+      ward: !selectedWard && selectedDistrict ? 'Vui lòng chọn phường/xã' : '',
+      street: !street ? 'Vui lòng nhập địa chỉ cụ thể' : ''
+    }
+    
+    setErrors(newErrors)
+    
+    return !Object.values(newErrors).some(error => error !== '')
+  }
 
   const handleProvinceChange = (value: string) => {
     const province = provinces.find((p) => p.code === value)
@@ -118,6 +148,7 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
       setSelectedProvince(province)
       setSelectedDistrict(null)
       setSelectedWard(null)
+      setErrors(prev => ({...prev, province: ''}))
     }
   }
 
@@ -126,6 +157,7 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
     if (district) {
       setSelectedDistrict(district)
       setSelectedWard(null)
+      setErrors(prev => ({...prev, district: ''}))
     }
   }
 
@@ -133,6 +165,14 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
     const ward = wards.find((w) => w.code === value)
     if (ward) {
       setSelectedWard(ward)
+      setErrors(prev => ({...prev, ward: ''}))
+    }
+  }
+
+  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStreet(e.target.value)
+    if (e.target.value) {
+      setErrors(prev => ({...prev, street: ''}))
     }
   }
 
@@ -152,7 +192,7 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
             onValueChange={handleProvinceChange}
             disabled={loading.provinces}
           >
-            <SelectTrigger id="province">
+            <SelectTrigger id="province" className={errors.province && showValidation ? 'border-red-500' : ''}>
               <SelectValue
                 placeholder={loading.provinces ? 'Đang tải...' : 'Chọn tỉnh/thành phố'}
               />
@@ -165,6 +205,9 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
               ))}
             </SelectContent>
           </Select>
+          {errors.province && showValidation && (
+            <p className="text-red-500 text-sm mt-1">{errors.province}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -174,7 +217,7 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
             onValueChange={handleDistrictChange}
             disabled={!selectedProvince || loading.districts}
           >
-            <SelectTrigger id="district" className={loading.districts ? 'opacity-50' : ''}>
+            <SelectTrigger id="district" className={`${loading.districts ? 'opacity-50' : ''} ${errors.district && showValidation ? 'border-red-500' : ''}`}>
               <SelectValue
                 placeholder={loading.districts ? 'Đang tải...' : 'Chọn quận/huyện'}
               />
@@ -187,6 +230,9 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
               ))}
             </SelectContent>
           </Select>
+          {errors.district && showValidation && (
+            <p className="text-red-500 text-sm mt-1">{errors.district}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -196,7 +242,7 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
             onValueChange={handleWardChange}
             disabled={!selectedDistrict || loading.wards}
           >
-            <SelectTrigger id="ward" className={loading.wards ? 'opacity-50' : ''}>
+            <SelectTrigger id="ward" className={`${loading.wards ? 'opacity-50' : ''} ${errors.ward && showValidation ? 'border-red-500' : ''}`}>
               <SelectValue
                 placeholder={loading.wards ? 'Đang tải...' : 'Chọn phường/xã'}
               />
@@ -209,6 +255,9 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
               ))}
             </SelectContent>
           </Select>
+          {errors.ward && showValidation && (
+            <p className="text-red-500 text-sm mt-1">{errors.ward}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -217,8 +266,12 @@ export function AddressSelect({ onAddressChange }: AddressSelectProps) {
             id="street"
             placeholder="VD: Đường 123"
             value={street}
-            onChange={(e) => setStreet(e.target.value)}
+            onChange={handleStreetChange}
+            className={errors.street && showValidation ? 'border-red-500' : ''}
           />
+          {errors.street && showValidation && (
+            <p className="text-red-500 text-sm mt-1">{errors.street}</p>
+          )}
         </div>
       </CardContent>
     </Card>

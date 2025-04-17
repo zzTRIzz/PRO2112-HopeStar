@@ -110,6 +110,13 @@
       font-size: 16px !important;
     }
   }
+
+  /* Luôn hiển thị thanh cuộn để tránh giao diện bị đẩy khi mở select */
+  html {
+    overflow-y: scroll;
+  }
+
+
 }
 
 @layer utilities {

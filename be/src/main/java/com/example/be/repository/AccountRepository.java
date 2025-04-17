@@ -34,5 +34,9 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     Boolean existsByPhone(String phone);
 
     Boolean existsByEmailAndPhone(String email, String phone);
-    
+
+    boolean existsById(Integer id);
+
+    boolean existsByCode(String code);
+
 }
