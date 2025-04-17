@@ -1,6 +1,7 @@
 import { BillDetailSchema, BillSchema, ImeiSoldSchema } from "@/features/banhang/service/Schema";
 import axios from "axios";
-import { UpdateCustomerRequest } from "./Schema";
+import { BillHistoryRequest, UpdateCustomerRequest } from "./Schema";
+import Cookies from "js-cookie";
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -161,7 +162,7 @@ export const thanhToan = async (bill: BillSchema) => {
     }
 };
 
-export const updateTotalDue = async (idBill : number,totalDue : number) => {
+export const updateTotalDue = async (idBill: number, totalDue: number) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/update-totalDue/${idBill}/${totalDue}`);
         return response.data;
@@ -185,6 +186,26 @@ export const getVoucherDangSuDung = async (idBillHienTai: number) => {
 export const updateCustomerRequest = async (updateCustomer: UpdateCustomerRequest) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/updateCustomer`, updateCustomer);
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    }
+};
+
+export const addBillHistory = async (billHistory: BillHistoryRequest) => {
+    try {
+        const jwt = Cookies.get('jwt')
+        if (!jwt) throw new Error('Nhân viên chưa đăng nhập');
+        const response = await axios.post(
+            `http://localhost:8080/api/admin/bill-history/addBillHistory`,
+            billHistory,
+            {
+                headers: {
+                    Authorization: `Bearer ${jwt}`,
+                },
+            }
+        );
         return response.data;
     } catch (error) {
         console.error('Error them hoa don data:', error);

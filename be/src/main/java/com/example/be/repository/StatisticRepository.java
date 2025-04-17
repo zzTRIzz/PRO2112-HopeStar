@@ -19,7 +19,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
 
     @Query(value = """
         SELECT DATE(payment_date) AS paymentDate, 
-               SUM(total_price) AS totalRevenue
+               SUM(total_due) AS totalRevenue
         FROM bill
         WHERE status = 'HOAN_THANH'
         GROUP BY DATE(payment_date)
@@ -27,20 +27,21 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         """, nativeQuery = true)
     List<Object[]> getRevenueByDate();
 
-    @Query(value = "SELECT YEAR(payment_date) AS year, SUM(total_price) AS totalRevenue " +
+    @Query(value = "SELECT YEAR(payment_date) AS year, SUM(total_due) AS totalRevenue " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
             "GROUP BY YEAR(payment_date) " +
             "ORDER BY year DESC", nativeQuery = true)
     List<Object[]> getRevenueByYear();
 
-    @Query(value = "SELECT YEAR(payment_date) AS year, MONTH(payment_date) AS month, SUM(total_price) AS totalRevenue " +
+    @Query(value = "SELECT YEAR(payment_date) AS year, MONTH(payment_date) AS month, SUM(total_due) AS totalRevenue " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
             "GROUP BY YEAR(payment_date), MONTH(payment_date) " +
             "ORDER BY year DESC, month DESC", nativeQuery = true)
     List<Object[]> getRevenueByMonth();
 
+    //Doanh thu theo sản phẩm
     @Query(value = "SELECT " +
             "p.id AS product_id, " +
             "p.code, " +
@@ -121,16 +122,28 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
             "LIMIT 1000", nativeQuery = true)
     List<Object[]> getBestSellingProducts();
 
-    @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
+    //Doanh thu hôm nay
+    @Query("SELECT COALESCE(SUM(b.totalDue), 0) FROM Bill b " +
             "WHERE b.status = 'HOAN_THANH' " +
             "AND DATE(b.paymentDate) = CURRENT_DATE")
     BigDecimal calculateTodayRevenue();
 
-    @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b " +
+    //Doanh thu tháng
+    @Query("SELECT COALESCE(SUM(b.totalDue), 0) FROM Bill b " +
             "WHERE b.status = 'HOAN_THANH' " +
             "AND MONTH(b.paymentDate) = MONTH(CURRENT_DATE) " +
             "AND YEAR(b.paymentDate) = YEAR(CURRENT_DATE)")
     BigDecimal calculateMonthlyRevenue();
+
+    //số lượng hóa đơn
+    @Query("SELECT SUM(b.totalDue) as revenue, COUNT(b) as count " +
+            "FROM Bill b " +
+            "WHERE b.paymentDate BETWEEN :start AND :end " +
+            "AND b.status = 'HOAN_THANH'")
+    Tuple getRevenueAndCount(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 
     @Query(value = """
     SELECT 
@@ -148,15 +161,6 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         DATE(b.created_at)
     """, nativeQuery = true)
     List<Object[]> getMonthlyProductSales();
-
-    @Query("SELECT SUM(b.totalPrice) as revenue, COUNT(b) as count " +
-            "FROM Bill b " +
-            "WHERE b.paymentDate BETWEEN :start AND :end " +
-            "AND b.status = 'HOAN_THANH'")
-    Tuple getRevenueAndCount(
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
-    );
 
     @Query(nativeQuery = true, value =
             "SELECT pd.code AS product_detail_code, " +

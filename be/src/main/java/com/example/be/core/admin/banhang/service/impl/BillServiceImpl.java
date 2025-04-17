@@ -181,9 +181,9 @@ public class BillServiceImpl implements BillService {
 
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
         BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance():BigDecimal.ZERO;
 
-
-        BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
+        BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip).add(baoHiem);
 
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
             tongTienFinal = BigDecimal.ZERO;
@@ -469,6 +469,7 @@ public class BillServiceImpl implements BillService {
         billRespones.setTotalDue(bill.getTotalDue());
         billRespones.setCustomerRefund(bill.getCustomerRefund());
         billRespones.setDiscountedTotal(bill.getDiscountedTotal());
+        billRespones.setPayInsurance(bill.getPayInsurance());
         billRespones.setDeliveryDate(bill.getDeliveryDate());
         billRespones.setPaymentDate(bill.getPaymentDate());
         billRespones.setBillType(bill.getBillType());
@@ -548,8 +549,8 @@ public class BillServiceImpl implements BillService {
                 billHistoryRespones.setActionType(billHistory.getActionType());
                 billHistoryRespones.setNote(billHistory.getNote());
                 billHistoryRespones.setActionTime(billHistory.getActionTime());
-                billHistoryRespones.setIdNhanVien(billHistory.getNhanVien().getId());
-                billHistoryRespones.setFullName(billHistory.getNhanVien().getFullName());
+                billHistoryRespones.setIdNhanVien(billHistory.getNhanVien() != null ? billHistory.getNhanVien().getId() : null);
+                billHistoryRespones.setFullName(billHistory.getNhanVien() != null ? billHistory.getNhanVien().getFullName() : null);
                 billHistoryResponesList.add(billHistoryRespones);
             }
             billRespones.setBillHistoryRespones(billHistoryResponesList);

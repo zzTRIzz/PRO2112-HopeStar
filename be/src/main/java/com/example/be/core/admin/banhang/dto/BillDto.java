@@ -38,6 +38,8 @@ public class BillDto {
 
     private BigDecimal discountedTotal;
 
+    private BigDecimal payInsurance;
+
     private LocalDateTime deliveryDate;
 
     private LocalDateTime customerPreferredDate;

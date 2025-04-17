@@ -28,4 +28,15 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     Account getByAccount(@Param("idBill") Integer idBill);
 
     List<Account> findAccountsByIdRole(Role idRole);
+
+    Boolean existsByEmail(String email);
+
+    Boolean existsByPhone(String phone);
+
+    Boolean existsByEmailAndPhone(String email, String phone);
+
+    boolean existsById(Integer id);
+
+    boolean existsByCode(String code);
+
 }

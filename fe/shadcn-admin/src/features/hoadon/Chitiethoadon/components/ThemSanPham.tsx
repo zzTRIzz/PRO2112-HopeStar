@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
-import { BillRespones, BillSchema, Imei, ProductDetail } from '@/features/banhang/service/Schema';
+import { BillRespones, Imei, ProductDetail } from '@/features/banhang/service/Schema';
 
 
 
@@ -78,12 +78,12 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {listProduct.map((product, index) => (
-                                            <TableRow key={product.id}>
+                                        {listProduct?.map((product, index) => (
+                                            <TableRow key={product?.id}>
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{product.code}</TableCell>
-                                                <TableCell>{product.name + " " + product.ram + "/" + product.rom + "GB (" + product.color + ")"}</TableCell>
-                                                <TableCell>{product.priceSell.toLocaleString('vi-VN')}</TableCell>
+                                                <TableCell>{product?.code}</TableCell>
+                                                <TableCell>{product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}</TableCell>
+                                                <TableCell>{product?.priceSell?.toLocaleString('vi-VN')}</TableCell>
                                                 <TableCell align="center">{product.inventoryQuantity}</TableCell>
                                                 <TableCell>
                                                     <Button className='bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600'
@@ -110,19 +110,19 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                     </TableHead>
                                     <TableBody>
                                         {listImei.map((im, index) => (
-                                            <TableRow key={im.id}>
+                                            <TableRow key={im?.id}>
                                                 <TableCell>
                                                     <div className="flex items-center space-x-2">
                                                         <Checkbox
-                                                            checked={selectedImei.includes(im.id)}
-                                                            onCheckedChange={() => handleCheckboxChange(im.id)}
+                                                            checked={selectedImei.includes(im?.id)}
+                                                            onCheckedChange={() => handleCheckboxChange(im?.id)}
                                                         />
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{im.imeiCode}</TableCell>
+                                                <TableCell>{im?.imeiCode}</TableCell>
                                                 <TableCell>
-                                                    <img src={im.barCode}
+                                                    <img src={im?.barCode}
                                                         className='h-8 w-64 rounded-lg object-cover'
                                                     />
                                                 </TableCell>
@@ -130,12 +130,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         ))}
                                     </TableBody>
                                 </Table>
-                                {/* <Button
-                                    className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
-                                    onClick={() => handleAddImei()}
-                                >
-                                    Chọn
-                                </Button> */}
+                                
                                 <div className="absolute bottom-0 left-0 w-full bg-white p-4 shadow-md ">
                                     <Button
                                         className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"

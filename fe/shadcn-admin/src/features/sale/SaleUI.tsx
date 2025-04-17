@@ -283,7 +283,7 @@ export default function SaleUI() {
             toast({
                 variant: "destructive",
                 title: "Thông báo",
-                description: "Không thể tải danh sách sản phẩm"
+                description: error?.response?.data?.message 
             });
         } finally {
             setLoadingProducts(false);
@@ -835,7 +835,7 @@ export default function SaleUI() {
                                             className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             value={formData.code}
                                             onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                            required
+                                            // required
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -847,7 +847,7 @@ export default function SaleUI() {
                                             className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            required
+                                            // required
                                         />
                                     </div>
                                     {/* Thêm trường mô tả */}
@@ -905,7 +905,7 @@ export default function SaleUI() {
                                                 }}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
-                                                required
+                                                // required
                                             />
                                             <select
                                                 className="w-24 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -947,14 +947,14 @@ export default function SaleUI() {
                                                 className="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.dateStart}
                                                 onChange={(e) => setFormData({ ...formData, dateStart: e.target.value })}
-                                                required
+                                                // required
                                             />
                                             <input
                                                 type="datetime-local"
                                                 className="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.dateEnd}
                                                 onChange={(e) => setFormData({ ...formData, dateEnd: e.target.value })}
-                                                required
+                                                // required
                                             />
                                         </div>
                                     </div>

@@ -48,6 +48,7 @@ public class BillServiceClientImpl implements BillServiceClient {
             billRespones.setTotalDue(bill.getTotalDue());
             billRespones.setCustomerRefund(bill.getCustomerRefund());
             billRespones.setDiscountedTotal(bill.getDiscountedTotal());
+            billRespones.setPayInsurance(bill.getPayInsurance());
             billRespones.setDeliveryDate(bill.getDeliveryDate());
             billRespones.setPaymentDate(bill.getPaymentDate());
             billRespones.setBillType(bill.getBillType());
@@ -125,6 +126,7 @@ public class BillServiceClientImpl implements BillServiceClient {
         billRespones.setTotalDue(bill.getTotalDue());
         billRespones.setCustomerRefund(bill.getCustomerRefund());
         billRespones.setDiscountedTotal(bill.getDiscountedTotal());
+        billRespones.setPayInsurance(bill.getPayInsurance());
         billRespones.setDeliveryDate(bill.getDeliveryDate());
         billRespones.setPaymentDate(bill.getPaymentDate());
         billRespones.setBillType(bill.getBillType());

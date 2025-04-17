@@ -79,6 +79,7 @@ function BanHangTaiQuay() {
   const currentBillRef = useRef<number>(0);
   const tongTien = (searchBill?.totalDue ?? 0) + (isBanGiaoHang == true ? shippingFee : 0) + insuranceFee;
   const tienThua = Math.max(customerPayment - tongTien);
+  const tienKhachThieu = tienThua > 0 ? tienThua : 0;
   const [isScanning, setIsScanning] = useState(false);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   const [openDialogId, setOpenDialogId] = useState<number | null>(null);
@@ -89,11 +90,8 @@ function BanHangTaiQuay() {
     note: ""
   });
   useEffect(() => {
-    // const previousBill = currentBillRef.current;
     currentBillRef.current = idHoaDon;
-    // console.log(`Bill ID changed from ${previousBill} to ${idHoaDon}`);
     if (isScanning) {
-      // Force close scanning if bill changes while scanning is active
       setIsScanning(false);
     }
   }, [idHoaDon]);
@@ -105,8 +103,6 @@ function BanHangTaiQuay() {
     loadBillChoThanhToan()
     loadVoucherByAcount(khachHang?.id);
   }, [isBanGiaoHang, tongTien])
-  const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
-  const { id } = signupData
   const printRef = useRef<HTMLDivElement>(null)
   const [printData, setPrintData] = useState<any>(null)
 
@@ -533,9 +529,10 @@ function BanHangTaiQuay() {
           idVoucher: searchBill?.idVoucher ?? null,
           totalPrice: searchBill?.totalPrice ?? 0,
           customerPayment: customerPayment,
-          amountChange: tienThua,
+          amountChange: tienKhachThieu,
           deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
           totalDue: tongTien ?? 0,
+          payInsurance: (isBanGiaoHang == true ? insuranceFee : 0),
           customerRefund: searchBill?.customerRefund ?? 0,
           discountedTotal: searchBill?.discountedTotal ?? 0,
           deliveryDate: searchBill?.deliveryDate ?? null,

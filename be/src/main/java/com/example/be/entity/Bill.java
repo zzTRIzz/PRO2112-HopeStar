@@ -59,6 +59,9 @@ public class Bill extends AuditEntity {
     @Column(name = "discounted_total", precision = 24, scale = 2)
     private BigDecimal discountedTotal;
 
+    @Column(name = "pay_insurance", precision = 24, scale = 2)
+    private BigDecimal payInsurance;
+
     @Column(name = "delivery_date")
     private LocalDateTime  deliveryDate;
 
