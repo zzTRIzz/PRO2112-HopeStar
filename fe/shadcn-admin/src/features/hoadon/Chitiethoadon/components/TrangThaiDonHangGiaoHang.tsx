@@ -331,6 +331,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         await updateStatus(searchBill?.id, nextStatus);
         themBillHistory(nextStatus, note);
         setOpen(false);
+        setNote("");
         showSuccessToast("Cập nhật trạng thái đơn hàng thành công.");
         loadTongBill();
 

@@ -181,9 +181,9 @@ public class BillServiceImpl implements BillService {
 
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
         BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance():BigDecimal.ZERO;
 
-
-        BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip);
+        BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip).add(baoHiem);
 
         if (tongTienFinal.compareTo(BigDecimal.ZERO) < 0) {
             tongTienFinal = BigDecimal.ZERO;

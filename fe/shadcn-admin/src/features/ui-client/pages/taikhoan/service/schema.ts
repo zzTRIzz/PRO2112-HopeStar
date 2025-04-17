@@ -33,6 +33,7 @@ interface ProductDetail {
     totalDue: number;
     customerRefund: number;
     discountedTotal: number;
+    payInsurance: number;
     deliveryDate: string;
     paymentDate: string;
     billType: number;
