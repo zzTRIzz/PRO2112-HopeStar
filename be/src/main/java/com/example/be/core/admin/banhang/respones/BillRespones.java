@@ -38,6 +38,8 @@ public class BillRespones {
 
     private BigDecimal discountedTotal;
 
+    private BigDecimal payInsurance;
+
     private LocalDateTime deliveryDate;
 
     private LocalDateTime  customerPreferredDate;

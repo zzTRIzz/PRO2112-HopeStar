@@ -130,12 +130,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         ))}
                                     </TableBody>
                                 </Table>
-                                {/* <Button
-                                    className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
-                                    onClick={() => handleAddImei()}
-                                >
-                                    Chọn
-                                </Button> */}
+                                
                                 <div className="absolute bottom-0 left-0 w-full bg-white p-4 shadow-md ">
                                     <Button
                                         className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"

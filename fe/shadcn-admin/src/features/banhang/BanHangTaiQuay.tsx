@@ -78,7 +78,8 @@ function BanHangTaiQuay() {
   const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
   const currentBillRef = useRef<number>(0);
   const tongTien = (searchBill?.totalDue ?? 0) + (isBanGiaoHang == true ? shippingFee : 0) + insuranceFee;
-  const tienThua = Math.max(customerPayment - tongTien, 0);
+  const tienThua = Math.max(customerPayment - tongTien);
+  const tienKhachThieu = tienThua > 0 ? tienThua : 0;
   const [isScanning, setIsScanning] = useState(false);
   const [isThanhToanNhanHang, setIsThanhToanNhanHang] = useState(false); // Trạng thái của Switch
   const [openDialogId, setOpenDialogId] = useState<number | null>(null);
@@ -89,11 +90,8 @@ function BanHangTaiQuay() {
     note: ""
   });
   useEffect(() => {
-    // const previousBill = currentBillRef.current;
     currentBillRef.current = idHoaDon;
-    // console.log(`Bill ID changed from ${previousBill} to ${idHoaDon}`);
     if (isScanning) {
-      // Force close scanning if bill changes while scanning is active
       setIsScanning(false);
     }
   }, [idHoaDon]);
@@ -105,8 +103,6 @@ function BanHangTaiQuay() {
     loadBillChoThanhToan()
     loadVoucherByAcount(khachHang?.id);
   }, [isBanGiaoHang, tongTien])
-  const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
-  const { id } = signupData
   const printRef = useRef<HTMLDivElement>(null)
   const [printData, setPrintData] = useState<any>(null)
 
@@ -533,9 +529,10 @@ function BanHangTaiQuay() {
           idVoucher: searchBill?.idVoucher ?? null,
           totalPrice: searchBill?.totalPrice ?? 0,
           customerPayment: customerPayment,
-          amountChange: tienThua,
+          amountChange: tienKhachThieu,
           deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
           totalDue: tongTien ?? 0,
+          payInsurance: (isBanGiaoHang == true ? insuranceFee : 0),
           customerRefund: searchBill?.customerRefund ?? 0,
           discountedTotal: searchBill?.discountedTotal ?? 0,
           deliveryDate: searchBill?.deliveryDate ?? null,
@@ -555,307 +552,307 @@ function BanHangTaiQuay() {
           itemCount: searchBill?.detailCount ?? 0
         });
 
-      const invoiceData = {
-        code: searchBill?.code,
-        paymentDate: new Date().toISOString(),
-        staff: searchBill?.fullNameNV,
-        customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
-        phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
-        items: searchBill?.billDetailResponesList.map(detail => ({
-          product: detail.productDetail.productName + ' ' +
-            detail.productDetail.ram + '/' +
-            detail.productDetail.rom + 'GB ( ' +
-            detail.productDetail.color + ' )',
-          imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
-          price: detail.price,
-          quantity: detail.quantity,
-        })) || [],
-        totalPrice: searchBill?.totalPrice || 0,
-        discountedTotal: searchBill?.discountedTotal || 0,
-        deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
-        customerPayment: customerPayment || 0,
-        change: (tienThua > 0 ? tienThua : 0),
-      };
+        const invoiceData = {
+          code: searchBill?.code,
+          paymentDate: new Date().toISOString(),
+          staff: searchBill?.fullNameNV,
+          customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
+          phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
+          items: searchBill?.billDetailResponesList.map(detail => ({
+            product: detail.productDetail.productName + ' ' +
+              detail.productDetail.ram + '/' +
+              detail.productDetail.rom + 'GB ( ' +
+              detail.productDetail.color + ' )',
+            imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
+            price: detail.price,
+            quantity: detail.quantity,
+          })) || [],
+          totalPrice: searchBill?.totalPrice || 0,
+          discountedTotal: searchBill?.discountedTotal || 0,
+          deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
+          customerPayment: customerPayment || 0,
+          change: (tienThua > 0 ? tienThua : 0),
+        };
 
-      handlePrint(invoiceData);
-      // Reset trạng thái
-      setSearchBill(undefined);
-      hienThiKhachHang(undefined);
-      setProduct([]);
-      setCustomerPayment(0);
-      setPaymentMethod(null);
-      setIsBanGiaoHang(false);
-      fromThanhCong("Thanh toán thành công");
-    } catch (error) {
-      console.error("Lỗi khi thanh toán:", error);
-      fromThatBai("Đã xảy ra lỗi khi thanh toán");
-    }
-  }
-};
-
-
-// Quét mã vạch
-const isProcessing = useRef(false);
-const handleScanSuccess = async (imei: string) => {
-  if (isProcessingBillChange) {
-    fromThatBai('Đang xử lý chuyển đổi hóa đơn, vui lòng đợi');
-    return;
-  }
-
-  if (isProcessing.current) {
-    console.log('⚠ handleScanSuccess bị chặn do đã chạy trước đó!')
-    return
-  }
-
-  isProcessing.current = true // Đánh dấu đang xử lý
-
-  const quaggaWindow = window as unknown as { Quagga: any };
-  if (quaggaWindow.Quagga) {
-    quaggaWindow.Quagga.stop();
-    console.log('📸 Camera đã dừng để tránh quét lại');
-  }
-
-  try {
-    setIsScanning(true)
-    const currentBillId = currentBillRef.current;
-    console.log('id bill chuẩn bị xử lý: ' + currentBillId);
-    const productDetail = await quetBarCode(imei)
-    if (!productDetail?.idImei) {
-      fromThatBai('IMEI không tồn tại trong hệ thống')
-      return
-    }
-
-    if (!currentBillId || currentBillId === 0) {
-      fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã')
-      return
-    }
-
-    console.log('Thực hiện thêm vào hóa đơn: ' + currentBillId)
-    const newBillDetail = await addHDCT({
-      idBill: currentBillId,
-      idProductDetail: productDetail.id,
-    })
-
-    if (!newBillDetail?.id) {
-      fromThatBai('Tạo hóa đơn chi tiết thất bại')
-      return
-    }
-    await createImeiSold(
-      {
-        id_Imei: [productDetail.idImei],
-        idBillDetail: newBillDetail.id,
-      },
-      currentBillId,
-      productDetail.id
-    )
-
-    setProduct((prev) =>
-      prev.filter((p) => p.idProductDetail !== productDetail.id)
-    )
-
-    await Promise.all([
-      loadImei(productDetail.id),
-      getById(currentBillId)
-    ])
-
-    fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
-  } catch (error: any) {
-    fromThatBai('Lỗi khi thêm sản phẩm !')
-  } finally {
-    isProcessing.current = false
-    setIsScanning(false)
-    setSelectedImei([])
-
-
-    setTimeout(() => {
-      const quaggaWindow = window as unknown as { Quagga: any };
-      if (quaggaWindow.Quagga) {
-        quaggaWindow.Quagga.start();
-        console.log('📸 Camera đã bật lại để quét tiếp');
+        handlePrint(invoiceData);
+        // Reset trạng thái
+        setSearchBill(undefined);
+        hienThiKhachHang(undefined);
+        setProduct([]);
+        setCustomerPayment(0);
+        setPaymentMethod(null);
+        setIsBanGiaoHang(false);
+        fromThanhCong("Thanh toán thành công");
+      } catch (error) {
+        console.error("Lỗi khi thanh toán:", error);
+        fromThatBai("Đã xảy ra lỗi khi thanh toán");
       }
-    }, 1000)
+    }
+  };
+
+
+  // Quét mã vạch
+  const isProcessing = useRef(false);
+  const handleScanSuccess = async (imei: string) => {
+    if (isProcessingBillChange) {
+      fromThatBai('Đang xử lý chuyển đổi hóa đơn, vui lòng đợi');
+      return;
+    }
+
+    if (isProcessing.current) {
+      console.log('⚠ handleScanSuccess bị chặn do đã chạy trước đó!')
+      return
+    }
+
+    isProcessing.current = true // Đánh dấu đang xử lý
+
+    const quaggaWindow = window as unknown as { Quagga: any };
+    if (quaggaWindow.Quagga) {
+      quaggaWindow.Quagga.stop();
+      console.log('📸 Camera đã dừng để tránh quét lại');
+    }
+
+    try {
+      setIsScanning(true)
+      const currentBillId = currentBillRef.current;
+      console.log('id bill chuẩn bị xử lý: ' + currentBillId);
+      const productDetail = await quetBarCode(imei)
+      if (!productDetail?.idImei) {
+        fromThatBai('IMEI không tồn tại trong hệ thống')
+        return
+      }
+
+      if (!currentBillId || currentBillId === 0) {
+        fromThatBai('Vui lòng chọn hóa đơn trước khi quét mã')
+        return
+      }
+
+      console.log('Thực hiện thêm vào hóa đơn: ' + currentBillId)
+      const newBillDetail = await addHDCT({
+        idBill: currentBillId,
+        idProductDetail: productDetail.id,
+      })
+
+      if (!newBillDetail?.id) {
+        fromThatBai('Tạo hóa đơn chi tiết thất bại')
+        return
+      }
+      await createImeiSold(
+        {
+          id_Imei: [productDetail.idImei],
+          idBillDetail: newBillDetail.id,
+        },
+        currentBillId,
+        productDetail.id
+      )
+
+      setProduct((prev) =>
+        prev.filter((p) => p.idProductDetail !== productDetail.id)
+      )
+
+      await Promise.all([
+        loadImei(productDetail.id),
+        getById(currentBillId)
+      ])
+
+      fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
+    } catch (error: any) {
+      fromThatBai('Lỗi khi thêm sản phẩm !')
+    } finally {
+      isProcessing.current = false
+      setIsScanning(false)
+      setSelectedImei([])
+
+
+      setTimeout(() => {
+        const quaggaWindow = window as unknown as { Quagga: any };
+        if (quaggaWindow.Quagga) {
+          quaggaWindow.Quagga.start();
+          console.log('📸 Camera đã bật lại để quét tiếp');
+        }
+      }, 1000)
+    }
   }
-}
 
 
-// Xử lý khi địa chỉ thay đổi
-const handleAddressUpdate = (fullAddress: string) => {
-  setDeliveryInfo(prev => ({ ...prev, fullAddress }));
-};
+  // Xử lý khi địa chỉ thay đổi
+  const handleAddressUpdate = (fullAddress: string) => {
+    setDeliveryInfo(prev => ({ ...prev, fullAddress }));
+  };
 
-// Xử lý khi thông tin chi tiết thay đổi
-const handleDetailUpdate = (details: { name: string; phone: string; note: string }) => {
-  setDeliveryInfo(prev => ({
-    ...prev,
-    customerName: details.name,
-    customerPhone: details.phone,
-    note: details.note
-  }));
-};
+  // Xử lý khi thông tin chi tiết thay đổi
+  const handleDetailUpdate = (details: { name: string; phone: string; note: string }) => {
+    setDeliveryInfo(prev => ({
+      ...prev,
+      customerName: details.name,
+      customerPhone: details.phone,
+      note: details.note
+    }));
+  };
 
 
-return (
-  <>
-    <div>
-      <TasksProvider>
-        <Header>
-          <Search />
-          <div className='ml-auto flex items-center space-x-4'>
-            <ThemeSwitch />
-            <ProfileDropdown />
-          </div>
-        </Header>
-      </TasksProvider>
-    </div>
-    <br />
-    <div
-      className='mr-1.5 rounded-lg border border-gray-300 bg-white p-2 shadow-md'
-      style={{ paddingTop: '18px', margin: '0 13px' }}
-    >
-      {/* Thêm hóa đơn chờ tại quầy */}
-      <HoaDonCho
-        listBill={listBill}
-        billChoThanhToan={billChoThanhToan}
-        huyHoaDonTheoId={huyHoaDonTheoId}
-        getById={getById}
-        handleAddBill={handleAddBill}
-        idBill={idHoaDon}
-      />
-      <hr />
-
-      <Main>
-        <div className='mb-2 flex items-center justify-between'>
-          <h1 className='font-bold tracking-tight'>Giỏ hàng</h1>
-          <div className='flex space-x-2'>
-            {/* Quét Barcode để check sản phẩm */}
-            <Button
-              onClick={() => {
-                // Verify current bill before allowing scan
-                const currentBill = currentBillRef.current;
-                if (!currentBill || currentBill === 0) {
-                  fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
-                  return;
-                }
-                setIsScanning(true);
-              }}
-              className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
-            >
-              Quét Barcode
-            </Button>
-
-            <BarcodeScannerModal
-              isOpen={isScanning}
-              onClose={() => setIsScanning(false)}
-              onScanSuccess={handleScanSuccess}
-            />
-            {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
-            <ThemSanPham
-              listProduct={listProduct}
-              listImei={listImei}
-              idBillDetail={idBillDetail}
-              selectedImei={selectedImei}
-              handleAddImei={handleAddImei}
-              handleAddProduct={handleAddProduct}
-              handleCheckboxChange={handleCheckboxChange}
-              dialogContent={dialogContent}
-              setDialogContent={setDialogContent}
-              isDialogOpen={isDialogOpen}
-              setIsDialogOpen={setIsDialogOpen}
-              setListProduct={setListProductDetail}
-            />
-          </div>
-        </div>
-        <hr className='border-t-1.5 border-gray-600' />
-
-        {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
-        <TableHoaDonChiTiet
-          product={product}
-          listImei={listImei}
-          selectedImei={selectedImei}
-          openDialogId={openDialogId}
-          setOpenDialogId={setOpenDialogId}
-          handleUpdateProduct={handleUpdateProduct}
-          handleCheckboxChange={handleCheckboxChange}
-          updateHandleImeiSold={updateHandleImeiSold}
-          deleteBillDetail={deleteBillDetail}
-        />
-      </Main>
-    </div>
-    <br />
-    <TableKhachHang
-      listKhachHang={khachHang}
-      listAccount={listAccount}
-      setIsKhachHang={setIsKhachHang}
-      isKhachHang={isKhachHang}
-      handleAddKhachHang={handleAddKhachHang}
-    />
-    <br />
-    <div
-      className='mr-1.5 rounded-lg border border-gray-300 bg-white p-2 shadow-md'
-      style={{
-        margin: '0 13px',
-        padding: '22px 23px',
-      }}
-    >
-      <div className='mb-2 flex items-center justify-between'>
-        <div className='ml-[750px] mr-[40px] flex space-x-2'>
-          <Button
-            variant='outline'
-            className='text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600'
-          >
-            <Checkbox
-              id='ban-giao-hang'
-              className='text-blue-600'
-              checked={isBanGiaoHang}
-              onCheckedChange={handleBanGiaoHangChange}
-            />
-            Bán giao hàng
-          </Button>
-        </div>
+  return (
+    <>
+      <div>
+        <TasksProvider>
+          <Header>
+            <Search />
+            <div className='ml-auto flex items-center space-x-4'>
+              <ThemeSwitch />
+              <ProfileDropdown />
+            </div>
+          </Header>
+        </TasksProvider>
       </div>
-      <hr className='border-gray-600' />
       <br />
-
-      <div className='grid grid-cols-2 gap-4'>
-        {/* --------- cot 1 ----------- */}
-        <DiaChiGiaoHang
-          fullName={searchBill?.name ?? ""}
-          phone={searchBill?.phone ?? ""}
-          address={searchBill?.address ?? ""}
-          isBanGiaoHang={isBanGiaoHang}
-
-          onAddressChange={handleAddressUpdate}
-          onDetailChange={handleDetailUpdate}
+      <div
+        className='mr-1.5 rounded-lg border border-gray-300 bg-white p-2 shadow-md'
+        style={{ paddingTop: '18px', margin: '0 13px' }}
+      >
+        {/* Thêm hóa đơn chờ tại quầy */}
+        <HoaDonCho
+          listBill={listBill}
+          billChoThanhToan={billChoThanhToan}
+          huyHoaDonTheoId={huyHoaDonTheoId}
+          getById={getById}
+          handleAddBill={handleAddBill}
+          idBill={idHoaDon}
         />
-        {/* Cột 2 */}
-        <ThanhToan
-          searchBill={searchBill}
-          setPaymentMethod={setPaymentMethod}
-          paymentMethod={paymentMethod}
-          customerPayment={customerPayment}
-          setCustomerPayment={setCustomerPayment}
-          handleThanhToan={handleThanhToan}
-          ListVoucherTheoAccount={ListVoucherTheoAccount}
-          setVoucherDangDung={setVoucherDangDung}
-          updateVoucherKhiChon={updateVoucherKhiChon}
-          isVoucher={isVoucher}
-          setIsVoucher={setIsVoucher}
-          tienThua={tienThua}
-          isBanGiaoHang={isBanGiaoHang}
-          // phiShip={phiShip}
-          printData={printData}
-          printRef={printRef}
-          setIsThanhToanNhanHang={setIsThanhToanNhanHang}
-          isThanhToanNhanHang={isThanhToanNhanHang}
-          tongTien={tongTien}
-          setShippingFee={setShippingFee}
-          setInsuranceFee={setInsuranceFee}
-          confirmedAddress={deliveryInfo?.fullAddress}
-        />
+        <hr />
+
+        <Main>
+          <div className='mb-2 flex items-center justify-between'>
+            <h1 className='font-bold tracking-tight'>Giỏ hàng</h1>
+            <div className='flex space-x-2'>
+              {/* Quét Barcode để check sản phẩm */}
+              <Button
+                onClick={() => {
+                  // Verify current bill before allowing scan
+                  const currentBill = currentBillRef.current;
+                  if (!currentBill || currentBill === 0) {
+                    fromThatBai('Vui lòng chọn hóa đơn trước khi quét');
+                    return;
+                  }
+                  setIsScanning(true);
+                }}
+                className='bg-white-500 rounded-sm border border-blue-500 border-opacity-50 text-blue-600 hover:bg-gray-300'
+              >
+                Quét Barcode
+              </Button>
+
+              <BarcodeScannerModal
+                isOpen={isScanning}
+                onClose={() => setIsScanning(false)}
+                onScanSuccess={handleScanSuccess}
+              />
+              {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
+              <ThemSanPham
+                listProduct={listProduct}
+                listImei={listImei}
+                idBillDetail={idBillDetail}
+                selectedImei={selectedImei}
+                handleAddImei={handleAddImei}
+                handleAddProduct={handleAddProduct}
+                handleCheckboxChange={handleCheckboxChange}
+                dialogContent={dialogContent}
+                setDialogContent={setDialogContent}
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+                setListProduct={setListProductDetail}
+              />
+            </div>
+          </div>
+          <hr className='border-t-1.5 border-gray-600' />
+
+          {/* Bảng hóa đơn chi tiết tìm kiếm theo id hóa đơn  */}
+          <TableHoaDonChiTiet
+            product={product}
+            listImei={listImei}
+            selectedImei={selectedImei}
+            openDialogId={openDialogId}
+            setOpenDialogId={setOpenDialogId}
+            handleUpdateProduct={handleUpdateProduct}
+            handleCheckboxChange={handleCheckboxChange}
+            updateHandleImeiSold={updateHandleImeiSold}
+            deleteBillDetail={deleteBillDetail}
+          />
+        </Main>
       </div>
-    </div >
-    <br />
-  </>
-)
+      <br />
+      <TableKhachHang
+        listKhachHang={khachHang}
+        listAccount={listAccount}
+        setIsKhachHang={setIsKhachHang}
+        isKhachHang={isKhachHang}
+        handleAddKhachHang={handleAddKhachHang}
+      />
+      <br />
+      <div
+        className='mr-1.5 rounded-lg border border-gray-300 bg-white p-2 shadow-md'
+        style={{
+          margin: '0 13px',
+          padding: '22px 23px',
+        }}
+      >
+        <div className='mb-2 flex items-center justify-between'>
+          <div className='ml-[750px] mr-[40px] flex space-x-2'>
+            <Button
+              variant='outline'
+              className='text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600'
+            >
+              <Checkbox
+                id='ban-giao-hang'
+                className='text-blue-600'
+                checked={isBanGiaoHang}
+                onCheckedChange={handleBanGiaoHangChange}
+              />
+              Bán giao hàng
+            </Button>
+          </div>
+        </div>
+        <hr className='border-gray-600' />
+        <br />
+
+        <div className='grid grid-cols-2 gap-4'>
+          {/* --------- cot 1 ----------- */}
+          <DiaChiGiaoHang
+            fullName={searchBill?.name ?? ""}
+            phone={searchBill?.phone ?? ""}
+            address={searchBill?.address ?? ""}
+            isBanGiaoHang={isBanGiaoHang}
+
+            onAddressChange={handleAddressUpdate}
+            onDetailChange={handleDetailUpdate}
+          />
+          {/* Cột 2 */}
+          <ThanhToan
+            searchBill={searchBill}
+            setPaymentMethod={setPaymentMethod}
+            paymentMethod={paymentMethod}
+            customerPayment={customerPayment}
+            setCustomerPayment={setCustomerPayment}
+            handleThanhToan={handleThanhToan}
+            ListVoucherTheoAccount={ListVoucherTheoAccount}
+            setVoucherDangDung={setVoucherDangDung}
+            updateVoucherKhiChon={updateVoucherKhiChon}
+            isVoucher={isVoucher}
+            setIsVoucher={setIsVoucher}
+            tienThua={tienThua}
+            isBanGiaoHang={isBanGiaoHang}
+            // phiShip={phiShip}
+            printData={printData}
+            printRef={printRef}
+            setIsThanhToanNhanHang={setIsThanhToanNhanHang}
+            isThanhToanNhanHang={isThanhToanNhanHang}
+            tongTien={tongTien}
+            setShippingFee={setShippingFee}
+            setInsuranceFee={setInsuranceFee}
+            confirmedAddress={deliveryInfo?.fullAddress}
+          />
+        </div>
+      </div >
+      <br />
+    </>
+  )
 }
 export default BanHangTaiQuay

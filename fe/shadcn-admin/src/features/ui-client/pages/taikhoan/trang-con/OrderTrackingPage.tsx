@@ -97,7 +97,6 @@ const OrderTrackingPage = () => {
       try {
         const response = await getBillAllClientByAccount(id)
         setBill(response.data)
-        console.log('Bill ID:', id)
         console.log('Bill data:', response)
       } catch (error) {
         console.error('Error fetching bill:', error)
@@ -301,13 +300,12 @@ const OrderTrackingPage = () => {
                   <span className='text-sm'>Phí vận chuyển</span>
                   <span>{bill?.deliveryFee != null ? bill?.deliveryFee.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
-                {/* <div className='flex justify-between'>
-                  <span className='text-sm'>Điểm tích lũy</span>
-                  <span className='flex items-center gap-1'>
-                    <Icon icon='lucide:coin' className='text-warning-500' />
-                    +5
-                  </span>
-                </div> */}
+                {/* {bill?.payInsurance&&( */}
+                <div className='flex justify-between'>
+                  <span className='text-sm'>Phí bảo hiểm</span>
+                  <span>{bill?.payInsurance != null ? bill?.payInsurance?.toLocaleString("vi-VN") : 0} đ</span>
+                </div>
+                {/* )} */}
                 <div className='border-t pt-4'>
                   <div className='flex justify-between'>
                     <span className='font-medium'>Thành tiền</span>

@@ -11,6 +11,7 @@ import {
     createImeiSold, deleteProduct, getImei,
     getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
     updateImeiSold,
+    addBillHistory,
 
 } from '@/features/hoadon/service/HoaDonService';
 import { showSuccessToast, showErrorToast } from "./components/components_con/ThongBao"
@@ -72,14 +73,12 @@ interface Voucher {
 
 
 import { OrderStatus } from './components/TrangThaiDonHangGiaoHang';
-import { OrderStatusTaiQuay } from './components/TrangThaiDonHangTaiQuay';
 import TasksProvider from '@/features/tasks/context/tasks-context';
 import { BillRespones } from '@/features/banhang/service/Schema';
 
 import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
 import TrangThaiDonHangGiaoHang from './components/TrangThaiDonHangGiaoHang';
-import TrangThaiDonHangTaiQuay from './components/TrangThaiDonHangTaiQuay';
 import ThemSanPham from './components/ThemSanPham';
 
 
@@ -88,7 +87,7 @@ const ChiTietHoaDon: React.FC = () => {
 
     const [searchBill, setSearchBill] = useState<BillRespones | null>(null);
     const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
-    const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
+    // const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
     const [listImei, setListImei] = useState<imei[]>([]);
     const [idBill, setIdBill] = useState<number>(0);
     const [idProductDetail, setIdProductDetail] = useState<number>(0);
@@ -116,8 +115,8 @@ const ChiTietHoaDon: React.FC = () => {
         }
         findBillById(id);
         getById(id);
-        const khachHang = await findKhachHang(id);
-        hienThiKhachHang(khachHang);
+        // const khachHang = await findKhachHang(id);
+        // hienThiKhachHang(khachHang);
     }
 
 
@@ -196,7 +195,7 @@ const ChiTietHoaDon: React.FC = () => {
     // Thêm sản phẩm chi tiết vào hóa đơn chi tiết 
     const handleAddProduct = async (product: ProductDetail) => {
         try {
-            console.log("ID bill san pham " + idBill);
+            // console.log("ID bill san pham " + idBill);
             if (idBill == 0 || idBill == null) {
                 showErrorToast("Vui lòng chọn hóa đơn");
                 setIsDialogOpen(false);
@@ -206,6 +205,7 @@ const ChiTietHoaDon: React.FC = () => {
                 idBill: idBill,
                 idProductDetail: product.id
             });
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm sản phẩm ${product?.name} ${product?.ram}/${product?.rom}GB (${product?.color})`);
             setIdBillDetail(newProduct.id);
             setIdProductDetail(product.id);
             setSelectedImei([]);
@@ -221,7 +221,7 @@ const ChiTietHoaDon: React.FC = () => {
 
     // Lấy danh sách imei 
     const handleCheckboxChange = (id: number) => {
-        console.log("ID imei:", id);
+        // console.log("ID imei:", id);
         setSelectedImei((prev) =>
             prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
         );
@@ -230,14 +230,18 @@ const ChiTietHoaDon: React.FC = () => {
     // Them imei vao hoa don chi tiet
     const handleAddImei = async () => {
         try {
-            const newImei = await createImeiSold({
+            if (selectedImei.length <= 0) {
+                showErrorToast("Vui lòng chọn imei");
+                return;
+            }
+            await createImeiSold({
                 id_Imei: selectedImei,
                 idBillDetail: idBillDetail
             },
                 idBill,
                 idProductDetail
             );
-            console.log("Imei mới:", newImei);
+            // console.log("Imei mới:", newImei);
             setSelectedImei([]);
             setIsDialogOpen(false); // Đóng dialog
             await loadProductDet();
@@ -252,16 +256,15 @@ const ChiTietHoaDon: React.FC = () => {
 
     const updateHandleImeiSold = async (idBillDetail: number) => {
         try {
-            const newImei = await updateImeiSold({
+            await updateImeiSold({
                 id_Imei: selectedImei,
                 idBillDetail: idBillDetail
             },
                 idBill,
                 idProductDetail
             );
-            console.log("Imei mới:", newImei);
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật ${selectedImei.length} IMEI`);
             setSelectedImei([]);
-            // setIsCapNhatImei(false);
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
@@ -271,9 +274,8 @@ const ChiTietHoaDon: React.FC = () => {
         }
     };
 
-    // Ca
+    // Cập nhật product 
     const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
-        console.log("ID product detail:", idPD);
         setSelectedImei([]);  // Reset trước khi cập nhật
         try {
             const data = await findImeiByIdProductDaBan(idPD, billDetaill);
@@ -288,17 +290,24 @@ const ChiTietHoaDon: React.FC = () => {
         }
         findImeiByIdProductDetail(idPD, billDetaill);
     };
-    // const tienThieu = (searchBill?.amountChange ?? 0) < 0 ?
-    //     Math.abs(searchBill?.totalDue ?? 0) :
-    //     ((searchBill?.totalDue || 0) - (searchBill?.customerPayment || 0) + (searchBill?.amountChange || 0));
+
+    const themBillHistory = async (actionType: string, note: string) => {
+        addBillHistory({
+            actionType: actionType,
+            idBill: idBill,
+            note: note
+        })
+        loadTongBill();
+    }
+
+
+
     const tinhTien = (searchBill?.totalDue || 0)
         - (searchBill?.customerPayment || 0)
         + (searchBill?.amountChange || 0);
 
     const tienThieu = tinhTien > 0 ? tinhTien : 0;
     const tienThua = tinhTien < 0 ? Math.abs(tinhTien) : 0;
-    // console.log("Tien thieu" + tienThieu)
-    // console.log("Tien thua" + tienThua)
     return (
         <>
             <div>
@@ -319,14 +328,15 @@ const ChiTietHoaDon: React.FC = () => {
             <Main>
 
                 <div >
-                    {searchBill ? (
-                        searchBill.billType === 1 ? (
+                    {/* {searchBill ? (
+                        searchBill.billType === 1 ? ( */}
                             <TrangThaiDonHangGiaoHang
                                 loadTongBill={loadTongBill}
-                                trangThai={searchBill.status as OrderStatus}
+                                trangThai={searchBill?.status as OrderStatus}
                                 searchBill={searchBill}
+                                themBillHistory={themBillHistory}
                             />
-                        ) : (
+                        {/* ) : (
                             <TrangThaiDonHangTaiQuay
                                 findBillById={findBillById}
                                 loadTongBill={loadTongBill}
@@ -334,13 +344,14 @@ const ChiTietHoaDon: React.FC = () => {
                                 searchBill={searchBill}
                             />
                         )
-                    ) : null}
+                    ) : null} */}
 
                 </div> <br />
 
                 <ThongTinDonHang
                     searchBill={searchBill}
                     loadTongBill={loadTongBill}
+                    themBillHistory={themBillHistory}
                 />
                 <br />
                 <div className="bg-white rounded-xl shadow-xl p-4">

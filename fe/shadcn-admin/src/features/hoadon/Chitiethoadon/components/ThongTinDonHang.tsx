@@ -13,12 +13,14 @@ import DiaChiGiaoHang from '../components/components_con/CapNhatDiaChi';
 interface Posp {
     searchBill: BillRespones | null;
     loadTongBill: () => void;
+    themBillHistory: (actionType: string, note: string) => void;
 
 }
 const ThongTinDonHang: React.FC<Posp> =
     ({
         searchBill,
-        loadTongBill
+        loadTongBill,
+        themBillHistory
     }) => {
         const getOrderStatusText = (status: string | undefined) => {
             switch (status) {
@@ -62,6 +64,7 @@ const ThongTinDonHang: React.FC<Posp> =
                                     address={searchBill?.address??""}
                                     onClose={() => setIsDialogOpen(false)}
                                     loadTongBill={loadTongBill}
+                                    themBillHistory={themBillHistory}
                                 />
                             </DialogContent>
                         </Dialog>
