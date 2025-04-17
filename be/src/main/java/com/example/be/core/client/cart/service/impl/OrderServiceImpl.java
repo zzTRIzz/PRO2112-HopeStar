@@ -77,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
         bill.setPhone(customerInfo.getPhone());
         bill.setPaymentDate(LocalDateTime.now());
         bill.setBillType((byte) 1);
-
+        bill.setAmountChange(BigDecimal.ZERO);
         //phuong thuc thanh toan ...
 
         Bill creteBill = billRepository.save(bill);

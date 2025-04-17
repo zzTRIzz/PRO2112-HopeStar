@@ -181,7 +181,7 @@ export interface BillRespones {
   delivery: number | null;
   detailCount: number;
   billDetailResponesList: BillDetailRespones[];
-  billHistoryRespones:BillHistory[];
+  billHistoryRespones: BillHistory[];
 }
 
 export interface BillDetailRespones {
@@ -224,7 +224,7 @@ export interface BillHistory {
   actionType: StatusBillHistory;
   note: string;
   actionTime: Date;
-  idNhanVien: number;
+  idNhanVien: number | null;
   fullName: string;
 }
 

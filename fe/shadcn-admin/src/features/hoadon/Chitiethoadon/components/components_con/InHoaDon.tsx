@@ -28,11 +28,11 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: "bold", color: "#007BFF", margin: 0 }}>
+          <h1 style={{ fontSize: "32px", fontWeight: "bold", color: "blue", margin: 0 }}>
             HopeStar Shop
           </h1>
           <img
-            src="https://cdn-icons-png.flaticon.com/512/1043/1043494.png"
+            src="/images/favicon.png"
             alt="logo"
             style={{ width: "40px", height: "40px" }}
           />
@@ -57,7 +57,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             textAlign: "center",
             fontSize: "24px",
             fontWeight: "bold",
-            color: "red",
+            color: "blue",
             margin: "20px 0"
           }}>
             HÓA ĐƠN BÁN HÀNG
@@ -65,9 +65,13 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
           <p><strong>Mã hóa đơn:</strong> {billData?.code}</p>
           <p><strong>Ngày:</strong>  {billData?.paymentDate
             ? new Date(billData?.paymentDate).toLocaleDateString("vi-VN", {
-              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              day: "2-digit",
               month: "2-digit",
-              day: "2-digit"
+              year: "numeric",
+              hour12: false
             })
             : ""}
           </p>
