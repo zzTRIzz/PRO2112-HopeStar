@@ -267,7 +267,10 @@ public class AccountService {
         Account account = accountRepository.findById(id).orElseThrow();
         account.setFullName(request.getFullName());
         account.setEmail(request.getEmail());
-        account.setPassword(request.getPassword());
+        // Chỉ cập nhật mật khẩu nếu request.getPassword() có giá trị hợp lệ
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            account.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
+        }
         account.setPhone(request.getPhone());
         account.setAddress(request.getAddress());
         account.setGoogleId(request.getGoogleId());
@@ -291,7 +294,10 @@ public class AccountService {
         account.setCode(request.getCode());
         account.setFullName(request.getFullName());
         account.setEmail(request.getEmail());
-        account.setPassword(request.getPassword());
+        // Chỉ cập nhật mật khẩu nếu request.getPassword() có giá trị hợp lệ
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            account.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
+        }
         account.setPhone(request.getPhone());
         account.setAddress(request.getAddress());
         account.setGoogleId(request.getGoogleId());
