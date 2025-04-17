@@ -90,6 +90,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         const filteredImeiList = listImei.filter((imei) =>
             imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
         );
+        
 
 
         return (
@@ -112,7 +113,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {currentProducts.map((pr, index) => (
+                                {currentProducts.map((pr) => (
                                     <TableRow
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
@@ -200,7 +201,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             placeholder="Tìm mã imei"
                                                             className="max-w-sm"
                                                             value={searchImeiKey}
-                                                            onChange={(e) => setSearchImeiKey(e.target.value)} 
+                                                            onChange={(e) => setSearchImeiKey(e.target.value)}
                                                         />
                                                         <TableContainer className="h-full max-h-[470px] overflow-auto">
                                                             <ScrollArea>
@@ -242,7 +243,10 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         </TableContainer>
                                                         <Button
                                                             className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
-                                                            onClick={() => updateHandleImeiSold(pr.id)}
+                                                            onClick={() => {
+                                                                updateHandleImeiSold(pr.id);
+                                                                setOpenDialogId(null);
+                                                            }}
                                                         >
                                                             Chọn
                                                         </Button>

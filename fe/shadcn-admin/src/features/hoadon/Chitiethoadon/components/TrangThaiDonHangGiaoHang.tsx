@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle, Clock, Truck, CreditCard, RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass } from "lucide-react";
+import { RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass } from "lucide-react";
 import { BillRespones } from "@/features/banhang/service/Schema";
 import { updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,15 @@ import { ToastContainer } from "react-toastify";
 import InvoiceTemplate from "./components_con/InHoaDon";
 import ChiTiet from "./components_con/ChiTiet";
 import { StatusBillHistory } from "../../service/Schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+// import { ColorFieldContext } from "react-aria-components";
 
 interface StepProps {
   status: OrderStatus;
@@ -19,6 +28,9 @@ interface StepProps {
   description: string;
   icon: React.ReactNode;
   isLast?: boolean;
+  color_bg: string;
+  color_text: string;
+  color_boder: string;
 }
 
 export type OrderStatus =
@@ -29,6 +41,7 @@ export type OrderStatus =
   | "HOAN_THANH"
   | "DA_HUY"
   | "CAP_NHAT_DON_HANG"
+  | "CHO_THANH_TOAN"
   ;
 
 interface OrderStepperProps {
@@ -36,213 +49,85 @@ interface OrderStepperProps {
   className?: string;
   searchBill: BillRespones | null;
 }
-
-// const Step: React.FC<StepProps> = ({
-//   status,
-//   step,
-//   title,
-//   description,
-//   icon,
-//   isLast = false
-// }) => {
-//   const isActive = getStepValue(status) >= getStepValue(step);
-//   const isCurrentStep = status === step;
-
-//   return (
-//     <div className={cn(
-//       "flex flex-col items-center relative",
-//       !isLast ? "flex-1" : "flex-1"
-//     )}>
-//       {!isLast && (
-//         <div className={cn(
-//           "absolute top-5 h-0.5",
-//           "left-[calc(50%+1.5rem)] right-[calc(-50%+1.5rem)]",
-//           isActive ? "bg-green-500" : "bg-gray-200",
-//           "transition-colors duration-300"
-//         )}></div>
-//       )}
-
-
-//       <div className={cn(
-//         "relative z-10 p-1",
-//         "rounded-full",
-//         "border-2",
-//         isActive
-//           ? "border-green-500"
-//           : "border-gray-200",
-//         "transition-colors duration-300",
-//         "bg-white"
-//       )}>
-//         <div className={cn(
-//           "w-8 h-8 rounded-full",
-//           "flex items-center justify-center",
-//           isActive ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500",
-//           "transition-all duration-300 ease-in-out"
-//         )}>
-//           {icon}
-//         </div>
-//       </div>
-
-//       <div className="mt-2 text-center max-w-[150px]">
-//         <h3 className={cn(
-//           "text-sm font-medium ",
-//           isCurrentStep ? "text-green-500 font-bold" : isActive ? "text-gray-900" : "text-gray-500",
-//           "transition-colors duration-300"
-//         )}>
-//           {title}
-//         </h3>
-//         <p className="text-xs text-gray-500 mt-1">{description}</p>
-//       </div>
-//     </div>
-//   );
-// };
-
 function getStepValue(status: OrderStatus): number {
   const statusMap: Record<OrderStatus, number> = {
+    CHO_THANH_TOAN: 0,
     CHO_XAC_NHAN: 1,
     DA_XAC_NHAN: 2,
     DANG_CHUAN_BI_HANG: 3,
     DANG_GIAO_HANG: 4,
     HOAN_THANH: 5,
     DA_HUY: -1,
-    CAP_NHAT_DON_HANG: -5
+    CAP_NHAT_DON_HANG: -5,
+
   };
 
   return statusMap[status];
 }
-const statusMap: Record<string, { title: string; icon: React.ReactNode; color: string }> = {
+const statusMap: Record<string, {
+  title: string;
+  icon: React.ReactNode;
+  color_bg: string;
+  color_text: string;
+  color_boder: string;
+}> = {
   CHO_XAC_NHAN: {
     title: "Chờ Xác Nhận",
-    icon: <Hourglass className="w-4 h-4" />, // Đồng hồ cát
-    color: "bg-yellow-500",
+    icon: <Hourglass className="w-4 h-4" />,
+    color_bg: "bg-blue-100",
+    color_text: "text-blue-600",
+    color_boder: "border-blue-400",
   },
   DA_XAC_NHAN: {
     title: "Đã Xác Nhận",
-    icon: <ClipboardCheck className="w-4 h-4" />, // Bảng kiểm tra
-    color: "bg-blue-500",
+    icon: <ClipboardCheck className="w-4 h-4" />,
+    color_bg: "bg-blue-100",
+    color_text: "text-blue-600",
+    color_boder: "border-blue-400",
   },
   DANG_CHUAN_BI_HANG: {
     title: "Đang Chuẩn Bị Hàng",
-    icon: <PackageOpen className="w-4 h-4" />, // Hộp mở
-    color: "bg-purple-500",
+    icon: <PackageOpen className="w-4 h-4" />,
+    color_bg: "bg-blue-100",
+    color_text: "text-blue-600",
+    color_boder: "border-blue-400",
   },
   DANG_GIAO_HANG: {
     title: "Đang Giao Hàng",
-    icon: <PackageSearch className="w-4 h-4" />, // Hộp có kính lúp
-    color: "bg-orange-500",
+    icon: <PackageSearch className="w-4 h-4" />,
+    color_bg: "bg-blue-100",
+    color_text: "text-blue-600",
+    color_boder: "border-blue-400",
   },
   HOAN_THANH: {
     title: "Hoàn Thành",
-    icon: <BadgeCheck className="w-4 h-4" />, // Huy hiệu tích xanh
-    color: "bg-green-500",
+    icon: <BadgeCheck className="w-4 h-4" />,
+    color_bg: "bg-green-100",
+    color_text: "text-green-600",
+    color_boder: "border-green-400",
   },
   DA_HUY: {
     title: "Đã Hủy",
-    icon: <XOctagon className="w-4 h-4" />, // Biển báo X
-    color: "bg-red-500",
+    icon: <XOctagon className="w-4 h-4" />,
+    color_bg: "bg-red-100",
+    color_text: "text-red-600",
+    color_boder: "border-red-400",
   },
   CHO_THANH_TOAN: {
     title: "Chờ Thanh Toán",
-    icon: <WalletCards className="w-4 h-4" />, // Thẻ ví
-    color: "bg-yellow-500",
+    icon: <WalletCards className="w-4 h-4" />,
+    color_bg: "bg-blue-100",
+    color_text: "text-blue-600",
+    color_boder: "border-blue-400",
   },
   CAP_NHAT_DON_HANG: {
     title: "Cập nhật đơn hàng",
-    icon: <RefreshCw className="w-4 h-4" />, // Mũi tên lặp lại
-    color: "bg-green-500",
+    icon: <RefreshCw className="w-4 h-4" />,
+    color_bg: "bg-yellow-100",
+    color_text: "text-yellow-600",
+    color_boder: "border-yellow-400",
   },
 };
-// const OrderStepper: React.FC<OrderStepperProps> = ({
-//   currentStatus,
-//   className,
-//   searchBill
-// }) => {
-//   return (
-//     <div className={cn(
-//       "w-full flex items-start justify-between gap-2 px-4",
-//       className
-//     )}>
-{/* {currentStatus === "DA_HUY" ? (
-        <div className="w-full h-[130px] bg-red-100 rounded-xl flex flex-col items-center justify-center text-red-600 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Icon icon="lucide:alert-circle" width={26} />
-            <span className="text-lg font-semibold">Đơn hàng đã hủy</span>
-          </div>
-        </div>
-
-      ) : ( */}
-{/* <>
-        <Step
-          status={currentStatus}
-          step="CHO_XAC_NHAN"
-          title="Đang chờ xác nhận"
-          description="Đặt hàng thành công"
-          icon={<CreditCard className="w-4 h-4" />}
-        />
-        <Step
-          status={currentStatus}
-          step="DA_XAC_NHAN"
-          title="Đã xác nhận"
-          description="Đơn hàng đã xác nhận"
-          icon={<CreditCard className="w-4 h-4" />}
-        />
-
-        <Step
-          status={currentStatus}
-          step="DANG_CHUAN_BI_HANG"
-          title="Đang chuẩn bị hàng"
-          description="Đơn hàng đang xử lý"
-          icon={<Clock className="w-4 h-4" />}
-        />
-
-        <Step
-          status={currentStatus}
-          step="DANG_GIAO_HANG"
-          title="Đang vận chuyển"
-          description="Đơn hàng đang giao"
-          icon={<Truck className="w-4 h-4" />}
-        />
-
-        <Step
-          status={currentStatus}
-          step="HOAN_THANH"
-          title="Hoàn thành"
-          description="Đơn hàng hoàn tất"
-          icon={<CheckCircle className="w-4 h-4" />}
-          isLast={true}
-        />
-      </> */}
-
-{/* <div className="timeline flex">
-            {actions.map((item, index) => (
-              <div key={index} className="step text-center mx-2">
-                <div className={`icon-circle bg-${item.color}-500 text-white p-2 rounded-full`}>
-                  {item.icon}
-                </div>
-                <div className="title font-bold mt-1">{item.title}</div>
-                <div className="time text-sm text-gray-500">{item.time}</div>
-              </div>
-            ))}
-          </div> */}
-{/* )} */ }
-{/* {searchBill?.billHistoryRespones.map((step, index) => {
-        const statusInfo = statusMap[step]; // Lấy thông tin từ statusMap
-
-        return (
-          <Step
-            key={index}
-            status={currentStatus}
-            step={step}
-            title={statusInfo?.title || "Không rõ trạng thái"} // Lấy title từ statusMap
-            description={`Trạng thái: ${statusInfo?.title || "Không rõ"}`} // Mô tả động
-            icon={statusInfo?.icon || <Icon icon="lucide:alert-circle" />} // Lấy icon từ statusMap
-            isLast={index === steps.length - 1} // Đánh dấu bước cuối
-          />
-        );
-      })} */}
-//     </div>
-//   );
-// };
 interface OrderStepperProps {
   currentStatus: OrderStatus;
   className?: string;
@@ -258,43 +143,51 @@ const statusHistoryToOrderStatus: Record<StatusBillHistory, OrderStatus> = {
   "Chờ xác nhận": "CHO_XAC_NHAN",
   "Cập nhật đơn hàng ": "CAP_NHAT_DON_HANG",
 };
+
 const OrderStepper: React.FC<OrderStepperProps> = ({
   currentStatus,
   searchBill
 }) => {
   // Lấy danh sách lịch sử trạng thái
   const historySteps = searchBill?.billHistoryRespones || [];
-
   return (
-    <div className="grid grid-cols-5 gap-4 w-full">
-      {historySteps.map((item, index) => {
-        const statusInfo = statusMap[item.actionType] || {
-          title: "Không rõ trạng thái",
-          icon: <Icon icon="lucide:alert-circle" className="w-4 h-4" />,
-          color: "bg-gray-500"
-        };
-        const orderStatus = statusHistoryToOrderStatus[item.actionType];
-        return (
-          <Step
-            key={index}
-            status={currentStatus}
-            step={orderStatus}
-            title={statusInfo.title}
-            description={new Date(item.actionTime).toLocaleDateString("vi-VN", {
-              hour: "2-digit",
-              minute: "2-digit",
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric"
-            })}
-            icon={statusInfo.icon}
-            isLast={index === historySteps.length - 1}
-          />
-        );
-      })}
+    <div className="w-full overflow-x-auto h-[170px] pt-[15px]">
+      <div className="flex gap-16 min-w-max px-2">
+        {historySteps.map((item, index) => {
+          const statusInfo = statusMap[item.actionType] || {
+            title: "Không rõ trạng thái",
+            icon: <Icon icon="lucide:alert-circle" className="w-4 h-4" />,
+            color: "bg-gray-500"
+          };
+          const orderStatus = statusHistoryToOrderStatus[item.actionType];
+          return (
+            <Step
+              key={index}
+              status={currentStatus}
+              step={orderStatus}
+              title={statusInfo.title}
+              description={new Date(item.actionTime).toLocaleDateString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+              })}
+              icon={statusInfo.icon}
+              isLast={index === historySteps.length - 1}
+              color_bg={statusInfo.color_bg}
+              color_text={statusInfo.color_text}
+              color_boder={statusInfo.color_boder}
+            />
+          );
+        })}
+      </div>
     </div>
   );
+
 };
+
+
 
 // Cập nhật component Step với hiệu ứng đẹp hơn
 const Step: React.FC<StepProps> = ({
@@ -303,145 +196,84 @@ const Step: React.FC<StepProps> = ({
   title,
   description,
   icon,
-  isLast = false
+  isLast = false,
+  color_bg,
+  color_text,
+  color_boder,
+
 }) => {
   const isActive = getStepValue(status) >= getStepValue(step);
   const isCurrentStep = status === step;
 
   return (
     <div className={cn(
-      "flex flex-col items-center relative",
-      !isLast ? "flex-1" : "flex-none"
+      "flex flex-col items-center relative"
     )}>
       {!isLast && (
         <div className={cn(
-          "absolute top-5 h-[2px] w-full",
+          "absolute top-5 h-[3px] w-full",
           "left-[calc(50%+28px)] right-0",
-          isActive ? "bg-green-500" : "bg-green-500",
+          color_bg,
           "transition-all duration-500 ease-out"
         )}></div>
       )}
 
+      {/* Vòng tròn ngoài */}
       <div className="relative z-10">
         <div className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center",
+          "w-[80px] h-[65px] rounded-full flex items-center justify-center",
           "border-2 transition-all duration-300",
-          isCurrentStep
-            ? "border-green-500 scale-125 shadow-lg"
-            : isActive
-              ? "border-green-500"
-              : "border-green-500",
+          color_boder,
           "bg-white"
         )}>
+          {/* Hình ảnh phía trong */}
           <div className={cn(
-            "w-7 h-7 rounded-full flex items-center justify-center",
+            "w-[70px] h-[57px] rounded-full flex items-center justify-center",
             "transition-colors duration-300",
-            isActive ? "bg-green-500 text-white" : "bg-green-500 text-white"
+            color_text, color_bg
           )}>
             {icon}
           </div>
         </div>
       </div>
-
+      {/* text phía đươi */}
       <div className="mt-3 text-center max-w-[160px]">
         <h3 className={cn(
           "text-sm font-semibold transition-colors",
-          isCurrentStep
-            ? "text-green-600"
-            : isActive
-              ? "text-green-600"
-              : "text-green-600"
+          color_text
         )}>
           {title}
         </h3>
-        <p className="text-xs mt-1 text-black-500 font-medium">{description}</p>
+        <p className={cn(
+          "text-xs mt-1  font-medium",
+          color_text
+        )} >{description}</p>
       </div>
     </div>
   );
 };
-
-
-// const OrderStepper: React.FC<OrderStepperProps> = ({
-//   searchBill,
-//   className,
-// }) => {
-//   return (
-//     <div
-//       className={cn(
-//         "w-full flex items-start justify-between gap-2 px-4",
-//         className
-//       )}
-//     >
-//       {searchBill?.billHistoryRespones.map((item, index) => {
-//         const statusInfo = statusMap[item?.actionType] || {
-//           title: "Không rõ trạng thái",
-//           icon: <Icon icon="lucide:alert-circle" className="text-gray-500" />,
-//           color: "bg-gray-500",
-//         };
-
-//         return (
-//           <div key={index} className="flex flex-col items-center relative">
-//             {/* Đường nối */}
-//             {index > 0 && (
-//               <div
-//                 className={cn(
-//                   "absolute top-5 h-0.5",
-//                   "left-[calc(-50%+1.5rem)] right-[calc(50%-1.5rem)]",
-//                   "bg-gray-300"
-//                 )}
-//               ></div>
-//             )}
-
-//             {/* Icon */}
-//             <div
-//               className={cn(
-//                 "w-10 h-10 flex items-center justify-center rounded-full",
-//                 statusInfo.color,
-//                 "text-white"
-//               )}
-//             >
-//               {statusInfo.icon}
-//             </div>
-
-//             {/* Tiêu đề và thời gian */}
-//             <div className="mt-2 text-center">
-//               <h3 className="text-sm font-medium">{statusInfo.title}</h3>
-//               <p className="text-xs text-gray-500">{item?.actionTime
-//                 ? new Date(item?.actionTime).toLocaleDateString("vi-VN", {
-//                   hour: "2-digit",
-//                   minute: "2-digit",
-//                   second: "2-digit",
-//                   day: "2-digit",
-//                   month: "2-digit",
-//                   year: "numeric",
-//                   hour12: false
-//                 })
-//                 : ""}</p>
-//             </div>
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// };
-
-
 interface TrangThaiDonHangProps {
   trangThai: OrderStatus;
   searchBill: BillRespones | null;
   loadTongBill: () => void;
+  themBillHistory: (actionType: string, note: string) => void;
 }
 
 const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
   ({
     trangThai,
     searchBill,
-    loadTongBill
+    loadTongBill,
+    themBillHistory
   }) => {
 
     const [currentStatus, setCurrentStatus] = useState<OrderStatus>(trangThai);
-
-    // Mảng các trạng thái theo thứ tự
+    useEffect(() => {
+      if (trangThai != null) {
+        setCurrentStatus(trangThai as OrderStatus);
+        console.log("Trạng thái hiện tại:", trangThai);
+      }
+    }, [searchBill]);    // Mảng các trạng thái theo thứ tự
     const statusOrder: OrderStatus[] = [
       "CHO_XAC_NHAN",
       "DA_XAC_NHAN",
@@ -460,6 +292,12 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         console.error("Một số sản phẩm chưa có IMEI.");
         return;
       }
+      if (!note?.trim()) {
+        showErrorToast("Vui lòng nhập ghi chú.");
+        return;
+      }
+
+      if (!searchBill) return;
 
       const currentIndex = statusOrder.indexOf(currentStatus);
       if (currentIndex < statusOrder.length - 1) {
@@ -479,8 +317,8 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             // Cộng thêm phần payment vào kết quả
             const finalAmount = result + customerPayment;
             await updateTotalDue(searchBill?.id ?? 0, finalAmount)
-            showSuccessToast("Cập nhật hóa đơn thành công!");
             loadTongBill();
+            showSuccessToast("Cập nhật hóa đơn thành công!");
           } catch (error) {
             showErrorToast("Có lỗi xảy ra khi cập nhật hóa đơn.");
             console.error("Error updating bill:", error);
@@ -490,24 +328,34 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
         // Cập nhật trạng thái tiếp theo
         setCurrentStatus(nextStatus);
-
-        if (searchBill != null) {
-          await updateStatus(searchBill?.id, nextStatus);
-          loadTongBill();
-          console.log(nextStatus);
-        }
-
+        await updateStatus(searchBill?.id, nextStatus);
+        themBillHistory(nextStatus, note);
+        setOpen(false);
         showSuccessToast("Cập nhật trạng thái đơn hàng thành công.");
+        loadTongBill();
+
+
       }
+
     };
 
-    const handlePrevStatus = async () => {
-      setCurrentStatus("DA_HUY");
-      if (searchBill != null) {
-        await updateStatus(searchBill?.id, "DA_HUY");
-        loadTongBill();
+    const handleCancel = async () => {
+      if (!note?.trim()) {
+        showErrorToast("Vui lòng nhập ghi chú.");
+        return;
       }
+
+      if (!searchBill) return;
+
+      setCurrentStatus("DA_HUY");
+      await updateStatus(searchBill.id, "DA_HUY");
+      themBillHistory("DA_HUY", note);
+      loadTongBill();
+      setOpen(false);
+      showSuccessToast("Đã hủy đơn hàng thành công.");
     };
+
+
     const printRef = useRef<HTMLDivElement>(null)
     const [printData, setPrintData] = useState<any>(null)
 
@@ -559,7 +407,15 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       customerPayment: searchBill?.customerPayment || 0,
       change: searchBill?.amountChange || 0,
     };
+    const [open, setOpen] = useState(false);
+    const [dialogType, setDialogType] = useState<"confirm" | "cancel" | null>(null);
+    const [note, setNote] = useState("");
 
+    const handleOpenDialog = (type: "confirm" | "cancel") => {
+      setDialogType(type);
+      setOpen(true);
+      console.log(currentStatus + "dsddz")
+    };
 
     return (
       <div className="w-[985px]">
@@ -572,44 +428,49 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             </div>
           </div>
 
-          <div className="p-4">
+          <div className="p-4 w-full">
+            <div className="overflow-x-auto">
+              <OrderStepper
+                searchBill={searchBill}
+                currentStatus={currentStatus}
+              />
+            </div>
 
-            <OrderStepper
-              searchBill={searchBill}
-              currentStatus={currentStatus} />
+            <div className="flex justify-center gap-4 mt-8">
 
+              <Button
+                onClick={() => handleOpenDialog("confirm")}
+                disabled={currentStatus === "CHO_THANH_TOAN" || currentStatus === "HOAN_THANH"}
+                className={cn(
+                  "px-4 py-2 rounded-md text-white transition-all duration-300",
+                  "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                )}
+              >
+                Xác nhận
+              </Button>
 
-            {currentStatus !== "DA_HUY" && (
-              <div className="flex justify-center gap-4 mt-8">
+              {/* Nút Hủy đơn */}
+              <Button
+                onClick={() => handleOpenDialog("cancel")}
+                disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH" || currentStatus === "CHO_THANH_TOAN"}
+                className={cn(
+                  "px-4 py-2 rounded-md text-white transition-all duration-300",
+                  "flex items-center gap-2 bg-red-600 hover:bg-red-500"
+                )}
+              >
+                Hủy đơn
+              </Button>
+
+              <div className="ml-[500px]">
                 <Button
-                  onClick={handleNextStatus}
-                  disabled={currentStatus === "HOAN_THANH"}
-                  className={cn(
-                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                    "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
-                  )}>
-                  Xác nhận
+                  disabled={currentStatus === "CHO_THANH_TOAN"}
+                  onClick={() => handlePrint(invoiceData)}>
+                  In hóa đơn
                 </Button>
-                <Button
-                  onClick={handlePrevStatus}
-                  disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH"}
-                  className={cn(
-                    "px-4 py-2 rounded-md text-white transition-all duration-300",
-                    "flex items-center gap-2",
-                    "bg-red-600 hover:bg-red-500"
-                  )} >
-                  Hủy đơn
-                </Button>
-
-                <div className="ml-[500px]">
-                  <Button onClick={() => handlePrint(invoiceData)}>
-                    In hóa đơn
-                  </Button>
-                </div>
-                <ChiTiet
-                  searchBill={searchBill} />
               </div>
-            )}
+              <ChiTiet
+                searchBill={searchBill} />
+            </div>
           </div>
           <div style={{ position: 'fixed', left: '-9999px' }}>
             {printData && (
@@ -620,6 +481,43 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
           </div>
         </div>
         <ToastContainer />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {dialogType === "cancel" ? "Hủy đơn hàng" : "Xác nhận đơn hàng"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Textarea
+                placeholder="Ghi chú"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setOpen(false)}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                Hủy bỏ
+              </Button>
+              <Button
+                onClick={dialogType === "confirm" ? handleNextStatus : handleCancel}
+                className={dialogType === "confirm"
+                  ? "bg-blue-500 hover:bg-blue-600 text-white"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"}
+              >
+                {dialogType === "confirm" ? "Xác nhận" : "Xác nhận"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+
       </div>
 
     );

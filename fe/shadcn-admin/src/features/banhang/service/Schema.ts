@@ -13,6 +13,7 @@ export const billSchema = z.object({
   totalDue: z.number(),
   customerRefund: z.number().nonnegative().default(0),
   discountedTotal: z.number().nonnegative().default(0),
+  payInsurance: z.number().nonnegative().default(0),
   deliveryDate: z.string().datetime().nullable(),
   customerPreferred_date: z.string().datetime().nullable(),
   customerAppointment_date: z.string().datetime().nullable(),
@@ -154,8 +155,8 @@ export interface BillRespones {
   id: number;
   code: string;
   idAccount: number;
-  idNhanVien: number;
-  fullNameNV: string;
+  idNhanVien: number | null;
+  fullNameNV: string | null;
   idVoucher: number;
   codeVoucher: string | null;
   totalPrice: number;
@@ -165,6 +166,7 @@ export interface BillRespones {
   totalDue: number;
   customerRefund: number | null;
   discountedTotal: number;
+  payInsurance: number;
   deliveryDate: string | null;
   customerPreferredDate: string | null;
   customerAppointmentDate: string | null;

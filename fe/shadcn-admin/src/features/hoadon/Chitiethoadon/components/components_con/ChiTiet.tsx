@@ -31,7 +31,7 @@ const ChiTiet: React.FC<ChiTietPros> =
                 case "HOAN_THANH": return "Hoàn thành";
                 case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
                 case "DANG_GIAO_HANG": return "Đang giao hàng";
-                case "CAP_NHAT_DON_HANG": return "Cập nhật giao hàng";
+                case "CAP_NHAT_DON_HANG": return "Cập nhật đơn hàng";
                 default: return "Không rõ trạng thái";
             }
         }
@@ -57,7 +57,7 @@ const ChiTiet: React.FC<ChiTietPros> =
                                 </TableHead>
                                 <TableBody>
                                     {searchBill?.billHistoryRespones?.map((bh) => (
-                                        <TableRow key={bh.id}>
+                                        <TableRow key={bh?.id}>
                                             <TableCell align="center">{getOrderStatusText(bh?.actionType)}</TableCell>
                                             <TableCell>{bh?.actionTime
                                                 ? new Date(bh?.actionTime).toLocaleDateString("vi-VN", {
@@ -71,7 +71,7 @@ const ChiTiet: React.FC<ChiTietPros> =
                                                 })
                                                 : ""}</TableCell>
                                             <TableCell>{bh?.fullName}</TableCell>
-                                            <TableCell align="center">{bh.note}</TableCell>
+                                            <TableCell align="center">{bh?.note}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

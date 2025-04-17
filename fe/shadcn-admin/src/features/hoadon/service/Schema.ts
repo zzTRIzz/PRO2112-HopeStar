@@ -56,8 +56,8 @@ export interface BillHistory {
   actionType: StatusBillHistory;
   note: string;
   actionTime: Date;
-  idNhanVien: number;
-  fullName: string;
+  idNhanVien: number | null;
+  fullName: string | null;
 }
 
 
@@ -70,4 +70,10 @@ export enum StatusBillHistory {
   HOAN_THANH = 'Hoàn thành ',
   DA_HUY = 'Đã hủy',
   CAP_NHAT_DON_HANG = 'Cập nhật đơn hàng ',
+}
+
+export interface BillHistoryRequest {
+  actionType: string;
+  note: string;
+  idBill: number;
 }

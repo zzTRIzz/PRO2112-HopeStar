@@ -63,6 +63,8 @@ interface Province {
     phone: string
     address: string
     loadTongBill: () => void;
+    themBillHistory: (actionType: string, note: string) => void;
+
 
 }
 const DiaChiGiaoHang: React.FC<Province> =
@@ -72,7 +74,8 @@ const DiaChiGiaoHang: React.FC<Province> =
         fullName,
         phone,
         address,
-        loadTongBill
+        loadTongBill,
+        themBillHistory
 
     }) => {
         const [openProvince, setOpenProvince] = useState(false);
@@ -229,10 +232,9 @@ const DiaChiGiaoHang: React.FC<Province> =
                     note: diaChi.watch("note"),
                     deliveryFee: shippingFee,
                 })
-                console.log("phí ship" + shippingFee);
-
                 showSuccessToast("Cập nhật thông tin khách hàng thành công ");
                 onClose();
+                themBillHistory("CAP_NHAT_DON_HANG", `Đã thay đổi địa chỉ nhận hàng`);
                 loadTongBill();
             } catch (error) {
                 console.error("Update failed", error);
