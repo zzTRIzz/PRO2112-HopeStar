@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import { IconLoader2 } from '@tabler/icons-react'
-import { Heart, Star } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { IconLoader2 } from '@tabler/icons-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Heart, Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -26,7 +26,7 @@ export default function FeaturedProducts() {
   const [displayLimit] = useState(10)
 
   const queryClient = useQueryClient()
-
+  const navigate = useNavigate()
   const addToCart = async (idProductDetail: number | undefined) => {
     try {
       if (!idProductDetail) {
@@ -53,6 +53,48 @@ export default function FeaturedProducts() {
         description:
           error?.response?.data?.message ||
           'Không thể thêm sản phẩm vào giỏ hàng',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  // Add new function for buy now
+  const handleBuyNow = async (idProductDetail: number | undefined) => {
+    try {
+      if (!idProductDetail) {
+        toast({
+          title: 'Lỗi',
+          description: 'Không thể mua sản phẩm này',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Add to cart first
+      const data = await addProductToCart(idProductDetail, 1)
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+      const cartItems = data?.cartDetailResponseList || []
+
+      console.log('Buy now data:', cartItems)
+      const addedProduct = cartItems[0]
+
+      if (!addedProduct) {
+        throw new Error('Không thể thêm sản phẩm vào giỏ hàng')
+      }
+  
+      // Navigate to checkout with only this product
+      navigate({
+        to: '/dat-hang',
+        search: {
+          selectedProducts: JSON.stringify([addedProduct]),
+        },
+      })
+
+    } catch (error) {
+      console.error('Buy now error:', error)
+      toast({
+        title: 'Lỗi',
+        description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
         variant: 'destructive',
       })
     }
@@ -219,6 +261,10 @@ export default function FeaturedProducts() {
                 <Button
                   size='lg'
                   className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-4 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleBuyNow(product.idProductDetail)
+                  }}
                 >
                   Mua ngay
                 </Button>
@@ -365,6 +411,10 @@ export default function FeaturedProducts() {
                     <Button
                       size='sm'
                       className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-3 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleBuyNow(product.idProductDetail)
+                      }}
                     >
                       Mua ngay
                     </Button>

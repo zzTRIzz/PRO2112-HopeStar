@@ -43,19 +43,57 @@ interface DataTableRowActionsProps {
 }
 
 const updateFormSchema = z.object({
+  // fullName: z
+  //   .string()
+  //   .min(3, 'Họ và tên phải có ít nhất 3 ký tự')
+  //   .max(50, 'Họ và tên không được quá 50 ký tự'),
+  // email: z.string().email('Email không hợp lệ'),
+  // phone: z
+  //   .string()
+  //   .min(10, 'Số điện thoại phải có ít nhất 10 số')
+  //   .max(15, 'Số điện thoại không được quá 15 số'),
+  // address: z.string().min(10, 'Địa chỉ phải có ít nhất 10 ký tự'),
+  // gender: z.enum(['Nam', 'Nữ']),
+  // birthDate: z.string(),
+  // status: z.enum(['ACTIVE', 'IN_ACTIVE']),
   fullName: z
-    .string()
-    .min(3, 'Họ và tên phải có ít nhất 3 ký tự')
-    .max(50, 'Họ và tên không được quá 50 ký tự'),
-  email: z.string().email('Email không hợp lệ'),
-  phone: z
-    .string()
-    .min(10, 'Số điện thoại phải có ít nhất 10 số')
-    .max(15, 'Số điện thoại không được quá 15 số'),
-  address: z.string().min(10, 'Địa chỉ phải có ít nhất 10 ký tự'),
-  gender: z.enum(['Nam', 'Nữ']),
-  birthDate: z.string(),
-  status: z.enum(['ACTIVE', 'IN_ACTIVE']),
+      .string()
+      .min(3, 'Họ và tên phải có ít nhất 3 ký tự')
+      .max(50, 'Họ và tên không được quá 50 ký tự')
+      .regex(/^[\p{L}\s]+$/u, 'Họ tên chỉ được chứa chữ cái và khoảng trắng'),
+    gender: z.enum(['Nam', 'Nữ', 'Khác'], {
+      required_error: 'Vui lòng chọn giới tính',
+    }),
+    email: z
+      .string()
+      .email('Email không hợp lệ')
+      .min(5, 'Email phải có ít nhất 5 ký tự'),
+    // password: z.string().default(generateRandomPassword(8)),
+    phone: z
+      .string()
+      .min(10, 'Số điện thoại phải có ít nhất 10 số')
+      .max(15, 'Số điện thoại không được quá 15 số')
+      .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +')
+      .regex(/^(?:\+?84|0[35789])[0-9]{8}$/, 'Số điện thoại không đúng định dạng'),
+    address: z
+      .string()
+      .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
+      .max(200, 'Địa chỉ không được quá 200 ký tự'),
+    birthDate: z.string().refine((date) => {
+      if (!date) return false
+      const birthDate = new Date(date)
+      const today = new Date()
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const monthDiff = today.getMonth() - birthDate.getMonth()
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--
+      }
+      return age >= 15 && age < 61
+    }, 'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'),
+    status: z.enum(['ACTIVE', 'IN_ACTIVE'])
 })
 
 type UpdateFormValues = z.infer<typeof updateFormSchema>

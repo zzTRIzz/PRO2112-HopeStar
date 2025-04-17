@@ -8,6 +8,7 @@ import com.example.be.core.admin.sale.dto.response.SaleResponse;
 import com.example.be.core.admin.sale.service.SaleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,8 +45,8 @@ public class SaleController {
     @GetMapping("/search")
     public ResponseEntity<List<SaleResponse>> searchSales(
             @RequestParam(required = false) String code,
-            @RequestParam(required = false) LocalDateTime dateStart,
-            @RequestParam(required = false) LocalDateTime dateEnd) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateStart,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateEnd) {
         List<SaleResponse> responses = saleService.searchSales(code, dateStart, dateEnd);
         return ResponseEntity.ok(responses);
     }
@@ -95,11 +96,12 @@ public class SaleController {
     }
 
     // Lấy danh sách sản phẩm chi tiết có ở trong sale
-    @GetMapping("/{saleId}/products")
+    @GetMapping("/{saleId}/product-details")
     public ResponseEntity<List<SaleDetailResponse>> getProductsInSale(
             @PathVariable Integer saleId
     ) {
         List<SaleDetailResponse> responses = saleService.getProductsInSale(saleId);
         return ResponseEntity.ok(responses);
     }
+
 }

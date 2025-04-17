@@ -40,6 +40,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void updateStatus(Integer id) throws Exception {
         ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(()->
                 new Exception("product-detail not found with id: "+id));
+        if (productDetail.getStatus().equals(ProductDetailStatus.DESIST)){
+            new Exception("Sản phẩm hiện tại đã hết hàng không thể cập nhật trạng thái");
+        }
         if (productDetail != null){
             if (productDetail.getStatus().equals(ProductDetailStatus.ACTIVE)){
                 productDetail.setStatus(ProductDetailStatus.IN_ACTIVE);

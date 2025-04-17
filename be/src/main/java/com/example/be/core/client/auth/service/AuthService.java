@@ -13,4 +13,5 @@ public interface AuthService {
     AccountResponse getAccountProfile(String jwt) throws Exception;
     Account findAccountByJwt(String jwt) throws Exception;
     Object forgotPassword(String email) throws Exception;
+    Object resetPassword(String token, String newPassword) throws Exception;
 }

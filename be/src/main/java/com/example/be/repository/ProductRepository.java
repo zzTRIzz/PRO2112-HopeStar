@@ -78,4 +78,7 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "AND p.status = 'ACTIVE'")
     List<Product> filterProducts(@Param("filter") PhoneFilterRequest filter);
 
+
+    boolean existsProductsByNameEquals(String name);
+
   }

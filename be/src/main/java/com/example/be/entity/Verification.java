@@ -3,6 +3,8 @@ package com.example.be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +17,8 @@ public class Verification {
     private Long id;
 
     private String otp;
+
+    private LocalDateTime expiryDate;
 
     private String email;
 

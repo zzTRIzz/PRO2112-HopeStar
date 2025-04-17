@@ -83,25 +83,15 @@ public class AuthController {
         return ResponseEntity.ok(apiResponse);
     }
 
-//    // Xử lý đặt lại mật khẩu
-//    @PostMapping("/reset-password")
-//    public ResponseEntity<?> resetPassword(
-//            @RequestParam String token,
-//            @RequestParam String newPassword
-//    ) {
-//        PasswordResetToken resetToken = tokenRepository.findByToken(token);
-//        if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-//            return ResponseEntity.badRequest().body("Token không hợp lệ hoặc đã hết hạn");
-//        }
-//
-//        User user = resetToken.getUser();
-//        user.setPassword(passwordEncoder.encode(newPassword));
-//        userRepository.save(user);
-//
-//        // Xóa token đã sử dụng
-//        tokenRepository.delete(resetToken);
-//
-//        return ResponseEntity.ok("Đặt lại mật khẩu thành công");
-//    }
+    // Xử lý đặt lại mật khẩu
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword
+    ) throws Exception {
+
+        Object o = authService.resetPassword(token,newPassword);
+        return ResponseEntity.ok(o);
+    }
 
 }

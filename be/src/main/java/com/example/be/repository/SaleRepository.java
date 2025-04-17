@@ -12,12 +12,15 @@ public interface SaleRepository extends JpaRepository<Sale, Integer> {
   boolean existsByCode(String code);
 
   @Query("SELECT s FROM Sale s WHERE " +
-          "(:code IS NULL OR s.code LIKE %:code%) " +
+          "(COALESCE(:code, '') = '' OR " +  // Bỏ qua nếu code rỗng
+          "REPLACE(LOWER(TRIM(s.code)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:code), '%')), ' ', '') OR " +
+          "REPLACE(LOWER(TRIM(s.name)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:code), '%')), ' ', '')) " +
           "AND (:dateStart IS NULL OR s.dateStart >= :dateStart) " +
           "AND (:dateEnd IS NULL OR s.dateEnd <= :dateEnd)")
   List<Sale> searchSales(
           @Param("code") String code,
           @Param("dateStart") LocalDateTime dateStart,
-          @Param("dateEnd") LocalDateTime  dateEnd
+          @Param("dateEnd") LocalDateTime dateEnd
   );
-  }
+
+}
