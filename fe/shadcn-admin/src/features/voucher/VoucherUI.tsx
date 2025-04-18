@@ -383,91 +383,123 @@ export default function VoucherUI() {
         }
     };
 
-    // Modify the handleSubmit function
+    // Modify handleSubmit function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Validate required fields
-        if (!formData.code.trim()) {
-            toast.error('Mã voucher không được để trống');
-            return;
-        }
-
-        if (!formData.name.trim()) {
-            toast.error('Tên voucher không được để trống');
-            return;
-        }
-
-        if (formData.discountValue <= 0) {
-            toast.error('Giá trị giảm phải lớn hơn 0');
-            return;
-        }
-
-        if (formData.voucherType && formData.discountValue > 100) {
-            toast.error('Giảm giá theo % không được vượt quá 100%');
-            return;
-        }
-
-        if (formData.conditionPriceMin <= 0) {
-            toast.error('Giá tối thiểu phải lớn hơn 0');
-            return;
-        }
-
-        if (formData.conditionPriceMax <= formData.conditionPriceMin) {
-            toast.error('Giá tối đa phải lớn hơn giá tối thiểu');
-            return;
-        }
-
-        if (formData.quantity <= 0) {
-            toast.error('Số lượng phải lớn hơn 0');
-            return;
-        }
-
-        if (!formData.startTime || !formData.endTime) {
-            toast.error('Vui lòng chọn thời gian bắt đầu và kết thúc');
-            return;
-        }
-
-        const startDate = new Date(formData.startTime);
-        const endDate = new Date(formData.endTime);
-        if (startDate >= endDate) {
-            toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
-            return;
-        }
-
-        // Check for duplicate code
-        if (!isEditing) {
-            const isValidCode = await checkCode(formData.code);
-            if (!isValidCode) {
-                return;
-            }
-        }
 
         try {
-            if (isEditing) {
-                // Handle edit case
-                const response = await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
-                toast.success('Cập nhật voucher thành công!');
-            } else {
-                // Handle create case
-                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
-                const newVoucher = response.data;
+            // Validate required fields
+            if (!formData.code.trim()) {
+                toast.error('Mã voucher không được để trống');
+                return;
+            }
 
-                // If it's a private voucher and we have selected accounts, assign them
+            if (!formData.name.trim()) {
+                toast.error('Tên voucher không được để trống');
+                return;
+            }
+
+            if (formData.discountValue <= 0) {
+                toast.error('Giá trị giảm phải lớn hơn 0');
+                return;
+            }
+
+            if (formData.voucherType && formData.discountValue > 100) {
+                toast.error('Giảm giá theo % không được vượt quá 100%');
+                return;
+            }
+
+            if (formData.conditionPriceMin <= 0) {
+                toast.error('Giá tối thiểu phải lớn hơn 0');
+                return;
+            }
+
+            if (formData.conditionPriceMax <= formData.conditionPriceMin) {
+                toast.error('Giá tối đa phải lớn hơn giá tối thiểu');
+                return;
+            }
+
+            if (formData.quantity <= 0) {
+                toast.error('Số lượng phải lớn hơn 0');
+                return;
+            }
+
+            if (!formData.startTime || !formData.endTime) {
+                toast.error('Vui lòng chọn thời gian bắt đầu và kết thúc');
+                return;
+            }
+
+            // Kiểm tra thời gian
+            const startDate = new Date(formData.startTime);
+            const endDate = new Date(formData.endTime);
+            const now = new Date();
+
+            if (startDate >= endDate) {
+                toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
+                return;
+            }
+
+            if (!isEditing) {
+                // Khi thêm mới
+                if (startDate < now) {
+                    toast.error('Ngày bắt đầu không được trước thời điểm hiện tại');
+                    return;
+                }
+
+                // Kiểm tra mã trùng
+                const isValidCode = await checkCode(formData.code);
+                if (!isValidCode) {
+                    return;
+                }
+
+                // Gọi API thêm mới
+                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
+                
                 if (formData.isPrivate && selectedAccounts.length > 0) {
                     await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
-                        voucherId: newVoucher.id,
+                        voucherId: response.data.id,
                         customerIds: selectedAccounts
                     });
                     toast.success('Tạo voucher và thêm khách hàng thành công!');
                 } else {
                     toast.success('Tạo voucher mới thành công!');
                 }
+
+            } else {
+                // Khi cập nhật
+                const currentVoucher = vouchers.find(v => v.id === editId);
+                if (!currentVoucher) {
+                    toast.error('Không tìm thấy voucher cần cập nhật');
+                    return;
+                }
+
+                // Kiểm tra trạng thái hiện tại
+                const currentStatus = getVoucherStatus(currentVoucher.startTime, currentVoucher.endTime);
+                
+                if (currentStatus !== VoucherStatus.UPCOMING) {
+                    // Nếu không phải UPCOMING, không được thay đổi startTime
+                    const oldStartDate = new Date(currentVoucher.startTime);
+                    if (startDate.getTime() !== oldStartDate.getTime()) {
+                        toast.error('Không được phép thay đổi ngày bắt đầu khi voucher đã hoạt động hoặc đã hết hạn');
+                        return;
+                    }
+                } else {
+                    // Nếu là UPCOMING, startTime phải sau thời điểm hiện tại
+                    if (startDate < now) {
+                        toast.error('Ngày bắt đầu không được trước thời điểm hiện tại');
+                        return;
+                    }
+                }
+
+                // Gọi API cập nhật
+                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
+                toast.success('Cập nhật voucher thành công!');
             }
 
-            // Refresh data and close modal
+            // Refresh data và đóng modal
             await refreshVouchers();
             handleCloseModal();
+
         } catch (error) {
             console.error('Error:', error);
             if (axios.isAxiosError(error)) {

@@ -58,10 +58,17 @@ public class VoucherServiceImpl implements VoucherService {
         if (voucherRepository.existsByCode(request.getCode())) {
             throw new RuntimeException("Mã voucher đã tồn tại");
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (request.getStartTime().isBefore(now)) {
+            throw new RuntimeException("Ngày bắt đầu không được trước thời điểm hiện tại");
+        }
+
         Voucher voucher = voucherMapper.toEntity(request);
         voucher = voucherRepository.save(voucher);
         return voucherMapper.toResponse(voucher);
     }
+
 
     @Override
     public VoucherResponse update(Integer id, VoucherRequest request) {
@@ -70,9 +77,11 @@ public class VoucherServiceImpl implements VoucherService {
         }
 
         Voucher existingVoucher = voucherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+                .orElseThrow(() -> new RuntimeException("Voucher không tồn tại"));
 
-        // Update basic fields from request
+        StatusVoucher currentStatus = existingVoucher.getStatus();
+
+        // Cập nhật các trường thông thường
         existingVoucher.setName(request.getName());
         existingVoucher.setMoTa(request.getMoTa());
         existingVoucher.setDiscountValue(request.getDiscountValue());
@@ -80,28 +89,39 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setConditionPriceMin(request.getConditionPriceMin());
         existingVoucher.setConditionPriceMax(request.getConditionPriceMax());
         existingVoucher.setQuantity(request.getQuantity());
-        existingVoucher.setStartTime(request.getStartTime());
-        existingVoucher.setEndTime(request.getEndTime());
         existingVoucher.setIsPrivate(request.getIsPrivate());
         existingVoucher.setMaxDiscountAmount(request.getMaxDiscountAmount());
 
-        // Update status based on current time
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startTime = existingVoucher.getStartTime();
-        LocalDateTime endTime = existingVoucher.getEndTime();
+        // Xử lý startTime và endTime theo điều kiện
+        if (currentStatus == StatusVoucher.UPCOMING) {
+            LocalDateTime now = LocalDateTime.now();
+            if (request.getStartTime().isBefore(now)) {
+                throw new RuntimeException("Ngày bắt đầu không được trước thời điểm hiện tại");
+            }
+            existingVoucher.setStartTime(request.getStartTime());
+            existingVoucher.setEndTime(request.getEndTime());
+        } else {
+            // ACTIVE hoặc EXPIRED
+            if (!request.getStartTime().isEqual(existingVoucher.getStartTime())) {
+                throw new RuntimeException("Không được phép thay đổi ngày bắt đầu khi voucher đã hoạt động hoặc đã hết hạn");
+            }
+            existingVoucher.setEndTime(request.getEndTime());
+        }
 
-        if (now.isBefore(startTime)) {
+        // Cập nhật lại trạng thái dựa vào thời gian mới
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(existingVoucher.getStartTime())) {
             existingVoucher.setStatus(StatusVoucher.UPCOMING);
-        } else if (now.isAfter(endTime)) {
+        } else if (now.isAfter(existingVoucher.getEndTime())) {
             existingVoucher.setStatus(StatusVoucher.EXPIRED);
         } else {
             existingVoucher.setStatus(StatusVoucher.ACTIVE);
         }
 
-        // Save updated voucher
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
         return voucherMapper.toResponse(updatedVoucher);
     }
+
 
     @Override
     public List<Voucher> findByCode(String code) {
