@@ -226,7 +226,7 @@ export default function Navbar() {
               <Input
                 type='search'
                 placeholder='Tìm kiếm điện thoại...'
-                className='w-[140px] lg:w-[250px]'
+                className='w-[140px] lg:w-[150px]'
                 autoFocus
               />
               <Button
