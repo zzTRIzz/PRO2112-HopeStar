@@ -137,7 +137,7 @@ export default function FeaturedProducts() {
     )
 
   return (
-    <section className='container py-10'>
+    <section className='container py-10 bg-slate-50'>
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
