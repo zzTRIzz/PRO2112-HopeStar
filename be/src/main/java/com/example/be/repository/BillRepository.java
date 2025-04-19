@@ -19,7 +19,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
     long countByStatus(String status);
 
     @Query(value = """
-            SELECT COALESCE(MAX(CAST(SUBSTRING(name_bill, 4) AS UNSIGNED)), 0) + 1
+            SELECT COALESCE(MAX(CAST(SUBSTRING(code, 4) AS UNSIGNED)), 0) + 1
             FROM bill
             """, nativeQuery = true)
     String getNewCode();

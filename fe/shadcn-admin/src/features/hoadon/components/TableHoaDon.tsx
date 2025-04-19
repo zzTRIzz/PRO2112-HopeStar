@@ -19,7 +19,6 @@ const statusStyles: Record<string, string> = {
     "HOAN_THANH": "bg-teal-500 text-white",
     "DANG_CHUAN_BI_HANG": "bg-pink-500 text-white",
     "DANG_GIAO_HANG": "bg-violet-500 text-white",
-    // "DA_GIAO_HANG": "bg-green-500 text-white",
     "DA_HUY": "bg-red-500 text-white",
 
 };
@@ -45,29 +44,35 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
     const endIndex = startIndex + pageSize;
     const currentProducts = safeList.slice(startIndex, endIndex);
 
-        const getPaymentMethod = (method: number | null) => {
-            switch (method) {
-                case 1: return "Tiền mặt";
-                case 2: return "Chuyển khoản";
-                case 3: return "Ví VNPAY";
-                case 4: return `COD`;
-                default: return "";
-            }
-        };
-        const getOrderStatusText = (status: string | null) => {
-            switch (status) {
-                case "CHO_THANH_TOAN": return "Chờ thanh toán";
-                case "CHO_XAC_NHAN": return "Chờ xác nhận";
-                case "DA_XAC_NHAN": return "Đã xác nhận";
-                case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
-                case "DANG_GIAO_HANG": return "Đang giao hàng";
-                // case "DA_GIAO_HANG": return "Đã giao hàng";
-                case "HOAN_THANH": return "Hoàn thành";
-                case "DA_HUY": return "Đã hủy";
-                default: return "Không rõ trạng thái";
+    const getPaymentMethod = (method: number | null) => {
+        switch (method) {
+            case 1: return "Tiền mặt";
+            case 2: return "Chuyển khoản";
+            case 3: return "Ví VNPAY";
+            case 4: return `COD`;
+            default: return "-";
+        }
+    };
+    const getDeliveryMethod = (method: number | null) => {
+        switch (method) {
+            case 1: return "Tại quầy";
+            case 2: return "Giao hàng ";
+            default: return "";
+        }
+    };
+    const getOrderStatusText = (status: string | null) => {
+        switch (status) {
+            case "CHO_THANH_TOAN": return "Chờ thanh toán";
+            case "CHO_XAC_NHAN": return "Chờ xác nhận";
+            case "DA_XAC_NHAN": return "Đã xác nhận";
+            case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
+            case "DANG_GIAO_HANG": return "Đang giao hàng";
+            case "HOAN_THANH": return "Hoàn thành";
+            case "DA_HUY": return "Đã hủy";
+            default: return "Không rõ trạng thái";
 
-            }
-        };
+        }
+    };
 
     return (
         <>
@@ -76,8 +81,6 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                     Không tìm thấy hóa đơn nào
                 </div>
             ) : (
-
-
                 <TableContainer component={Paper}>
                     <Table className="min-w-[650px]" aria-label="simple table">
                         <TableHead>
@@ -89,22 +92,23 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                 <TableCell align="center">Trạng thái</TableCell>
                                 <TableCell align="center">Tổng tiền</TableCell>
                                 <TableCell align="center" >Thanh toán</TableCell>
+                                <TableCell align="right" > Phương thức </TableCell>
                                 <TableCell align="center">Ngày mua hàng</TableCell>
                                 <TableCell align="center" >Thao tác</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {currentProducts.map((hd, index) => (
+                            {currentProducts?.map((hd, index) => (
                                 <TableRow className="whitespace-nowrap"
-                                    key={hd.id}
+                                    key={hd?.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                     <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd.nameBill}</p> </TableCell>
-                                    <TableCell align="center" >{hd.name}<br />{hd.phone}</TableCell>
+                                    <TableCell align="center" >{hd?.name}<br />{hd?.phone}</TableCell>
                                     <TableCell align="center" className="w-[200px] whitespace-nowrap">
                                         <span className={cn(
                                             "px-4 py-2 text-white font-medium rounded-full text-xs",
-                                            hd.billType === 0 ? "bg-emerald-500" : "bg-orange-500"
+                                            hd?.billType === 0 ? "bg-emerald-500" : "bg-orange-500"
                                         )}>{hd.billType == 0 ? "Tại quầy" : "Giao hàng"}</span>
                                     </TableCell>
                                     <TableCell align="center"
@@ -112,10 +116,11 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                         "px-3 py-2 font-medium rounded-full text-xs",
                                         statusStyles[hd.status] || "bg-gray-500 text-white"
                                     )}>{getOrderStatusText(hd?.status)}</span></TableCell>
-                                    <TableCell align="right">{hd.totalDue == null ? 0 : hd.totalDue.toLocaleString('vi-VN')} VND</TableCell>
-                                    <TableCell align="right" >{hd.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
-                                    <TableCell align="right"> {hd.paymentDate
-                                        ? new Date(hd.paymentDate).toLocaleDateString("vi-VN", {
+                                    <TableCell align="right">{hd?.totalDue == null ? 0 : hd?.totalDue?.toLocaleString('vi-VN')} VND</TableCell>
+                                    <TableCell align="right" >{hd?.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
+                                    <TableCell align="right" >{hd?.deliveryId == 0 ? "Tại quầy" : "Giao hàng"}</TableCell>
+                                    <TableCell align="right"> {hd?.paymentDate
+                                        ? new Date(hd?.paymentDate).toLocaleDateString("vi-VN", {
                                             year: "numeric",
                                             month: "2-digit",
                                             day: "2-digit",
@@ -126,7 +131,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                         : ""}</TableCell>
                                     <TableCell align="center" style={{}}>
                                         <Button className="bg-blue-600 text-white hover:bg-green-600">
-                                            <a href={`/hoadon/hoadonchitiet?id=${hd.id}`} >
+                                            <a href={`/hoadon/hoadonchitiet?id=${hd?.id}`} >
                                                 Chi tiết
                                             </a>
                                         </Button>
