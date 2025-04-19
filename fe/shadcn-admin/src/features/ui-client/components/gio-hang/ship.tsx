@@ -118,7 +118,17 @@ const Ship = ({
   return (
     <>
       <div className='flex justify-between'>
-        <span>Phí vận chuyển</span>
+        <div className='flex items-center'>
+          <span>Phí vận chuyển</span>
+          <div className='ml-2'></div>
+          (
+          <img
+            src='https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHTK-H.png'
+            alt='GHTK Logo'
+            className='h-5 mr-1 w-auto'
+          />
+          )
+        </div>
         <span>{new Intl.NumberFormat('vi-VN').format(shippingFeeOnly)}đ</span>
       </div>
       <div className='flex items-center justify-between'>

@@ -5,6 +5,7 @@ import { CartItemCard } from '../../components/gio-hang/cart-item'
 import { useCart } from '../../hooks/use-cart'
 import { checkCartDetail } from '../../data/api-cart-service'
 import { toast } from '@/hooks/use-toast'
+import { Link } from '@tanstack/react-router'
 
 export function CartPage() {
   const {
@@ -132,17 +133,19 @@ export function CartPage() {
                   icon='lucide:shopping-cart'
                   className='h-12 w-12 text-default-300'
                 />
-                <p className='text-lg text-default-500'>Giỏ hàng trống</p>
-                <Button
-                  color='primary'
-                  variant='flat'
-                  onPress={refreshCart}
-                  startContent={
-                    <Icon icon='lucide:refresh-cw' className='h-4 w-4' />
-                  }
-                >
-                  Thêm sản phẩm mẫu
-                </Button>
+                <p className='text-lg'>Chưa có sản phẩm nào trong giỏ hàng</p>
+                <p className='text-sm text-default-500'>Cùng mua sắm hàng ngàn sản phẩm tại HopeStar nhé!</p>
+                <Link to='/'>
+                  <Button
+                    color='primary'
+                    variant='flat'
+                    startContent={
+                      <Icon icon='lucide:refresh-cw' className='h-4 w-4' />
+                    }
+                  >
+                    Tiếp tục mua sắm
+                  </Button>
+                </Link>
               </div>
             )}
           </div>

@@ -37,6 +37,19 @@ export default function ProductDetail() {
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+
+  // Lưu ý: Đặt tiêu đề trang trong useEffect để tránh lỗi SSR
+  useEffect(() => {
+    if (productDetail?.productName) {
+      document.title = `${productDetail.productName} | HopeStar`;
+    } else {
+      document.title = 'HopeStar';
+    }
+    return () => {
+      document.title = 'HopeStar';
+    };
+  }, [productDetail?.productName]);
+
   const addToCart = async (productDetailId: number | undefined) => {
     try {
       if (!productDetailId) {

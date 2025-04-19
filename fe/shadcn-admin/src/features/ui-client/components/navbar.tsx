@@ -121,6 +121,7 @@ export default function Navbar() {
       <div className='container flex h-16 items-center justify-between'>
         <div className='flex items-center gap-4 md:gap-10'>
           <Link to='/' className='flex items-center space-x-2'>
+            <img src="/images/favicon.svg" alt="HopeStar Logo" className="h-6 w-6" />
             <span className='text-2xl font-bold'>HopeStar</span>
           </Link>
 
@@ -197,7 +198,7 @@ export default function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
-                    to='/'
+                    to='/lien-he'
                     className='group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
                   >
                     Liên hệ
@@ -214,8 +215,8 @@ export default function Navbar() {
             <div className='flex items-center'>
               <Input
                 type='search'
-                placeholder='Search phones...'
-                className='w-[200px] lg:w-[300px]'
+                placeholder='Tìm kiếm điện thoại...'
+                className='w-[140px] lg:w-[250px]'
                 autoFocus
               />
               <Button
