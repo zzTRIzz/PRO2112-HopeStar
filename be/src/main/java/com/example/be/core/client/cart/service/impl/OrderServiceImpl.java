@@ -48,10 +48,11 @@ public class OrderServiceImpl implements OrderService {
             }
 
         }
+
         if (orderRequest.getIdVoucher() != null) {
             Voucher voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
             if (voucher == null) {
-                throw new Exception("Voucher:" + voucher.getCode() + " hiện đã hết thời gian khuyến mãi");
+                throw new Exception("Voucher hiện đã hết thời gian khuyến mãi");
             }
             // xu ly voucher
             if (account != null){
@@ -79,29 +80,10 @@ public class OrderServiceImpl implements OrderService {
         bill.setBillType((byte) 1);
         bill.setAmountChange(BigDecimal.ZERO);
         bill.setPayInsurance(orderRequest.getInsuranceFee());
-        //phuong thuc thanh toan ...
         bill.setStatus(StatusBill.CHO_XAC_NHAN);
 
         Bill creteBill = billRepository.save(bill);
 
-        // check loi
-        for (OrderRequest.Products products: productsList) {
-            CartDetail cartDetail = cartDetailRepository.findById(products.getId()).orElseThrow(() ->
-                    new Exception("Lỗi giỏ hàng!"));
-            ProductDetail productDetail = productDetailRepository.findById(cartDetail.getIdProductDetail().getId()).orElseThrow(()->
-                    new Exception("Lỗi sản phẩm!"));
-            ProductDetail productDetailCheck = productDetailRepository.findByIdAndStatus(productDetail.getId(), ProductDetailStatus.ACTIVE);
-            if (productDetailCheck == null){
-                throw new Exception("Sản phẩm "+productDetail.getProduct().getName()+" " + productDetail.getColor().getName()+" "+ productDetail.getRam().getCapacity()
-                        +"/"+productDetail.getRom().getCapacity()+" đang dừng bán" );
-            }else {
-                if (products.getQuantity()>productDetailCheck.getInventoryQuantity()){
-                    throw new Exception("Sản phẩm "+productDetail.getProduct().getName()+" " + productDetail.getColor().getName()+" "+ productDetail.getRam().getCapacity()
-                            +"/"+productDetail.getRom().getCapacity()+" hiện tại còn:"+ productDetailCheck.getInventoryQuantity());
-                }
-            }
-
-        }
 
 
         //products: la cart-detail

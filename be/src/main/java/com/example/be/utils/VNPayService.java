@@ -19,7 +19,7 @@ public class VNPayService {
     public String createPayment(BigDecimal orderTotal, String orderInfo, String ipAddress) throws UnsupportedEncodingException {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
-        String vnp_TxnRef = Config.getRandomNumber(8);
+        String vnp_TxnRef = Config.getRandomNumber(10);
         String vnp_IpAddr = ipAddress;
         String vnp_TmnCode = vnPayConfig.getVnp_TmnCode();
 
@@ -27,7 +27,7 @@ public class VNPayService {
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(orderTotal.multiply(BigDecimal.valueOf(100)).intValue()));
+        vnp_Params.put("vnp_Amount", String.valueOf(orderTotal.multiply(BigDecimal.valueOf(100)).longValue()));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", orderInfo);
