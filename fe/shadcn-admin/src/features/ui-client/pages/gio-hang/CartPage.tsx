@@ -1,10 +1,10 @@
-import { useNavigate } from '@tanstack/react-router'
+import { toast } from '@/hooks/use-toast'
 import { Button, Card, Checkbox, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { useNavigate } from '@tanstack/react-router'
 import { CartItemCard } from '../../components/gio-hang/cart-item'
-import { useCart } from '../../hooks/use-cart'
 import { checkCartDetail } from '../../data/api-cart-service'
-import { toast } from '@/hooks/use-toast'
+import { useCart } from '../../hooks/use-cart'
 
 export function CartPage() {
   const {

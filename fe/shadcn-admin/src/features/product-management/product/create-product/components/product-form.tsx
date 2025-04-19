@@ -51,7 +51,7 @@ interface ProductFormProps {
   chips?: { id: number; name: string }[]
   frontCameras?: { id: number; resolution: string }[]
   os?: { id: number; name: string }[]
-  rearCameras?: { id: number; resolution: string }[]
+  rearCameras?: { id: number; type: string; resolution: string }[]
   screens?: { id: number; type: string }[]
   sims?: { id: number; type: string }[]
   wifis?: { id: number; name: string }[]
@@ -851,7 +851,10 @@ export function ProductForm({
                               .filter((camera) =>
                                 field.value.includes(camera.id.toString())
                               )
-                              .map((camera) => camera.resolution)
+                              .map(
+                                (camera) =>
+                                  `${camera.type}-${camera.resolution}`
+                              )
                               .join(', ')
                           : 'Chọn camera trước'}
                       </Button>
@@ -878,7 +881,9 @@ export function ProductForm({
                             checked={field.value.includes(camera.id.toString())}
                             disabled={!frontCameras}
                           />
-                          <span>{camera.resolution}</span>
+                            <span>
+                            {camera.type} - {camera.resolution}
+                            </span>
                         </div>
                       ))}
                     </ScrollArea>
@@ -929,7 +934,7 @@ export function ProductForm({
                               .filter((camera) =>
                                 field.value.includes(camera.id.toString())
                               )
-                              .map((camera) => camera.resolution)
+                              .map((camera) => `${camera.type}-${camera.resolution}`)
                               .join(', ')
                           : 'Chọn camera sau'}
                       </Button>
@@ -956,7 +961,7 @@ export function ProductForm({
                             checked={field.value.includes(camera.id.toString())}
                             disabled={!rearCameras}
                           />
-                          <span>{camera.resolution}</span>
+                          <span>{camera.type} - {camera.resolution}</span>
                         </div>
                       ))}
                     </ScrollArea>

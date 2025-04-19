@@ -203,7 +203,7 @@ export default function FeaturedProducts() {
                       key={`ram-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {ram}GB
+                      {ram}
                     </div>
                   ))}
                   {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
@@ -212,7 +212,7 @@ export default function FeaturedProducts() {
                       key={`rom-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {rom}GB
+                      {rom}
                     </div>
                   ))}
                 </div>
@@ -350,7 +350,7 @@ export default function FeaturedProducts() {
                           key={`ram-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {ram}GB
+                          {ram}
                         </div>
                       ))}
                       {product.rom.map((rom, i) => (
@@ -358,7 +358,7 @@ export default function FeaturedProducts() {
                           key={`rom-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {rom}GB
+                          {rom}
                         </div>
                       ))}
                     </div>

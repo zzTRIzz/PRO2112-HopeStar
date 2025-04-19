@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Link,useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Route } from '@/routes/(auth)/product.$id'
 import {
   Badge,
@@ -23,7 +23,7 @@ import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
 
 export default function ProductDetail() {
-  const { id } = Route.useParams() 
+  const { id } = Route.useParams()
   const [productDetail, setProductDetail] =
     useState<productDetailViewResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -32,7 +32,35 @@ export default function ProductDetail() {
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [quantity, setQuantity] = useState(1)
   const [currentProductDetail, setCurrentProductDetail] = useState<any>(null)
-
+  const SpecItem = ({
+    icon,
+    label,
+    value,
+    highlight = false,
+  }: {
+    icon: string
+    label: string
+    value: string
+    highlight?: boolean
+  }) => (
+    <div
+      className={`flex items-start gap-3 rounded-lg p-3 transition-all ${highlight ? 'border border-primary-100 bg-primary-50' : 'hover:bg-gray-50'}`}
+    >
+      <div
+        className={`rounded-md p-2 ${highlight ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'}`}
+      >
+        <Icon icon={icon} className='h-4 w-4' />
+      </div>
+      <div className='flex-1'>
+        <p className='text-sm text-gray-500'>{label}</p>
+        <p
+          className={`mt-1 font-medium ${highlight ? 'text-primary-600' : 'text-gray-800'}`}
+        >
+          {value}
+        </p>
+      </div>
+    </div>
+  )
   // add cart
 
   const queryClient = useQueryClient()
@@ -68,45 +96,45 @@ export default function ProductDetail() {
     }
   }
   const handleBuyNow = async (idProductDetail: number | undefined) => {
-      try {
-        if (!idProductDetail) {
-          toast({
-            title: 'Lỗi',
-            description: 'Không thể mua sản phẩm này',
-            variant: 'destructive',
-          })
-          return
-        }
-  
-        // Add to cart first
-        const data = await addProductToCart(idProductDetail, 1)
-        await queryClient.invalidateQueries({ queryKey: ['cart'] })
-        const cartItems = data?.cartDetailResponseList || []
-  
-        console.log('Buy now data:', cartItems)
-        const addedProduct = cartItems[0]
-  
-        if (!addedProduct) {
-          throw new Error('Không thể thêm sản phẩm vào giỏ hàng')
-        }
-    
-        // Navigate to checkout with only this product
-        navigate({
-          to: '/dat-hang',
-          search: {
-            selectedProducts: JSON.stringify([addedProduct]),
-          },
-        })
-  
-      } catch (error) {
-        console.error('Buy now error:', error)
+    try {
+      if (!idProductDetail) {
         toast({
           title: 'Lỗi',
-          description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
+          description: 'Không thể mua sản phẩm này',
           variant: 'destructive',
         })
+        return
       }
+
+      // Add to cart first
+      const data = await addProductToCart(idProductDetail, 1)
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+      const cartItems = data?.cartDetailResponseList || []
+
+      console.log('Buy now data:', cartItems)
+      const addedProduct = cartItems[0]
+
+      if (!addedProduct) {
+        throw new Error('Không thể thêm sản phẩm vào giỏ hàng')
+      }
+
+      // Navigate to checkout with only this product
+      navigate({
+        to: '/dat-hang',
+        search: {
+          selectedProducts: JSON.stringify([addedProduct]),
+        },
+      })
+    } catch (error) {
+      console.error('Buy now error:', error)
+      toast({
+        title: 'Lỗi',
+        description:
+          error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
+        variant: 'destructive',
+      })
     }
+  }
 
   // Lấy dữ liệu sản phẩm chi tiết từ API
   useEffect(() => {
@@ -187,6 +215,7 @@ export default function ProductDetail() {
     ramRomOptions,
     colorOptions,
     imageUrls,
+    attribute,
   } = productDetail
 
   return (
@@ -371,10 +400,15 @@ export default function ProductDetail() {
               >
                 Thêm vào giỏ hàng
               </Button>
-              <Button color='success' size='lg' className='flex-1' onClick={(e) => {
-                    e.preventDefault()
-                    handleBuyNow(currentProductDetail?.productDetailId)
-                  }}>
+              <Button
+                color='success'
+                size='lg'
+                className='flex-1'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleBuyNow(currentProductDetail?.productDetailId)
+                }}
+              >
                 Mua ngay
               </Button>
             </div>
@@ -435,23 +469,145 @@ export default function ProductDetail() {
               key='specs'
               title={
                 <div className='flex items-center gap-2'>
-                  <Icon icon='lucide:settings' className='h-5 w-5' />
-                  <span>Thông số kỹ thuật</span>
+                  <Icon
+                    icon='lucide:settings'
+                    className='h-5 w-5 text-primary-600'
+                  />
+                  <span className='font-medium'>Thông số kỹ thuật</span>
                 </div>
               }
             >
-              <Card>
-                <CardBody>
-                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              <Card className='overflow-hidden rounded-xl border border-gray-100 shadow-sm'>
+                <CardBody className='p-6'>
+                  {/* --- Row 1: Màn hình & Camera + Hiệu năng & Pin --- */}
+                  <div className='mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2'>
+                    {/* Phần 1 - Màn hình & Camera */}
                     <div className='space-y-4'>
-                      <div className='flex justify-between border-b py-2'>
-                        <span className='text-gray-500'>Màn hình</span>
-                        <span>6.7 inch OLED</span>
+                      <div className='flex items-center gap-3'>
+                        <div className='rounded-lg bg-primary-50 p-2.5 text-primary-600'>
+                          <Icon icon='lucide:monitor' className='h-5 w-5' />
+                        </div>
+                        <h3 className='text-lg font-semibold text-gray-800'>
+                          Màn hình & Camera
+                        </h3>
                       </div>
-                      <div className='flex justify-between border-b py-2'>
-                        <span className='text-gray-500'>Chip</span>
-                        <span>A17 Pro</span>
+
+                      <div className='grid grid-cols-2 gap-3'>
+                        <SpecItem
+                          icon='lucide:smartphone'
+                          label='Màn hình'
+                          value={attribute.screen}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:maximize-2'
+                          label='Độ phân giải'
+                          value={attribute.resolution}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:camera'
+                          label='Camera trước'
+                          value={attribute.frontCamera}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:aperture'
+                          label='Camera sau'
+                          value={attribute.rearCamera}
+                          highlight
+                        />
                       </div>
+                    </div>
+
+                    {/* Phần 2 - Hiệu năng & Pin */}
+                    <div className='space-y-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='rounded-lg bg-blue-50 p-2.5 text-blue-600'>
+                          <Icon icon='lucide:zap' className='h-5 w-5' />
+                        </div>
+                        <h3 className='text-lg font-semibold text-gray-800'>
+                          Hiệu năng & Pin
+                        </h3>
+                      </div>
+
+                      <div className='grid grid-cols-2 gap-3'>
+                        <SpecItem
+                          icon='lucide:cpu'
+                          label='Chip'
+                          value={attribute.chip}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:smartphone'
+                          label='Hệ điều hành'
+                          value={attribute.os}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:battery-charging'
+                          label='Pin'
+                          value={attribute.battery}
+                          highlight
+                        />
+                        <SpecItem
+                          icon='lucide:plug'
+                          label='Cổng sạc'
+                          value={attribute.charger}
+                          highlight
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* --- Row 2: Thông tin khác (Full width) --- */}
+                  <div>
+                    <div className='mb-4 flex items-center gap-3'>
+                      <div className='rounded-lg bg-purple-50 p-2.5 text-purple-600'>
+                        <Icon icon='lucide:settings-2' className='h-5 w-5' />
+                      </div>
+                      <h3 className='text-lg font-semibold text-gray-800'>
+                        Thông tin khác
+                      </h3>
+                    </div>
+
+                    <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+                      <SpecItem
+                        icon='lucide:wifi'
+                        label='Wi-Fi'
+                        value={attribute.wifi}
+                        highlight
+                      />
+                      <SpecItem
+                        icon='lucide:bluetooth'
+                        label='Bluetooth'
+                        value={attribute.bluetooth}
+                        highlight
+                      />
+                      <SpecItem
+                        icon='lucide:nfc'
+                        label='NFC'
+                        value={attribute.nfc}
+                        highlight
+                      />
+                      <SpecItem
+                        icon='lucide:sim-card'
+                        label='SIM'
+                        value={attribute.sim}
+                        highlight
+                      />
+                      <SpecItem
+                        icon='lucide:weight'
+                        label='Trọng lượng'
+                        value={`${attribute.weight}g`}
+                        highlight
+                      />
+                      <SpecItem
+                        icon='lucide:tag'
+                        label='Thương hiệu'
+                        value={attribute.brand}
+                        highlight
+                      />
                     </div>
                   </div>
                 </CardBody>
