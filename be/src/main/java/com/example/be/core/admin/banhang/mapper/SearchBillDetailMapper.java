@@ -29,15 +29,4 @@ public class SearchBillDetailMapper {
         );
     }
 
-//    public BillDetail entityBillDetailMapper(SearchBillDetailDto billDetailDto, ProductDetail productDetail, Bill bill){
-//        return new BillDetail(
-//                billDetailDto.getId(),
-//                billDetailDto.getPrice(),
-//                billDetailDto.getQuantity(),
-//                billDetailDto.getTotalPrice(),
-//                productDetail,
-//                bill
-//        );
-//    }
-
 }

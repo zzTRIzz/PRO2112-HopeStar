@@ -49,21 +49,6 @@ interface OrderStepperProps {
   className?: string;
   searchBill: BillRespones | null;
 }
-function getStepValue(status: OrderStatus): number {
-  const statusMap: Record<OrderStatus, number> = {
-    CHO_THANH_TOAN: 0,
-    CHO_XAC_NHAN: 1,
-    DA_XAC_NHAN: 2,
-    DANG_CHUAN_BI_HANG: 3,
-    DANG_GIAO_HANG: 4,
-    HOAN_THANH: 5,
-    DA_HUY: -1,
-    CAP_NHAT_DON_HANG: -5,
-
-  };
-
-  return statusMap[status];
-}
 const statusMap: Record<string, {
   title: string;
   icon: React.ReactNode;
@@ -73,56 +58,56 @@ const statusMap: Record<string, {
 }> = {
   CHO_XAC_NHAN: {
     title: "Chờ Xác Nhận",
-    icon: <Hourglass className="w-4 h-4" />,
+    icon: <Hourglass className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DA_XAC_NHAN: {
     title: "Đã Xác Nhận",
-    icon: <ClipboardCheck className="w-4 h-4" />,
+    icon: <ClipboardCheck className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DANG_CHUAN_BI_HANG: {
     title: "Đang Chuẩn Bị Hàng",
-    icon: <PackageOpen className="w-4 h-4" />,
+    icon: <PackageOpen className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DANG_GIAO_HANG: {
     title: "Đang Giao Hàng",
-    icon: <PackageSearch className="w-4 h-4" />,
+    icon: <PackageSearch className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   HOAN_THANH: {
     title: "Hoàn Thành",
-    icon: <BadgeCheck className="w-4 h-4" />,
+    icon: <BadgeCheck className="w-6 h-6" />,
     color_bg: "bg-green-100",
     color_text: "text-green-600",
     color_boder: "border-green-400",
   },
   DA_HUY: {
     title: "Đã Hủy",
-    icon: <XOctagon className="w-4 h-4" />,
+    icon: <XOctagon className="w-6 h-6" />,
     color_bg: "bg-red-100",
     color_text: "text-red-600",
     color_boder: "border-red-400",
   },
   CHO_THANH_TOAN: {
     title: "Chờ Thanh Toán",
-    icon: <WalletCards className="w-4 h-4" />,
+    icon: <WalletCards className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   CAP_NHAT_DON_HANG: {
     title: "Cập nhật đơn hàng",
-    icon: <RefreshCw className="w-4 h-4" />,
+    icon: <RefreshCw className="w-6 h-6" />,
     color_bg: "bg-yellow-100",
     color_text: "text-yellow-600",
     color_boder: "border-yellow-400",
@@ -151,7 +136,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
   // Lấy danh sách lịch sử trạng thái
   const historySteps = searchBill?.billHistoryRespones || [];
   return (
-    <div className="w-full overflow-x-auto h-[170px] pt-[15px]">
+    <div className="w-full overflow-x-auto h-[160px] pt-[15px]">
       <div className="flex gap-16 min-w-max px-2">
         {historySteps.map((item, index) => {
           const statusInfo = statusMap[item.actionType] || {
@@ -191,8 +176,8 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
 
 // Cập nhật component Step với hiệu ứng đẹp hơn
 const Step: React.FC<StepProps> = ({
-  status,
-  step,
+  // status,
+  // step,
   title,
   description,
   icon,
@@ -202,8 +187,8 @@ const Step: React.FC<StepProps> = ({
   color_boder,
 
 }) => {
-  const isActive = getStepValue(status) >= getStepValue(step);
-  const isCurrentStep = status === step;
+  // const isActive = getStepValue(status) >= getStepValue(step);
+  // const isCurrentStep = status === step;
 
   return (
     <div className={cn(
@@ -211,8 +196,8 @@ const Step: React.FC<StepProps> = ({
     )}>
       {!isLast && (
         <div className={cn(
-          "absolute top-5 h-[3px] w-full",
-          "left-[calc(50%+28px)] right-0",
+          "absolute top-7 h-[3px] w-full",
+          "left-[calc(50%+38px)] right-0",
           color_bg,
           "transition-all duration-500 ease-out"
         )}></div>
@@ -221,14 +206,14 @@ const Step: React.FC<StepProps> = ({
       {/* Vòng tròn ngoài */}
       <div className="relative z-10">
         <div className={cn(
-          "w-[80px] h-[65px] rounded-full flex items-center justify-center",
+          "w-[90px] h-[65px] rounded-full flex items-center justify-center",
           "border-2 transition-all duration-300",
           color_boder,
           "bg-white"
         )}>
           {/* Hình ảnh phía trong */}
           <div className={cn(
-            "w-[70px] h-[57px] rounded-full flex items-center justify-center",
+            "w-[82px] h-[57px] rounded-full flex items-center justify-center",
             "transition-colors duration-300",
             color_text, color_bg
           )}>
@@ -335,7 +320,6 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         showSuccessToast("Cập nhật trạng thái đơn hàng thành công.");
         loadTongBill();
 
-
       }
 
     };
@@ -351,9 +335,9 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       setCurrentStatus("DA_HUY");
       await updateStatus(searchBill.id, "DA_HUY");
       themBillHistory("DA_HUY", note);
-      loadTongBill();
       setOpen(false);
       showSuccessToast("Đã hủy đơn hàng thành công.");
+      loadTongBill();
     };
 
 
@@ -441,7 +425,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
               <Button
                 onClick={() => handleOpenDialog("confirm")}
-                disabled={currentStatus === "CHO_THANH_TOAN" || currentStatus === "HOAN_THANH"}
+                disabled={
+                  currentStatus === "CHO_THANH_TOAN"
+                  || currentStatus === "HOAN_THANH"
+                  || currentStatus === "DA_HUY"
+                }
                 className={cn(
                   "px-4 py-2 rounded-md text-white transition-all duration-300",
                   "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
@@ -453,7 +441,12 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
               {/* Nút Hủy đơn */}
               <Button
                 onClick={() => handleOpenDialog("cancel")}
-                disabled={currentStatus === "DANG_GIAO_HANG" || currentStatus === "HOAN_THANH" || currentStatus === "CHO_THANH_TOAN"}
+                disabled={
+                  currentStatus === "DANG_GIAO_HANG"
+                  || currentStatus === "HOAN_THANH"
+                  || currentStatus === "CHO_THANH_TOAN"
+                  || currentStatus === "DA_HUY"
+                }
                 className={cn(
                   "px-4 py-2 rounded-md text-white transition-all duration-300",
                   "flex items-center gap-2 bg-red-600 hover:bg-red-500"
@@ -464,7 +457,10 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
               <div className="ml-[500px]">
                 <Button
-                  disabled={currentStatus === "CHO_THANH_TOAN"}
+                  disabled={
+                    currentStatus === "CHO_THANH_TOAN"
+                    || currentStatus === "DA_HUY"
+                  }
                   onClick={() => handlePrint(invoiceData)}>
                   In hóa đơn
                 </Button>

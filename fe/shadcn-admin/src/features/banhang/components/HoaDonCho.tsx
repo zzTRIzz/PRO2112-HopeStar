@@ -119,11 +119,12 @@ const HoaDonCho: React.FC<pendingInvoiceList> =
                                                     onSelect={(currentValue) => {
                                                         setValue(currentValue === valueID ? "" : currentValue)
                                                         setOpen(false),
-                                                            getById(b.id); // Gọi API lấy sản phẩm
+                                                            getById(b.id); 
 
                                                     }}
                                                 >
                                                     {b.nameBill}
+                                                     {/* <button>++</button> */}
                                                     <Check
                                                         className={cn(
                                                             "ml-auto",

@@ -23,8 +23,8 @@ public class Bill extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "name_bill")
-    private String nameBill;
+    @Column(name = "code")
+    private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
@@ -61,15 +61,6 @@ public class Bill extends AuditEntity {
 
     @Column(name = "pay_insurance", precision = 24, scale = 2)
     private BigDecimal payInsurance;
-
-    @Column(name = "delivery_date")
-    private LocalDateTime  deliveryDate;
-
-    @Column(name = "customer_preferred_date")
-    private LocalDateTime  customerPreferredDate;
-
-    @Column(name = "customer_appointment_date")
-    private LocalDateTime  customerAppointmentDate;
 
     @Column(name = "receipt_date")
     private LocalDateTime  receiptDate;

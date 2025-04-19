@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { Main } from '@/components/layout/main';
-import { Button } from '@/components/ui/button';
 import {
     findImeiByIdProductDaBan, findBill,
-    findKhachHang, findImeiById,
+    findImeiById,
     createImeiSold, deleteProduct, getImei,
     getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
     updateImeiSold,
@@ -40,16 +39,6 @@ interface ProductDetail {
     rom: number,
     color: string,
     imageUrl: string,
-}
-
-interface AccountKhachHang {
-    id: number,
-    code: string,
-    fullName: string,
-    email: string,
-    phone: string,
-    address: string,
-    googleId: string
 }
 interface imei {
     id: number,
@@ -101,12 +90,12 @@ const ChiTietHoaDon: React.FC = () => {
 
     // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
     useEffect(() => {
-        loadTongBill();
+        loadBillByIdBill();
         loadProductDet();
     }, []);
 
 
-    const loadTongBill = async () => {
+    const loadBillByIdBill = async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = Number(urlParams.get("id"));
 
@@ -115,9 +104,13 @@ const ChiTietHoaDon: React.FC = () => {
         }
         findBillById(id);
         getById(id);
-        // const khachHang = await findKhachHang(id);
-        // hienThiKhachHang(khachHang);
     }
+    const loadTongBill = async () => {
+        findBillById(idBill);
+        getById(idBill);
+    }
+
+
 
 
     // Tìm kiêm bill theo id
@@ -328,24 +321,12 @@ const ChiTietHoaDon: React.FC = () => {
             <Main>
 
                 <div >
-                    {/* {searchBill ? (
-                        searchBill.billType === 1 ? ( */}
                     <TrangThaiDonHangGiaoHang
                         loadTongBill={loadTongBill}
                         trangThai={searchBill?.status as OrderStatus}
                         searchBill={searchBill}
                         themBillHistory={themBillHistory}
                     />
-                    {/* ) : (
-                            <TrangThaiDonHangTaiQuay
-                                findBillById={findBillById}
-                                loadTongBill={loadTongBill}
-                                trangThai={searchBill.status as OrderStatusTaiQuay}
-                                searchBill={searchBill}
-                            />
-                        )
-                    ) : null} */}
-
                 </div> <br />
 
                 <ThongTinDonHang
@@ -358,17 +339,6 @@ const ChiTietHoaDon: React.FC = () => {
                     <div className="mb-2 flex items-center justify-between">
                         <h1 className="font-bold tracking-tight">Hóa đơn chi tiết</h1>
                         <div className="flex space-x-2">
-                            {/* Quét Barcode để check sản phẩm */}
-
-                            {/* <Button className="bg-white-500 border border-blue-500 rounded-sm
-                                                border-opacity-50 text-blue-600 hover:bg-gray-300"
-                                disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")} // Vô hiệu hóa nút nếu trạng thái là "Đang vận chuyển" hoặc "Hoàn thành"
-                            >
-                                Quét Barcode
-                            </Button> */}
-
-                            {/* Thêm sản phẩm chi tiết vào hóa đơn chờ*/}
-                            {/* {searchBill?.status !== "DA_THANH_TOAN" && searchBill?.status !== "HOAN_THANH" && ( */}
                             <ThemSanPham
                                 listProduct={listProduct}
                                 listImei={listImei}
@@ -418,7 +388,7 @@ const ChiTietHoaDon: React.FC = () => {
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         ...(searchBill?.payInsurance ?? 0 > 0
                                             ? [{
-                                                label: "Tiền bảo hiểm:",
+                                                label: "Phí bảo hiểm:",
                                                 value: searchBill?.payInsurance
                                             }]
                                             : []),

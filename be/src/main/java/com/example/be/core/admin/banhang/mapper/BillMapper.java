@@ -27,7 +27,7 @@ public class BillMapper {
     public BillDto dtoBillMapper(Bill bill) {
         return new BillDto(
                 bill.getId(),
-                bill.getNameBill(),
+                bill.getCode(),
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
                 (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
@@ -39,9 +39,6 @@ public class BillMapper {
                 bill.getCustomerRefund(),
                 bill.getDiscountedTotal(),
                 bill.getPayInsurance(),
-                bill.getDeliveryDate(),
-                bill.getCustomerPreferredDate(),
-                bill.getCustomerAppointmentDate(),
                 bill.getReceiptDate(),
                 bill.getPaymentDate(),
                 bill.getBillType(),
@@ -93,9 +90,6 @@ public class BillMapper {
               billDto.getCustomerRefund(),
               billDto.getDiscountedTotal(),
               billDto.getPayInsurance(),
-              billDto.getDeliveryDate(),
-              billDto.getCustomerPreferredDate(),
-              billDto.getCustomerAppointmentDate(),
               billDto.getReceiptDate(),
               billDto.getPaymentDate(),
               billDto.getBillType(),
@@ -119,7 +113,7 @@ public class BillMapper {
     public SearchBill getAllBillMapperDto(Bill bill) {
         return new SearchBill(
                 bill.getId(),
-                bill.getNameBill(),
+                bill.getCode(),
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null,
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getPhone() : null,
@@ -134,9 +128,6 @@ public class BillMapper {
                 bill.getTotalDue(),
                 bill.getCustomerRefund(),
                 bill.getDiscountedTotal(),
-                bill.getDeliveryDate(),
-                bill.getCustomerPreferredDate(),
-                bill.getCustomerAppointmentDate(),
                 bill.getReceiptDate(),
                 bill.getPaymentDate(),
                 bill.getBillType(),
