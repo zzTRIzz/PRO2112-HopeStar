@@ -43,12 +43,6 @@ public class SearchBill {
 
     private BigDecimal discountedTotal;
 
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime customerPreferredDate;
-
-    private LocalDateTime customerAppointmentDate;
-
     private LocalDateTime receiptDate;
 
     private LocalDateTime paymentDate;

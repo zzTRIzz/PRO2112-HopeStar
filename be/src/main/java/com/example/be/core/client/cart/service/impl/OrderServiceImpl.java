@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
         //tao bill
         Bill bill = new Bill();
         bill.setIdAccount(account);
-        bill.setNameBill("HD00" + billRepository.getNewCode());
+        bill.setCode("HD00" + billRepository.getNewCode());
         bill.setName(customerInfo.getName());
         bill.setEmail(customerInfo.getEmail());
         bill.setAddress(location.getFullAddress());

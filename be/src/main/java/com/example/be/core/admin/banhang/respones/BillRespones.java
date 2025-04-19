@@ -40,12 +40,6 @@ public class BillRespones {
 
     private BigDecimal payInsurance;
 
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime  customerPreferredDate;
-
-    private LocalDateTime  customerAppointmentDate;
-
     private LocalDateTime  receiptDate;
 
     private LocalDateTime  paymentDate;

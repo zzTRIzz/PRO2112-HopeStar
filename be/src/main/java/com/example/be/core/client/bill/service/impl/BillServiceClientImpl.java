@@ -37,7 +37,7 @@ public class BillServiceClientImpl implements BillServiceClient {
         List<BillRespones> billResponesList = bills.stream().map(bill -> {
             BillRespones billRespones = new BillRespones();
             billRespones.setId(bill.getId());
-            billRespones.setCode(bill.getNameBill());
+            billRespones.setCode(bill.getCode());
             billRespones.setFullNameKh((bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null);
             billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
             billRespones.setCodeVoucher((bill.getIdVoucher() != null) ? bill.getIdVoucher().getCode() : null);
@@ -49,7 +49,6 @@ public class BillServiceClientImpl implements BillServiceClient {
             billRespones.setCustomerRefund(bill.getCustomerRefund());
             billRespones.setDiscountedTotal(bill.getDiscountedTotal());
             billRespones.setPayInsurance(bill.getPayInsurance());
-            billRespones.setDeliveryDate(bill.getDeliveryDate());
             billRespones.setPaymentDate(bill.getPaymentDate());
             billRespones.setBillType(bill.getBillType());
             billRespones.setStatus(bill.getStatus());
@@ -115,7 +114,7 @@ public class BillServiceClientImpl implements BillServiceClient {
         BillRespones billRespones = new BillRespones();
 
         billRespones.setId(bill.getId());
-        billRespones.setCode(bill.getNameBill());
+        billRespones.setCode(bill.getCode());
         billRespones.setFullNameKh((bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null);
         billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
         billRespones.setCodeVoucher((bill.getIdVoucher() != null) ? bill.getIdVoucher().getCode() : null);
@@ -127,7 +126,6 @@ public class BillServiceClientImpl implements BillServiceClient {
         billRespones.setCustomerRefund(bill.getCustomerRefund());
         billRespones.setDiscountedTotal(bill.getDiscountedTotal());
         billRespones.setPayInsurance(bill.getPayInsurance());
-        billRespones.setDeliveryDate(bill.getDeliveryDate());
         billRespones.setPaymentDate(bill.getPaymentDate());
         billRespones.setBillType(bill.getBillType());
         billRespones.setStatus(bill.getStatus());

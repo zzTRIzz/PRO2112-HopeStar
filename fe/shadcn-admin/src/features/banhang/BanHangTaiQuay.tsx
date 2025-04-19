@@ -316,11 +316,11 @@ function BanHangTaiQuay() {
   // Them imei vao hoa don chi tiet
   const handleAddImei = async () => {
     try {
-      console.log('id id_Imei' + selectedImei)
-      console.log('id idBillDetail' + idBillDetail)
-      console.log('id idHoaDon' + idHoaDon)
-      console.log('id idProductDetail' + idProductDetail)
-      const newImei = await createImeiSold(
+      //   console.log('id id_Imei' + selectedImei)
+      //   console.log('id idBillDetail' + idBillDetail)
+      //   console.log('id idHoaDon' + idHoaDon)
+      //   console.log('id idProductDetail' + idProductDetail)
+      await createImeiSold(
         {
           id_Imei: selectedImei,
           idBillDetail: idBillDetail,
@@ -328,7 +328,7 @@ function BanHangTaiQuay() {
         idHoaDon,
         idProductDetail
       )
-      console.log('Imei mới:', newImei)
+      // console.log('Imei mới:', newImei)
       setSelectedImei([])
       setIsDialogOpen(false) // Đóng dialog
       await loadProductDet()
@@ -342,7 +342,7 @@ function BanHangTaiQuay() {
 
   const updateHandleImeiSold = async (idBillDetail: number) => {
     try {
-      const newImei = await updateImeiSold(
+      await updateImeiSold(
         {
           id_Imei: selectedImei,
           idBillDetail: idBillDetail,
@@ -350,7 +350,7 @@ function BanHangTaiQuay() {
         idHoaDon,
         idProductDetail
       )
-      console.log('Imei mới:', newImei)
+      // console.log('Imei mới:', newImei)
       setSelectedImei([])
       // setIsCapNhatImei(false)
       await loadProductDet()
@@ -535,9 +535,9 @@ function BanHangTaiQuay() {
           payInsurance: (isBanGiaoHang == true ? insuranceFee : 0),
           customerRefund: searchBill?.customerRefund ?? 0,
           discountedTotal: searchBill?.discountedTotal ?? 0,
-          deliveryDate: searchBill?.deliveryDate ?? null,
-          customerPreferred_date: searchBill?.customerPreferredDate ?? null,
-          customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
+          // deliveryDate: searchBill?.deliveryDate ?? null,
+          // customerPreferred_date: searchBill?.customerPreferredDate ?? null,
+          // customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
           receiptDate: searchBill?.receiptDate,
           paymentDate: searchBill?.paymentDate,
           billType: billType,

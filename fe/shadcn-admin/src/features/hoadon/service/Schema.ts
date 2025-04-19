@@ -15,9 +15,6 @@ export interface Bill {
   totalDue: number;
   customerRefund: number | null;
   discountedTotal: number | null;
-  deliveryDate?: string | null;
-  customerPreferred_date?: string | null;
-  customerAppointment_date?: string | null;
   receiptDate?: string | null;
   paymentDate?: Date | null;
   address?: string | null;

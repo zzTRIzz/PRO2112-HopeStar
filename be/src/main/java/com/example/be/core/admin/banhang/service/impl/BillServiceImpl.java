@@ -456,7 +456,7 @@ public class BillServiceImpl implements BillService {
         BillRespones billRespones = new BillRespones();
 
         billRespones.setId(bill.getId());
-        billRespones.setCode(bill.getNameBill());
+        billRespones.setCode(bill.getCode());
         billRespones.setIdAccount((bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null);
         billRespones.setIdNhanVien((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null);
         billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
@@ -470,7 +470,6 @@ public class BillServiceImpl implements BillService {
         billRespones.setCustomerRefund(bill.getCustomerRefund());
         billRespones.setDiscountedTotal(bill.getDiscountedTotal());
         billRespones.setPayInsurance(bill.getPayInsurance());
-        billRespones.setDeliveryDate(bill.getDeliveryDate());
         billRespones.setPaymentDate(bill.getPaymentDate());
         billRespones.setBillType(bill.getBillType());
         billRespones.setStatus(bill.getStatus());
