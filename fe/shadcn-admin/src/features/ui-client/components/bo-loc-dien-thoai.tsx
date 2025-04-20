@@ -24,8 +24,8 @@ import {
 } from '../../../features/product-management/product/data/api-service'
 
 export interface PhoneFilterRequest {
-  priceStart: number
-  priceEnd: number
+  priceStart?: number
+  priceEnd?: number
   brand?: number
   chip?: number
   category?: number
@@ -49,11 +49,7 @@ const DEFAULT_PRICE_RANGE = [0, 50000000]
 
 export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) {
   // State initialization
-  const [filters, setFilters] = useState<PhoneFilterRequest>({
-    priceStart: DEFAULT_PRICE_RANGE[0],
-    priceEnd: DEFAULT_PRICE_RANGE[1],
-  })
-  
+  const [filters, setFilters] = useState<PhoneFilterRequest>({})
   const [isPricePopoverOpen, setIsPricePopoverOpen] = useState(false)
   const [isPriceFilterActive, setIsPriceFilterActive] = useState(false)
   const [tempPriceRange, setTempPriceRange] = useState(DEFAULT_PRICE_RANGE)
@@ -99,7 +95,8 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
     setFilters(prev => {
       // If value is "all" or undefined, remove the filter
       const newValue = value === 'all' ? undefined : 
-                        typeof value === 'string' && key !== 'typeScreen' ? Number(value) : value
+                      value === 'null' ? null :
+                      typeof value === 'string' && key !== 'typeScreen' ? Number(value) : value
       
       return { ...prev, [key]: newValue }
     })
@@ -107,14 +104,15 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
 
   // Apply price filter
   const handlePriceChange = useCallback(() => {
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       priceStart: tempPriceRange[0],
       priceEnd: tempPriceRange[1]
-    }))
+    }
+    setFilters(newFilters)
     setIsPricePopoverOpen(false)
     setIsPriceFilterActive(true)
-  }, [tempPriceRange])
+  }, [tempPriceRange, filters])
 
   // Handle sort change
   const handleSortChange = useCallback((type: 'priceMax' | 'priceMin' | 'productSale') => {
@@ -123,18 +121,15 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
         priceMax: false,
         priceMin: false,
         productSale: false,
+        [type]: !prev[type]
       }
-      newSort[type] = !prev[type]
       return newSort
     })
   }, [])
 
   // Clear all filters
   const clearAllFilters = useCallback(() => {
-    setFilters({
-      priceStart: DEFAULT_PRICE_RANGE[0],
-      priceEnd: DEFAULT_PRICE_RANGE[1],
-    })
+    setFilters({})
     setTempPriceRange(DEFAULT_PRICE_RANGE)
     setIsPriceFilterActive(false)
     setSortType({})
@@ -142,14 +137,11 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
 
   // Clear price filter only
   const clearPriceFilter = useCallback(() => {
-    setFilters(prev => ({
-      ...prev,
-      priceStart: DEFAULT_PRICE_RANGE[0],
-      priceEnd: DEFAULT_PRICE_RANGE[1]
-    }))
+    const { priceStart, priceEnd, ...rest } = filters
+    setFilters(rest)
     setTempPriceRange(DEFAULT_PRICE_RANGE)
     setIsPriceFilterActive(false)
-  }, [])
+  }, [filters])
 
   // Notify parent component when filters change
   useEffect(() => {
@@ -157,18 +149,15 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
       ...filters,
       ...sortType
     }
-    
-    if (Object.values(fullFilters).some(value => value !== undefined && value !== null)) {
-      onFilterChange(fullFilters)
-    }
+    onFilterChange(fullFilters)
   }, [filters, sortType, onFilterChange])
-
 
   // Helper function to format price
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
+      maximumFractionDigits: 0,
     }).format(price)
   }
 
@@ -183,8 +172,7 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
   const isAnyFilterActive = 
     isPriceFilterActive || 
     Object.entries(filters).some(([key, value]) => 
-      key !== 'priceStart' && 
-      key !== 'priceEnd' && 
+      !['priceStart', 'priceEnd', 'priceMax', 'priceMin', 'productSale'].includes(key) && 
       value !== undefined && 
       value !== null) ||
     Object.values(sortType).some(value => value)
@@ -256,9 +244,10 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
         className={filters.nfc === undefined ? 'bg-gray-100' : ''}
         endContent={<Icon icon='lucide:chevron-down' />}
         onPress={() => {
-          // Toggle between true, false and undefined
-          handleFilterChange('nfc', filters.nfc === undefined ? true : 
-                                    filters.nfc === true ? false : undefined)
+          handleFilterChange('nfc', 
+            filters.nfc === undefined ? true : 
+            filters.nfc === true ? false : 
+            undefined)
         }}
       >
         {filters.nfc === undefined 
@@ -299,10 +288,10 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
               </Button>
             </DropdownTrigger>
             <DropdownMenu
-              selectedKeys={value ? [value.toString()] : ['all']}
+              selectedKeys={value !== undefined ? [value.toString()] : ['all']}
               onSelectionChange={(keys) => {
                 const selected = Array.from(keys)[0] as string
-                handleFilterChange(key, selected)
+                handleFilterChange(key, selected === 'all' ? undefined : selected)
               }}
               selectionMode='single'
             >
@@ -353,9 +342,8 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
             onClose={clearPriceFilter}
             variant='flat'
             color='primary'
-            className='bg-red-50'
           >
-            {`Giá: ${formatPrice(filters.priceStart)} - ${formatPrice(filters.priceEnd)}`}
+            {`Giá: ${formatPrice(filters.priceStart || 0)} - ${formatPrice(filters.priceEnd || 0)}`}
           </Chip>
         )}
 
@@ -366,7 +354,6 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
             onClose={() => handleFilterChange('nfc', undefined)}
             variant='flat'
             color='primary'
-            className='bg-red-50'
           >
             {filters.nfc ? 'Có NFC' : 'Không NFC'}
           </Chip>
@@ -385,7 +372,7 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
           const key = filter.key as keyof PhoneFilterRequest
           const value = filters[key]
           
-          if (!value) return null
+          if (value === undefined || value === null) return null
 
           let displayText = ''
           if (key === 'typeScreen') {
@@ -404,7 +391,6 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
               onClose={() => handleFilterChange(key, undefined)}
               variant='flat'
               color='primary'
-              className='bg-red-50'
             >
               {displayText}
             </Chip>
@@ -420,7 +406,6 @@ export default function BoLocDienThoai({ onFilterChange }: BoLocDienThoaiProps) 
               onClose={() => handleSortChange(key as 'priceMax' | 'priceMin' | 'productSale')}
               variant='flat'
               color='primary'
-              className='bg-red-50'
             >
               {key === 'priceMax'
                 ? 'Giá Cao - Thấp'

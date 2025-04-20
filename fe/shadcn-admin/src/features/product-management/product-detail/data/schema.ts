@@ -13,7 +13,7 @@ export const StatusImeiEnum = z.enum([
 // Define the ProductImeiResponse schema
 export const ProductImeiResponseSchema = z.object({
   id: z.number(),
-  imeiCode: z.string(),
+  code: z.string(),
   barCode: z.string(),
   statusImei: StatusImeiEnum,
 })

@@ -7,7 +7,7 @@ import lombok.Data;
 public class ProductImeiResponse {
 
     private Integer id;
-    private String imeiCode;
+    private String code;
     private String barCode;
     private StatusImei statusImei;
 

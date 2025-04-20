@@ -79,7 +79,7 @@ export default function FeaturedProducts() {
       const addedProduct = cartItems[0]
 
       if (!addedProduct) {
-        throw new Error('Không thể thêm sản phẩm vào giỏ hàng')
+        throw new Error('Giỏ hàng đã tồn tại sản phẩm này')
       }
   
       // Navigate to checkout with only this product
@@ -137,7 +137,7 @@ export default function FeaturedProducts() {
     )
 
   return (
-    <section className='container py-10'>
+    <section className='container py-10 bg-slate-50'>
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
@@ -203,7 +203,7 @@ export default function FeaturedProducts() {
                       key={`ram-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {ram}GB
+                      {ram}
                     </div>
                   ))}
                   {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
@@ -212,7 +212,7 @@ export default function FeaturedProducts() {
                       key={`rom-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {rom}GB
+                      {rom}
                     </div>
                   ))}
                 </div>
@@ -350,7 +350,7 @@ export default function FeaturedProducts() {
                           key={`ram-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {ram}GB
+                          {ram}
                         </div>
                       ))}
                       {product.rom.map((rom, i) => (
@@ -358,7 +358,7 @@ export default function FeaturedProducts() {
                           key={`rom-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {rom}GB
+                          {rom}
                         </div>
                       ))}
                     </div>

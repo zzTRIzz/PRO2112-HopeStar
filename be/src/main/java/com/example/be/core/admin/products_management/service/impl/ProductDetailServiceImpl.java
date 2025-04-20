@@ -79,6 +79,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 new Exception("Product detail not found"+ idProductDetail)
         );
         System.out.println(productDetailRequest.getPriceSell());
+        if(productDetail.getPrice().compareTo(productDetail.getPriceSell())>0){
+            throw new Exception("Sản phẩm này hiện đang có chương trình khuyến mãi, không thể cập nhật giá");
+        }
         productDetail.setPrice(productDetailRequest.getPriceSell());
         productDetail.setPriceSell(productDetailRequest.getPriceSell());
         productDetail.setImageUrl(productDetailRequest.getImageUrl());
