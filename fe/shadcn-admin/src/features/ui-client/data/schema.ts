@@ -27,6 +27,26 @@ const ramRomOptionSchema = z.object({
   romSize: z.string(),
 })
 
+// Schema cho ProductAttribute
+const productAttributeSchema = z.object({
+  categories: z.string(),
+  weight: z.number(),
+  brand: z.string(),
+  chip: z.string(),
+  battery: z.string(),
+  resolution: z.string(),
+  screen: z.string(),
+  bluetooth: z.string(),
+  card: z.string(),
+  os: z.string(),
+  wifi: z.string(),
+  charger: z.string(),
+  nfc: z.string(),
+  sim: z.string(),
+  frontCamera: z.string(),
+  rearCamera: z.string(),
+})
+
 // Schema cho ProductDetailInfo
 const productDetailInfoSchema = z.object({
   productDetailId: z.number(),
@@ -45,8 +65,8 @@ export const productViewResponseSchema = z.object({
   idProduct: z.number().optional(),
   name: z.string(),
   idProductDetail: z.number().optional(),
-  ram: z.array(z.number()),
-  rom: z.array(z.number()),
+  ram: z.array(z.string()),
+  rom: z.array(z.string()),
   image: z.string(),
   price: z.number(),
   priceSeller: z.number(),
@@ -65,13 +85,12 @@ export const productDetailViewResponseSchema = z.object({
   imageUrls: z.array(z.string()),
   // Danh sách các cặp RAM-ROM
   ramRomOptions: z.array(ramRomOptionSchema),
-
   // Danh sách các tùy chọn màu sắc
   colorOptions: z.array(colorOptionSchema),
-
+  // Thông tin thuộc tính sản phẩm
+  attribute: productAttributeSchema,
   // Map để lưu trữ thông tin chi tiết sản phẩm
   productDetails: z.record(z.string(), productDetailInfoSchema),
-
   // Sản phẩm chi tiết mặc định
   defaultProductDetail: productDetailInfoSchema.optional(),
 })
@@ -79,12 +98,9 @@ export const productDetailViewResponseSchema = z.object({
 // Types
 export type Profile = z.infer<typeof accountResponseSchema>
 export type productViewResponse = z.infer<typeof productViewResponseSchema>
-export type productDetailViewResponse = z.infer<
-  typeof productDetailViewResponseSchema
->
-export type ProductViewResponseAll = z.infer<
-  typeof productViewResponseAllSchema
->
+export type productDetailViewResponse = z.infer<typeof productDetailViewResponseSchema>
+export type ProductViewResponseAll = z.infer<typeof productViewResponseAllSchema>
+export type ProductAttribute = z.infer<typeof productAttributeSchema>
 
 // Schema cho CartDetail
 export const cartDetailResponseSchema = z.object({
@@ -104,6 +120,6 @@ export const cartResponseSchema = z.object({
   quantityCartDetail: z.number(),
   cartDetailResponseList: z.array(cartDetailResponseSchema),
 })
+
 export type CartDetailResponse = z.infer<typeof cartDetailResponseSchema>
 export type CartResponse = z.infer<typeof cartResponseSchema>
-

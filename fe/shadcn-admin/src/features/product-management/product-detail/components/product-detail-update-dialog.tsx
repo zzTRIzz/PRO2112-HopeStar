@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconLoader2 } from '@tabler/icons-react'
-import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -30,6 +29,7 @@ import {
   productDetailUpdateSchema,
 } from '../data/schema'
 import { Route } from '@/routes/_authenticated/route'
+import { toast } from '@/hooks/use-toast'
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -62,7 +62,7 @@ export function ProductDetailUpdateDialog({
     onError: (error: any) => {
       toast({
         title: 'Lỗi',
-        description: error.message || 'Không thể cập nhật',
+        description: error.message|| 'Không thể cập nhật',
         variant: 'destructive',
       })
     },

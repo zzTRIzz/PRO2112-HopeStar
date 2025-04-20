@@ -13,8 +13,8 @@ public class ProductViewResponse {
     private String name;
     private Integer idProductDetail;
     private String image;
-    private List<Integer> ram;
-    private List<Integer> rom;
+    private List<String> ram;
+    private List<String> rom;
     private BigDecimal price;
     private BigDecimal priceSeller;
     private List<String> hex;

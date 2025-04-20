@@ -83,7 +83,7 @@ public class ImeiMapper {
 
         ProductImeiResponse response = new ProductImeiResponse();
         response.setId(dto.getId());
-        response.setImeiCode(dto.getImeiCode());
+        response.setCode(dto.getImeiCode());
         response.setBarCode(dto.getBarCode());
         response.setStatusImei(dto.getStatusImei());
 

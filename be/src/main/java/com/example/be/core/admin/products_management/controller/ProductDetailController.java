@@ -36,7 +36,7 @@ public class ProductDetailController {
     public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest) throws Exception {
 
             productDetailService.updateProductDetail(id,productDetailRequest);
-            return new ResponseData<>(HttpStatus.ACCEPTED,"update product-detail successfully");
+            return new ResponseData<>(HttpStatus.OK,"Cập nhật sản phẩm thành công");
 
     }
     @PostMapping("/quantity/{id}")
