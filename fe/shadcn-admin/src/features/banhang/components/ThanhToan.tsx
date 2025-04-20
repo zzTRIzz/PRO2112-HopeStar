@@ -27,7 +27,7 @@ interface ThanhToanProps {
     paymentMethod: number | null;
     customerPayment: number;
     setCustomerPayment: any;
-    handleThanhToan: any;
+    handleThanhToan: (status: string) => void;
     ListVoucherTheoAccount: Voucher[];
     setVoucherDangDung: any;
     updateVoucherKhiChon: any;
@@ -96,12 +96,12 @@ const ThanhToan: React.FC<ThanhToanProps> =
 
         const xacNhanThanhToan = () => {
             if (!isBanGiaoHang) {
-                handleThanhToan("HOAN_THANH", 0);
+                handleThanhToan("HOAN_THANH");
             } else {
                 if (paymentMethod === 1 || paymentMethod === 2) {
-                    handleThanhToan("DA_XAC_NHAN", 1);
+                    handleThanhToan("DA_XAC_NHAN");
                 } else {
-                    handleThanhToan("CHO_XAC_NHAN", 1);
+                    handleThanhToan("CHO_XAC_NHAN");
                 }
             }
         };

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,13 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillHistoryRepository billHistoryRepository;
+
+    public String generateBillCode() {
+        String timePart = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
+        int randomPart = (int) (Math.random() * 90000) + 10000;
+        return timePart + randomPart;
+    }
 
     @Override
     public List<SearchBill> getAllBill() {
@@ -146,6 +154,7 @@ public class BillServiceImpl implements BillService {
             billDto.setPaymentDate(now);
             billDto.setBillType((byte) 0);
             billDto.setIdNhanVien(idNhanVien);
+            billDto.setMaBill(generateBillCode());
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
             System.out.println(billRepository.getNewCode());
@@ -181,7 +190,7 @@ public class BillServiceImpl implements BillService {
 
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
         BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance():BigDecimal.ZERO;
+        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance() : BigDecimal.ZERO;
 
         BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip).add(baoHiem);
 

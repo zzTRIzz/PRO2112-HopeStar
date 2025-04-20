@@ -13,16 +13,6 @@ const statusConfig = {
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
   DA_HUY: { color: 'red', text: 'Đã hủy' },
 }
-// const statusConfig = {
-//   CHO_XAC_NHAN: { color: '#facc15', text: 'Chờ xác nhận' },         // Vàng sáng (amber-400)
-//   CHO_THANH_TOAN: { color: '#facc15', text: 'Chờ thanh toán' },     // Vàng sáng (same group)
-//   DA_XAC_NHAN: { color: '#22c55e', text: 'Đã xác nhận' },           // Xanh lá (green-500)
-//   DANG_CHUAN_BI_HANG: { color: '#3b82f6', text: 'Đang chuẩn bị hàng' }, // Xanh dương (blue-500)
-//   DANG_GIAO_HANG: { color: '#0ea5e9', text: 'Đang giao hàng' },     // Xanh dương nhạt (sky-500)
-//   HOAN_THANH: { color: '#16a34a', text: 'Hoàn tất' },               // Xanh lá đậm (green-600)
-//   DA_HUY: { color: '#ef4444', text: 'Đã hủy' },                     // Đỏ tươi (red-500)
-//   // RETURNED: { color: '#6b7280', text: 'Trả hàng' },              // Xám trung tính (gray-500)
-// };
 
 
 export const OrdersPage = () => {
@@ -44,15 +34,6 @@ export const OrdersPage = () => {
   }, []);
 
 
-
-  // const filteredOrders = selected === 'all'
-  //   ? bills.filter((bill) => bill.billDetailResponesList && bill.billDetailResponesList.length > 0)
-  //   : bills.filter((bill) =>
-  //     selected === 'CHO_XAC_NHAN'
-  //       ? (bill.status === 'CHO_XAC_NHAN' || bill.status === 'CHO_THANH_TOAN')
-  //       : bill.status === selected &&
-  //       bill.billDetailResponesList && bill.billDetailResponesList.length > 0
-  //   )
   const filteredOrders = bills
     .filter((bill) => {
       // Lọc theo trạng thái
@@ -87,17 +68,12 @@ export const OrdersPage = () => {
 
         <header className='mb-6 flex items-center justify-between'>
           <h1 className='text-xl font-bold text-[#333333]'>Đơn hàng của tôi</h1>
-          {/* <Input
-            placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
-            startContent={<Icon icon='lucide:search' className='text-default-400' />}
-            className='w-96'
-          /> */}
           <Input
             placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
             startContent={<Icon icon='lucide:search' className='text-default-400' />}
             className='w-96'
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)} // Cập nhật từ khóa tìm kiếm
+            onChange={(e) => setSearchKeyword(e.target.value)}
           />
         </header>
 
@@ -137,7 +113,7 @@ export const OrdersPage = () => {
                         hour12: false
                       })
                         : ""}</span>
-                      {/* <span>{order.deliveryMethod}</span> */}
+                      <span>Mã hóa đơn: {order?.maBill}</span>
                       <span>{order?.detailCount != null ? order?.detailCount : 0} sản phẩm</span>
                     </div>
                   </div>

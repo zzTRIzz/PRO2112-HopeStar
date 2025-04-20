@@ -373,7 +373,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     const invoiceData = {
       id: searchBill?.id,
       code: searchBill?.code,
-      paymentDate: new Date().toISOString(),
+      paymentDate: searchBill?.paymentDate,
       staff: searchBill?.fullNameNV,
       customer: searchBill?.name,
       phone: searchBill?.phone,

@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const billSchema = z.object({
   id: z.number().int().positive(),
   nameBill: z.string().max(255),
+  maBill: z.string().max(255),
   idAccount: z.number().int().positive().nullable(),
   idNhanVien: z.number().int().positive().nullable(),
   idVoucher: z.number().int().positive().nullable(),
@@ -154,6 +155,7 @@ export interface TaiKhoan {
 export interface BillRespones {
   id: number;
   code: string;
+  maBill: string;
   idAccount: number;
   idNhanVien: number | null;
   fullNameNV: string | null;
@@ -167,9 +169,6 @@ export interface BillRespones {
   customerRefund: number | null;
   discountedTotal: number;
   payInsurance: number;
-  // deliveryDate: string | null;
-  // customerPreferredDate: string | null;
-  // customerAppointmentDate: string | null;
   receiptDate: string | null;
   paymentDate: string | null;
   billType: number;

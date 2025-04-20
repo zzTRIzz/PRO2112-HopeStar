@@ -3,6 +3,7 @@
 export interface Bill {
   id: number;
   nameBill: string;
+  maBill: string;
   idAccount?: number | null;
   tenKhachHang?: string | null;
   soDienThoai?: string | null;
@@ -24,7 +25,7 @@ export interface Bill {
   name: string;
   paymentId?: number | null;
   namePayment?: number | null;
-  deliveryId?: number | null;
+  idDelivery?: number | null;
   itemCount: number;
   billType: number;
   status: string;

@@ -50,7 +50,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
             case 2: return "Chuyển khoản";
             case 3: return "Ví VNPAY";
             case 4: return `COD`;
-            default: return "-";
+            default: return "";
         }
     };
     const getDeliveryMethod = (method: number | null) => {
@@ -60,6 +60,8 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
             default: return "";
         }
     };
+
+
     const getOrderStatusText = (status: string | null) => {
         switch (status) {
             case "CHO_THANH_TOAN": return "Chờ thanh toán";
@@ -82,7 +84,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                 </div>
             ) : (
                 <TableContainer component={Paper}>
-                    <Table className="min-w-[650px]" aria-label="simple table">
+                    <Table className="min-w-[650px] whitespace-nowrap" aria-label="simple table">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="right">STT</TableCell>
@@ -91,8 +93,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                 <TableCell align="right" >Loại hóa đơn </TableCell>
                                 <TableCell align="center">Trạng thái</TableCell>
                                 <TableCell align="center">Tổng tiền</TableCell>
-                                <TableCell align="center" >Thanh toán</TableCell>
-                                <TableCell align="right" > Phương thức </TableCell>
+                                <TableCell align="center" >Phương thức nhận hàng</TableCell>
                                 <TableCell align="center">Ngày mua hàng</TableCell>
                                 <TableCell align="center" >Thao tác</TableCell>
                             </TableRow>
@@ -103,13 +104,13 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                     key={hd?.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
-                                    <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd.nameBill}</p> </TableCell>
+                                    <TableCell component="th" scope="row" align="left" ><p className="font-bold tracking-tight">{hd?.maBill}</p> </TableCell>
                                     <TableCell align="center" >{hd?.name}<br />{hd?.phone}</TableCell>
                                     <TableCell align="center" className="w-[200px] whitespace-nowrap">
                                         <span className={cn(
                                             "px-4 py-2 text-white font-medium rounded-full text-xs",
                                             hd?.billType === 0 ? "bg-emerald-500" : "bg-orange-500"
-                                        )}>{hd.billType == 0 ? "Tại quầy" : "Giao hàng"}</span>
+                                        )}>{hd.billType == 0 ? "Offline" : "Online"}</span>
                                     </TableCell>
                                     <TableCell align="center"
                                     ><span className={cn(
@@ -117,8 +118,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                         statusStyles[hd.status] || "bg-gray-500 text-white"
                                     )}>{getOrderStatusText(hd?.status)}</span></TableCell>
                                     <TableCell align="right">{hd?.totalDue == null ? 0 : hd?.totalDue?.toLocaleString('vi-VN')} VND</TableCell>
-                                    <TableCell align="right" >{hd?.namePayment == null ? "" : getPaymentMethod(hd.namePayment)}</TableCell>
-                                    <TableCell align="right" >{hd?.deliveryId == 0 ? "Tại quầy" : "Giao hàng"}</TableCell>
+                                    <TableCell align="left" >{getPaymentMethod(hd?.namePayment??0)} - {getDeliveryMethod(hd?.idDelivery ?? 0)}</TableCell>
                                     <TableCell align="right"> {hd?.paymentDate
                                         ? new Date(hd?.paymentDate).toLocaleDateString("vi-VN", {
                                             year: "numeric",

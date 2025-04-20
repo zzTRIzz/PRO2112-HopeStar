@@ -464,7 +464,7 @@ function BanHangTaiQuay() {
     }, 100)
   }
 
-  const handleThanhToan = async (status: string, billType: number) => {
+  const handleThanhToan = async (status: string) => {
     let result = true;
     if (paymentMethod != 2) {
       result = await showDialog({
@@ -524,6 +524,7 @@ function BanHangTaiQuay() {
         await thanhToan({
           id: searchBill?.id,
           nameBill: searchBill?.code,
+          maBill: searchBill?.maBill,
           idAccount: searchBill?.idAccount ?? null,
           idNhanVien: searchBill?.idNhanVien ?? null,
           idVoucher: searchBill?.idVoucher ?? null,
@@ -535,12 +536,9 @@ function BanHangTaiQuay() {
           payInsurance: (isBanGiaoHang == true ? insuranceFee : 0),
           customerRefund: searchBill?.customerRefund ?? 0,
           discountedTotal: searchBill?.discountedTotal ?? 0,
-          // deliveryDate: searchBill?.deliveryDate ?? null,
-          // customerPreferred_date: searchBill?.customerPreferredDate ?? null,
-          // customerAppointment_date: searchBill?.customerAppointmentDate ?? null,
           receiptDate: searchBill?.receiptDate,
           paymentDate: searchBill?.paymentDate,
-          billType: billType,
+          billType: searchBill?.billType,
           status: status,
           address: (isBanGiaoHang == true ? deliveryInfo?.fullAddress : searchBill?.address),
           email: searchBill?.email ?? null,
