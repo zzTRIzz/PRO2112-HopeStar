@@ -409,7 +409,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
           <div className="p-2 border-b border-gray-100 ml-[10px]">
             <div className="flex justify-between items-center">
               <h1 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h1>
-              <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.code : ""}</span>
+              <span className="text-sm text-black font-medium">Mã đơn hàng: {searchBill != null ? searchBill.maBill : ""}</span>
             </div>
           </div>
 
@@ -497,7 +497,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             <DialogFooter className="flex justify-end gap-2">
               <Button
                 variant="secondary"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false)
+                  setNote("")
+                }
+                }
                 className="bg-red-500 hover:bg-red-600 text-white"
               >
                 Hủy bỏ

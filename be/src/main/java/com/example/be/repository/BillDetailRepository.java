@@ -35,7 +35,9 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
     // cach 1
     @Query("SELECT bd FROM BillDetail bd WHERE bd.idBill.id = :billId ORDER BY bd.id ASC")
     List<BillDetail> findFirstBillDetailByBill(@Param("billId") Integer billId);
-//Cach 2
-//  Optional<BillDetail> findFirstByBillIdOrderByIdAsc(Integer billId);
 
+//Delete billdetail theo id bill
+    @Modifying
+    @Query("DELETE FROM BillDetail bd WHERE bd.idBill.id = :billId")
+    void deleteByBillId(@Param("billId") Integer billId);
 }

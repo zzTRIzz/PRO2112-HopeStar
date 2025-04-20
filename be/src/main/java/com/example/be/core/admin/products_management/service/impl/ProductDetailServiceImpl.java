@@ -127,15 +127,15 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public void updateStatusProduct(Integer idProductDetail){
-        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-        if (productDetail.getInventoryQuantity() <= 0){
-            productDetail.setStatus(ProductDetailStatus.DESIST);
-            productDetailRepository.save(productDetail);
-        }else {
-            productDetail.setStatus(ProductDetailStatus.ACTIVE);
-            productDetailRepository.save(productDetail);
-        }
+            ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                    .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+            if (productDetail.getInventoryQuantity() <= 0){
+                productDetail.setStatus(ProductDetailStatus.DESIST);
+                productDetailRepository.save(productDetail);
+            }else {
+                productDetail.setStatus(ProductDetailStatus.ACTIVE);
+                productDetailRepository.save(productDetail);
+            }
     }
 
     @Override
@@ -145,6 +145,5 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+quantity);
         productDetailRepository.save(productDetail);
     }
-
 
 }

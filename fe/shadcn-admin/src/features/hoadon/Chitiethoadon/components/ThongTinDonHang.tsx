@@ -78,7 +78,7 @@ const ThongTinDonHang: React.FC<Posp> =
                         <div className="space-y-2">
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
-                                <p className="ml-[14px]">{searchBill?.code}</p>
+                                <p className="ml-[14px]">{searchBill?.maBill}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
@@ -101,7 +101,7 @@ const ThongTinDonHang: React.FC<Posp> =
                                 <span className="text-base text-gray-700 font-bold">Ngày đặt hàng:</span>
 
                                 <p className="ml-[14px]">
-                                    {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "dd/MM/yyyy HH:mm") : "Chưa có"}
+                                    {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "HH:mm dd/MM/yyyy") : ""}
                                 </p>                        </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>

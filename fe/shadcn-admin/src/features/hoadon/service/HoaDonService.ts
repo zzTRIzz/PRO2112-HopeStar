@@ -198,7 +198,7 @@ export const addBillHistory = async (billHistory: BillHistoryRequest) => {
         const jwt = Cookies.get('jwt')
         if (!jwt) throw new Error('Nhân viên chưa đăng nhập');
         const response = await axios.post(
-            `http://localhost:8080/api/admin/bill-history/addBillHistory`,
+            `http://localhost:8080/api/admin/bill/addBillHistory`,
             billHistory,
             {
                 headers: {

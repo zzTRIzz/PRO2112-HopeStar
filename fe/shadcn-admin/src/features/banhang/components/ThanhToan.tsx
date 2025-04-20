@@ -194,7 +194,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                                 <Button color="primary"
                                                                     onClick={() => {
                                                                         if (checkVoucherCondition(ac)) {
-                                                                            updateVoucherKhiChon(ac.id); 
+                                                                            updateVoucherKhiChon(ac.id);
                                                                         }
                                                                     }}                                                                 >
                                                                     Chọn
@@ -272,16 +272,36 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         className="customer-payment w-[150px]"
                                                         placeholder="Nhập số tiền"
                                                         value={customerPayment}
+                                                        max={2000000000}
                                                         onChange={(e) => setCustomerPayment(Number(e.target.value))}
+                                                        // onChange={(e) => {
+                                                        //     const value = Number(e.target.value);
+                                                        //     if (value > 1000000000) { // Giới hạn số tiền khách trả
+                                                        //       fromThatBai("Số tiền khách trả không được vượt quá 1 tỷ đồng.");
+                                                        //       return;
+                                                        //     }
+                                                        //     setCustomerPayment(value);
+                                                        //   }}
                                                         disabled={isThanhToanNhanHang} // Vô hiệu hóa ô input khi "Thanh toán khi nhận hàng" bật
                                                     />
                                                 </p>
                                             </div>
                                             {/* Tổng tiền */}
-                                            <div className="mt-4 flex justify-between border-b  pb-2 items-center font-bold text-lg text-red-600">
+                                            {/* <div className="mt-4 flex justify-between border-b  pb-2 items-center font-bold text-lg text-red-600">
                                                 <p className='text-base'>Tiền thừa trả khách:</p>
-                                                <p>{tienThua.toLocaleString('vi-VN')} đ</p>
-
+                                                <p className="text-red-600 break-words whitespace-normal text-lg leading-relaxed">{tienThua.toLocaleString('vi-VN')} đ</p>
+                                            </div> */}
+                                            <div className="mt-4 flex justify-between border-b pb-2 items-center font-bold text-lg text-red-600">
+                                                <p className="text-base">Tiền thừa trả khách:</p>
+                                                {tienThua > 1000000000 ? (
+                                                    <p className="text-red-600 text-sm">
+                                                        Số tiền trả lại quá lớn,<br />vui lòng kiểm tra lại.
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-red-600 break-words whitespace-normal text-lg leading-relaxed">
+                                                        {tienThua.toLocaleString("vi-VN")} đ
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     )}
