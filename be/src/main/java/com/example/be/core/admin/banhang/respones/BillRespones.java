@@ -14,6 +14,8 @@ public class BillRespones {
 
     private String code;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private Integer idNhanVien;

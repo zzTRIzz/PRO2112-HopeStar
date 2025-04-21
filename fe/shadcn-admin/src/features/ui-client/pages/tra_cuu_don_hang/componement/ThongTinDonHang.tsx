@@ -1,9 +1,9 @@
+
 import { Card, CardBody, Progress, Chip } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { Bill } from '../service/schema'
 import { useState, useEffect } from 'react'
-import { getBillAllClientByAccount } from '../service/api-bill-client-service'
-import { Button } from '@/components/ui/button'
+import { Bill } from '../../taikhoan/service/schema';
+import axios from 'axios';
 
 const orderStatusSteps = [
   {
@@ -57,26 +57,35 @@ const getPaymentMethod = (method: number | null) => {
     default: return "";
   }
 };
-const OrderTrackingPage = () => {
+const ThongTinDonHang = () => {
   const [bill, setBill] = useState<Bill | null>(null);
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = Number(urlParams.get("id"));
+  const [maDonHang, setMaDonHang] = useState(""); 
+
+  useEffect(() => {
+    const storedMa = localStorage.getItem("ma-don-hang");
+    if (storedMa) {
+      setMaDonHang(storedMa); // cập nhật state
+    }
+  }, []);
+
   useEffect(() => {
     const fetchBill = async () => {
+      if (!maDonHang) return;
+
       try {
-        const response = await getBillAllClientByAccount(id)
-        setBill(response.data)
-        console.log('Bill data:', response)
+        const response = await axios.get(
+          `http://localhost:8080/api/admin/bill/findBillByMaBill/${maDonHang}`
+        );
+        setBill(response.data);
       } catch (error) {
-        console.error('Error fetching bill:', error)
+        console.error("Error fetching bill:", error);
       }
-    }
-    fetchBill()
-  }
-    , [id]);
+    };
+
+    fetchBill();
+  }, [maDonHang]);
 
   if (!bill) return <div>Đang tải...</div>;
-
 
 
   const getCurrentStep = () => {
@@ -96,15 +105,12 @@ const OrderTrackingPage = () => {
   return (
     <div className='min-h-screen bg-[#F7F7F7] p-4 md:p-4'>
       <div className='mx-auto max-w-6xl space-y-2'>
-        {/* Order Header */}
-        {/* <a href="/taikhoan/don-hang-cua-toi" className='text-sm text-blue-600'>Đơn hàng của tôi</a>
-        <a href="" className='text-sm text-cyan-600'>{' > '}Chi tiết đơn hàng</a> */}
-
-        <div className='flex items-center gap-1 text-sm ml-[6px]'>
+       
+        {/* <div className='flex items-center gap-1 text-sm ml-[6px]'>
           <a href="/taikhoan/don-hang-cua-toi" className='text-blue-600'>Đơn hàng của tôi</a>
           <span className='text-gray-400'>{'>'}</span>
           <a href="" className='text-cyan-600'>Chi tiết đơn hàng</a>
-        </div>
+        </div> */}
         <Card className='border-none shadow-sm'>
           <CardBody>
             <div className='flex flex-wrap items-center justify-between gap-4'>
@@ -185,14 +191,14 @@ const OrderTrackingPage = () => {
             )}
           </CardBody>
         </Card>
-        <div style={{ textAlign: 'right' }}>
+        {/* <div style={{ textAlign: 'right' }}>
           <Button
             className="bg-red-500 text-white hover:bg-red-600"
             disabled={bill.status !== "CHO_THANH_TOAN" && bill.status !== "CHO_XAC_NHAN"}
           >
             Hủy đơn hàng
           </Button>
-        </div>
+        </div> */}
         <div className='grid gap-4 md:grid-cols-3'>
           <div className='space-y-4 md:col-span-2'>
             {/* Recipient Info */}
@@ -310,4 +316,4 @@ const OrderTrackingPage = () => {
   )
 }
 
-export default OrderTrackingPage
+export default ThongTinDonHang;

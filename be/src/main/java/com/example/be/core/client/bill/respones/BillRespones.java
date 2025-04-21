@@ -18,6 +18,8 @@ public class BillRespones {
 
     private String code;
 
+    private String maBill;
+
     private String fullNameKh;
 
     private String fullNameNV;
@@ -39,12 +41,12 @@ public class BillRespones {
     private BigDecimal discountedTotal; // tien giam
 
     private BigDecimal payInsurance;
-
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime  customerPreferredDate;
-
-    private LocalDateTime  customerAppointmentDate;
+//
+//    private LocalDateTime deliveryDate;
+//
+//    private LocalDateTime  customerPreferredDate;
+//
+//    private LocalDateTime  customerAppointmentDate;
 
     private LocalDateTime  receiptDate;
 

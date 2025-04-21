@@ -14,26 +14,25 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.entity.*;
-import com.example.be.entity.status.StartusBillHistory;
-import com.example.be.entity.status.StatusBill;
-import com.example.be.entity.status.StatusVoucher;
-import com.example.be.entity.status.VoucherAccountStatus;
+import com.example.be.entity.status.*;
 import com.example.be.repository.*;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-
 public class BillServiceImpl implements BillService {
-
 
     @Autowired
     BillRepository billRepository;
@@ -79,6 +78,19 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillHistoryRepository billHistoryRepository;
+
+    @Autowired
+    ImeiRepository imeiRepository;
+
+    @Autowired
+    ProductDetailRepository productDetailRepository;
+
+    public String generateBillCode() {
+        String timePart = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
+        int randomPart = (int) (Math.random() * 90000) + 10000;
+        return timePart + randomPart;
+    }
 
     @Override
     public List<SearchBill> getAllBill() {
@@ -146,9 +158,9 @@ public class BillServiceImpl implements BillService {
             billDto.setPaymentDate(now);
             billDto.setBillType((byte) 0);
             billDto.setIdNhanVien(idNhanVien);
+            billDto.setMaBill(generateBillCode());
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
-            System.out.println(billRepository.getNewCode());
 
             Bill bill = billMapper.entityBillMapper(billDto);
 
@@ -181,7 +193,7 @@ public class BillServiceImpl implements BillService {
 
         BigDecimal giamGia = bill.getDiscountedTotal() != null ? bill.getDiscountedTotal() : BigDecimal.ZERO;
         BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance():BigDecimal.ZERO;
+        BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance() : BigDecimal.ZERO;
 
         BigDecimal tongTienFinal = tongTien.subtract(giamGia).add(phiShip).add(baoHiem);
 
@@ -377,6 +389,7 @@ public class BillServiceImpl implements BillService {
                 imeiSoldService.deleteImeiSold(bd.getId());
                 productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
                 productDetailService.updateStatusProduct(bd.getIdProductDetail().getId());
+                capNhatVoucherKhiChon(idBill, null);
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
@@ -457,6 +470,7 @@ public class BillServiceImpl implements BillService {
 
         billRespones.setId(bill.getId());
         billRespones.setCode(bill.getCode());
+        billRespones.setMaBill(bill.getMaBill());
         billRespones.setIdAccount((bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null);
         billRespones.setIdNhanVien((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null);
         billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
@@ -560,6 +574,37 @@ public class BillServiceImpl implements BillService {
         return billRespones;
     }
 
+    @Scheduled(cron = "59 59 23 * * ?")
+    @Transactional
+    public void deleteUnpaidBillsDaily() {
+        List<Bill> unpaidBills = billRepository.findBillByStatus(StatusBill.CHO_THANH_TOAN);
+        System.out.println(unpaidBills);
+        for (Bill bill : unpaidBills) {
+            List<BillHistory> histories = billHistoryRepository.findBillHistoryByIdBill(bill.getId());
+            if (!histories.isEmpty()) {
+                billHistoryRepository.deleteAll(histories);
+            }
 
+            List<BillDetail> billDetailList = billDetailRepository.findByIdBill(bill.getId());
+            System.out.println(billDetailList);
+            for (BillDetail billDetail : billDetailList) {
+                List<Imei> imeis = imeiSoldRepository.searchImeiSold(billDetail.getId());
+
+                for (Imei imei : imeis) {
+                    imei.setStatus(StatusImei.NOT_SOLD);
+                }
+                if (!imeis.isEmpty()) {
+                    imeiRepository.saveAll(imeis);
+                }
+                imeiSoldRepository.deleteImeiSold(billDetail.getId());
+                productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
+                productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
+                capNhatVoucherKhiChon(bill.getId(), null);
+
+            }
+            billDetailRepository.deleteAll(billDetailList);
+        }
+        billRepository.deleteAll(unpaidBills);
+    }
 }
 

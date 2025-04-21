@@ -37,8 +37,8 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
     const filtered = originalList.filter((bill) => {
       const matchesKeyword =
         bill.nameBill?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill.tenKhachHang?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill.soDienThoai?.toLowerCase().includes(keyword.toLowerCase());
+        bill.name?.toLowerCase().includes(keyword.toLowerCase()) ||
+        bill.phone?.toLowerCase().includes(keyword.toLowerCase());
 
       const billDate = bill.paymentDate ? new Date(bill.paymentDate) : null;
       const matchesDate =

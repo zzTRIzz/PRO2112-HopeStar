@@ -40,6 +40,7 @@ import { Route as AuthenticatedProductBrandImport } from './routes/_authenticate
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
 import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authenticated/hoadon/hoadonchitiet'
+import { Route as authTracuudonhangThongTinImport } from './routes/(auth)/tra_cuu_don_hang/thong-tin'
 import { Route as authProductIdImport } from './routes/(auth)/product.$id'
 import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
 import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
@@ -88,6 +89,9 @@ const AuthenticatedChatsIndexLazyImport = createFileRoute(
 )()
 const AuthenticatedBanhangIndexLazyImport = createFileRoute(
   '/_authenticated/banhang/',
+)()
+const authTracuudonhangIndexLazyImport = createFileRoute(
+  '/(auth)/tra_cuu_don_hang/',
 )()
 const authLienHeIndexLazyImport = createFileRoute('/(auth)/lien-he/')()
 const authGioHangIndexLazyImport = createFileRoute('/(auth)/gio-hang/')()
@@ -299,6 +303,16 @@ const AuthenticatedBanhangIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/banhang/index.lazy').then((d) => d.Route),
+  )
+
+const authTracuudonhangIndexLazyRoute = authTracuudonhangIndexLazyImport
+  .update({
+    id: '/(auth)/tra_cuu_don_hang/',
+    path: '/tra_cuu_don_hang/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/tra_cuu_don_hang/index.lazy').then((d) => d.Route),
   )
 
 const authLienHeIndexLazyRoute = authLienHeIndexLazyImport
@@ -527,6 +541,12 @@ const AuthenticatedHoadonHoadonchitietRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const authTracuudonhangThongTinRoute = authTracuudonhangThongTinImport.update({
+  id: '/(auth)/tra_cuu_don_hang/thong-tin',
+  path: '/tra_cuu_don_hang/thong-tin',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const authProductIdRoute = authProductIdImport.update({
   id: '/(auth)/product/$id',
   path: '/product/$id',
@@ -688,6 +708,13 @@ declare module '@tanstack/react-router' {
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof authProductIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/tra_cuu_don_hang/thong-tin': {
+      id: '/(auth)/tra_cuu_don_hang/thong-tin'
+      path: '/tra_cuu_don_hang/thong-tin'
+      fullPath: '/tra_cuu_don_hang/thong-tin'
+      preLoaderRoute: typeof authTracuudonhangThongTinImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/hoadon/hoadonchitiet': {
@@ -898,6 +925,13 @@ declare module '@tanstack/react-router' {
       path: '/lien-he'
       fullPath: '/lien-he'
       preLoaderRoute: typeof authLienHeIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/tra_cuu_don_hang/': {
+      id: '/(auth)/tra_cuu_don_hang/'
+      path: '/tra_cuu_don_hang'
+      fullPath: '/tra_cuu_don_hang'
+      preLoaderRoute: typeof authTracuudonhangIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/banhang/': {
@@ -1129,6 +1163,7 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
   '/product/$id': typeof authProductIdRoute
+  '/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
   '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -1159,6 +1194,7 @@ export interface FileRoutesByFullPath {
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/lien-he': typeof authLienHeIndexLazyRoute
+  '/tra_cuu_don_hang': typeof authTracuudonhangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
@@ -1190,6 +1226,7 @@ export interface FileRoutesByTo {
   '/503': typeof errors503LazyRoute
   '/': typeof authIndexLazyRoute
   '/product/$id': typeof authProductIdRoute
+  '/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
   '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -1220,6 +1257,7 @@ export interface FileRoutesByTo {
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/lien-he': typeof authLienHeIndexLazyRoute
+  '/tra_cuu_don_hang': typeof authTracuudonhangIndexLazyRoute
   '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
@@ -1254,6 +1292,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503LazyRoute
   '/(auth)/': typeof authIndexLazyRoute
   '/(auth)/product/$id': typeof authProductIdRoute
+  '/(auth)/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
   '/_authenticated/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
@@ -1284,6 +1323,7 @@ export interface FileRoutesById {
   '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
   '/(auth)/gio-hang/': typeof authGioHangIndexLazyRoute
   '/(auth)/lien-he/': typeof authLienHeIndexLazyRoute
+  '/(auth)/tra_cuu_don_hang/': typeof authTracuudonhangIndexLazyRoute
   '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
@@ -1318,6 +1358,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/product/$id'
+    | '/tra_cuu_don_hang/thong-tin'
     | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
@@ -1348,6 +1389,7 @@ export interface FileRouteTypes {
     | '/dienthoai'
     | '/gio-hang'
     | '/lien-he'
+    | '/tra_cuu_don_hang'
     | '/banhang'
     | '/chats'
     | '/dashboard'
@@ -1378,6 +1420,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/product/$id'
+    | '/tra_cuu_don_hang/thong-tin'
     | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
@@ -1408,6 +1451,7 @@ export interface FileRouteTypes {
     | '/dienthoai'
     | '/gio-hang'
     | '/lien-he'
+    | '/tra_cuu_don_hang'
     | '/banhang'
     | '/chats'
     | '/dashboard'
@@ -1440,6 +1484,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/(auth)/'
     | '/(auth)/product/$id'
+    | '/(auth)/tra_cuu_don_hang/thong-tin'
     | '/_authenticated/hoadon/hoadonchitiet'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
@@ -1470,6 +1515,7 @@ export interface FileRouteTypes {
     | '/(auth)/dienthoai/'
     | '/(auth)/gio-hang/'
     | '/(auth)/lien-he/'
+    | '/(auth)/tra_cuu_don_hang/'
     | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
     | '/_authenticated/dashboard/'
@@ -1503,12 +1549,14 @@ export interface RootRouteChildren {
   errors503LazyRoute: typeof errors503LazyRoute
   authIndexLazyRoute: typeof authIndexLazyRoute
   authProductIdRoute: typeof authProductIdRoute
+  authTracuudonhangThongTinRoute: typeof authTracuudonhangThongTinRoute
   authDatHangPaymentResultLazyRoute: typeof authDatHangPaymentResultLazyRoute
   authDatHangIndexRoute: typeof authDatHangIndexRoute
   authTaikhoanIndexRoute: typeof authTaikhoanIndexRoute
   authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
   authGioHangIndexLazyRoute: typeof authGioHangIndexLazyRoute
   authLienHeIndexLazyRoute: typeof authLienHeIndexLazyRoute
+  authTracuudonhangIndexLazyRoute: typeof authTracuudonhangIndexLazyRoute
   authTaikhoanDonHangCuaToiIndexRoute: typeof authTaikhoanDonHangCuaToiIndexRoute
   authTaikhoanThongTinCaNhanIndexRoute: typeof authTaikhoanThongTinCaNhanIndexRoute
   authTaikhoanDonHangCuaToiThongTinIndexLazyRoute: typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
@@ -1529,12 +1577,14 @@ const rootRouteChildren: RootRouteChildren = {
   errors503LazyRoute: errors503LazyRoute,
   authIndexLazyRoute: authIndexLazyRoute,
   authProductIdRoute: authProductIdRoute,
+  authTracuudonhangThongTinRoute: authTracuudonhangThongTinRoute,
   authDatHangPaymentResultLazyRoute: authDatHangPaymentResultLazyRoute,
   authDatHangIndexRoute: authDatHangIndexRoute,
   authTaikhoanIndexRoute: authTaikhoanIndexRoute,
   authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
   authGioHangIndexLazyRoute: authGioHangIndexLazyRoute,
   authLienHeIndexLazyRoute: authLienHeIndexLazyRoute,
+  authTracuudonhangIndexLazyRoute: authTracuudonhangIndexLazyRoute,
   authTaikhoanDonHangCuaToiIndexRoute: authTaikhoanDonHangCuaToiIndexRoute,
   authTaikhoanThongTinCaNhanIndexRoute: authTaikhoanThongTinCaNhanIndexRoute,
   authTaikhoanDonHangCuaToiThongTinIndexLazyRoute:
@@ -1565,12 +1615,14 @@ export const routeTree = rootRoute
         "/(errors)/503",
         "/(auth)/",
         "/(auth)/product/$id",
+        "/(auth)/tra_cuu_don_hang/thong-tin",
         "/(auth)/dat-hang/payment-result",
         "/(auth)/dat-hang/",
         "/(auth)/taikhoan/",
         "/(auth)/dienthoai/",
         "/(auth)/gio-hang/",
         "/(auth)/lien-he/",
+        "/(auth)/tra_cuu_don_hang/",
         "/(auth)/taikhoan/don-hang-cua-toi/",
         "/(auth)/taikhoan/thong-tin-ca-nhan/",
         "/(auth)/taikhoan/don-hang-cua-toi/thong-tin/"
@@ -1662,6 +1714,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/product/$id": {
       "filePath": "(auth)/product.$id.tsx"
+    },
+    "/(auth)/tra_cuu_don_hang/thong-tin": {
+      "filePath": "(auth)/tra_cuu_don_hang/thong-tin.tsx"
     },
     "/_authenticated/hoadon/hoadonchitiet": {
       "filePath": "_authenticated/hoadon/hoadonchitiet.tsx",
@@ -1776,6 +1831,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/lien-he/": {
       "filePath": "(auth)/lien-he/index.lazy.tsx"
+    },
+    "/(auth)/tra_cuu_don_hang/": {
+      "filePath": "(auth)/tra_cuu_don_hang/index.lazy.tsx"
     },
     "/_authenticated/banhang/": {
       "filePath": "_authenticated/banhang/index.lazy.tsx",

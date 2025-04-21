@@ -15,6 +15,8 @@ public class SearchBill {
 
     private String nameBill;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private String tenKhachHang;

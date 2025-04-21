@@ -18,6 +18,8 @@ public class BillDto {
 
     private String nameBill;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private Integer idNhanVien;
