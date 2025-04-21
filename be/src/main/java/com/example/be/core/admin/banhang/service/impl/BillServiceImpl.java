@@ -17,6 +17,7 @@ import com.example.be.entity.*;
 import com.example.be.entity.status.*;
 import com.example.be.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-
 public class BillServiceImpl implements BillService {
-
 
     @Autowired
     BillRepository billRepository;
@@ -162,7 +161,6 @@ public class BillServiceImpl implements BillService {
             billDto.setMaBill(generateBillCode());
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
-            System.out.println(billRepository.getNewCode());
 
             Bill bill = billMapper.entityBillMapper(billDto);
 
@@ -391,7 +389,7 @@ public class BillServiceImpl implements BillService {
                 imeiSoldService.deleteImeiSold(bd.getId());
                 productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
                 productDetailService.updateStatusProduct(bd.getIdProductDetail().getId());
-                capNhatVoucherKhiChon(idBill,null);
+                capNhatVoucherKhiChon(idBill, null);
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
@@ -599,9 +597,9 @@ public class BillServiceImpl implements BillService {
                     imeiRepository.saveAll(imeis);
                 }
                 imeiSoldRepository.deleteImeiSold(billDetail.getId());
-                productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(),billDetail.getQuantity());
+                productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
                 productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
-                capNhatVoucherKhiChon(bill.getId(),null);
+                capNhatVoucherKhiChon(bill.getId(), null);
 
             }
             billDetailRepository.deleteAll(billDetailList);

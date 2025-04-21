@@ -113,7 +113,7 @@ export const OrdersPage = () => {
                         hour12: false
                       })
                         : ""}</span>
-                      <span>Mã hóa đơn: {order?.maBill}</span>
+                      <span>Mã đơn hàng: {order?.maBill}</span>
                       <span>{order?.detailCount != null ? order?.detailCount : 0} sản phẩm</span>
                     </div>
                   </div>
