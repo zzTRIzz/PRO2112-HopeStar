@@ -24,10 +24,9 @@ public class ProductDetailViewResponse {
     // Danh sách các cặp RAM-ROM
     private List<RamRomOption> ramRomOptions;
 
-
     // Danh sách các tùy chọn màu sắc
     private List<ColorOption> colorOptions;
-
+    private Map<String, List<ColorOption>> availableColors;
     // Map để lưu trữ thông tin chi tiết sản phẩm tương ứng với từng cặp RAM-ROM-Color
     private Map<String, ProductDetailInfo> productDetails;
 

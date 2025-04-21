@@ -10,6 +10,7 @@ import com.example.be.entity.ProductDetail;
 import com.example.be.entity.ShoppingCart;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusCartDetail;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.CartDetailRepository;
 import com.example.be.repository.ProductDetailRepository;
 import com.example.be.repository.ShoppingCartRepository;
@@ -78,6 +79,9 @@ public class CartServiceImpl implements CartService {
     public Object addToCart(AddToCartRequest request, Account account,String guestCartId) throws Exception {
 
         ShoppingCart cart = new ShoppingCart();
+        if(account.getStatus().equals(StatusCommon.IN_ACTIVE)){
+            throw new Exception("Tài khoản đã bạn bị vô hiệu");
+        }
         if (account != null){
             cart = shoppingCartRepository.findShoppingCartByIdAccount(account);
         }else {

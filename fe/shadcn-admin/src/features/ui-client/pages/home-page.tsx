@@ -20,10 +20,10 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <FeaturedProducts />
-        <CustomerChat
+        {/* <CustomerChat
         isOpen={isCustomerChatOpen}
         toggleChat={() => setIsCustomerChatOpen(!isCustomerChatOpen)}
-      />
+      /> */}
         <Categories />
       </main>
       <Footer />
