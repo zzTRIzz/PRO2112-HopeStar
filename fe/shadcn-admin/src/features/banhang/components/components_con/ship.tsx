@@ -136,11 +136,11 @@ const Ship = ({
         )}
       </div> */}
       <div className="flex justify-between border-b pb-2">
-      <img 
+        {/* <img 
     src="https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHTK-H.png" 
     alt="GHTK Logo" 
     className="h-8 w-auto" 
-  />
+  /> */}
         <p className="text-gray-700 text-base">Phí vận chuyển:</p>
         <p className="font-semibold">{new Intl.NumberFormat('vi-VN').format(shippingFeeOnly)}đ</p>
       </div>

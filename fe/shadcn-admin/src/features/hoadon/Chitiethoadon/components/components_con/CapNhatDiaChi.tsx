@@ -119,7 +119,8 @@ const DiaChiGiaoHang: React.FC<Province> =
             if (districts.length > 0 && districtName) {
                 const districtCode = districts.find(d => d.name === districtName)?.code || "";
                 if (!districtCode) return;
-
+                diaChi.setValue("fullName", fullName || "");
+                diaChi.setValue("phone", phone || "");
                 diaChi.setValue("district", districtCode);
                 //  Gọi API tải xã
                 fetchWards(districtCode);
@@ -127,7 +128,6 @@ const DiaChiGiaoHang: React.FC<Province> =
         }, [districts]);
 
 
-        // Khi danh sách xã có dữ liệu, cập nhật vào form
         useEffect(() => {
             const wardName = parseAddress(address || "").wardName;
             if (wards.length > 0 && wardName) {
@@ -135,8 +135,7 @@ const DiaChiGiaoHang: React.FC<Province> =
                 if (!wardCode) return;
                 diaChi.setValue("ward", wardCode);
                 diaChi.setValue("address", parseAddress(address || "").detailAddress);
-                diaChi.setValue("fullName", fullName || "");
-                diaChi.setValue("phone", phone || "");
+
 
             }
         }, [wards]);
@@ -195,16 +194,16 @@ const DiaChiGiaoHang: React.FC<Province> =
             if (province && district) {
                 calculateShippingFee();
             }
-            console.log("phi ship shippingFee" + shippingFee)
+            // console.log("phi ship shippingFee" + shippingFee)
         }, [
             shippingFee,
+            diaChi.getValues("phone"),
+            diaChi.getValues("fullName"),
             diaChi.watch("province"),
             diaChi.watch("district"),
             diaChi.watch("ward"),
             diaChi.watch("address"),
             diaChi.watch("note"),
-            diaChi.getValues("phone"),
-            diaChi.getValues("fullName"),
             provinces,
             districts,
             wards,

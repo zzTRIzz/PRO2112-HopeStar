@@ -363,7 +363,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                 ' )'}
                             </TableCell>
                             <TableCell>
-                              {product?.priceSell.toLocaleString('vi-VN')}
+                              {product?.priceSell?.toLocaleString('vi-VN')}
                             </TableCell>
                             <TableCell align='center'>
                               {product?.inventoryQuantity}

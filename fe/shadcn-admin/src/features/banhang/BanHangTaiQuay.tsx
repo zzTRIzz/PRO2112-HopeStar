@@ -463,6 +463,13 @@ function BanHangTaiQuay() {
       }
     }, 100)
   }
+  const isValidFullAddress = (address: string) => {
+    if (!address) return false;
+
+    const parts = address.split(",").map((part) => part.trim());
+
+    return parts.length >= 4 && parts.every((part) => part.length > 0);
+  };
 
   const handleThanhToan = async (status: string) => {
     let result = true;
@@ -480,10 +487,10 @@ function BanHangTaiQuay() {
         cancelText: 'Hủy bỏ'
       });
     }
-    console.log("Họ và tên:", deliveryInfo?.customerName);
-    console.log("Số điện thoại:", deliveryInfo?.customerPhone);
-    console.log("Dia chi :", deliveryInfo?.fullAddress);
-    console.log("Note :", deliveryInfo?.note);
+    // console.log("Họ và tên:", deliveryInfo?.customerName);
+    // console.log("Số điện thoại:", deliveryInfo?.customerPhone);
+    // console.log("Dia chi :", deliveryInfo?.fullAddress);
+    // console.log("Note :", deliveryInfo?.note);
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -497,13 +504,25 @@ function BanHangTaiQuay() {
       { condition: tienThua > 10000000, message: "Tiền thừa trả khách vượt quá giới hạn cho phép (10 triệu)" }
     ];
 
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/
     const deliveryValidations =
       isBanGiaoHang === true
         ? [
           { condition: !deliveryInfo, message: "Thiếu thông tin giao hàng" },
-          { condition: !deliveryInfo?.fullAddress?.trim(), message: "Vui lòng nhập: Địa chỉ" },
           { condition: !deliveryInfo?.customerName?.trim(), message: "Vui lòng nhập: Tên khách hàng" },
           { condition: !deliveryInfo?.customerPhone?.trim(), message: "Vui lòng nhập: Số điện thoại" },
+
+          {
+            condition:
+              deliveryInfo?.customerPhone &&
+              !phoneRegex.test(deliveryInfo.customerPhone.trim()),
+            message: "Số điện thoại không hợp lệ",
+          },
+          { condition: !deliveryInfo?.fullAddress?.trim(), message: "Vui lòng nhập: Địa chỉ" },
+          {
+            condition: deliveryInfo?.fullAddress && !isValidFullAddress(deliveryInfo.fullAddress),
+            message: "Địa chỉ giao hàng đang thiếu",
+          },
         ]
         : [];
 
@@ -551,7 +570,7 @@ function BanHangTaiQuay() {
         });
 
         const invoiceData = {
-          code: searchBill?.code,
+          code: searchBill?.maBill,
           paymentDate: new Date().toISOString(),
           staff: searchBill?.fullNameNV,
           customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
@@ -793,7 +812,7 @@ function BanHangTaiQuay() {
         }}
       >
         <div className='mb-2 flex items-center justify-between'>
-          <div className='ml-[750px] mr-[40px] flex space-x-2'>
+          {/* <div className='mr-[40px] flex space-x-2' style={{textAlign:"right"}}>
             <Button
               variant='outline'
               className='text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600'
@@ -806,7 +825,22 @@ function BanHangTaiQuay() {
               />
               Bán giao hàng
             </Button>
+          </div> */}
+          <div className="flex justify-end mr-10">
+            <Button
+              variant="outline"
+              className="text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600 flex items-center space-x-2"
+            >
+              <Checkbox
+                id="ban-giao-hang"
+                className="text-blue-600"
+                checked={isBanGiaoHang}
+                onCheckedChange={handleBanGiaoHangChange}
+              />
+              <span>Bán giao hàng</span>
+            </Button>
           </div>
+
         </div>
         <hr className='border-gray-600' />
         <br />
@@ -818,7 +852,6 @@ function BanHangTaiQuay() {
             phone={searchBill?.phone ?? ""}
             address={searchBill?.address ?? ""}
             isBanGiaoHang={isBanGiaoHang}
-
             onAddressChange={handleAddressUpdate}
             onDetailChange={handleDetailUpdate}
           />

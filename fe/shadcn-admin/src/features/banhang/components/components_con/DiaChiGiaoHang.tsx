@@ -21,13 +21,14 @@ import {
     CommandItem,
     CommandList
 } from "@/components/ui/command"
-import { Check, ChevronsUpDown, Phone } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
 import useVietnamAddress from '../../service/ApiTichHopDiaChi';
 import { Textarea } from '@/components/ui/textarea';
+import { fromThatBai } from './ThongBao';
 
 const formSchema = z.object({
     id: z.number().optional(),
@@ -104,7 +105,8 @@ const DiaChiGiaoHang: React.FC<Province> =
             if (districts.length > 0 && districtName) {
                 const districtCode = districts.find(d => d.name === districtName)?.code || "";
                 if (!districtCode) return;
-
+                diaChi.setValue("fullName", fullName || "");
+                diaChi.setValue("phone", phone || "");
                 diaChi.setValue("district", districtCode);
                 //  Gọi API tải xã
                 fetchWards(districtCode);
@@ -117,8 +119,8 @@ const DiaChiGiaoHang: React.FC<Province> =
             if (wards.length > 0 && wardName) {
                 const wardCode = wards.find(w => w.name === wardName)?.code || "";
                 if (!wardCode) return;
-                diaChi.setValue("fullName", fullName || "");
-                diaChi.setValue("phone", phone || "");
+                // diaChi.setValue("fullName", fullName || "");
+                // diaChi.setValue("phone", phone || "");
                 diaChi.setValue("ward", wardCode);
                 diaChi.setValue("address", parseAddress(address || "").detailAddress);
             }
@@ -154,6 +156,8 @@ const DiaChiGiaoHang: React.FC<Province> =
             districts,
             wards,
         ]);
+
+
         return (
             <>
                 <div className={`transition-all duration-300 ${isBanGiaoHang ? "w-full opacity-100 visible" : "w-0 opacity-0 invisible"
@@ -396,7 +400,13 @@ const DiaChiGiaoHang: React.FC<Province> =
                                 )}
                             />
                         </form>
-                        <img src="https://vn.images.search.yahoo.com/images/view;_ylt=Awr1SacSC_5nm1YWIS5tUwx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkA2ZmNzUzYzU1MjRiNDVjNzJjMjIxYTcwZTg3MTA5ZDc1BGdwb3MDMwRpdANiaW5n?back=https%3A%2F%2Fvn.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Dlogo%2Bv%25E1%25BA%25ADn%2Bchuy%25E1%25BB%2583n%2Bgiao%2Bh%25C3%25A0ng%2Bnhanh%26type%3DE211VN885G0%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D3&w=4114&h=2718&imgurl=static.ybox.vn%2F2022%2F8%2F5%2F1660242139108-logo.png&rurl=https%3A%2F%2Fybox.vn%2Ftuyen-dung%2Fhn-cong-ty-van-chuyen-giao-hang-nhanh-ghn-express-tuyen-dung-thuc-tap-sinh-kinh-doanh-logistics-full-time-2022-62f54a7230fb000ea95b1d9e&size=194KB&p=logo+v%E1%BA%ADn+chuy%E1%BB%83n+giao+h%C3%A0ng+nhanh&oid=ff753c5524b45c72c221a70e87109d75&fr2=piv-web&fr=mcafee&tt=%5BHN%5D+C%C3%B4ng+Ty+V%E1%BA%ADn+Chuy%E1%BB%83n+Giao+H%C3%A0ng+Nhanh+%28GHN+Express%29+Tuy%E1%BB%83n+D%E1%BB%A5ng+Th%E1%BB%B1c+...&b=0&ni=21&no=3&ts=&tab=organic&sigr=uQxTxdZnd4oc&sigb=BPpZxHODKipR&sigi=mxh.KWxKHJJC&sigt=JRFETPm9h_Rq&.crumb=ostp4C2tE5Z&fr=mcafee&fr2=piv-web&type=E211VN885G0" alt="" />
+                        <div style={{textAlign:"center", paddingLeft:"100px"}}>
+                            <img
+                                src="https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHTK-H.png"
+                                alt="GHTK Logo"
+                                className="h-[60px] w-[300px]"
+                            />
+                        </div>
                     </Form>
 
                 )}
