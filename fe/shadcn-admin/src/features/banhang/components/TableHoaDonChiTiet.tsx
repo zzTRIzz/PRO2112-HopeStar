@@ -194,9 +194,9 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
                                                             onClick={() => {
-                                                                updateHandleImeiSold(pr.id); 
-                                                                setOpenDialogId(null); 
-                                                              }}
+                                                                updateHandleImeiSold(pr.id);
+                                                                setOpenDialogId(null);
+                                                            }}
 
                                                         >
                                                             Chọn

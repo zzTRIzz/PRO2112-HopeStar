@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass } from "lucide-react";
 import { BillRespones } from "@/features/banhang/service/Schema";
-import { updateStatus } from "../../service/HoaDonService";
+import { huyHoaDon, updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react'
 import { showErrorToast, showSuccessToast } from "./components_con/ThongBao";
@@ -333,8 +333,9 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
       setCurrentStatus("DA_HUY");
       await updateStatus(searchBill.id, "DA_HUY");
-      themBillHistory("DA_HUY", note);
+      // themBillHistory("DA_HUY", note);
       setOpen(false);
+      await huyHoaDon(searchBill?.id, note);
       showSuccessToast("Đã hủy đơn hàng thành công.");
       loadTongBill();
     };
@@ -398,7 +399,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     const handleOpenDialog = (type: "confirm" | "cancel") => {
       setDialogType(type);
       setOpen(true);
-      console.log(currentStatus + "dsddz")
+      // console.log(currentStatus + "dsddz")
     };
 
     return (

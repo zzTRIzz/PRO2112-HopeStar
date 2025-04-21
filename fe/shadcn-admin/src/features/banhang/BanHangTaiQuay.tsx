@@ -197,6 +197,7 @@ function BanHangTaiQuay() {
       setProduct([])
       loadBillChoThanhToan()
       fromThanhCong('Hủy hóa đơn thành công');
+      setIdBill(0);
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -316,10 +317,10 @@ function BanHangTaiQuay() {
   // Them imei vao hoa don chi tiet
   const handleAddImei = async () => {
     try {
-      //   console.log('id id_Imei' + selectedImei)
-      //   console.log('id idBillDetail' + idBillDetail)
-      //   console.log('id idHoaDon' + idHoaDon)
-      //   console.log('id idProductDetail' + idProductDetail)
+      if (selectedImei.length == 0) {
+        fromThatBai("Vui lòng chọn imei");
+        return;
+      }
       await createImeiSold(
         {
           id_Imei: selectedImei,
@@ -342,6 +343,10 @@ function BanHangTaiQuay() {
 
   const updateHandleImeiSold = async (idBillDetail: number) => {
     try {
+      if (selectedImei.length == 0) {
+        fromThatBai("Vui lòng chọn imei");
+        return;
+      }
       await updateImeiSold(
         {
           id_Imei: selectedImei,

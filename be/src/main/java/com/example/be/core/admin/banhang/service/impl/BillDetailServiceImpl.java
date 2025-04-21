@@ -78,11 +78,12 @@ public class BillDetailServiceImpl implements BillDetailService {
         return new BillDetailDto();
     }
 
+
     @Override
     public BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong) {
         Optional<BillDetail> optionalBillDetail = billDetailRepository.
                 findFirstByIdBillAndIdProductDetail(idBill, idProductDetail);
-    
+
         if (optionalBillDetail.isPresent()) {
             BillDetail billDetail = optionalBillDetail.get();
             Integer soLuongTong = billDetail.getQuantity() + SoLuong;
@@ -93,9 +94,25 @@ public class BillDetailServiceImpl implements BillDetailService {
             BillDetail saveBillDetail = billDetailRepository.save(billDetail);
             return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
         }
-        return new BillDetailDto(); // Trả về DTO rỗng thay vì null
+        return new BillDetailDto();
     }
 
+    @Override
+    public BillDetailDto capNhatImeiCHoOnline(Integer idBill, Integer idProductDetail, Integer SoLuong) {
+        Optional<BillDetail> optionalBillDetail = billDetailRepository.
+                findFirstByIdBillAndIdProductDetail(idBill, idProductDetail);
+
+        if (optionalBillDetail.isPresent()) {
+            BillDetail billDetail = optionalBillDetail.get();
+            BigDecimal tongTien = billDetail.getPrice()
+                    .multiply(BigDecimal.valueOf(SoLuong));
+            billDetail.setQuantity(SoLuong);
+            billDetail.setTotalPrice(tongTien);
+            BillDetail saveBillDetail = billDetailRepository.save(billDetail);
+            return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        }
+        return new BillDetailDto();
+    }
 
     @Override
     public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
@@ -105,8 +122,6 @@ public class BillDetailServiceImpl implements BillDetailService {
                 .map(searchBillDetailMapper::dtoBillDetailMapper)
                 .collect(Collectors.toList());
     }
-
-
 
 
     @Override

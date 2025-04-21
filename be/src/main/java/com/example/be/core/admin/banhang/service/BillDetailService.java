@@ -18,6 +18,8 @@ public interface BillDetailService {
 
     BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
 
+    BillDetailDto capNhatImeiCHoOnline(Integer idBill, Integer idProductDetail, Integer SoLuong);
+
     List<SearchBillDetailDto> getByIdBill(Integer idBill);
 
     void deleteBillDetail(Integer idBillDetail);

@@ -36,19 +36,13 @@ public interface BillService {
 
     BillDto addAccount(Integer idBill, Integer idAccount);
 
-//    BillDto apDungVoucher(Integer idBill, Integer idAccount);
-
-//    BillDto capNhatVoucherKhiChon(Integer idBill, Integer idVoucher);
-
     BillDto capNhatVoucherKhiChon(Integer idBill, Voucher voucher);
 
     BillDto saveBillDto(BillDto billDto);
 
     BillDto getByIdHoaDon(Integer id);
 
-    void updateHuyHoaDon(Integer idBill);
-
-    //__________________________________________________________________________________________
+    void updateHuyHoaDon(Integer idBill, String note);
 
     BillDto updateCustomerRequest (UpdateCustomerRequest request);
 

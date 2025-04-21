@@ -36,16 +36,16 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
 
     const filtered = originalList.filter((bill) => {
       const matchesKeyword =
-        bill.nameBill?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill.name?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill.phone?.toLowerCase().includes(keyword.toLowerCase());
+        bill?.maBill?.toLowerCase().includes(keyword.toLowerCase()) ||
+        bill?.name?.toLowerCase().includes(keyword.toLowerCase()) ||
+        bill?.phone?.toLowerCase().includes(keyword.toLowerCase());
 
-      const billDate = bill.paymentDate ? new Date(bill.paymentDate) : null;
+      const billDate = bill?.paymentDate ? new Date(bill?.paymentDate) : null;
       const matchesDate =
         (!dateBatDau || (billDate && billDate >= dateBatDau)) &&
         (!dateTimeKetThuc || (billDate && billDate <= dateTimeKetThuc));
 
-      const matchesBillType = billType === null || bill.billType === Number(billType);
+      const matchesBillType = billType === null || bill?.billType === Number(billType);
       const matchesStatus = status === null || bill.status === status;
 
       return matchesKeyword && matchesDate && matchesBillType && matchesStatus;
@@ -146,8 +146,8 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
                       onChange={(e) => setBillType(e.target.value || null)}
                     >
                       <option value="">Tất cả</option>
-                      <option value="0">Tại quầy</option>
-                      <option value="1">Giao hàng</option>
+                      <option value="0">Offline</option>
+                      <option value="1">Online</option>
                     </select>
                   </div>
         

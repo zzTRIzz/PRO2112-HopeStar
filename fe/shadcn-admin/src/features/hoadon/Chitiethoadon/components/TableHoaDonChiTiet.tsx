@@ -143,8 +143,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 handleUpdateProduct(pr.idProductDetail, pr.id);
                                                                 setOpenDialogId(pr.id);
                                                             }}
-                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "") || searchBill?.payment != 4}
-                                                        >
+                                                            // disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}
+                                                            disabled={searchBill?.status != "CHO_XAC_NHAN"}>
                                                             Cập nhật
                                                         </Button>
                                                     </DialogTrigger>

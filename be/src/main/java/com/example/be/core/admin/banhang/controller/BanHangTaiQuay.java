@@ -131,9 +131,10 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(billDto);
     }
 
-    @GetMapping("/huyHoaDon/{idBill}")
-    public ResponseEntity<?> huyHoaDon(@PathVariable("idBill") Integer idBill) {
-        billService.updateHuyHoaDon(idBill);
+    @PostMapping("/huyHoaDon/{idBill}")
+    public ResponseEntity<?> huyHoaDon(@PathVariable("idBill") Integer idBill,
+                                       @RequestBody(required = false) String note) {
+        billService.updateHuyHoaDon(idBill, note);
         return ResponseEntity.ok("Hủy hóa đơn thành công");
     }
 
@@ -149,7 +150,6 @@ public class BanHangTaiQuay {
         billDetailService.deleteBillDetail(idBillDetail);
         billService.tongTienBill(billDetail.getIdBill().getId());
         productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
-        productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
         billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         return "Delete Thanh Cong";
     }
@@ -228,8 +228,7 @@ public class BanHangTaiQuay {
 
         BillDto billDto = billMapper.dtoBillMapper(bill);
         billService.saveBillDto(billDto);
-        productDetailService.updateSoLuongProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
-        productDetailService.updateStatusProduct(billDetailDto.getIdProductDetail());
+        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
         billService.capNhatVoucherKhiChon(bill.getId(), bill.getIdVoucher());
         billService.tongTienBill(bill.getId());
         return ResponseEntity.ok(savebillDetailDto);
@@ -248,11 +247,8 @@ public class BanHangTaiQuay {
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
 
-        BillDto billDto = billMapper.dtoBillMapper(bill);
-        billService.saveBillDto(billDto);
         Integer quantyti = imeiSoldDto.getId_Imei().size();
-        productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
-        productDetailService.updateStatusProduct(idProduct);
+        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProduct, quantyti);
         billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         billService.tongTienBill(idBill);
         return ResponseEntity.ok(billDetailDto);
@@ -261,15 +257,17 @@ public class BanHangTaiQuay {
     @PostMapping("/update_imei_sold/{idBill}/{idProduct}")
     public ResponseEntity<?> updateImeiSold(@RequestBody ImeiSoldDto imeiSoldDto,
                                             @PathVariable("idBill") Integer idBill,
-                                             @PathVariable("idProduct") Integer idProduct
+                                            @PathVariable("idProduct") Integer idProduct
     ) {
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
 
         Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
+
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
-        if (-quantyti == billDetail.getQuantity()) {
+
+        if (billDetail.getQuantity() - quantyti == 0) {
             billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
         } else {
             billDetailService.thayDoiSoLuongKhiCungSPVaHD(
@@ -277,13 +275,30 @@ public class BanHangTaiQuay {
         }
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        BillDto billDto = billMapper.dtoBillMapper(bill);
-        billService.saveBillDto(billDto);
-        productDetailService.updateSoLuongProductDetail(idProduct, quantyti);
-        productDetailService.updateStatusProduct(idProduct);
+
+        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProduct, quantyti);
         billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         billService.tongTienBill(idBill);
         return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/update-xac-nhan-imei/{idBill}/{idProductDetail}")
+    public ResponseEntity<?> updateXacNhanImei(
+            @RequestBody ImeiSoldDto imeiSoldDto,
+            @PathVariable("idBill") Integer idBill,
+            @PathVariable("idProductDetail") Integer idProductDetail
+    ) {
+        int quantity = imeiSoldDto.getId_Imei().size();
+
+        imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(), imeiSoldDto.getId_Imei());
+
+        billDetailService.capNhatImeiCHoOnline(idBill, idProductDetail, quantity);
+
+        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProductDetail, quantity);
+
+        billService.tongTienBill(idBill);
+
+        return ResponseEntity.ok("Xác nhận IMEI thành công");
     }
 
 

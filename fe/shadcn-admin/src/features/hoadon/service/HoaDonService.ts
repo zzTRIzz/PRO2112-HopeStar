@@ -143,7 +143,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idProduct: number
 ) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold);
+        const response = await axios.post(`${API_BASE_URL}/update-xac-nhan-imei/${idBill}/${idProduct}`, imeiSold);
         return response.data;
     } catch (error) {
         console.error('Error add imei sold data:', error);
@@ -192,6 +192,16 @@ export const updateCustomerRequest = async (updateCustomer: UpdateCustomerReques
         throw error;
     }
 };
+
+export const huyHoaDon = async (idBillCanHuy: number, note: string) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`, note);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
 
 export const addBillHistory = async (billHistory: BillHistoryRequest) => {
     try {

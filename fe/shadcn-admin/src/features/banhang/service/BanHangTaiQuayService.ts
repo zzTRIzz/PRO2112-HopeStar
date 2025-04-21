@@ -265,10 +265,10 @@ export const findVoucherByAccount = async (idAccount?: number) => {
     }
 };
 
-// Lấy dữ liệu data của vocher theo account
+
 export const huyHoaDon = async (idBillCanHuy: number) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
+        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
