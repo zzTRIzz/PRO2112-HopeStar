@@ -200,15 +200,12 @@ importers:
       recharts:
         specifier: ^2.14.1
         version: 2.14.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-<<<<<<< HEAD
-      sockjs-client:
-        specifier: ^1.6.1
-        version: 1.6.1
-=======
       sass:
         specifier: ^1.86.3
         version: 1.86.3
->>>>>>> 070e93e71a5ecb318ed619f06f894d97ac62764e
+      sockjs-client:
+        specifier: ^1.6.1
+        version: 1.6.1
       sonner:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
