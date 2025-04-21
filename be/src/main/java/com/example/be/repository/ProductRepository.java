@@ -7,6 +7,8 @@ import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.base.BaseRepository;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -81,4 +83,5 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
 
     boolean existsProductsByNameEquals(String name);
 
-  }
+    List<Product> findByNameContainingIgnoreCase(@Size(max = 255) @NotNull String name);
+}
