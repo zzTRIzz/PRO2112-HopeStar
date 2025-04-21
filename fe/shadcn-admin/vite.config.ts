@@ -27,4 +27,7 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    global: 'window', // Ánh xạ global thành window
+  },
 })

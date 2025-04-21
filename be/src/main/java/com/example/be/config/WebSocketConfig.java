@@ -17,6 +17,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chat").withSockJS(); // Endpoint để client kết nối WebSocket
+        registry.addEndpoint("/chat").setAllowedOrigins("http://localhost:5173").withSockJS(); // Endpoint để client kết nối WebSocket
     }
 }
