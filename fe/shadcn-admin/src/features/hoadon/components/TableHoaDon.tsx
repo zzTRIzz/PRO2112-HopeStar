@@ -118,7 +118,10 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
                                         statusStyles[hd.status] || "bg-gray-500 text-white"
                                     )}>{getOrderStatusText(hd?.status)}</span></TableCell>
                                     <TableCell align="right">{hd?.totalDue == null ? 0 : hd?.totalDue?.toLocaleString('vi-VN')} VND</TableCell>
-                                    <TableCell align="left" >{getPaymentMethod(hd?.namePayment??0)} - {getDeliveryMethod(hd?.idDelivery ?? 0)}</TableCell>
+                                    <TableCell align="left">
+                                        {getPaymentMethod(hd?.namePayment ?? 0)}
+                                        {getDeliveryMethod(hd?.idDelivery ?? 0) && ` - ${getDeliveryMethod(hd.idDelivery ?? 0)}`}
+                                    </TableCell>
                                     <TableCell align="right"> {hd?.paymentDate
                                         ? new Date(hd?.paymentDate).toLocaleDateString("vi-VN", {
                                             year: "numeric",
