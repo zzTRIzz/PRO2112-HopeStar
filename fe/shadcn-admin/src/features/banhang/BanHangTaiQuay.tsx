@@ -812,7 +812,7 @@ function BanHangTaiQuay() {
         }}
       >
         <div className='mb-2 flex items-center justify-between'>
-          <div className='ml-[750px] mr-[40px] flex space-x-2'>
+          {/* <div className='mr-[40px] flex space-x-2' style={{textAlign:"right"}}>
             <Button
               variant='outline'
               className='text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600'
@@ -825,7 +825,22 @@ function BanHangTaiQuay() {
               />
               Bán giao hàng
             </Button>
+          </div> */}
+          <div className="flex justify-end mr-10">
+            <Button
+              variant="outline"
+              className="text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600 flex items-center space-x-2"
+            >
+              <Checkbox
+                id="ban-giao-hang"
+                className="text-blue-600"
+                checked={isBanGiaoHang}
+                onCheckedChange={handleBanGiaoHangChange}
+              />
+              <span>Bán giao hàng</span>
+            </Button>
           </div>
+
         </div>
         <hr className='border-gray-600' />
         <br />
