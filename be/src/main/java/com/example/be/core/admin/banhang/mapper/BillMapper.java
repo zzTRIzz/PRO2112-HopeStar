@@ -28,6 +28,7 @@ public class BillMapper {
         return new BillDto(
                 bill.getId(),
                 bill.getCode(),
+                bill.getMaBill(),
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getId() : null,
                 (bill.getIdVoucher() != null) ? bill.getIdVoucher().getId() : null,
@@ -79,6 +80,7 @@ public class BillMapper {
         return new Bill(
               billDto.getId(),
               billDto.getNameBill(),
+              billDto.getMaBill(),
               accountKhachHang,
               accountNhanVien,
               voucher,
@@ -114,6 +116,7 @@ public class BillMapper {
         return new SearchBill(
                 bill.getId(),
                 bill.getCode(),
+                bill.getMaBill(),
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getId() : null,
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null,
                 (bill.getIdAccount() != null) ? bill.getIdAccount().getPhone() : null,

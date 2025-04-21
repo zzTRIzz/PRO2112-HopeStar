@@ -23,6 +23,7 @@ interface ProductDetail {
  export interface Bill {
     id: number;
     code: string;
+    maBill: string;
     fullNameKh: string;
     fullNameNV: string;
     codeVoucher: string;
