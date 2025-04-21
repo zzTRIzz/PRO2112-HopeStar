@@ -92,6 +92,7 @@ export const productDetailViewResponseSchema = z.object({
   // Map để lưu trữ thông tin chi tiết sản phẩm
   productDetails: z.record(z.string(), productDetailInfoSchema),
   // Sản phẩm chi tiết mặc định
+  availableColors:z.record(z.string(), z.array(colorOptionSchema)),
   defaultProductDetail: productDetailInfoSchema.optional(),
 })
 

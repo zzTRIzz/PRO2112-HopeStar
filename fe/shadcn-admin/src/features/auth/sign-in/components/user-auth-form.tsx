@@ -20,7 +20,8 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 import { login } from '../data/api-service'
 import { loginRequestSchema } from '../data/schema'
-
+import {jwtDecode} from 'jwt-decode';
+import JwtPayload from '../../type'
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
@@ -43,13 +44,26 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       // Xử lý khi thành công
       if (response.status === 0 && response.data?.jwt) {
         Cookies.set('jwt', response.data.jwt, { expires: 7 })
+        // Giải mã JWT để lấy role
+      // const decoded = jwtDecode<JwtPayload>(response.data.jwt);
+      // const userRole = decoded.role;
+      //   toast({
+      //     title: 'Đăng nhập thành công',
+      //     description: response.data.message || 'Chào mừng bạn quay trở lại',
+      //   })
 
-        toast({
-          title: 'Đăng nhập thành công',
-          description: response.data.message || 'Chào mừng bạn quay trở lại',
-        })
-
-        navigate({ to: '/' })
+      //   switch(userRole) {
+      //     case '2': // Admin
+      //       navigate({ to: '/dashboard' });
+      //       break;
+      //     case '3': // Staff
+      //       navigate({ to: '/banhang' });
+      //       break;
+      //     case '4': // User thông thường
+      //       navigate({ to: '/' });
+      //       break;
+      //   }
+      navigate({ to: '/' });
       } else {
         // Xử lý khi API trả về status khác 0
         throw new Error(response.data?.message || 'Đăng nhập thất bại')

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Route } from '@/routes/(auth)/product.$id'
@@ -69,14 +69,14 @@ export default function ProductDetail() {
   // Lưu ý: Đặt tiêu đề trang trong useEffect để tránh lỗi SSR
   useEffect(() => {
     if (productDetail?.productName) {
-      document.title = `${productDetail.productName} | HopeStar`;
+      document.title = `${productDetail.productName} | HopeStar`
     } else {
-      document.title = 'HopeStar';
+      document.title = 'HopeStar'
     }
     return () => {
-      document.title = 'HopeStar';
-    };
-  }, [productDetail?.productName]);
+      document.title = 'HopeStar'
+    }
+  }, [productDetail?.productName])
 
   const addToCart = async (productDetailId: number | undefined) => {
     try {
@@ -170,6 +170,24 @@ export default function ProductDetail() {
 
     fetchProductDetail()
   }, [id])
+
+  // Lấy danh sách màu có sẵn cho cặp RAM-ROM đã chọn
+  const availableColorsForSelection = useMemo(() => {
+    if (!productDetail?.availableColors || !selectedStorage) {
+      return []
+    }
+    return productDetail.availableColors[selectedStorage] || []
+  }, [productDetail?.availableColors, selectedStorage])
+
+  // Reset selectedColor khi đổi RAM-ROM nếu màu hiện tại không có sẵn
+  useEffect(() => {
+    if (
+      availableColorsForSelection.length > 0 &&
+      !availableColorsForSelection.some((c) => c.colorCode === selectedColor)
+    ) {
+      setSelectedColor(availableColorsForSelection[0].colorCode)
+    }
+  }, [availableColorsForSelection, selectedColor])
 
   // Hàm tìm sản phẩm chi tiết dựa trên RAM/ROM và màu sắc
   const findProductDetail = (ramRomKey: string, colorCode: string) => {
@@ -348,7 +366,7 @@ export default function ProductDetail() {
             <div className='space-y-3'>
               <h3 className='text-lg font-semibold'>Màu sắc</h3>
               <div className='flex gap-3'>
-                {colorOptions.map((color) => (
+                {availableColorsForSelection.map((color) => (
                   <div
                     key={color.id}
                     className={`flex cursor-pointer flex-col items-center gap-2 ${
