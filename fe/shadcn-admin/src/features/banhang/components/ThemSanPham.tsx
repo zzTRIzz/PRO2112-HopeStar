@@ -328,8 +328,8 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                       <TableHead>
                         <TableRow>
                           <TableCell>Stt</TableCell>
-                          <TableCell>Hình ảnh</TableCell>
-                          <TableCell>Tên sản phẩm</TableCell>
+                          {/* <TableCell>Hình ảnh</TableCell> */}
+                          <TableCell>Sản phẩm</TableCell>
                           <TableCell>Giá tiền </TableCell>
                           <TableCell>Số lượng tồn kho</TableCell>
                           <TableCell>Thao Tác</TableCell>
@@ -339,19 +339,21 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                         {listProduct.map((product, index) => (
                           <TableRow key={product.id}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell><div className='h-20 w-16'>
-                              {product.imageUrl ? (
-                                <img
-                                  src={product.imageUrl}
-                                  alt={`${product.name}`}
-                                  className='h-full w-full rounded-sm object-cover'
-                                />
-                              ) : (
-                                <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
-                                  <IconQuestionMark className='h-6 w-6' />
-                                </div>
-                              )}
-                            </div></TableCell>
+                            {/* <TableCell>
+                              <div className='h-20 w-16'>
+                                {product.imageUrl ? (
+                                  <img
+                                    src={product.imageUrl}
+                                    alt={`${product.name}`}
+                                    className='h-full w-full rounded-sm object-cover'
+                                  />
+                                ) : (
+                                  <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
+                                    <IconQuestionMark className='h-6 w-6' />
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell>
                               {product?.name +
                                 ' ' +
@@ -361,7 +363,28 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                 'GB ( ' +
                                 product.color +
                                 ' )'}
+                            </TableCell> */}
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <div className="h-20 w-16 flex-shrink-0">
+                                  {product.imageUrl ? (
+                                    <img
+                                      src={product.imageUrl}
+                                      alt={`${product.name}`}
+                                      className="h-full w-full rounded-sm object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted">
+                                      <IconQuestionMark className="h-6 w-6" />
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="whitespace-nowrap text-sm">
+                                  {product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}
+                                </span>
+                              </div>
                             </TableCell>
+
                             <TableCell>
                               {product?.priceSell?.toLocaleString('vi-VN')}
                             </TableCell>
@@ -402,7 +425,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 placeholder="Tìm mã imei"
                 className="max-w-sm"
                 value={searchImeiKey}
-                onChange={(e) => setSearchImeiKey(e.target.value)} 
+                onChange={(e) => setSearchImeiKey(e.target.value)}
               />
               <TableContainer >
                 <ScrollArea className="h-full max-h-[500px] overflow-auto">
