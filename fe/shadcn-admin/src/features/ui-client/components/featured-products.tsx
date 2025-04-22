@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import { IconLoader2 } from '@tabler/icons-react'
-import { Heart, Star } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { IconLoader2 } from '@tabler/icons-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Heart, Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -26,7 +26,7 @@ export default function FeaturedProducts() {
   const [displayLimit] = useState(10)
 
   const queryClient = useQueryClient()
-
+  const navigate = useNavigate()
   const addToCart = async (idProductDetail: number | undefined) => {
     try {
       if (!idProductDetail) {
@@ -53,6 +53,48 @@ export default function FeaturedProducts() {
         description:
           error?.response?.data?.message ||
           'Không thể thêm sản phẩm vào giỏ hàng',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  // Add new function for buy now
+  const handleBuyNow = async (idProductDetail: number | undefined) => {
+    try {
+      if (!idProductDetail) {
+        toast({
+          title: 'Lỗi',
+          description: 'Không thể mua sản phẩm này',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Add to cart first
+      const data = await addProductToCart(idProductDetail, 1)
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+      const cartItems = data?.cartDetailResponseList || []
+
+      console.log('Buy now data:', cartItems)
+      const addedProduct = cartItems[0]
+
+      if (!addedProduct) {
+        throw new Error('Giỏ hàng đã tồn tại sản phẩm này')
+      }
+  
+      // Navigate to checkout with only this product
+      navigate({
+        to: '/dat-hang',
+        search: {
+          selectedProducts: JSON.stringify([addedProduct]),
+        },
+      })
+
+    } catch (error) {
+      console.error('Buy now error:', error)
+      toast({
+        title: 'Lỗi',
+        description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
         variant: 'destructive',
       })
     }
@@ -95,7 +137,7 @@ export default function FeaturedProducts() {
     )
 
   return (
-    <section className='container py-10'>
+    <section className='container py-10 bg-slate-50'>
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
@@ -161,7 +203,7 @@ export default function FeaturedProducts() {
                       key={`ram-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {ram}GB
+                      {ram}
                     </div>
                   ))}
                   {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
@@ -170,7 +212,7 @@ export default function FeaturedProducts() {
                       key={`rom-${i}`}
                       className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                     >
-                      {rom}GB
+                      {rom}
                     </div>
                   ))}
                 </div>
@@ -219,6 +261,10 @@ export default function FeaturedProducts() {
                 <Button
                   size='lg'
                   className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-4 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleBuyNow(product.idProductDetail)
+                  }}
                 >
                   Mua ngay
                 </Button>
@@ -304,7 +350,7 @@ export default function FeaturedProducts() {
                           key={`ram-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {ram}GB
+                          {ram}
                         </div>
                       ))}
                       {product.rom.map((rom, i) => (
@@ -312,7 +358,7 @@ export default function FeaturedProducts() {
                           key={`rom-${i}`}
                           className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {rom}GB
+                          {rom}
                         </div>
                       ))}
                     </div>
@@ -365,6 +411,10 @@ export default function FeaturedProducts() {
                     <Button
                       size='sm'
                       className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-3 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleBuyNow(product.idProductDetail)
+                      }}
                     >
                       Mua ngay
                     </Button>

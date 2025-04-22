@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class FrontCameraServiceImpl implements FrontCameraService {
@@ -16,7 +18,9 @@ public class FrontCameraServiceImpl implements FrontCameraService {
 
     @Override
     public List<FrontCamera> getAll() {
-        return frontCameraRepository.findAll();
+        return frontCameraRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -24,7 +28,7 @@ public class FrontCameraServiceImpl implements FrontCameraService {
         FrontCamera newFrontCamera = new FrontCamera();
         newFrontCamera.setCode("FRCA_"+frontCameraRepository.getNewCode());
         if (frontCameraRepository.existsByTypeAndResolution(frontCamera.getType(), frontCamera.getResolution())){
-            throw new Exception("frontCamera type with resolution already exists");
+            throw new Exception("Camera trước: "+frontCamera.getType()+" với độ phân giải "+frontCamera.getResolution()+" đã tồn tại");
         }
         newFrontCamera.setType(frontCamera.getType());
         newFrontCamera.setResolution(frontCamera.getResolution());
@@ -43,7 +47,7 @@ public class FrontCameraServiceImpl implements FrontCameraService {
                 frontCamera.setStatus(entity.getStatus());
                 frontCameraRepository.save(frontCamera);
             }else {
-                throw new Exception("frontCamera type with resolution already exists");
+                throw new Exception("Camera trước: "+entity.getType()+" với độ phân giải "+entity.getResolution()+" đã tồn tại");
             }
         }
     }
@@ -56,6 +60,8 @@ public class FrontCameraServiceImpl implements FrontCameraService {
 
     @Override
     public List<FrontCamera> getAllActive() {
-        return frontCameraRepository.findByStatus(StatusCommon.ACTIVE);
+        return frontCameraRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

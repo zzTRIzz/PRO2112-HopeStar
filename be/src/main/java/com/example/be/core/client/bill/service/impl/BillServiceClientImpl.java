@@ -37,7 +37,8 @@ public class BillServiceClientImpl implements BillServiceClient {
         List<BillRespones> billResponesList = bills.stream().map(bill -> {
             BillRespones billRespones = new BillRespones();
             billRespones.setId(bill.getId());
-            billRespones.setCode(bill.getNameBill());
+            billRespones.setCode(bill.getCode());
+            billRespones.setMaBill(bill.getMaBill());
             billRespones.setFullNameKh((bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null);
             billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
             billRespones.setCodeVoucher((bill.getIdVoucher() != null) ? bill.getIdVoucher().getCode() : null);
@@ -48,7 +49,7 @@ public class BillServiceClientImpl implements BillServiceClient {
             billRespones.setTotalDue(bill.getTotalDue());
             billRespones.setCustomerRefund(bill.getCustomerRefund());
             billRespones.setDiscountedTotal(bill.getDiscountedTotal());
-            billRespones.setDeliveryDate(bill.getDeliveryDate());
+            billRespones.setPayInsurance(bill.getPayInsurance());
             billRespones.setPaymentDate(bill.getPaymentDate());
             billRespones.setBillType(bill.getBillType());
             billRespones.setStatus(bill.getStatus());
@@ -114,7 +115,8 @@ public class BillServiceClientImpl implements BillServiceClient {
         BillRespones billRespones = new BillRespones();
 
         billRespones.setId(bill.getId());
-        billRespones.setCode(bill.getNameBill());
+        billRespones.setCode(bill.getCode());
+        billRespones.setMaBill(bill.getMaBill());
         billRespones.setFullNameKh((bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null);
         billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
         billRespones.setCodeVoucher((bill.getIdVoucher() != null) ? bill.getIdVoucher().getCode() : null);
@@ -125,7 +127,7 @@ public class BillServiceClientImpl implements BillServiceClient {
         billRespones.setTotalDue(bill.getTotalDue());
         billRespones.setCustomerRefund(bill.getCustomerRefund());
         billRespones.setDiscountedTotal(bill.getDiscountedTotal());
-        billRespones.setDeliveryDate(bill.getDeliveryDate());
+        billRespones.setPayInsurance(bill.getPayInsurance());
         billRespones.setPaymentDate(bill.getPaymentDate());
         billRespones.setBillType(bill.getBillType());
         billRespones.setStatus(bill.getStatus());
@@ -177,80 +179,5 @@ public class BillServiceClientImpl implements BillServiceClient {
 
         return billRespones;
     }
-
-    //    -------------------------
-//    @Override
-//    public List<BillRespones> getAllBillByAccount(Integer idBill) {
-//
-//        Optional<Bill> bills = billRepository.findById(idBill);
-//
-//        // Chuyển danh sách Bill sang BillRespones
-//        return bills.stream().map(bill -> {
-//            BillRespones billRespones = new BillRespones();
-//            billRespones.setId(bill.getId());
-//            billRespones.setCode(bill.getNameBill());
-//            billRespones.setFullNameKh((bill.getIdAccount() != null) ? bill.getIdAccount().getFullName() : null);
-//            billRespones.setFullNameNV((bill.getIdNhanVien() != null) ? bill.getIdNhanVien().getFullName() : null);
-//            billRespones.setCodeVoucher((bill.getIdVoucher() != null) ? bill.getIdVoucher().getCode() : null);
-//            billRespones.setTotalPrice(bill.getTotalPrice());
-//            billRespones.setCustomerPayment(bill.getCustomerPayment());
-//            billRespones.setAmountChange(bill.getAmountChange());
-//            billRespones.setDeliveryFee(bill.getDeliveryFee());
-//            billRespones.setTotalDue(bill.getTotalDue());
-//            billRespones.setCustomerRefund(bill.getCustomerRefund());
-//            billRespones.setDiscountedTotal(bill.getDiscountedTotal());
-//            billRespones.setDeliveryDate(bill.getDeliveryDate());
-//            billRespones.setPaymentDate(bill.getPaymentDate());
-//            billRespones.setBillType(bill.getBillType());
-//            billRespones.setStatus(bill.getStatus());
-//            billRespones.setAddress(bill.getAddress());
-//            billRespones.setEmail(bill.getEmail());
-//            billRespones.setPhone(bill.getPhone());
-//            billRespones.setNote(bill.getNote());
-//            billRespones.setName(bill.getName());
-//            billRespones.setPayment((bill.getPayment() != null) ? bill.getPayment().getId() : null);
-//            billRespones.setDelivery((bill.getDelivery() != null) ? bill.getDelivery().getId() : null);
-//
-//            // Lấy toàn bộ BillDetail của hóa đơn này
-//            List<BillDetail> billDetailList = billDetailRepository.findByIdBill(bill.getId());
-//
-//            // Nếu có BillDetail thì map sang DTO
-//            if (billDetailList != null && !billDetailList.isEmpty()) {
-//                List<BillDetailRespones> billDetailResponesList = billDetailList.stream().map(billDetail -> {
-//                    BillDetailRespones billDetailRespones = new BillDetailRespones();
-//                    billDetailRespones.setId(billDetail.getId());
-//                    billDetailRespones.setPrice(billDetail.getPrice());
-//                    billDetailRespones.setQuantity(billDetail.getQuantity());
-//                    billDetailRespones.setTotalPrice(billDetail.getTotalPrice());
-//                    billDetailRespones.setCreatedBy(billDetail.getCreatedBy());
-//                    billDetailRespones.setUpdatedBy(billDetail.getUpdatedBy());
-//
-//                    // Nếu có ProductDetail thì thêm vào
-//                    if (billDetail.getIdProductDetail() != null) {
-//                        ProductDetailRespones productDetailRespones = new ProductDetailRespones();
-//                        productDetailRespones.setId(billDetail.getIdProductDetail().getId());
-//                        productDetailRespones.setProductName(billDetail.getIdProductDetail().getProduct().getName());
-//                        productDetailRespones.setRam(billDetail.getIdProductDetail().getRam().getCapacity());
-//                        productDetailRespones.setRom(billDetail.getIdProductDetail().getRom().getCapacity());
-//                        productDetailRespones.setColor(billDetail.getIdProductDetail().getColor().getName());
-//                        productDetailRespones.setImage(billDetail.getIdProductDetail().getImageUrl());
-//                        productDetailRespones.setPrice(billDetail.getIdProductDetail().getPrice());
-//                        productDetailRespones.setPriceSell(billDetail.getIdProductDetail().getPriceSell());
-//
-//                        billDetailRespones.setProductDetail(productDetailRespones);
-//                    }
-//                    billRespones.setDetailCount(billDetailList.size());
-//
-//                    return billDetailRespones;
-//                }).collect(Collectors.toList());
-//
-//                billRespones.setBillDetailResponesList(billDetailResponesList);
-//            } else {
-//                billRespones.setBillDetailResponesList(List.of()); // Không có sản phẩm nào
-//            }
-//            return billRespones;
-//        }).collect(Collectors.toList());
-//    }
-
 
 }

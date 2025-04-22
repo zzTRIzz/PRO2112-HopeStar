@@ -23,6 +23,7 @@ interface ProductDetail {
  export interface Bill {
     id: number;
     code: string;
+    maBill: string;
     fullNameKh: string;
     fullNameNV: string;
     codeVoucher: string;
@@ -33,6 +34,7 @@ interface ProductDetail {
     totalDue: number;
     customerRefund: number;
     discountedTotal: number;
+    payInsurance: number;
     deliveryDate: string;
     paymentDate: string;
     billType: number;

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { BillRespones } from '../service/Schema';
+import { BillRespones } from '../../service/Schema';
 import { format } from 'date-fns';
 import { fromThanhCong, fromThatBai } from './ThongBao';
 interface Props {
   searchBill: BillRespones | undefined;
   tongTien: number;
   dateTime: Date
+  isBanGiaoHang: boolean;
   handleThanhToan: (
-    status: string, 
-    idBill: number | undefined
+    status: string,
+    billType: number | undefined
   ) => void;
 }
-const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime,handleThanhToan }) => {
+const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime, handleThanhToan, isBanGiaoHang }) => {
   const [isPaid, setIsPaid] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
 
@@ -38,13 +39,17 @@ const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime,handleThanhTo
         if (data.isPaid) {
           setIsPaid(true);
           clearInterval(interval);
-          handleThanhToan("HOAN_THANH", 0)
           fromThanhCong("Giao dịch đã được thanh toán thành công!");
+          if (isBanGiaoHang == true) {
+            handleThanhToan("DA_XAC_NHAN", 1);
+          } else {
+            handleThanhToan("HOAN_THANH", 0)
+          }
         }
       } catch (error) {
         console.error('Error checking payment:', error);
         fromThatBai("Giao dịch chưa được thanh toán!");
-      } 
+      }
     }, 5000);
 
     return () => clearInterval(interval);

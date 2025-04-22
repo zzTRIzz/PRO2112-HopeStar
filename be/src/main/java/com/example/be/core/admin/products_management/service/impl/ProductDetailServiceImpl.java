@@ -40,6 +40,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void updateStatus(Integer id) throws Exception {
         ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(()->
                 new Exception("product-detail not found with id: "+id));
+        if (productDetail.getStatus().equals(ProductDetailStatus.DESIST)){
+            new Exception("Sản phẩm hiện tại đã hết hàng không thể cập nhật trạng thái");
+        }
         if (productDetail != null){
             if (productDetail.getStatus().equals(ProductDetailStatus.ACTIVE)){
                 productDetail.setStatus(ProductDetailStatus.IN_ACTIVE);
@@ -76,6 +79,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 new Exception("Product detail not found"+ idProductDetail)
         );
         System.out.println(productDetailRequest.getPriceSell());
+        if(productDetail.getPrice().compareTo(productDetail.getPriceSell())>0){
+            throw new Exception("Sản phẩm này hiện đang có chương trình khuyến mãi, không thể cập nhật giá");
+        }
         productDetail.setPrice(productDetailRequest.getPriceSell());
         productDetail.setPriceSell(productDetailRequest.getPriceSell());
         productDetail.setImageUrl(productDetailRequest.getImageUrl());
@@ -121,15 +127,15 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public void updateStatusProduct(Integer idProductDetail){
-        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-        if (productDetail.getInventoryQuantity() <= 0){
-            productDetail.setStatus(ProductDetailStatus.DESIST);
-            productDetailRepository.save(productDetail);
-        }else {
-            productDetail.setStatus(ProductDetailStatus.ACTIVE);
-            productDetailRepository.save(productDetail);
-        }
+            ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                    .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+            if (productDetail.getInventoryQuantity() <= 0){
+                productDetail.setStatus(ProductDetailStatus.DESIST);
+                productDetailRepository.save(productDetail);
+            }else {
+                productDetail.setStatus(ProductDetailStatus.ACTIVE);
+                productDetailRepository.save(productDetail);
+            }
     }
 
     @Override
@@ -139,6 +145,5 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+quantity);
         productDetailRepository.save(productDetail);
     }
-
 
 }

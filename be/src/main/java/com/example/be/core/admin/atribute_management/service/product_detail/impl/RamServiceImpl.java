@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class RamServiceImpl implements RamService {
@@ -15,15 +17,17 @@ public class RamServiceImpl implements RamService {
 
     @Override
     public List<Ram> getAll() {
-        return ramRepository.findAll();
+        return ramRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Ram create(Ram ram) throws Exception {
         Ram newRam = new Ram();
         newRam.setCode("RAMS_"+ramRepository.getNewCode());
-        if (ramRepository.countByCapacity(ram.getCapacity())>0){
-            throw new Exception("ram capacity already exists");
+        if (ramRepository.countByCapacity(ram.getCapacity(),ram.getDescription())>0){
+            throw new Exception("Ram với dung lượng này đã tồn tại");
         }
         newRam.setCapacity(ram.getCapacity());
         newRam.setDescription(ram.getDescription());
@@ -35,13 +39,13 @@ public class RamServiceImpl implements RamService {
     public void update(Integer id, Ram entity) throws Exception {
         Ram ram = getById(id);
         if (ram != null){
-            if (ramRepository.countByCapacityAndNotId(entity.getCapacity(),ram.getId())<=0){
+            if (ramRepository.countByCapacityAndNotId(entity.getCapacity(), entity.getDescription(), ram.getId())<=0){
                 ram.setCapacity(entity.getCapacity());
                 ram.setDescription(entity.getDescription());
                 ram.setStatus(entity.getStatus());
                 ramRepository.save(ram);
             }else {
-                throw new Exception("ram capacity already exists");
+                throw new Exception("Ram với dung lượng này đã tồn tại");
             }
         }
     }
@@ -54,6 +58,8 @@ public class RamServiceImpl implements RamService {
 
     @Override
     public List<Ram> getAllActive() {
-        return ramRepository.findByStatus(StatusCommon.ACTIVE);
+        return ramRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

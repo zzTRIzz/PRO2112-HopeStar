@@ -14,6 +14,8 @@ public class BillRespones {
 
     private String code;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private Integer idNhanVien;
@@ -38,11 +40,7 @@ public class BillRespones {
 
     private BigDecimal discountedTotal;
 
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime  customerPreferredDate;
-
-    private LocalDateTime  customerAppointmentDate;
+    private BigDecimal payInsurance;
 
     private LocalDateTime  receiptDate;
 
@@ -70,4 +68,5 @@ public class BillRespones {
 
     List<BillDetailRespones> billDetailResponesList;
 
+    List<BillHistoryRespones> billHistoryRespones;
 }

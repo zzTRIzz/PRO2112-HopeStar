@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ChipServiceImpl implements ChipService {
@@ -16,7 +18,9 @@ public class ChipServiceImpl implements ChipService {
 
     @Override
     public List<Chip> getAll() {
-        return chipRepository.findAll();
+        return chipRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -24,7 +28,7 @@ public class ChipServiceImpl implements ChipService {
         Chip newChip = new Chip();
         newChip.setCode("CHIP_"+chipRepository.getNewCode());
         if (chipRepository.existsByNameTrimmedIgnoreCase(chip.getName())){
-            throw new Exception("chip name already exists");
+            throw new Exception("Tên chip đã tồn tại");
         }
         newChip.setName(chip.getName());
         newChip.setStatus(chip.getStatus());
@@ -40,7 +44,7 @@ public class ChipServiceImpl implements ChipService {
                 chip.setStatus(entity.getStatus());
                 chipRepository.save(chip);
             }else {
-                throw new Exception("chip name already exists");
+                throw new Exception("Tên chip đã tồn tại");
             }
         }
     }
@@ -53,6 +57,8 @@ public class ChipServiceImpl implements ChipService {
 
     @Override
     public List<Chip> getAllActive() {
-        return chipRepository.findByStatus(StatusCommon.ACTIVE);
+        return chipRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

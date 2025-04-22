@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 import { 
     getVouchers, 
 
@@ -144,7 +146,16 @@ interface AssignVoucherResponse {
     };
 }
 
-const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus }) => {
+// Update VoucherStatusBadge component
+const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus | null }) => {
+    if (status === null) {
+        return (
+            <span className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                Chưa kích hoạt
+            </span>
+        );
+    }
+
     switch (status) {
         case VoucherAccountStatus.NOT_USED:
             return (
@@ -162,12 +173,6 @@ const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus }) => {
             return (
                 <span className="px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
                     Hết hạn
-                </span>
-            );
-        default:
-            return (
-                <span className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
-                    -
                 </span>
             );
     }
@@ -378,91 +383,123 @@ export default function VoucherUI() {
         }
     };
 
-    // Modify the handleSubmit function
+    // Modify handleSubmit function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Validate required fields
-        if (!formData.code.trim()) {
-            toast.error('Mã voucher không được để trống');
-            return;
-        }
-
-        if (!formData.name.trim()) {
-            toast.error('Tên voucher không được để trống');
-            return;
-        }
-
-        if (formData.discountValue <= 0) {
-            toast.error('Giá trị giảm phải lớn hơn 0');
-            return;
-        }
-
-        if (formData.voucherType && formData.discountValue > 100) {
-            toast.error('Giảm giá theo % không được vượt quá 100%');
-            return;
-        }
-
-        if (formData.conditionPriceMin <= 0) {
-            toast.error('Giá tối thiểu phải lớn hơn 0');
-            return;
-        }
-
-        if (formData.conditionPriceMax <= formData.conditionPriceMin) {
-            toast.error('Giá tối đa phải lớn hơn giá tối thiểu');
-            return;
-        }
-
-        if (formData.quantity <= 0) {
-            toast.error('Số lượng phải lớn hơn 0');
-            return;
-        }
-
-        if (!formData.startTime || !formData.endTime) {
-            toast.error('Vui lòng chọn thời gian bắt đầu và kết thúc');
-            return;
-        }
-
-        const startDate = new Date(formData.startTime);
-        const endDate = new Date(formData.endTime);
-        if (startDate >= endDate) {
-            toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
-            return;
-        }
-
-        // Check for duplicate code
-        if (!isEditing) {
-            const isValidCode = await checkCode(formData.code);
-            if (!isValidCode) {
-                return;
-            }
-        }
 
         try {
-            if (isEditing) {
-                // Handle edit case
-                const response = await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
-                toast.success('Cập nhật voucher thành công!');
-            } else {
-                // Handle create case
-                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
-                const newVoucher = response.data;
+            // Validate required fields
+            if (!formData.code.trim()) {
+                toast.error('Mã voucher không được để trống');
+                return;
+            }
 
-                // If it's a private voucher and we have selected accounts, assign them
+            if (!formData.name.trim()) {
+                toast.error('Tên voucher không được để trống');
+                return;
+            }
+
+            if (formData.discountValue <= 0) {
+                toast.error('Giá trị giảm phải lớn hơn 0');
+                return;
+            }
+
+            if (formData.voucherType && formData.discountValue > 100) {
+                toast.error('Giảm giá theo % không được vượt quá 100%');
+                return;
+            }
+
+            if (formData.conditionPriceMin <= 0) {
+                toast.error('Giá tối thiểu phải lớn hơn 0');
+                return;
+            }
+
+            if (formData.conditionPriceMax <= formData.conditionPriceMin) {
+                toast.error('Giá tối đa phải lớn hơn giá tối thiểu');
+                return;
+            }
+
+            if (formData.quantity <= 0) {
+                toast.error('Số lượng phải lớn hơn 0');
+                return;
+            }
+
+            if (!formData.startTime || !formData.endTime) {
+                toast.error('Vui lòng chọn thời gian bắt đầu và kết thúc');
+                return;
+            }
+
+            // Kiểm tra thời gian
+            const startDate = new Date(formData.startTime);
+            const endDate = new Date(formData.endTime);
+            const now = new Date();
+
+            if (startDate >= endDate) {
+                toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
+                return;
+            }
+
+            if (!isEditing) {
+                // Khi thêm mới
+                if (startDate < now) {
+                    toast.error('Ngày bắt đầu không được trước thời điểm hiện tại');
+                    return;
+                }
+
+                // Kiểm tra mã trùng
+                const isValidCode = await checkCode(formData.code);
+                if (!isValidCode) {
+                    return;
+                }
+
+                // Gọi API thêm mới
+                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
+                
                 if (formData.isPrivate && selectedAccounts.length > 0) {
                     await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
-                        voucherId: newVoucher.id,
+                        voucherId: response.data.id,
                         customerIds: selectedAccounts
                     });
                     toast.success('Tạo voucher và thêm khách hàng thành công!');
                 } else {
                     toast.success('Tạo voucher mới thành công!');
                 }
+
+            } else {
+                // Khi cập nhật
+                const currentVoucher = vouchers.find(v => v.id === editId);
+                if (!currentVoucher) {
+                    toast.error('Không tìm thấy voucher cần cập nhật');
+                    return;
+                }
+
+                // Kiểm tra trạng thái hiện tại
+                const currentStatus = getVoucherStatus(currentVoucher.startTime, currentVoucher.endTime);
+                
+                if (currentStatus !== VoucherStatus.UPCOMING) {
+                    // Nếu không phải UPCOMING, không được thay đổi startTime
+                    const oldStartDate = new Date(currentVoucher.startTime);
+                    if (startDate.getTime() !== oldStartDate.getTime()) {
+                        toast.error('Không được phép thay đổi ngày bắt đầu khi voucher đã hoạt động hoặc đã hết hạn');
+                        return;
+                    }
+                } else {
+                    // Nếu là UPCOMING, startTime phải sau thời điểm hiện tại
+                    if (startDate < now) {
+                        toast.error('Ngày bắt đầu không được trước thời điểm hiện tại');
+                        return;
+                    }
+                }
+
+                // Gọi API cập nhật
+                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
+                toast.success('Cập nhật voucher thành công!');
             }
 
-            // Refresh data and close modal
+            // Refresh data và đóng modal
             await refreshVouchers();
             handleCloseModal();
+
         } catch (error) {
             console.error('Error:', error);
             if (axios.isAxiosError(error)) {
@@ -781,17 +818,17 @@ export default function VoucherUI() {
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
-                                                    Sửa
+                                                    <SaveAsIcon/>
                                                 </button>
                                                 {voucher.isPrivate && (
                                                     <button
-                                                        className="text-green-600 hover:text-green-800"
+                                                        className=""
                                                         onClick={() => {
                                                             setSelectedVoucher(voucher);
                                                             setShowAssignModal(true);
                                                         }}
                                                     >
-                                                        Thêm KH
+                                                        <PersonAddIcon/>
                                                     </button>
                                                 )}
                                             </td>
@@ -853,319 +890,325 @@ export default function VoucherUI() {
             </div>
             {/* Thay đổi phần modal form */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg w-[900px] max-h-[90vh] flex flex-col"> {/* Tăng width từ 500px lên 1000px */}
-                        <div className="p-6 border-b flex-shrink-0"> {/* Thêm border-b */}
-                            <h2 className="text-2xl font-semibold"> {/* Tăng kích thước text */}
-                                {isEditing ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
-                            </h2>
-                        </div>
-                        
-                        <div className="px-6 py-4 overflow-y-auto flex-grow">
-                            {error && (
-                                <div className="mb-4 p-3 bg-red-100 text-red-600 rounded">
-                                    {error.message}
-                                </div>
-                            )}
-                            
-                            <form onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-2 gap-6"> {/* Chia layout thành 2 cột */}
-                                    <div className="space-y-4">
-                                        {/* Cột trái */}
-                                        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                                            <h3 className="font-medium text-lg mb-2">Thông tin cơ bản</h3>
-                                            <div>
-                                                <label className="block mb-1 font-medium">Mã voucher</label>
-                                                <input
-                                                    type="text"
-                                                    className="w-full p-2 border rounded"
-                                                    value={formData.code}
-                                                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                                    disabled={isEditing} // Disable input when editing
-                                                />
+                <div className="fixed inset-0 overflow-hidden z-50"> {/* Thêm z-index và overflow-hidden */}
+                    <div className="absolute inset-0 bg-black bg-opacity-50">
+                        <div className="fixed inset-0 overflow-y-auto"> {/* Thêm overflow-y-auto */}
+                            <div className="flex min-h-full items-center justify-center p-4">
+                                <div className="relative bg-white rounded-2xl w-[90%] max-w-[900px] max-h-[90vh] flex flex-col"> {/* Thay đổi rounded-lg thành rounded-2xl */}
+                                    <div className="p-6 border-b flex-shrink-0 rounded-t-2xl"> {/* Thêm rounded-t-2xl */}
+                                        <h2 className="text-2xl font-semibold"> {/* Tăng kích thước text */}
+                                            {isEditing ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
+                                        </h2>
+                                    </div>
+                                    
+                                    <div className="px-6 py-4 overflow-y-auto flex-grow">
+                                        {error && (
+                                            <div className="mb-4 p-3 bg-red-100 text-red-600 rounded">
+                                                {error.message}
                                             </div>
-                                            <div>
-                                                <label className="block mb-1 font-medium">Tên voucher</label>
-                                                <input
-                                                    type="text"
-                                                    className="w-full p-2 border rounded"
-                                                    value={formData.name}
-                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                    
-                                                />
-                                            </div>
-                                            {/* Sửa lại phần input giá trị trong form */}
-                                            <div>
-                                                <label className="block mb-1 font-medium">Giá trị</label>
-                                                <div className="space-y-2">
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="number"
-                                                            className="w-full p-2 border rounded"
-                                                            value={formData.discountValue === 0 ? '' : formData.discountValue}
-                                                            onChange={(e) => setFormData({ 
-                                                                ...formData, 
-                                                                discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
-                                                            })}
-                                                            min="0"
-                                                            placeholder="Nhập giá trị giảm"
-                                                        />
-                                                        <select
-                                                            className="p-2 border rounded"
-                                                            value={formData.voucherType ? "true" : "false"}
-                                                            onChange={(e) => setFormData({ 
-                                                                ...formData, 
-                                                                voucherType: e.target.value === "true",
-                                                                // Reset maxDiscountAmount when switching to VND
-                                                                maxDiscountAmount: e.target.value === "false" ? 0 : formData.maxDiscountAmount
-                                                            })}
-                                                        >
-                                                            <option value="false">VNĐ</option>
-                                                            <option value="true">%</option>
-                                                        </select>
-                                                    </div>
-                                                    
-                                                    {/* Hiển thị input giá trị giảm tối đa khi chọn % */}
-                                                    {formData.voucherType && (
+                                        )}
+                                        
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="grid grid-cols-2 gap-6"> {/* Chia layout thành 2 cột */}
+                                                <div className="space-y-4">
+                                                    {/* Cột trái */}
+                                                    <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                                                        <h3 className="font-medium text-lg mb-2">Thông tin cơ bản</h3>
                                                         <div>
-                                                            <label className="block mb-1 text-sm text-gray-600">
-                                                                Giá trị giảm tối đa (VNĐ)
-                                                            </label>
+                                                            <label className="block mb-1 font-medium">Mã voucher</label>
+                                                            <input
+                                                                type="text"
+                                                                className="w-full p-2 border rounded"
+                                                                value={formData.code}
+                                                                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                                                                disabled={isEditing} // Disable input when editing
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block mb-1 font-medium">Tên voucher</label>
+                                                            <input
+                                                                type="text"
+                                                                className="w-full p-2 border rounded"
+                                                                value={formData.name}
+                                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                                
+                                                            />
+                                                        </div>
+                                                        {/* Sửa lại phần input giá trị trong form */}
+                                                        <div>
+                                                            <label className="block mb-1 font-medium">Giá trị</label>
+                                                            <div className="space-y-2">
+                                                                <div className="flex gap-2">
+                                                                    <input
+                                                                        type="number"
+                                                                        className="w-full p-2 border rounded"
+                                                                        value={formData.discountValue === 0 ? '' : formData.discountValue}
+                                                                        onChange={(e) => setFormData({ 
+                                                                            ...formData, 
+                                                                            discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                        })}
+                                                                        min="0"
+                                                                        placeholder="Nhập giá trị giảm"
+                                                                    />
+                                                                    <select
+                                                                        className="p-2 border rounded"
+                                                                        value={formData.voucherType ? "true" : "false"}
+                                                                        onChange={(e) => setFormData({ 
+                                                                            ...formData, 
+                                                                            voucherType: e.target.value === "true",
+                                                                            // Reset maxDiscountAmount when switching to VND
+                                                                            maxDiscountAmount: e.target.value === "false" ? 0 : formData.maxDiscountAmount
+                                                                        })}
+                                                                    >
+                                                                        <option value="false">VNĐ</option>
+                                                                        <option value="true">%</option>
+                                                                    </select>
+                                                                </div>
+                                                                
+                                                                {/* Hiển thị input giá trị giảm tối đa khi chọn % */}
+                                                                {formData.voucherType && (
+                                                                    <div>
+                                                                        <label className="block mb-1 text-sm text-gray-600">
+                                                                            Giá trị giảm tối đa (VNĐ)
+                                                                        </label>
+                                                                        <input
+                                                                            type="number"
+                                                                            className="w-full p-2 border rounded"
+                                                                            value={formData.maxDiscountAmount === 0 ? '' : formData.maxDiscountAmount}
+                                                                            onChange={(e) => setFormData({
+                                                                                ...formData,
+                                                                                maxDiscountAmount: e.target.value ? Math.max(0, Number(e.target.value)) : 0
+                                                                            })}
+                                                                            min="0"
+                                                                            placeholder="Nhập giá trị giảm tối đa"
+                                                                        />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {formData.voucherType && (
+                                                                <p className="mt-1 text-sm text-gray-500">
+                                                                    Giảm {formData.discountValue}% tối đa {formData.maxDiscountAmount?.toLocaleString('vi-VN')}đ
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                                                        <h3 className="font-medium text-lg mb-2">Điều kiện áp dụng</h3>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block mb-1 font-medium">Giá tối thiểu</label>
+                                                                <input
+                                                                    type="number"
+                                                                    className="w-full p-2 border rounded"
+                                                                    value={formData.conditionPriceMin === 0 ? '' : formData.conditionPriceMin}
+                                                                    onChange={(e) => setFormData({ 
+                                                                        ...formData, 
+                                                                        conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    })}
+                                                                    min="0"
+                                                                    
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block mb-1 font-medium">Giá tối đa</label>
+                                                                <input
+                                                                    type="number"
+                                                                    className="w-full p-2 border rounded"
+                                                                    value={formData.conditionPriceMax === 0 ? '' : formData.conditionPriceMax}
+                                                                    onChange={(e) => setFormData({ 
+                                                                        ...formData, 
+                                                                        conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    })}
+                                                                    min="0"
+                                                                    
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    {/* Cột phải */}
+                                                    <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                                                        <h3 className="font-medium text-lg mb-2">Thời gian & Số lượng</h3>
+                                                        <div>
+                                                            <label className="block mb-1 font-medium">Số lượng</label>
                                                             <input
                                                                 type="number"
                                                                 className="w-full p-2 border rounded"
-                                                                value={formData.maxDiscountAmount === 0 ? '' : formData.maxDiscountAmount}
-                                                                onChange={(e) => setFormData({
-                                                                    ...formData,
-                                                                    maxDiscountAmount: e.target.value ? Math.max(0, Number(e.target.value)) : 0
+                                                                value={formData.quantity === 0 ? '' : formData.quantity}
+                                                                onChange={(e) => setFormData({ 
+                                                                    ...formData, 
+                                                                    quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
                                                                 })}
                                                                 min="0"
-                                                                placeholder="Nhập giá trị giảm tối đa"
+                                                                
                                                             />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block mb-1 font-medium">Ngày bắt đầu</label>
+                                                                <input
+                                                                    type="datetime-local"
+                                                                    className="w-full p-2 border rounded"
+                                                                    value={formData.startTime}
+                                                                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                                                                    
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block mb-1 font-medium">Ngày kết thúc</label>
+                                                                <input
+                                                                    type="datetime-local"
+                                                                    className="w-full p-2 border rounded"
+                                                                    value={formData.endTime}
+                                                                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                                                                    
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                                                        <h3 className="font-medium text-lg mb-2">Loại voucher</h3>
+                                                        <div>
+                                                            <label className="block mb-1 font-medium">Loại voucher</label>
+                                                            <div className="space-y-2">
+                                                                <label className={`flex items-center space-x-2 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                                    <input
+                                                                        type="radio"
+                                                                        checked={!formData.isPrivate}
+                                                                        onChange={() => setFormData({ ...formData, isPrivate: false })}
+                                                                        className="rounded"
+                                                                        disabled={isEditing} // Disable when editing
+                                                                    />
+                                                                    <span>
+                                                                        Công khai
+                                                                        <span className="text-sm text-gray-500 ml-1">
+                                                                            (Áp dụng cho tất cả khách hàng đủ điều kiện)
+                                                                        </span>
+                                                                    </span>
+                                                                </label>
+                                                                <label className={`flex items-center space-x-2 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                                    <input
+                                                                        type="radio"
+                                                                        checked={formData.isPrivate}
+                                                                        onChange={() => setFormData({ ...formData, isPrivate: true })}
+                                                                        className="rounded"
+                                                                        disabled={isEditing} // Disable when editing
+                                                                    />
+                                                                    <span>
+                                                                        Riêng tư
+                                                                        <span className="text-sm text-gray-500 ml-1">
+                                                                            (Chỉ áp dụng cho khách hàng được chỉ định)
+                                                                        </span>
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Phần chọn khách hàng với layout mới */}
+                                            {!isEditing && formData.isPrivate && (
+                                                <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <h3 className="text-lg font-medium">Chọn khách hàng</h3>
+                                                        <span className="text-sm text-gray-500">
+                                                            Đã chọn {selectedAccounts.length} khách hàng
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    {loading ? (
+                                                        <div className="flex items-center justify-center py-8">
+                                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="border rounded-lg bg-white max-h-[400px] overflow-y-auto"> {/* Giới hạn chiều cao và thêm scroll */}
+                                                            <table className="w-full">
+                                                                <thead className="bg-gray-50 sticky top-0"> {/* Giữ header cố định */}
+                                                                    <tr>
+                                                                        <th className="w-16 px-4 py-3 text-left">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="rounded"
+                                                                                checked={selectedAccounts.length === accounts.length}
+                                                                                onChange={(e) => {
+                                                                                    if (e.target.checked) {
+                                                                                        setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                                    } else {
+                                                                                        setSelectedAccounts([]);
+                                                                                    }
+                                                                                }}
+                                                                            />
+                                                                        </th>
+                                                                        <th className="px-4 py-3 text-left font-medium">Họ tên</th>
+                                                                        <th className="px-4 py-3 text-left font-medium">Email</th>
+                                                                        <th className="px-4 py-3 text-left font-medium">Số điện thoại</th>
+                                                                        <th className="px-4 py-3 text-left font-medium">Trạng thái sử dụng</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y">
+                                                                    {accounts.map((account) => (
+                                                                        <tr key={account.id} className="hover:bg-gray-50">
+                                                                            <td className="px-4 py-3">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    id={`customer-${account.id}`}
+                                                                                    checked={selectedAccounts.includes(account.id)}
+                                                                                    onChange={(e) => {
+                                                                                        if (e.target.checked) {
+                                                                                            setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                                        } else {
+                                                                                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                                        }
+                                                                                    }}
+                                                                                    className="rounded"
+                                                                                />
+                                                                            </td>
+                                                                            <td className="px-4 py-3">{account.fullName}</td>
+                                                                            <td className="px-4 py-3">{account.email}</td>
+                                                                            <td className="px-4 py-3">{account.phone || '-'}</td>
+                                                                            <td className="px-4 py-3">
+                                                                                {account.voucherStatus ? (
+                                                                                    <VoucherStatusBadge status={account.voucherStatus} />
+                                                                                ) : (
+                                                                                    <span className="text-sm text-gray-500">-</span>
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                     )}
                                                 </div>
-                                                {formData.voucherType && (
-                                                    <p className="mt-1 text-sm text-gray-500">
-                                                        Giảm {formData.discountValue}% tối đa {formData.maxDiscountAmount?.toLocaleString('vi-VN')}đ
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                                            <h3 className="font-medium text-lg mb-2">Điều kiện áp dụng</h3>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block mb-1 font-medium">Giá tối thiểu</label>
-                                                    <input
-                                                        type="number"
-                                                        className="w-full p-2 border rounded"
-                                                        value={formData.conditionPriceMin === 0 ? '' : formData.conditionPriceMin}
-                                                        onChange={(e) => setFormData({ 
-                                                            ...formData, 
-                                                            conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
-                                                        })}
-                                                        min="0"
-                                                        
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-1 font-medium">Giá tối đa</label>
-                                                    <input
-                                                        type="number"
-                                                        className="w-full p-2 border rounded"
-                                                        value={formData.conditionPriceMax === 0 ? '' : formData.conditionPriceMax}
-                                                        onChange={(e) => setFormData({ 
-                                                            ...formData, 
-                                                            conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
-                                                        })}
-                                                        min="0"
-                                                        
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
+                                            )}
+                                        </form>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        {/* Cột phải */}
-                                        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                                            <h3 className="font-medium text-lg mb-2">Thời gian & Số lượng</h3>
-                                            <div>
-                                                <label className="block mb-1 font-medium">Số lượng</label>
-                                                <input
-                                                    type="number"
-                                                    className="w-full p-2 border rounded"
-                                                    value={formData.quantity === 0 ? '' : formData.quantity}
-                                                    onChange={(e) => setFormData({ 
-                                                        ...formData, 
-                                                        quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
-                                                    })}
-                                                    min="0"
-                                                    
-                                                />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block mb-1 font-medium">Ngày bắt đầu</label>
-                                                    <input
-                                                        type="datetime-local"
-                                                        className="w-full p-2 border rounded"
-                                                        value={formData.startTime}
-                                                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                                        
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-1 font-medium">Ngày kết thúc</label>
-                                                    <input
-                                                        type="datetime-local"
-                                                        className="w-full p-2 border rounded"
-                                                        value={formData.endTime}
-                                                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                                        
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                                            <h3 className="font-medium text-lg mb-2">Loại voucher</h3>
-                                            <div>
-                                                <label className="block mb-1 font-medium">Loại voucher</label>
-                                                <div className="space-y-2">
-                                                    <label className={`flex items-center space-x-2 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        <input
-                                                            type="radio"
-                                                            checked={!formData.isPrivate}
-                                                            onChange={() => setFormData({ ...formData, isPrivate: false })}
-                                                            className="rounded"
-                                                            disabled={isEditing} // Disable when editing
-                                                        />
-                                                        <span>
-                                                            Công khai
-                                                            <span className="text-sm text-gray-500 ml-1">
-                                                                (Áp dụng cho tất cả khách hàng đủ điều kiện)
-                                                            </span>
-                                                        </span>
-                                                    </label>
-                                                    <label className={`flex items-center space-x-2 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        <input
-                                                            type="radio"
-                                                            checked={formData.isPrivate}
-                                                            onChange={() => setFormData({ ...formData, isPrivate: true })}
-                                                            className="rounded"
-                                                            disabled={isEditing} // Disable when editing
-                                                        />
-                                                        <span>
-                                                            Riêng tư
-                                                            <span className="text-sm text-gray-500 ml-1">
-                                                                (Chỉ áp dụng cho khách hàng được chỉ định)
-                                                            </span>
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            </div>
+                                    <div className="p-6 border-t flex-shrink-0 bg-gray-50 rounded-b-2xl"> {/* Thêm rounded-b-2xl */}
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                className="px-6 py-2 border rounded-lg hover:bg-gray-100"
+                                                onClick={handleCloseModal}
+                                            >
+                                                Hủy
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                onClick={handleSubmit}
+                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                                disabled={loading}
+                                            >
+                                                {isEditing ? 'Cập nhật' : 'Tạo'}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Phần chọn khách hàng với layout mới */}
-                                {!isEditing && formData.isPrivate && (
-                                    <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h3 className="text-lg font-medium">Chọn khách hàng</h3>
-                                            <span className="text-sm text-gray-500">
-                                                Đã chọn {selectedAccounts.length} khách hàng
-                                            </span>
-                                        </div>
-                                        
-                                        {loading ? (
-                                            <div className="flex items-center justify-center py-8">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                            </div>
-                                        ) : (
-                                            <div className="border rounded-lg bg-white max-h-[400px] overflow-y-auto"> {/* Giới hạn chiều cao và thêm scroll */}
-                                                <table className="w-full">
-                                                    <thead className="bg-gray-50 sticky top-0"> {/* Giữ header cố định */}
-                                                        <tr>
-                                                            <th className="w-16 px-4 py-3 text-left">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    className="rounded"
-                                                                    checked={selectedAccounts.length === accounts.length}
-                                                                    onChange={(e) => {
-                                                                        if (e.target.checked) {
-                                                                            setSelectedAccounts(accounts.map(acc => acc.id));
-                                                                        } else {
-                                                                            setSelectedAccounts([]);
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left font-medium">Họ tên</th>
-                                                            <th className="px-4 py-3 text-left font-medium">Email</th>
-                                                            <th className="px-4 py-3 text-left font-medium">Số điện thoại</th>
-                                                            <th className="px-4 py-3 text-left font-medium">Trạng thái sử dụng</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y">
-                                                        {accounts.map((account) => (
-                                                            <tr key={account.id} className="hover:bg-gray-50">
-                                                                <td className="px-4 py-3">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        id={`customer-${account.id}`}
-                                                                        checked={selectedAccounts.includes(account.id)}
-                                                                        onChange={(e) => {
-                                                                            if (e.target.checked) {
-                                                                                setSelectedAccounts([...selectedAccounts, account.id]);
-                                                                            } else {
-                                                                                setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
-                                                                            }
-                                                                        }}
-                                                                        className="rounded"
-                                                                    />
-                                                                </td>
-                                                                <td className="px-4 py-3">{account.fullName}</td>
-                                                                <td className="px-4 py-3">{account.email}</td>
-                                                                <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                                <td className="px-4 py-3">
-                                                                    {account.voucherStatus ? (
-                                                                        <VoucherStatusBadge status={account.voucherStatus} />
-                                                                    ) : (
-                                                                        <span className="text-sm text-gray-500">-</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </form>
-                        </div>
-
-                        <div className="p-6 border-t flex-shrink-0 bg-gray-50">
-                            <div className="flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    className="px-6 py-2 border rounded-lg hover:bg-gray-100"
-                                    onClick={handleCloseModal}
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    onClick={handleSubmit}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                    disabled={loading}
-                                >
-                                    {isEditing ? 'Cập nhật' : 'Tạo'}
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -1255,9 +1298,21 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     const handleAssign = async () => {
         try {
             setLoading(true);
+
+            // Kiểm tra trạng thái hiện tại của voucher
+            const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+            
+            // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
+            let initialStatus = null;
+            if (currentStatus === VoucherStatus.ACTIVE) {
+                initialStatus = VoucherAccountStatus.NOT_USED;
+            }
+            // Nếu UPCOMING hoặc EXPIRED thì giữ null
+
             const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
                 voucherId: voucher.id,
-                customerIds: selectedAccounts
+                customerIds: selectedAccounts,
+                initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
             });
 
             if (response.data.success) {
@@ -1274,135 +1329,165 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">Thêm Voucher cho Khách Hàng</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <h3 className="font-medium text-blue-800 mb-2">Chi tiết voucher</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <span className="text-sm text-blue-600">Mã voucher:</span>
-                            <p className="font-medium">{voucher.code}</p>
-                        </div>
-                        <div>
-                            <span className="text-sm text-blue-600">Tên voucher:</span>
-                            <p className="font-medium">{voucher.name}</p>
-                        </div>
-                        <div>
-                            <span className="text-sm text-blue-600">Giá trị:</span>
-                            <p className="font-medium">
-                                {voucher.discountValue.toLocaleString('vi-VN')}{voucher.voucherType ? '%' : 'đ'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                ) : error ? (
-                    <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
-                        {error}
-                    </div>
-                ) : (
-                    <div className="bg-white rounded-lg border">
-                        <div className="p-4 border-b">
-                            <h3 className="font-medium">Danh sách khách hàng</h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="w-16 px-4 py-3 text-left">
-                                            <input
-                                                type="checkbox"
-                                                className="rounded"
-                                                checked={selectedAccounts.length === accounts.length}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedAccounts(accounts.map(acc => acc.id));
-                                                    } else {
-                                                        setSelectedAccounts([]);
-                                                    }
-                                                }}
-                                            />
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y">
-                                    {accounts.map((account) => (
-                                        <tr key={account.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-3">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`customer-${account.id}`}
-                                                    checked={selectedAccounts.includes(account.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setSelectedAccounts([...selectedAccounts, account.id]);
-                                                        } else {
-                                                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
-                                                        }
-                                                    }}
-                                                    className="rounded"
-                                                />
-                                            </td>
-                                            <td className="px-4 py-3">{account.fullName}</td>
-                                            <td className="px-4 py-3">{account.email}</td>
-                                            <td className="px-4 py-3">{account.phone || '-'}</td>
-                                            <td className="px-4 py-3">
-                                                {usageStatuses[account.id] ? (
-                                                    <VoucherStatusBadge status={usageStatuses[account.id]} />
-                                                ) : (
-                                                    <span className="text-sm text-gray-500">Chưa sử dụng</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        {accounts.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                                Không có khách hàng nào
+        <div className="fixed inset-0 overflow-hidden z-50"> {/* Thêm z-index và overflow-hidden */}
+            <div className="absolute inset-0 bg-black bg-opacity-50">
+                <div className="fixed inset-0 overflow-y-auto"> {/* Thêm overflow-y-auto */}
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="relative bg-white rounded-2xl w-[90%] max-w-[800px] max-h-[90vh] overflow-y-auto"> {/* Thay đổi rounded-lg thành rounded-2xl */}
+                            <div className="flex justify-between items-center p-6 border-b rounded-t-2xl"> {/* Thêm padding và rounded-t-2xl */}
+                                <h2 className="text-xl font-semibold">Thêm Voucher cho Khách Hàng</h2>
+                                <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
-                        )}
-                    </div>
-                )}
 
-                <div className="flex justify-end items-center space-x-3 mt-6 pt-4 border-t">
-                    <span className="text-sm text-gray-600">
-                        Đã chọn {selectedAccounts.length} khách hàng
-                    </span>
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-                        disabled={loading}
-                    >
-                        Hủy
-                    </button>
-                    <button
-                        onClick={handleAssign}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
-                        disabled={loading || selectedAccounts.length === 0}
-                    >
-                        {loading ? 'Đang xử lý...' : 'Thêm voucher'}
-                    </button>
+                            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                                <h3 className="font-medium text-blue-800 mb-2">Chi tiết voucher</h3>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <span className="text-sm text-blue-600">Mã voucher:</span>
+                                        <p className="font-medium">{voucher.code}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-sm text-blue-600">Tên voucher:</span>
+                                        <p className="font-medium">{voucher.name}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-sm text-blue-600">Giá trị:</span>
+                                        <p className="font-medium">
+                                            {voucher.discountValue.toLocaleString('vi-VN')}{voucher.voucherType ? '%' : 'đ'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {loading ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                </div>
+                            ) : error ? (
+                                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
+                                    {error}
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-lg border">
+                                    <div className="p-4 border-b">
+                                        <h3 className="font-medium">Danh sách khách hàng</h3>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="w-16 px-4 py-3 text-left">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="rounded"
+                                                            checked={selectedAccounts.length === accounts.length}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                } else {
+                                                                    setSelectedAccounts([]);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y">
+                                                {accounts.map((account) => (
+                                                    <tr key={account.id} className="hover:bg-gray-50">
+                                                        <td className="px-4 py-3">
+                                                            <input
+                                                                type="checkbox"
+                                                                id={`customer-${account.id}`}
+                                                                checked={selectedAccounts.includes(account.id)}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                    } else {
+                                                                        setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                    }
+                                                                }}
+                                                                className="rounded"
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-3">{account.fullName}</td>
+                                                        <td className="px-4 py-3">{account.email}</td>
+                                                        <td className="px-4 py-3">{account.phone || '-'}</td>
+                                                        <td className="px-4 py-3">
+                                                            {usageStatuses[account.id] ? (
+                                                                <VoucherStatusBadge status={usageStatuses[account.id]} />
+                                                            ) : (
+                                                                <span className="text-sm text-gray-500">
+                                                                    {(() => {
+                                                                        const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+                                                                        if (voucherStatus === VoucherStatus.ACTIVE) {
+                                                                            return "Chưa sử dụng";
+                                                                        } else {
+                                                                            return "Chưa kích hoạt";
+                                                                        }
+                                                                    })()}
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {accounts.length === 0 && (
+                                        <div className="text-center py-8 text-gray-500">
+                                            Không có khách hàng nào
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex justify-end items-center space-x-3 mt-6 p-6 border-t bg-gray-50 rounded-b-2xl"> {/* Thêm padding và rounded-b-2xl */}
+                                <span className="text-sm text-gray-600">
+                                    Đã chọn {selectedAccounts.length} khách hàng
+                                </span>
+                                <button
+                                    onClick={onClose}
+                                    className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                                    disabled={loading}
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={handleAssign}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+                                    disabled={loading || selectedAccounts.length === 0}
+                                >
+                                    {loading ? 'Đang xử lý...' : 'Thêm voucher'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
+};
+
+// Thêm helper function để xác định trạng thái voucher
+const getVoucherStatus = (startTime: string, endTime: string): VoucherStatus => {
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+
+    if (now < startDate) {
+        return VoucherStatus.UPCOMING;
+    } else if (now > endDate) {
+        return VoucherStatus.EXPIRED;
+    } else {
+        return VoucherStatus.ACTIVE;
+    }
 };

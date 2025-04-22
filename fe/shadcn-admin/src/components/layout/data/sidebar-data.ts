@@ -1,37 +1,35 @@
 import {
-  IconBarrierBlock,
   IconBrowserCheck,
-  IconBug,
-  IconError404,
+  IconDeviceMobile,
+  IconDiscount,
   IconHelp,
   IconLayoutDashboard,
-  IconLock,
-  IconLockAccess,
   IconMessages,
   IconNotification,
-  IconDeviceMobile,
   IconPalette,
-  IconServerOff,
+  IconPercentage,
+  IconPointFilled,
   IconSettings,
   IconShoppingCart,
   IconTool,
-  IconUserCog,
-  IconUserOff,
-  IconUsers,
-  IconSubtask,
-  IconDiscount,
-  IconPointFilled,
   IconUser,
-  IconPercentage,
+  IconUserCog,
+  IconFileDollar
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
+
+const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
+const { name, email,idRole } = signupData
+
 export const sidebarData: SidebarData = {
+  
   user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
+    name: name,
+    email: email,
     avatar: '/avatars/shadcn.jpg',
+    role:idRole
   },
   teams: [
     {
@@ -42,15 +40,14 @@ export const sidebarData: SidebarData = {
   ],
   navGroups: [
     {
-      title: 'General',
+      title: 'Tổng quan',
       items: [
         {
-          title: 'Dashboard',
+          title: 'Thống kê',
           url: '/dashboard',
           icon: IconLayoutDashboard,
-        }
-        ,
-         {
+        },
+        {
           title: 'Bán hàng tại quầy',
           url: '/banhang',
           icon: IconShoppingCart,
@@ -149,14 +146,13 @@ export const sidebarData: SidebarData = {
               url: '/product/os',
               icon: IconPointFilled,
             },
-          ]
-        }
-        ,{
+          ],
+        },
+        {
           title: 'Quản lý hóa đơn',
           url: '/hoadon',
-          icon: IconShoppingCart,
-        }
-        ,
+          icon: IconFileDollar,
+        },
         {
           title: 'Quản lý tài khoản',
           icon: IconUser,
@@ -171,14 +167,6 @@ export const sidebarData: SidebarData = {
             },
           ],
         },
-
-        {
-          title: 'Chats',
-          url: '/chats',
-          badge: '3',
-          icon: IconMessages,
-        },
-
         {
           title: 'Voucher',
           url: '/voucher',
@@ -187,73 +175,21 @@ export const sidebarData: SidebarData = {
         {
           title: 'Sale',
           url: '/sale',
-          icon: IconPercentage
-        }
-      ],
-    },
-    {
-      title: 'Pages',
-      items: [
-        {
-          title: 'Auth',
-          icon: IconLockAccess,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/sign-in',
-            },
-            {
-              title: 'Sign Up',
-              url: '/sign-up',
-            },
-            {
-              title: 'Forgot Password',
-              url: '/forgot-password',
-            },
-            {
-              title: 'OTP',
-              url: '/otp',
-            },
-          ],
+          icon: IconPercentage,
         },
         {
-          title: 'Errors',
-          icon: IconBug,
-          items: [
-            {
-              title: 'Unauthorized',
-              url: '/401',
-              icon: IconLock,
-            },
-            {
-              title: 'Forbidden',
-              url: '/403',
-              icon: IconUserOff,
-            },
-            {
-              title: 'Not Found',
-              url: '/404',
-              icon: IconError404,
-            },
-            {
-              title: 'Internal Server Error',
-              url: '/500',
-              icon: IconServerOff,
-            },
-            {
-              title: 'Maintenance Error',
-              url: '/503',
-              icon: IconBarrierBlock,
-            },
-          ],
+          title: 'Chats',
+          url: '/chats',
+          badge: '3',
+          icon: IconMessages,
         },
       ],
     },
     {
-      title: 'Other',
+      title: 'Khác',
       items: [
         {
-          title: 'Settings',
+          title: 'Cài đặt',
           icon: IconSettings,
           items: [
             {
@@ -284,11 +220,11 @@ export const sidebarData: SidebarData = {
           ],
         },
         {
-          title: 'Help Center',
+          title: 'Trợ giúp',
           url: '/help-center',
           icon: IconHelp,
         },
       ],
     },
-  ],
+  ]
 }

@@ -189,8 +189,24 @@ export default function SaleUI() {
             let saleId: number;
 
             if (isEditing && editId) {
+                // 1. Get current sale details
+                const currentDetailsResponse = await axios.get(`http://localhost:8080/api/admin/sale/${editId}/product-details`);
+                const currentDetailIds = currentDetailsResponse.data.map((detail: any) => detail.id);
+
+                // 2. Find details to delete (those not in selectedDetails)
+                const detailsToDelete = currentDetailIds.filter((id: number) => !selectedDetails.has(id));
+
+                // 3. Delete unchecked details
+                if (detailsToDelete.length > 0) {
+                    await axios.delete('http://localhost:8080/api/admin/sale/details', {
+                        data: { ids: detailsToDelete }
+                    });
+                }
+
+                // 4. Update sale basic info
                 await updateSale(editId, formattedData);
                 saleId = editId;
+                
                 toast({
                     title: "Thành công",
                     description: "Chương trình giảm giá đã được cập nhật"
@@ -228,7 +244,7 @@ export default function SaleUI() {
         } catch (error: any) {
             toast({
                 variant: "destructive",
-                title: "Lỗi",
+                title: "Thông báo",
                 description: error.response?.data?.message || "Không thể lưu chương trình giảm giá"
             });
         } finally {
@@ -266,8 +282,8 @@ export default function SaleUI() {
             console.error('Error:', error);
             toast({
                 variant: "destructive",
-                title: "Lỗi",
-                description: "Không thể tải danh sách sản phẩm"
+                title: "Thông báo",
+                description: error?.response?.data?.message 
             });
         } finally {
             setLoadingProducts(false);
@@ -397,7 +413,7 @@ export default function SaleUI() {
             console.error('Error loading sale products:', error);
             toast({
                 variant: "destructive",
-                title: "Lỗi",
+                title: "Thông báo",
                 description: "Không thể tải danh sách sản phẩm cho chương trình này"
             });
         } finally {
@@ -418,108 +434,91 @@ export default function SaleUI() {
     };
 
     // Update handleConfirmProducts để kiểm tra theo sale ID
-    const handleConfirmProducts = () => {
+    const handleConfirmProducts = async () => {
         if (!currentSaleId) return;
 
-        const currentSelectedProducts: Set<number> | number[] | undefined = saleProducts[currentSaleId]?.selectedProducts;
-        const selectedCount = currentSelectedProducts instanceof Set ? 
-            currentSelectedProducts.size : 
-            (Array.isArray(currentSelectedProducts) ? (currentSelectedProducts as number[]).length : (currentSelectedProducts as Set<number>)?.size || 0);
+        const currentSelectedDetails = Array.from(selectedDetails);
         
-        if (selectedCount === 0) {
+        if (currentSelectedDetails.length === 0) {
             toast({
-                variant: "destructive", 
-                title: "Lỗi",
-                description: "Vui lòng chọn ít nhất một sản phẩm"
+                variant: "destructive",
+                title: "Thông báo",
+                description: "Vui lòng chọn ít nhất một sản phẩm chi tiết",
+                duration: 3000, // Thêm duration 3 giây
             });
             return;
         }
 
-        toast({
-            title: "Đã chọn sản phẩm",
-            description: `Số sản phẩm đã chọn cho chương trình: ${selectedCount}`
-        });
-        setShowProductsModal(false);
-    };
-
-    const handleConfirmDetails = async () => {
-        if (!currentSaleId) {
-            toast({
-              variant: "destructive", 
-              title: "Lỗi",
-              description: "Không tìm thấy chương trình giảm giá"
-            });
-            return;
-          }
-        
-          if (selectedDetails.size === 0) {
-            toast({
-              variant: "destructive",
-              title: "Lỗi",
-              description: "Vui lòng chọn ít nhất một chi tiết sản phẩm"
-            });
-            return;
-          }
-        
-          try {
+        try {
             setLoading(true);
-            // Thêm từng sản phẩm chi tiết vào sale
-            for (const detailId of selectedDetails) {
-              await addProductDetailToSale(currentSaleId, detailId);
-            }
-        
-            toast({
-              title: "Thành công",
-              description: `Đã thêm ${selectedDetails.size} sản phẩm vào chương trình giảm giá`
+            // Thêm tất cả sản phẩm chi tiết đã chọn vào chương trình khi nhấn xác nhận
+            await axios.post(`http://localhost:8080/api/admin/sale/assign-products`, {
+                saleId: currentSaleId,
+                productDetailIds: currentSelectedDetails
             });
-        
-            // Reset state
-            setSelectedDetails(new Set());
-            setShowDetailsModal(false);
-        
-          } catch (error: any) {
+
+            toast({
+                title: "Thông báo",
+                description: `Đã thêm ${currentSelectedDetails.length} sản phẩm chi tiết vào chương trình`,
+                duration: 3000,
+            });
+
+            setShowProductsModal(false);
+        } catch (error: any) {
             console.error('Error:', error);
             toast({
-              variant: "destructive",
-              title: "Lỗi",
-              description: error.response?.data?.message || "Không thể thêm sản phẩm vào chương trình giảm giá"
+                variant: "destructive",
+                title: "Thông báo", 
+                description: error.response?.data?.message || "Không thể thêm sản phẩm vào chương trình",
+                duration: 3000,
             });
-          } finally {
+        } finally {
             setLoading(false);
-          }
+        }
     };
 
     // Sửa lại handleSelectAll để lưu đúng định dạng
     const handleSelectAll = async (checked: boolean) => {
         if (checked) {
-            // Chỉ chọn các sản phẩm được lọc
+            // Chỉ chọn tất cả sản phẩm được lọc
             const newSelectedProducts = new Set(filteredProducts.map(product => product.id));
             setSelectedProducts(newSelectedProducts);
-    
-            // Không cần tự động load và chọn chi tiết sản phẩm
-            if (currentSaleId) {
-                setSaleProducts(prev => ({
-                    ...prev,
-                    [currentSaleId]: {
-                        selectedProducts: newSelectedProducts,
-                        selectedDetails: selectedDetails // Giữ nguyên selected details hiện tại
-                    }
-                }));
+
+            // Load chi tiết cho từng sản phẩm
+            try {
+                const detailsPromises = Array.from(newSelectedProducts).map(productId =>
+                    axios.get(`http://localhost:8080/api/admin/product-details/by-product/${productId}`)
+                );
+                
+                const detailsResponses = await Promise.all(detailsPromises);
+                const newProductDetails: IProductDetails = {};
+                const newSelectedDetails = new Set(selectedDetails);
+
+                // Cập nhật state product details và selected details
+                detailsResponses.forEach((response, index) => {
+                    const productId = Array.from(newSelectedProducts)[index];
+                    newProductDetails[productId] = response.data;
+                    response.data.forEach((detail: ProductDetailSale) => {
+                        newSelectedDetails.add(detail.id);
+                    });
+                });
+
+                setProductDetails(newProductDetails);
+                setSelectedDetails(newSelectedDetails);
+
+            } catch (error) {
+                console.error('Error:', error);
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo",
+                    description: "Không thể tải chi tiết sản phẩm"
+                });
             }
         } else {
-            // Clear all selections
+            // Reset tất cả selections mà không gọi API
             setSelectedProducts(new Set());
-            
-            // Update storage if needed
-            if (currentSaleId) {
-                setSaleProducts(prev => ({
-                    ...prev,
-                    [currentSaleId]: {
-                        selectedProducts: new Set(),
-                        selectedDetails: selectedDetails // Giữ nguyên selected details hiện tại
-                    }
-                }));
-            }
+            setSelectedDetails(new Set());
+            setProductDetails({});
         }
     };
 
@@ -568,7 +567,7 @@ export default function SaleUI() {
           console.error('Error:', error);
           toast({
             variant: "destructive", 
-            title: "Lỗi",
+            title: "Thông báo",
             description: "Không thể tải chi tiết sản phẩm"
           });
         } finally {
@@ -607,6 +606,51 @@ export default function SaleUI() {
 
         return () => clearInterval(intervalId);
     }, []);
+
+    const handleConfirmDetails = async () => {
+        if (!currentSaleId) return;
+
+        const selectedDetailIds = Array.from(selectedDetails);
+        
+        if (selectedDetailIds.length === 0) {
+            toast({
+                variant: "destructive",
+                title: "Thông báo",
+                description: "Vui lòng chọn ít nhất một sản phẩm chi tiết"
+            });
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // Assign selected product details to the sale
+            await axios.post(`http://localhost:8080/api/admin/sale/assign-products`, {
+                saleId: currentSaleId,
+                productDetailIds: selectedDetailIds
+            });
+
+            toast({
+                title: "Thông báo",
+                description: `Đã thêm ${selectedDetailIds.length} sản phẩm chi tiết vào chương trình`
+            });
+
+            setShowDetailsModal(false);
+            
+            // Refresh sale data
+            const newData = await getSales();
+            setSales(newData);
+
+        } catch (error: any) {
+            console.error('Error:', error);
+            toast({
+                variant: "destructive",
+                title: "Thông báo",
+                description: error.response?.data?.message || "Không thể thêm sản phẩm chi tiết vào chương trình"
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
@@ -791,7 +835,7 @@ export default function SaleUI() {
                                             className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             value={formData.code}
                                             onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                            required
+                                            // required
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -803,7 +847,7 @@ export default function SaleUI() {
                                             className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            required
+                                            // required
                                         />
                                     </div>
                                     {/* Thêm trường mô tả */}
@@ -861,7 +905,7 @@ export default function SaleUI() {
                                                 }}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
-                                                required
+                                                // required
                                             />
                                             <select
                                                 className="w-24 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -903,14 +947,14 @@ export default function SaleUI() {
                                                 className="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.dateStart}
                                                 onChange={(e) => setFormData({ ...formData, dateStart: e.target.value })}
-                                                required
+                                                // required
                                             />
                                             <input
                                                 type="datetime-local"
                                                 className="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.dateEnd}
                                                 onChange={(e) => setFormData({ ...formData, dateEnd: e.target.value })}
-                                                required
+                                                // required
                                             />
                                         </div>
                                     </div>

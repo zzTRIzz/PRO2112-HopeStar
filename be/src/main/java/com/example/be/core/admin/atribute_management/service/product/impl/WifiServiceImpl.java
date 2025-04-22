@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class WifiServiceImpl implements WifiService {
@@ -16,7 +18,9 @@ public class WifiServiceImpl implements WifiService {
 
     @Override
     public List<Wifi> getAll() {
-        return wifiRepository.findAll();
+        return wifiRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -24,7 +28,7 @@ public class WifiServiceImpl implements WifiService {
         Wifi newWifi = new Wifi();
         newWifi.setCode("WIFI_"+wifiRepository.getNewCode());
         if (wifiRepository.existsByNameTrimmedIgnoreCase(wifi.getName())){
-            throw new Exception("wifi name already exists");
+            throw new Exception("Loại wifi đã tồn tại");
         }
         newWifi.setName(wifi.getName());
         newWifi.setStatus(wifi.getStatus());
@@ -40,7 +44,7 @@ public class WifiServiceImpl implements WifiService {
                 wifi.setStatus(entity.getStatus());
                 wifiRepository.save(wifi);
             }else {
-                throw new Exception("wifi name already exists");
+                throw new Exception("Loại wifi đã tồn tại");
             }
         }
     }
@@ -53,6 +57,8 @@ public class WifiServiceImpl implements WifiService {
 
     @Override
     public List<Wifi> getAllActive() {
-        return wifiRepository.findByStatus(StatusCommon.ACTIVE);
+        return wifiRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

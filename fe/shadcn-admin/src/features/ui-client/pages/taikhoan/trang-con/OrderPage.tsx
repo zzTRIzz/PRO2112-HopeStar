@@ -7,12 +7,13 @@ import { getBillByAccount } from '../service/api-bill-client-service'
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
   DA_HUY: { color: 'red', text: 'Đã hủy' },
-  // returned: { color: '#6c757d', text: 'Trả hàng' },
 }
+
 
 export const OrdersPage = () => {
   const [selected, setSelected] = React.useState('all')
@@ -33,15 +34,6 @@ export const OrdersPage = () => {
   }, []);
 
 
-
-  // const filteredOrders = selected === 'all'
-  //   ? bills.filter((bill) => bill.billDetailResponesList && bill.billDetailResponesList.length > 0)
-  //   : bills.filter((bill) =>
-  //     selected === 'CHO_XAC_NHAN'
-  //       ? (bill.status === 'CHO_XAC_NHAN' || bill.status === 'CHO_THANH_TOAN')
-  //       : bill.status === selected &&
-  //       bill.billDetailResponesList && bill.billDetailResponesList.length > 0
-  //   )
   const filteredOrders = bills
     .filter((bill) => {
       // Lọc theo trạng thái
@@ -76,17 +68,12 @@ export const OrdersPage = () => {
 
         <header className='mb-6 flex items-center justify-between'>
           <h1 className='text-xl font-bold text-[#333333]'>Đơn hàng của tôi</h1>
-          {/* <Input
-            placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
-            startContent={<Icon icon='lucide:search' className='text-default-400' />}
-            className='w-96'
-          /> */}
           <Input
             placeholder='Tìm theo mã đơn hoặc tên sản phẩm'
             startContent={<Icon icon='lucide:search' className='text-default-400' />}
             className='w-96'
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)} // Cập nhật từ khóa tìm kiếm
+            onChange={(e) => setSearchKeyword(e.target.value)}
           />
         </header>
 
@@ -97,6 +84,7 @@ export const OrdersPage = () => {
         >
           <Tab key='all' title='Tất cả' />
           <Tab key='CHO_XAC_NHAN' title='Chờ xác nhận' />
+          <Tab key='DA_XAC_NHAN' title='Đã xác nhận' />
           <Tab key='DANG_CHUAN_BI_HANG' title='Đang chuẩn bị hàng' />
           <Tab key='DANG_GIAO_HANG' title='Đang giao hàng' />
           <Tab key='HOAN_THANH' title='Hoàn thành' />
@@ -125,7 +113,7 @@ export const OrdersPage = () => {
                         hour12: false
                       })
                         : ""}</span>
-                      {/* <span>{order.deliveryMethod}</span> */}
+                      <span>Mã đơn hàng: {order?.maBill}</span>
                       <span>{order?.detailCount != null ? order?.detailCount : 0} sản phẩm</span>
                     </div>
                   </div>
@@ -165,7 +153,7 @@ export const OrdersPage = () => {
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='text-lg font-bold'>
+                      <p className='text-lg font-bold text-red-500'>
                         {order?.totalDue != null ? order?.totalDue?.toLocaleString('vi-VN'): 0} đ
                       </p>
                     </div>

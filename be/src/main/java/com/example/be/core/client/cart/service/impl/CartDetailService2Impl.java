@@ -10,6 +10,9 @@ import com.example.be.repository.ProductDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CartDetailService2Impl implements CartDetailService {
@@ -44,5 +47,37 @@ public class CartDetailService2Impl implements CartDetailService {
         cartDetail.setQuantity(cartDetailRequest.getQuantity());
         cartDetailRepository.save(cartDetail);
         return "update cart detail successfully";
+    }
+
+    @Override
+    public Object checkCartDetail(List<Integer> idCartDetailList) throws Exception {
+        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal MAX_LONG = new BigDecimal("50000000000");
+        for (Integer idCartDetail: idCartDetailList) {
+            CartDetail cartDetail = cartDetailRepository.findById(idCartDetail).orElseThrow(()->
+                    new Exception("cart detail not found"));
+            ProductDetail productDetail = productDetailRepository.findByIdAndStatus(cartDetail.getIdProductDetail().getId(), ProductDetailStatus.ACTIVE);
+            if(productDetail == null) {
+                throw new Exception("Sản phẩm "+productDetail.getProduct().getName()+" (" + productDetail.getRam().getCapacity()+productDetail.getRam().getDescription()
+                        +"/"+productDetail.getRom().getCapacity()+productDetail.getRom().getDescription()+" - "+
+                        productDetail.getColor().getName()+" )"+" này hiện tại không hoạt động");
+            }
+            if (cartDetail.getQuantity()>productDetail.getInventoryQuantity()){
+                throw new Exception("Sản phẩm "+productDetail.getProduct().getName()+" (" + productDetail.getRam().getCapacity()+productDetail.getRam().getDescription()
+                        +"/"+productDetail.getRom().getCapacity()+productDetail.getRom().getDescription()+" - "+
+                        productDetail.getColor().getName()+" )"+" chỉ còn: "+productDetail.getInventoryQuantity());
+            }
+
+            BigDecimal quantity = new BigDecimal(cartDetail.getQuantity());
+            BigDecimal price = productDetail.getPriceSell();
+            BigDecimal itemTotal = quantity.multiply(price);
+            total = total.add(itemTotal);
+        }
+        BigDecimal vnpAmount = total.multiply(BigDecimal.valueOf(100));
+
+        if (vnpAmount.compareTo(MAX_LONG) > 0) {
+            throw new IllegalArgumentException("Tổng giá trị đơn hàng vượt quá giới hạn cho phép ");
+        }
+        return "Kiểm tra thành công";
     }
 }

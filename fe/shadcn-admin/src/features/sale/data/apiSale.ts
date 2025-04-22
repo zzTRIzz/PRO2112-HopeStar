@@ -116,3 +116,18 @@ export const getSaleProductDetails = async (saleId: number) => {
     throw error;
   }
 };
+
+export const checkDuplicateCode = async (code: string, id?: number) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/check-code`, {
+      params: { 
+        code,
+        id // Truyền id nếu là trường hợp update
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error checking duplicate code:', error);
+    throw error;
+  }
+};

@@ -55,7 +55,7 @@ public class Voucher extends AuditEntity {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(name = "status")
+    @Column(name = "status", length = 20)
     @Enumerated(EnumType.STRING)
     private StatusVoucher status;
     @Column(name = "moTa")

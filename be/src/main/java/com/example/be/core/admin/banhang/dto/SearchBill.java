@@ -15,6 +15,8 @@ public class SearchBill {
 
     private String nameBill;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private String tenKhachHang;
@@ -42,12 +44,6 @@ public class SearchBill {
     private BigDecimal customerRefund;
 
     private BigDecimal discountedTotal;
-
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime customerPreferredDate;
-
-    private LocalDateTime customerAppointmentDate;
 
     private LocalDateTime receiptDate;
 

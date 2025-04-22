@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const billSchema = z.object({
   id: z.number().int().positive(),
   nameBill: z.string().max(255),
+  maBill: z.string().max(255),
   idAccount: z.number().int().positive().nullable(),
   idNhanVien: z.number().int().positive().nullable(),
   idVoucher: z.number().int().positive().nullable(),
@@ -13,9 +14,10 @@ export const billSchema = z.object({
   totalDue: z.number(),
   customerRefund: z.number().nonnegative().default(0),
   discountedTotal: z.number().nonnegative().default(0),
-  deliveryDate: z.string().datetime().nullable(),
-  customerPreferred_date: z.string().datetime().nullable(),
-  customerAppointment_date: z.string().datetime().nullable(),
+  payInsurance: z.number().nonnegative().default(0),
+  // deliveryDate: z.string().datetime().nullable(),
+  // customerPreferred_date: z.string().datetime().nullable(),
+  // customerAppointment_date: z.string().datetime().nullable(),
   receiptDate: z.string().datetime().nullable(),
   paymentDate: z.string().datetime().nullable(),
   billType: z.number().int().default(0),
@@ -35,14 +37,17 @@ export const Voucher = z.object({
   id: z.number(),
   code: z.string(),
   name: z.string(),
-  conditionPriceMin: z.number(),
-  conditionPriceMax: z.number(),
-  discountValue: z.number(),
-  voucherType: z.boolean(),
+  minOrderValue: z.number(),
+  maxOrderValue: z.number(),
+  maxDiscountAmount: z.number(),
+  value: z.number(),
+  type: z.boolean(),
   quantity: z.number(),
   startTime: z.string(),
   endTime: z.string(),
   status: z.string(),
+  isPrivate: z.boolean(),
+
 });
 
 export type Voucher = z.infer<typeof Voucher>;
@@ -150,9 +155,10 @@ export interface TaiKhoan {
 export interface BillRespones {
   id: number;
   code: string;
+  maBill: string;
   idAccount: number;
-  idNhanVien: number;
-  fullNameNV: string;
+  idNhanVien: number | null;
+  fullNameNV: string | null;
   idVoucher: number;
   codeVoucher: string | null;
   totalPrice: number;
@@ -162,9 +168,7 @@ export interface BillRespones {
   totalDue: number;
   customerRefund: number | null;
   discountedTotal: number;
-  deliveryDate: string | null;
-  customerPreferredDate: string | null;
-  customerAppointmentDate: string | null;
+  payInsurance: number;
   receiptDate: string | null;
   paymentDate: string | null;
   billType: number;
@@ -178,6 +182,7 @@ export interface BillRespones {
   delivery: number | null;
   detailCount: number;
   billDetailResponesList: BillDetailRespones[];
+  billHistoryRespones: BillHistory[];
 }
 
 export interface BillDetailRespones {
@@ -214,3 +219,24 @@ export interface ImeiRespones {
   status: string;
 }
 
+
+export interface BillHistory {
+  id: number;
+  actionType: StatusBillHistory;
+  note: string;
+  actionTime: Date;
+  idNhanVien: number | null;
+  fullName: string;
+}
+
+
+export enum StatusBillHistory {
+  CHO_THANH_TOAN = 'Chờ thanh toán',
+  CHO_XAC_NHAN = 'Chờ xác nhận',
+  DA_XAC_NHAN = 'Đã xác nhận ',
+  DANG_CHUAN_BI_HANG = 'Đang chuẩn bị hàng ',
+  DANG_GIAO_HANG = 'Đang giao hàng ',
+  HOAN_THANH = 'Hoàn thành ',
+  DA_HUY = 'Đã hủy',
+  CAP_NHAT_DON_HANG = 'Cập nhật đơn hàng ',
+}

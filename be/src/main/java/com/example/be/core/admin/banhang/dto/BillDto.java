@@ -18,6 +18,8 @@ public class BillDto {
 
     private String nameBill;
 
+    private String maBill;
+
     private Integer idAccount;
 
     private Integer idNhanVien;
@@ -38,11 +40,7 @@ public class BillDto {
 
     private BigDecimal discountedTotal;
 
-    private LocalDateTime deliveryDate;
-
-    private LocalDateTime customerPreferredDate;
-
-    private LocalDateTime customerAppointmentDate;
+    private BigDecimal payInsurance;
 
     private LocalDateTime receiptDate;
 

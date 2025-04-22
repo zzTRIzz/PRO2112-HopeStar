@@ -18,7 +18,7 @@ export function DataTableToolbar<TData>({
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
         <Input
           type='text'
-          placeholder='Tìm kiếm...'
+          placeholder='Tìm kiếm mã imei...'
           value={
             (table.getColumn('imeiCode')?.getFilterValue() as string) ?? ''
           }

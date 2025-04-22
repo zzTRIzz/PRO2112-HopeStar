@@ -1,7 +1,10 @@
-import { useNavigate } from '@tanstack/react-router'
+import { toast } from '@/hooks/use-toast'
 import { Button, Card, Checkbox, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { useNavigate } from '@tanstack/react-router'
 import { CartItemCard } from '../../components/gio-hang/cart-item'
+import { checkCartDetail } from '../../data/api-cart-service'
+import { Link } from '@tanstack/react-router'
 import { useCart } from '../../hooks/use-cart'
 
 export function CartPage() {
@@ -28,13 +31,29 @@ export function CartPage() {
     0
   )
 
-  const handleProceedToCheckout = () => {
-    navigate({
-      to: '/dat-hang',
-      search: {
-        selectedProducts: JSON.stringify(selectedProducts),
-      },
-    })
+  const handleProceedToCheckout = async () => {
+    try {
+      // Get selected cart item IDs
+      const selectedIds = selectedProducts.map(cartdetail => cartdetail.id)
+      console.log('Selected IDs:', selectedIds)
+      // Check cart items availability
+      await checkCartDetail(selectedIds)
+  
+      // If all items are available, proceed to checkout
+      navigate({
+        to: '/dat-hang',
+        search: {
+          selectedProducts: JSON.stringify(selectedProducts),
+        },
+      })
+    } catch (error) {
+      console.error('Error checking cart items:', error)
+      toast({
+        title: 'Lỗi',
+        description: error?.response?.data?.message || 'Không thể tiến hành đặt hàng. Vui lòng thử lại',
+        variant: 'destructive'
+      })
+    }
   }
 
   if (isLoading) {
@@ -114,17 +133,19 @@ export function CartPage() {
                   icon='lucide:shopping-cart'
                   className='h-12 w-12 text-default-300'
                 />
-                <p className='text-lg text-default-500'>Giỏ hàng trống</p>
-                <Button
-                  color='primary'
-                  variant='flat'
-                  onPress={refreshCart}
-                  startContent={
-                    <Icon icon='lucide:refresh-cw' className='h-4 w-4' />
-                  }
-                >
-                  Thêm sản phẩm mẫu
-                </Button>
+                <p className='text-lg'>Chưa có sản phẩm nào trong giỏ hàng</p>
+                <p className='text-sm text-default-500'>Cùng mua sắm hàng ngàn sản phẩm tại HopeStar nhé!</p>
+                <Link to='/'>
+                  <Button
+                    color='primary'
+                    variant='flat'
+                    startContent={
+                      <Icon icon='lucide:refresh-cw' className='h-4 w-4' />
+                    }
+                  >
+                    Tiếp tục mua sắm
+                  </Button>
+                </Link>
               </div>
             )}
           </div>

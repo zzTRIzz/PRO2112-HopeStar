@@ -49,14 +49,15 @@ public class ProductConfigServiceImpl implements ProductConfigService {
 
     @Override
     public ProductConfigResponse create(ProductConfigRequest productConfigRequest) throws Exception {
-        ProductDTO productDTO = productMapper.requestToDTO(productConfigRequest.getProductRequest());
-        productDTO.setCode("PRDU_"+productRepository.getNewCode());
-        productDTO.setStatus(StatusCommon.ACTIVE);
-
-        Product product = productMapper.dtoToEntity(productDTO);
-
+        if (productRepository.existsProductsByNameEquals(productConfigRequest.getProductRequest().getName().trim())){
+            throw new Exception("Tên sản phẩm đã tồn tại");
+        }
+        // check imei
         if (productConfigRequest.getProductDetailRequests() !=null){
             for (ProductDetailRequest item:productConfigRequest.getProductDetailRequests()) {
+                if(item.getProductImeiRequests().isEmpty()) {
+                    throw new Exception("Chưa tải imei vào sản phẩm");
+                }
                 for (ProductImeiRequest imeiRequest: item.getProductImeiRequests()){
                     Imei imei = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
                     if (imei != null){
@@ -65,7 +66,13 @@ public class ProductConfigServiceImpl implements ProductConfigService {
                 }
             }
         }
-        // check imei
+
+        ProductDTO productDTO = productMapper.requestToDTO(productConfigRequest.getProductRequest());
+        productDTO.setCode("PRDU_"+productRepository.getNewCode());
+        productDTO.setStatus(StatusCommon.ACTIVE);
+
+        Product product = productMapper.dtoToEntity(productDTO);
+
         Product createProduct = productRepository.save(product);
 
         productDTO.getFrontCamera().forEach((item) -> {

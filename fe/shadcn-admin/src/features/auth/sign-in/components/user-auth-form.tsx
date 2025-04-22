@@ -42,7 +42,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
       // Xử lý khi thành công
       if (response.status === 0 && response.data?.jwt) {
-        Cookies.set('jwt', response.data.jwt, { expires: 1 })
+        Cookies.set('jwt', response.data.jwt, { expires: 7 })
 
         toast({
           title: 'Đăng nhập thành công',

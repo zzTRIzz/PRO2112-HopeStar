@@ -6,11 +6,9 @@ import com.example.be.core.client.home.dto.response.ProductDetailViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponseAll;
 import com.example.be.core.client.home.service.HomeService;
-import com.example.be.entity.Product;
-import com.example.be.entity.ProductDetail;
+import com.example.be.entity.*;
 import com.example.be.entity.status.StatusCommon;
-import com.example.be.repository.ProductDetailRepository;
-import com.example.be.repository.ProductRepository;
+import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +21,10 @@ import java.util.stream.Collectors;
 public class HomeServiceImpl implements HomeService {
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final ProductSimRepository productSimRepository;
+    private final FrontCameraProductRepository frontCameraProductRepository;
+    private final RearCameraProductRepository rearCameraProductRepository;
     @Override
     public ProductViewResponseAll getProductView() {
 
@@ -57,16 +59,16 @@ public class HomeServiceImpl implements HomeService {
                 productViewResponse.setPriceSeller(productDetail.getPriceSell());
                 productViewResponse.setImage(productDetail.getImageUrl());
                 // Lấy danh sách capacity duy nhất
-                List<Integer> uniqueRamCapacities = productDetailList.stream()
+                List<String> uniqueRamCapacities = productDetailList.stream()
                         .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
-                        .map(pd -> pd.getRam().getCapacity())      // Lấy capacity từ Ram
+                        .map(pd -> pd.getRam().getCapacity()+pd.getRam().getDescription())      // Lấy capacity từ Ram
                         .filter(Objects::nonNull)                  // Loại bỏ capacity null
                         .distinct()                                // Chỉ giữ giá trị duy nhất
                         .collect(Collectors.toList());
 
-                List<Integer> uniqueRomCapacities = productDetailList.stream()
+                List<String> uniqueRomCapacities = productDetailList.stream()
                         .filter(pd -> pd.getRom() != null)
-                        .map(pd -> pd.getRom().getCapacity())
+                        .map(pd -> pd.getRom().getCapacity()+pd.getRom().getDescription())
                         .filter(Objects::nonNull)
                         .distinct()
                         .collect(Collectors.toList());
@@ -88,6 +90,47 @@ public class HomeServiceImpl implements HomeService {
         return productViewResponseList;
     }
 
+    public ProductDetailViewResponse.Attribute handlerAttribute(Product product){
+        ProductDetailViewResponse.Attribute attribute = new ProductDetailViewResponse.Attribute();
+        List<ProductCategory> listPC = productCategoryRepository.findByProductId(product.getId());
+        String categories = listPC.stream()
+                .map(pc -> pc.getCategory().getName())
+                .collect(Collectors.joining(","));
+        attribute.setCategories(categories);
+        attribute.setWeight(product.getWeight());
+        attribute.setBrand(product.getName());
+        attribute.setChip(product.getChip().getName());
+        attribute.setBattery(product.getBattery().getType()+" - "+product.getBattery().getCapacity());
+        attribute.setResolution(product.getScreen().getResolution().getResolutionType()+"("+ product.getScreen().getResolution().getWidth()+" - "+product.getScreen().getResolution().getHeight()+")");
+        attribute.setScreen(product.getScreen().getType()+" - "+product.getScreen().getDisplaySize()+"''");
+        attribute.setBluetooth(product.getBluetooth().getName());
+        attribute.setCard(product.getCard().getType());
+        attribute.setOs(product.getOs().getName());
+        attribute.setWifi(product.getWifi().getName());
+        attribute.setCharger(product.getChargerType());
+        List<ProductSim> listPS = productSimRepository.findByProductId(product.getId());
+        if (product.getNfc()){
+            attribute.setNfc("Có");
+        }else{
+            attribute.setNfc("Không");
+        }
+        String sims = listPS.stream()
+                .map(pc -> pc.getSim().getType())
+                .collect(Collectors.joining(","));
+        attribute.setSim(sims);
+        List<FrontCameraProduct> listFC = frontCameraProductRepository.findByProductId(product.getId());
+        String frontCameras = listFC.stream()
+                .map(pc -> pc.getFrontCamera().getType()+" - "+pc.getFrontCamera().getResolution()+"MP")
+                .collect(Collectors.joining(","));
+        attribute.setFrontCamera(frontCameras);
+        List<RearCameraProduct> listRC = rearCameraProductRepository.findByProductId(product.getId());
+        String rearCamera = listRC.stream()
+                .map(pc -> pc.getRearCamera().getType()+" - "+pc.getRearCamera().getResolution()+"MP")
+                .collect(Collectors.joining(","));
+        attribute.setRearCamera(rearCamera);
+        return attribute;
+    }
+
     @Override
     public ProductDetailViewResponse getProductDetailView(Integer idProduct) throws Exception {
         // Lấy thông tin sản phẩm từ repository
@@ -104,7 +147,7 @@ public class HomeServiceImpl implements HomeService {
         response.setId(product.getId());
         response.setProductName(product.getName());
         response.setProductDescription(product.getDescription());
-
+        response.setAttribute(handlerAttribute(product));
         // Xây dựng danh sách các cặp RAM-ROM
         List<ProductDetailViewResponse.RamRomOption> ramRomOptions = new ArrayList<>();
         Set<String> uniqueRamRomPairs = new HashSet<>(); // Để đảm bảo không trùng lặp
@@ -117,9 +160,9 @@ public class HomeServiceImpl implements HomeService {
                 if (!uniqueRamRomPairs.contains(ramRomKey)) {
                     ProductDetailViewResponse.RamRomOption ramRomOption = new ProductDetailViewResponse.RamRomOption();
                     ramRomOption.setRamId(pd.getRam().getId());
-                    ramRomOption.setRamSize(pd.getRam().getCapacity() + "GB");
+                    ramRomOption.setRamSize(pd.getRam().getCapacity() + pd.getRam().getDescription());
                     ramRomOption.setRomId(pd.getRom().getId());
-                    ramRomOption.setRomSize(pd.getRom().getCapacity() + "GB");
+                    ramRomOption.setRomSize(pd.getRom().getCapacity() + pd.getRom().getDescription());
 
                     ramRomOptions.add(ramRomOption);
                     uniqueRamRomPairs.add(ramRomKey);
@@ -161,9 +204,9 @@ public class HomeServiceImpl implements HomeService {
                 // Tạo đối tượng RamRomOption và ColorOption
                 ProductDetailViewResponse.RamRomOption ramRomOption = new ProductDetailViewResponse.RamRomOption();
                 ramRomOption.setRamId(pd.getRam().getId());
-                ramRomOption.setRamSize(pd.getRam().getCapacity() + "GB");
+                ramRomOption.setRamSize(pd.getRam().getCapacity() + pd.getRam().getDescription());
                 ramRomOption.setRomId(pd.getRom().getId());
-                ramRomOption.setRomSize(pd.getRom().getCapacity() + "GB");
+                ramRomOption.setRomSize(pd.getRom().getCapacity() + pd.getRom().getDescription());
 
                 ProductDetailViewResponse.ColorOption colorOption = new ProductDetailViewResponse.ColorOption();
                 colorOption.setId(pd.getColor().getId());
@@ -193,9 +236,9 @@ public class HomeServiceImpl implements HomeService {
             // Tạo đối tượng RamRomOption và ColorOption cho sản phẩm mặc định
             ProductDetailViewResponse.RamRomOption defaultRamRomOption = new ProductDetailViewResponse.RamRomOption();
             defaultRamRomOption.setRamId(defaultDetail.getRam().getId());
-            defaultRamRomOption.setRamSize(defaultDetail.getRam().getCapacity() + "GB");
+            defaultRamRomOption.setRamSize(defaultDetail.getRam().getCapacity() + defaultDetail.getRam().getDescription());
             defaultRamRomOption.setRomId(defaultDetail.getRom().getId());
-            defaultRamRomOption.setRomSize(defaultDetail.getRom().getCapacity() + "GB");
+            defaultRamRomOption.setRomSize(defaultDetail.getRom().getCapacity() + defaultDetail.getRom().getDescription());
 
             ProductDetailViewResponse.ColorOption defaultColorOption = new ProductDetailViewResponse.ColorOption();
             defaultColorOption.setId(defaultDetail.getColor().getId());

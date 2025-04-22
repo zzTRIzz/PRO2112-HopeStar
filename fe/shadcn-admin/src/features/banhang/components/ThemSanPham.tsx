@@ -85,7 +85,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   const [categories, setCategories] = useState([])
   const [os, setOs] = useState([])
   const [screens, setScreens] = useState([])
-
+  const [searchImeiKey, setSearchImeiKey] = useState('');
   useEffect(() => {
     loadCategory()
     loadBrand()
@@ -173,11 +173,11 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
     selectedOs,
     selectedScreen,
   ])
-  const resetSearch = async() => {
-    setSearchKey(''); 
-    setSelectedBrand(undefined); 
-    setSelectedChip(undefined); 
-    setSelectedCategory(undefined); 
+  const resetSearch = async () => {
+    setSearchKey('');
+    setSelectedBrand(undefined);
+    setSelectedChip(undefined);
+    setSelectedCategory(undefined);
     setSelectedOs(undefined);
     setSelectedScreen(undefined);
     if (setListProduct) {
@@ -186,6 +186,12 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
         .catch(error => console.error('Error resetting products:', error));
     }
   };
+
+
+
+  const filteredImeiList = listImei.filter((imei) =>
+    imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
+  );
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -198,7 +204,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
             Thêm sản phẩm
           </Button>
         </DialogTrigger>
-        <DialogContent className='sm:max-w-[980px]'>
+        <DialogContent className={dialogContent === 'product' ? 'sm:max-w-[980px]' : 'sm:max-w-[730px]'}>
           {dialogContent === 'product' ? (
             <div>
               <div className='mb-4 flex flex-wrap gap-4'>
@@ -226,7 +232,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                     <SelectContent>
                       <ScrollArea className='h-40'>
 
-                          {brands.map((brand) => (
+                        {brands.map((brand) => (
                           <SelectItem key={brand.id} value={brand.id.toString()}>
                             {brand.name}
                           </SelectItem>
@@ -316,14 +322,14 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
               </div>
 
               <TableContainer>
-                <ScrollArea className='h-[400px] pr-4'>
+                <ScrollArea className='h-[500px] pr-2'>
                   {listProduct.length > 0 ? (
                     <Table>
                       <TableHead>
                         <TableRow>
                           <TableCell>Stt</TableCell>
-                          <TableCell>Hình ảnh</TableCell>
-                          <TableCell>Tên sản phẩm</TableCell>
+                          {/* <TableCell>Hình ảnh</TableCell> */}
+                          <TableCell>Sản phẩm</TableCell>
                           <TableCell>Giá tiền </TableCell>
                           <TableCell>Số lượng tồn kho</TableCell>
                           <TableCell>Thao Tác</TableCell>
@@ -333,19 +339,21 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                         {listProduct.map((product, index) => (
                           <TableRow key={product.id}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell><div className='h-20 w-16'>
-                              {product.imageUrl ? (
-                                <img
-                                  src={product.imageUrl}
-                                  alt={`${product.name}`}
-                                  className='h-full w-full rounded-sm object-cover'
-                                />
-                              ) : (
-                                <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
-                                  <IconQuestionMark className='h-6 w-6' />
-                                </div>
-                              )}
-                            </div></TableCell>
+                            {/* <TableCell>
+                              <div className='h-20 w-16'>
+                                {product.imageUrl ? (
+                                  <img
+                                    src={product.imageUrl}
+                                    alt={`${product.name}`}
+                                    className='h-full w-full rounded-sm object-cover'
+                                  />
+                                ) : (
+                                  <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
+                                    <IconQuestionMark className='h-6 w-6' />
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell>
                               {product?.name +
                                 ' ' +
@@ -355,9 +363,30 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                 'GB ( ' +
                                 product.color +
                                 ' )'}
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell>
-                              {product?.priceSell.toLocaleString('vi-VN')}
+                              <div className="flex items-center space-x-2">
+                                <div className="h-20 w-16 flex-shrink-0">
+                                  {product.imageUrl ? (
+                                    <img
+                                      src={product.imageUrl}
+                                      alt={`${product.name}`}
+                                      className="h-full w-full rounded-sm object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted">
+                                      <IconQuestionMark className="h-6 w-6" />
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="whitespace-nowrap text-sm">
+                                  {product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}
+                                </span>
+                              </div>
+                            </TableCell>
+
+                            <TableCell>
+                              {product?.priceSell?.toLocaleString('vi-VN')}
                             </TableCell>
                             <TableCell align='center'>
                               {product?.inventoryQuantity}
@@ -392,21 +421,26 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
             </div>
           ) : (
             <div>
-              <Input placeholder='Tìm mã imei  ' className='max-w-sm' />
-
-              <TableContainer>
-                <ScrollArea className='h-[400px] pr-4'>
+              <Input
+                placeholder="Tìm mã imei"
+                className="max-w-sm"
+                value={searchImeiKey}
+                onChange={(e) => setSearchImeiKey(e.target.value)}
+              />
+              <TableContainer >
+                <ScrollArea className="h-full max-h-[500px] overflow-auto">
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell></TableCell>
                         <TableCell>Stt</TableCell>
-                        <TableCell>Imei code</TableCell>
-                        <TableCell>Barcode</TableCell>
+                        <TableCell>Mã imei</TableCell>
+                        <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
+                        {/* <TableCell>Trạng thái</TableCell> */}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {listImei.map((im, index) => (
+                      {filteredImeiList.map((im, index) => (
                         <TableRow key={im.id}>
                           <TableCell>
                             <div className='flex items-center space-x-2'>
@@ -433,7 +467,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 </ScrollArea>
               </TableContainer>
               <Button
-                className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600'
+                className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
                 onClick={() => handleAddImei()}
               >
                 Chọn

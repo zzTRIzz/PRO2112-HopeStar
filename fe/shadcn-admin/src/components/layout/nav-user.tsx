@@ -31,6 +31,7 @@ export function NavUser({
     name: string
     email: string
     avatar: string
+    role:number
   }
 }) {
   const { isMobile } = useSidebar()
@@ -46,7 +47,7 @@ export function NavUser({
             >
               <Avatar className='h-8 w-8 rounded-lg'>
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className='rounded-lg'>SN</AvatarFallback>
+                <AvatarFallback className='rounded-lg'>{user.role === 2 ? 'AD' : 'NV'}</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>{user.name}</span>

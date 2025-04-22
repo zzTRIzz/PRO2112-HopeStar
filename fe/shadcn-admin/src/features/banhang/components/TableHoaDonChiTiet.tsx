@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
 import { DataTablePagination } from './PhanTrang/data-table-pagination';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { IconQuestionMark } from '@tabler/icons-react';
 
 interface SearchBillDetail {
     id: number
@@ -39,8 +42,8 @@ interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
     selectedImei: number[];
-    isCapNhatImei: boolean; // Nhận từ file tổng
-    setIsCapNhatImei: (open: boolean) => void;
+    openDialogId: number | null; // Nhận từ file tổng
+    setOpenDialogId: (open: number | null) => void;
     handleUpdateProduct: (idProductDetail: number, idBillDetail: number) => void
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
@@ -53,8 +56,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         product,
         listImei,
         selectedImei,
-        isCapNhatImei,
-        setIsCapNhatImei,
+        openDialogId,
+        setOpenDialogId,
         handleUpdateProduct,
         handleCheckboxChange,
         updateHandleImeiSold,
@@ -80,7 +83,12 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         const [pageSize, setPageSize] = useState(5);
         const totalPages = Math.ceil(product.length / pageSize);
         const currentProducts = product.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+        const [searchImeiKey, setSearchImeiKey] = useState('');
 
+
+        const filteredImeiList = listImei.filter((imei) =>
+            imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
+        );
 
         return (
             <>
@@ -92,6 +100,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="right">Stt</TableCell>
+                                    <TableCell align="center">Hình ảnh</TableCell>
                                     <TableCell align="center">Sản phẩm</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Số lượng</TableCell>
@@ -105,52 +114,94 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell align="right">{(currentPage - 1) * pageSize + index + 1}</TableCell>
+                                        <TableCell align="right"><div className='h-20 w-16'>
+                                            {pr.imageUrl ? (
+                                                <img
+                                                    src={pr.imageUrl}
+                                                    alt={`${pr.nameProduct}`}
+                                                    className='h-full w-full rounded-sm object-cover'
+                                                />
+                                            ) : (
+                                                <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
+                                                    <IconQuestionMark className='h-6 w-6' />
+                                                </div>
+                                            )}
+                                        </div></TableCell>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ( {pr.mauSac} )
+                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ({pr.mauSac})
                                         </TableCell>
                                         <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="right">{pr.quantity}</TableCell>
                                         <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="center" style={{}}>
                                             <div className="right space-x-2">
-                                                <Dialog open={isCapNhatImei} onOpenChange={setIsCapNhatImei}>
+                                                <Dialog open={openDialogId === pr.id} onOpenChange={(open) => setOpenDialogId(open ? pr.id : null)}>
                                                     <DialogTrigger asChild>
                                                         <Button className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50
-                                   text-blue-600 hover:bg-gray-300" onClick={() => handleUpdateProduct(pr.idProductDetail, pr.id)}>
+                                   text-blue-600 hover:bg-gray-300"
+                                                            onClick={() => {
+                                                                handleUpdateProduct(pr.idProductDetail, pr.id);
+                                                                setOpenDialogId(pr.id);
+                                                            }}>
                                                             Cập nhật
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[500px]">
-                                                        <TableContainer>
-                                                            <Table>
-                                                                <TableHead>
-                                                                    <TableRow>
-                                                                        <TableCell></TableCell>
-                                                                        <TableCell>Stt</TableCell>
-                                                                        <TableCell>Imei code</TableCell>
-                                                                    </TableRow>
-                                                                </TableHead>
-                                                                <TableBody>
-                                                                    {listImei.map((im, index) => (
-                                                                        <TableRow key={im.id}>
-                                                                            <TableCell>
-                                                                                <div className="flex items-center space-x-2">
-                                                                                    <Checkbox
-                                                                                        checked={selectedImei.includes(im.id)}
-                                                                                        onCheckedChange={() => handleCheckboxChange(im.id)}
-                                                                                    />
-                                                                                </div>
-                                                                            </TableCell>
-                                                                            <TableCell>{index + 1}</TableCell>
-                                                                            <TableCell>{im.imeiCode}</TableCell>
+                                                    <DialogContent className="sm:max-w-[730px] z-[1000]  flex flex-col">
+                                                        <Input
+                                                            placeholder="Tìm mã imei"
+                                                            className="max-w-sm"
+                                                            value={searchImeiKey}
+                                                            onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
+                                                        />
+                                                        <TableContainer className="h-full max-h-[450px] overflow-auto">
+                                                            <ScrollArea>
+                                                                <Table>
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell></TableCell>
+                                                                            <TableCell>Stt</TableCell>
+                                                                            <TableCell>Mã imei</TableCell>
+                                                                            <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
                                                                         </TableRow>
-                                                                    ))}
-                                                                </TableBody>
-                                                            </Table>
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        {filteredImeiList.map((im, index) => (
+                                                                            <TableRow key={im.id}>
+                                                                                <TableCell>
+                                                                                    <div className='flex items-center space-x-2'>
+                                                                                        <Checkbox
+                                                                                            checked={selectedImei.includes(im.id)}
+                                                                                            onCheckedChange={() =>
+                                                                                                handleCheckboxChange(im.id)
+                                                                                            }
+                                                                                        />
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell>{index + 1}</TableCell>
+                                                                                <TableCell>{im.imeiCode}</TableCell>
+                                                                                <TableCell>
+                                                                                    <img
+                                                                                        src={im.barCode}
+                                                                                        className='h-8 w-64 rounded-lg object-cover'
+                                                                                    />
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </ScrollArea>
                                                         </TableContainer>
-                                                        <Button className="bg-black text-white hover:bg-gray-600" onClick={() => updateHandleImeiSold(pr.id)}>
+                                                        <Button
+                                                            className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
+                                                            onClick={() => {
+                                                                updateHandleImeiSold(pr.id); 
+                                                                setOpenDialogId(null); 
+                                                              }}
+
+                                                        >
                                                             Chọn
                                                         </Button>
+
                                                     </DialogContent>
                                                 </Dialog>
 
@@ -164,19 +215,21 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
                             </TableBody>
                         </Table>
-                    </TableContainer>
+                    </TableContainer >
                 )}
-                {product.length > 0 && (
-                    <div className="flex justify-between items-center mt-4 ml-[400px]">
-                        <DataTablePagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            pageSize={pageSize}
-                            setPageSize={setPageSize}
-                            setCurrentPage={setCurrentPage}
-                        />
-                    </div>
-                )}
+                {
+                    product.length > 0 && (
+                        <div className="flex justify-between items-center mt-4 ml-[400px]">
+                            <DataTablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                pageSize={pageSize}
+                                setPageSize={setPageSize}
+                                setCurrentPage={setCurrentPage}
+                            />
+                        </div>
+                    )
+                }
 
 
 

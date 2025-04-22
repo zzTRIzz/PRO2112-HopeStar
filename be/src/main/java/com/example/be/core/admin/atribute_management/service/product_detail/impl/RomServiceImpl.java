@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class RomServiceImpl implements RomService {
@@ -16,15 +18,17 @@ public class RomServiceImpl implements RomService {
 
     @Override
     public List<Rom> getAll() {
-        return romRepository.findAll();
+        return romRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Rom create(Rom rom) throws Exception {
         Rom newRom = new Rom();
         newRom.setCode("RMSO_"+romRepository.getNewCode());
-        if (romRepository.countByCapacity(rom.getCapacity())>0){
-            throw new Exception("rom capacity already exists");
+        if (romRepository.countByCapacity(rom.getCapacity(),rom.getDescription())>0){
+            throw new Exception("Rom với dung lượng này đã tồn tại");
         }
         newRom.setCapacity(rom.getCapacity());
         newRom.setDescription(rom.getDescription());
@@ -36,13 +40,13 @@ public class RomServiceImpl implements RomService {
     public void update(Integer id, Rom entity) throws Exception {
         Rom rom = getById(id);
         if (rom != null){
-            if (romRepository.countByCapacityAndNotId(entity.getCapacity(),rom.getId())<=0){
+            if (romRepository.countByCapacityAndNotId(entity.getCapacity(), entity.getDescription(), rom.getId())<=0){
                 rom.setCapacity(entity.getCapacity());
                 rom.setDescription(entity.getDescription());
                 rom.setStatus(entity.getStatus());
                 romRepository.save(rom);
             }else {
-                throw new Exception("rom capacity already exists");
+                throw new Exception("Rom với dung lượng này đã tồn tại");
             }
         }
     }
@@ -55,6 +59,8 @@ public class RomServiceImpl implements RomService {
 
     @Override
     public List<Rom> getAllActive() {
-        return romRepository.findByStatus(StatusCommon.ACTIVE);
+        return romRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

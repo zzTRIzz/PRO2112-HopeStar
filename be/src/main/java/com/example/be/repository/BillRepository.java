@@ -14,12 +14,12 @@ import java.util.Optional;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Integer> {
     // Lấy danh sách Bill với trạng thái đã thanh toán
-    List<Bill> findByStatus(String status);
-
-    long countByStatus(String status);
+    @Query("SELECT b FROM Bill b " +
+            "where b.status = :status ")
+    List<Bill> findBillByStatus(@Param("status")StatusBill statusBill);
 
     @Query(value = """
-            SELECT COALESCE(MAX(CAST(SUBSTRING(name_bill, 4) AS UNSIGNED)), 0) + 1
+            SELECT COALESCE(MAX(CAST(SUBSTRING(code, 4) AS UNSIGNED)), 0) + 1
             FROM bill
             """, nativeQuery = true)
     String getNewCode();
@@ -37,4 +37,9 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 
 
     Optional<Bill> findById(Integer idBill);
+
+
+    @Query("SELECT b.id FROM Bill b WHERE b.maBill = :maBill")
+    Integer findBillByMaBill(@Param("maBill") String maBill);
+
 }

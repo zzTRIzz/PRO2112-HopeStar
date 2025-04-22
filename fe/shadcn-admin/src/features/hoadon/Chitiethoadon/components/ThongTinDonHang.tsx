@@ -8,24 +8,19 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog";
-import DiaChiGiaoHang from './CapNhatDiaChi';
-interface AccountKhachHang {
-    id: number,
-    code: string,
-    fullName: string,
-    email: string,
-    phone: string,
-    address: string,
-    googleId: string
-}
+import DiaChiGiaoHang from '../components/components_con/CapNhatDiaChi';
+
 interface Posp {
     searchBill: BillRespones | null;
-    listKhachHang: AccountKhachHang | undefined;
+    loadTongBill: () => void;
+    themBillHistory: (actionType: string, note: string) => void;
+
 }
 const ThongTinDonHang: React.FC<Posp> =
     ({
         searchBill,
-        listKhachHang
+        loadTongBill,
+        themBillHistory
     }) => {
         const getOrderStatusText = (status: string | undefined) => {
             switch (status) {
@@ -37,7 +32,6 @@ const ThongTinDonHang: React.FC<Posp> =
                 case "HOAN_THANH": return "Hoàn thành";
                 case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
                 case "DANG_GIAO_HANG": return "Đang giao hàng";
-                // case "DA_GIAO_HANG": return "Đã giao hàng";
                 default: return "Không rõ trạng thái";
             }
         };
@@ -64,8 +58,13 @@ const ThongTinDonHang: React.FC<Posp> =
                                     <DialogTitle>Cập nhật thông tin giao hàng</DialogTitle>
                                 </DialogHeader>
                                 <DiaChiGiaoHang
-                                    khachHang={listKhachHang}
+                                    idBill={searchBill?.id}
+                                    fullName={searchBill?.name??""}
+                                    phone={searchBill?.phone??""}
+                                    address={searchBill?.address??""}
                                     onClose={() => setIsDialogOpen(false)}
+                                    loadTongBill={loadTongBill}
+                                    themBillHistory={themBillHistory}
                                 />
                             </DialogContent>
                         </Dialog>
@@ -79,7 +78,7 @@ const ThongTinDonHang: React.FC<Posp> =
                         <div className="space-y-2">
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Mã đơn hàng:</span>
-                                <p className="ml-[14px]">{searchBill?.code}</p>
+                                <p className="ml-[14px]">{searchBill?.maBill}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Loại đơn hàng:</span>
@@ -102,7 +101,7 @@ const ThongTinDonHang: React.FC<Posp> =
                                 <span className="text-base text-gray-700 font-bold">Ngày đặt hàng:</span>
 
                                 <p className="ml-[14px]">
-                                    {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "dd/MM/yyyy HH:mm") : "Chưa có"}
+                                    {searchBill?.paymentDate ? format(new Date(searchBill.paymentDate), "HH:mm dd/MM/yyyy") : ""}
                                 </p>                        </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold">Tổng tiền:</span>

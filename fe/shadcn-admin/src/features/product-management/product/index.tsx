@@ -222,7 +222,7 @@ export default function Product() {
               />
             </div>
             <h2 className='text-2xl font-bold tracking-tight'>
-              Quản lý sản phẩm
+              Sản phẩm
             </h2>
             <p className='text-muted-foreground'>
               Danh sách sản phẩm của bạn trong hệ thống

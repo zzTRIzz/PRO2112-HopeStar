@@ -17,9 +17,8 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     Account findByEmail(@Size(max = 255) String email);
     Account findByPhone(@Size(max = 255) String phone);
 
-    @Query("select a from Account a " +
-            "where a.idRole.id = 4")
-    List<Account> getAllAcountKhachHang();
+    @Query("select a from Account a where a.idRole.id in (3, 4)")
+    List<Account> getAllAccountKhachHang();
 
 
 
@@ -28,4 +27,15 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     Account getByAccount(@Param("idBill") Integer idBill);
 
     List<Account> findAccountsByIdRole(Role idRole);
+
+    Boolean existsByEmail(String email);
+
+    Boolean existsByPhone(String phone);
+
+    Boolean existsByEmailAndPhone(String email, String phone);
+
+    boolean existsById(Integer id);
+
+    boolean existsByCode(String code);
+
 }

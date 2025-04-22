@@ -3,42 +3,45 @@ import { Icon } from '@iconify/react'
 import { Bill } from '../service/schema'
 import { useState, useEffect } from 'react'
 import { getBillAllClientByAccount } from '../service/api-bill-client-service'
-import { useParams } from '@tanstack/react-router'
-const orderStatuses = [
-  { id: 1, label: 'Đặt hàng', icon: 'lucide:receipt', done: true },
-  { id: 2, label: 'Đang xử lý', icon: 'lucide:package', done: false },
-  { id: 3, label: 'Đang giao hàng', icon: 'lucide:truck', done: false },
-  { id: 4, label: 'Hoàn tất', icon: 'lucide:check-circle', done: false },
-]
+import { Button } from '@/components/ui/button'
+
 const orderStatusSteps = [
   {
     id: 1,
     statuses: ['CHO_XAC_NHAN', 'CHO_THANH_TOAN'],
     label: 'Chờ xác nhận',
-    icon: 'lucide:receipt',
+    icon: 'lucide:hourglass',
   },
   {
     id: 2,
-    statuses: ['DANG_CHUAN_BI_HANG'],
-    label: 'Đang chuẩn bị hàng',
-    icon: 'lucide:package',
+    statuses: ['DA_XAC_NHAN'],
+    label: 'Đã xác nhận',
+    icon: 'lucide:check-square',
   },
   {
     id: 3,
+    statuses: ['DANG_CHUAN_BI_HANG'],
+    label: 'Đang chuẩn bị hàng',
+    icon: 'lucide:box',
+  },
+  {
+    id: 4,
     statuses: ['DANG_GIAO_HANG'],
     label: 'Đang giao hàng',
     icon: 'lucide:truck',
   },
   {
-    id: 4,
+    id: 5,
     statuses: ['HOAN_THANH'],
     label: 'Hoàn tất',
     icon: 'lucide:check-circle',
   },
 ];
+
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
@@ -63,7 +66,6 @@ const OrderTrackingPage = () => {
       try {
         const response = await getBillAllClientByAccount(id)
         setBill(response.data)
-        console.log('Bill ID:', id)
         console.log('Bill data:', response)
       } catch (error) {
         console.error('Error fetching bill:', error)
@@ -107,7 +109,7 @@ const OrderTrackingPage = () => {
           <CardBody>
             <div className='flex flex-wrap items-center justify-between gap-4'>
               <div className='space-y-1'>
-                <p className='text-sm text-default-500'>
+                <p className='text-sm text-default-500 '>
                   {bill?.paymentDate ? new Date(bill?.paymentDate).toLocaleDateString("vi-VN", {
                     year: "numeric",
                     month: "2-digit",
@@ -118,9 +120,9 @@ const OrderTrackingPage = () => {
                   })
                     : ""}</p>
                 <div className='flex items-center gap-2'>
-                  <h1 className='text-lg font-bold'>Đơn hàng {bill?.code}</h1>
+                  <h1 className='text-lg font-bold'>Mã đơn hàng: <span className='text-green-600'>{bill?.maBill}</span> </h1>
                   <Chip color='primary' variant='flat' size='sm'
-                    className='ml-[18px]'
+                    className='ml-[28px]'
                   >
                     {statusConfig[bill?.status].text}
                   </Chip>
@@ -134,7 +136,6 @@ const OrderTrackingPage = () => {
         <Card className="border-none shadow-sm h-[110px]">
           <CardBody>
             {bill?.status === 'DA_HUY' ? (
-              // Hiển thị thông báo "Đơn hàng đã hủy"
               <div className="absolute inset-0 bg-red-100 flex items-center justify-center rounded-lg ">
                 <div className="flex items-center gap-2 text-red-600">
                   <Icon icon="lucide:alert-circle" width={24} />
@@ -142,7 +143,6 @@ const OrderTrackingPage = () => {
                 </div>
               </div>
             ) : (
-              // Hiển thị trạng thái đơn hàng nếu không phải "Đã hủy"
               <div className="relative flex justify-between">
                 <Progress
                   aria-label="Order Progress"
@@ -185,8 +185,14 @@ const OrderTrackingPage = () => {
             )}
           </CardBody>
         </Card>
-
-
+        {/* <div style={{ textAlign: 'right' }}>
+          <Button
+            className="bg-red-500 text-white hover:bg-red-600"
+            disabled={bill.status !== "CHO_THANH_TOAN" && bill.status !== "CHO_XAC_NHAN"}
+          >
+            Hủy đơn hàng
+          </Button>
+        </div> */}
         <div className='grid gap-4 md:grid-cols-3'>
           <div className='space-y-4 md:col-span-2'>
             {/* Recipient Info */}
@@ -251,33 +257,32 @@ const OrderTrackingPage = () => {
             <CardBody>
               <h2 className='mb-4 font-semibold'>Thông tin thanh toán</h2>
               <div className='space-y-4'>
-                <div className='flex justify-between'>
+                <div className='flex justify-between  text-danger-500'>
                   <span className='text-sm'>Tổng tiền</span>
-                  <span className='font-medium'>{bill?.totalPrice != null ? bill?.totalPrice.toLocaleString("vi-VN") : 0} đ</span>
+                  <span className='font-bold' >{bill?.totalPrice != null ? bill?.totalPrice.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
                 {/* <div className='flex justify-between text-danger-500'>
                   <span className='text-sm'>Giảm giá trực tiếp</span>
                   <span>0 đ</span>
                 </div> */}
-                <div className='flex justify-between text-danger-500'>
+                <div className='flex justify-between'>
                   <span className='text-sm'>Giảm giá voucher</span>
-                  <span>{bill?.discountedTotal != null ? bill?.discountedTotal.toLocaleString("vi-VN") : 0} đ</span>
+                  <span className='font-bold '>{bill?.discountedTotal != null ? bill?.discountedTotal.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-sm'>Phí vận chuyển</span>
-                  <span>{bill?.deliveryFee != null ? bill?.deliveryFee.toLocaleString("vi-VN") : 0} đ</span>
+                  <span className='font-bold '>{bill?.deliveryFee != null ? bill?.deliveryFee.toLocaleString("vi-VN") : 0} đ</span>
                 </div>
-                {/* <div className='flex justify-between'>
-                  <span className='text-sm'>Điểm tích lũy</span>
-                  <span className='flex items-center gap-1'>
-                    <Icon icon='lucide:coin' className='text-warning-500' />
-                    +5
-                  </span>
-                </div> */}
+                {/* {bill?.payInsurance&&( */}
+                <div className='flex justify-between'>
+                  <span className='text-sm'>Phí bảo hiểm</span>
+                  <span className='font-bold '>{bill?.payInsurance != null ? bill?.payInsurance?.toLocaleString("vi-VN") : 0} đ</span>
+                </div>
+                {/* )} */}
                 <div className='border-t pt-4'>
-                  <div className='flex justify-between'>
+                  <div className='flex justify-between text-danger-500'>
                     <span className='font-medium'>Thành tiền</span>
-                    <span className='text-xl font-bold text-danger-500'>
+                    <span className='text-xl font-bold '>
                       {bill?.totalDue ? bill?.totalDue.toLocaleString("vi-VN") : 0} đ
 
                     </span>

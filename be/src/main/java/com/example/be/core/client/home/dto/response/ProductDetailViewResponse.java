@@ -14,6 +14,8 @@ public class ProductDetailViewResponse {
     private String productName;
     private String productDescription;
 
+    private Attribute attribute;
+
     private ProductDetailInfo defaultProductDetail;
 
     // Danh sách các cặp RAM-ROM
@@ -53,5 +55,25 @@ public class ProductDetailViewResponse {
         private String imageUrl;
         private RamRomOption ramRomOption;
         private ColorOption colorOption;
+    }
+
+    @Data
+    public static class Attribute{
+        private String categories;
+        private Integer weight;
+        private String brand;
+        private String chip;
+        private String battery;
+        private String resolution;
+        private String screen;
+        private String bluetooth;
+        private String card;
+        private String os;
+        private String wifi;
+        private String charger;
+        private String nfc;
+        private String sim;
+        private String frontCamera;
+        private String rearCamera;
     }
 }

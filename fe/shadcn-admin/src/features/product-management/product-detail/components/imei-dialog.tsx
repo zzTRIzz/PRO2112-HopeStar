@@ -20,7 +20,7 @@ const columns: ColumnDef<ProductImeiResponse>[] = [
     cell: ({ row }) => <div>{row.index + 1}</div>,
   },
   {
-    accessorKey: 'imeiCode',
+    accessorKey: 'code',
     header: 'Mã IMEI',
   },
   {

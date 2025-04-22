@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
@@ -272,21 +273,50 @@ export function CheckoutPage() {
         insuranceFee: orderValues.insuranceFee,
         totalDue: orderValues.total,
         discountedTotal: canApplyVoucher ? orderValues.voucherDiscount : 0,
-        idVoucher: canApplyVoucher
-          ? orderValues.selectedVoucher?.id
-          : null,
+        idVoucher: canApplyVoucher ? orderValues.selectedVoucher?.id : null,
       }
 
-      console.log('Order data:', orderData)
-      await order(orderData)
+      if (orderData.paymentMethod === 3) {
+        try {
+          localStorage.setItem(
+            'order',
+            JSON.stringify({
+              orderData,
+            })
+          )
 
-      toast({
-        title: 'Đặt hàng thành công',
-        description: 'Đơn hàng của bạn đã được tạo thành công',
-      })
+          const response = await axios.post(
+            'http://localhost:8080/api/v1/payment/create-payment',
+            orderData
+          )
 
-      await queryClient.invalidateQueries({ queryKey: ['cart'] })
-      navigate({ to: '/gio-hang' })
+          if (response.data) {
+            window.location.href = response.data
+          } else {
+            throw new Error('Invalid payment URL')
+          }
+          return
+        } catch (error) {
+          console.error('Error creating payment:', error)
+          toast({
+            title: 'Lỗi thanh toán',
+            description: 'Không thể tạo link thanh toán, vui lòng thử lại',
+            variant: 'destructive',
+          })
+        }
+        return // Exit early for VNPay flow
+      } else if (orderData.paymentMethod === 4) {
+        console.log('Order data:', orderData)
+        await order(orderData)
+
+        toast({
+          title: 'Đặt hàng thành công',
+          description: 'Đơn hàng của bạn đã được tạo thành công',
+        })
+
+        await queryClient.invalidateQueries({ queryKey: ['cart'] })
+        navigate({ to: '/gio-hang' })
+      }
     } catch (error) {
       console.error('Checkout error:', error)
       toast({

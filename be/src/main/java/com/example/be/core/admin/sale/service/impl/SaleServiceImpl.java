@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +48,7 @@ public class SaleServiceImpl implements SaleService {
         }
     }
 
-    // SaleServiceImpl.java
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 6000)
     @Transactional
     public void updateSaleStatuses() {
         LocalDateTime now = LocalDateTime.now();
@@ -56,38 +56,37 @@ public class SaleServiceImpl implements SaleService {
         for (Sale sale : sales) {
             StatusSale newStatus = calculateStatus(sale.getDateStart(), sale.getDateEnd());
             if (!sale.getStatus().equals(newStatus)) {
-                // Xử lý khi trạng thái thay đổi
-                if (newStatus == StatusSale.ACTIVE) {
-                    updateProductDetailsPrice(sale, true);
-                } else if (sale.getStatus() == StatusSale.ACTIVE && newStatus == StatusSale.INACTIVE) {
-                    updateProductDetailsPrice(sale, false);
-                }
-                // Cập nhật trạng thái sale
                 sale.setStatus(newStatus);
                 saleRepository.save(sale);
+                updateProductDetailsPrice(sale);
             }
         }
     }
 
-    private void updateProductDetailsPrice(Sale sale, boolean isActive) {
+    private void updateProductDetailPrice(ProductDetail pd) {
+        List<SaleDetail> activeSaleDetails = saleDetailRepository.findByProductDetailIdAndSaleStatus(
+                pd.getId(),
+                StatusSale.ACTIVE
+        );
+
+        BigDecimal maxDiscount = activeSaleDetails.stream()
+                .map(sd -> calculateDiscountAmount(
+                        pd.getPrice(),
+                        sd.getSale().getDiscountValue(),
+                        sd.getSale().getDiscountType()
+                ))
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal newPriceSell = pd.getPrice().subtract(maxDiscount);
+        pd.setPriceSell(newPriceSell.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : newPriceSell);
+        productDetailRepository.save(pd);
+    }
+
+    private void updateProductDetailsPrice(Sale sale) {
         List<SaleDetail> saleDetails = saleDetailRepository.findBySaleId(sale.getId());
         for (SaleDetail sd : saleDetails) {
-            ProductDetail pd = sd.getProductDetail();
-            if (isActive) {
-                BigDecimal priceSell = calculatePriceSell(pd.getPrice(), sale.getDiscountValue(), sale.getDiscountType());
-                pd.setPriceSell(priceSell);
-            } else {
-                // Phục hồi giá hoặc kiểm tra Sale khác
-                List<SaleDetail> activeSales = saleDetailRepository.findByProductDetailIdAndSaleStatus(pd.getId(), StatusSale.ACTIVE);
-                if (activeSales.isEmpty()) {
-                    pd.setPriceSell(pd.getPrice());
-                } else {
-                    Sale activeSale = activeSales.get(0).getSale();
-                    BigDecimal priceSell = calculatePriceSell(pd.getPrice(), activeSale.getDiscountValue(), activeSale.getDiscountType());
-                    pd.setPriceSell(priceSell);
-                }
-            }
-            productDetailRepository.save(pd);
+            updateProductDetailPrice(sd.getProductDetail());
         }
     }
 
@@ -107,18 +106,32 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public SaleResponse add(SaleRequest request) {
+
+
         if (saleRepository.existsByCode(request.getCode())) {
             throw new RuntimeException("Mã chương trình đã tồn tại");
+
         }
+        // Kiểm tra nếu dateStart là trong quá khứ
+        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
+            throw new RuntimeException("Ngày bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại");
+        }
+
+        // Kiểm tra nếu dateEnd là trước dateStart
         if (request.getDateEnd().isBefore(request.getDateStart())) {
             throw new RuntimeException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu");
         }
+
+        // Kiểm tra giá trị giảm
         if (request.getDiscountType() && request.getDiscountValue() > 100) {
             throw new RuntimeException("Giá trị giảm theo % không được lớn hơn 100%");
         }
 
         Sale sale = saleMapper.toEntity(request);
+        sale.setDateStart(roundToMinute(request.getDateStart())); // Làm tròn đến phút
+        sale.setDateEnd(roundToMinute(request.getDateEnd())); // Làm tròn đến phút
         sale.setStatus(calculateStatus(sale.getDateStart(), sale.getDateEnd()));
+
         if (request.getDiscountType() == null) {
             sale.setDiscountType(false);
         }
@@ -126,44 +139,6 @@ public class SaleServiceImpl implements SaleService {
         sale = saleRepository.save(sale);
         return saleMapper.toResponse(sale);
     }
-
-    @Override
-    public SaleResponse update(Integer id, SaleRequest request) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
-
-        if (!sale.getCode().equals(request.getCode()) && saleRepository.existsByCode(request.getCode())) {
-            throw new RuntimeException("Mã chương trình đã tồn tại");
-        }
-        if (request.getDateEnd().isBefore(request.getDateStart())) {
-            throw new RuntimeException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu");
-        }
-        if (request.getDiscountType() && request.getDiscountValue() > 100) {
-            throw new RuntimeException("Giá trị giảm theo % không được lớn hơn 100%");
-        }
-
-        sale.setCode(request.getCode());
-        sale.setName(request.getName());
-        sale.setDateStart(request.getDateStart());
-        sale.setDateEnd(request.getDateEnd());
-        sale.setDescription(request.getDescription());
-        sale.setDiscountValue(request.getDiscountValue());
-        sale.setDiscountType(request.getDiscountType() != null ? request.getDiscountType() : false);
-
-        if (request.getStatus() != null) {
-            sale.setStatus(request.getStatus());
-        }
-
-        sale = saleRepository.saveAndFlush(sale);
-
-        // Nếu Sale đang active, cập nhật lại price_sell
-        if (sale.getStatus() == StatusSale.ACTIVE) {
-            updateProductDetailsPrice(sale, true);
-        }
-
-        return saleMapper.toResponse(sale);
-    }
-
 
     @Override
     @Transactional
@@ -224,6 +199,15 @@ public class SaleServiceImpl implements SaleService {
         return result;
     }
 
+    private BigDecimal calculateDiscountAmount(BigDecimal originalPrice, Integer discountValue, Boolean discountType) {
+        if (discountType) {
+            return originalPrice.multiply(BigDecimal.valueOf(discountValue))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        } else {
+            return BigDecimal.valueOf(discountValue);
+        }
+    }
+
     private BigDecimal calculatePriceSell(BigDecimal price, Integer discountValue, Boolean discountType) {
         BigDecimal discountAmount;
         if (discountType) {
@@ -253,6 +237,54 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
+    public SaleResponse update(Integer id, SaleRequest request) {
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
+
+        if (!sale.getCode().equals(request.getCode()) && saleRepository.existsByCode(request.getCode())) {
+            throw new RuntimeException("Mã chương trình đã tồn tại");
+        }
+
+        // Kiểm tra nếu dateStart là trong quá khứ
+//        if (request.getDateStart().isBefore(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))) {
+//            throw new RuntimeException("Ngày bắt đầu không được trong quá khứ");
+//        }
+
+        // Kiểm tra nếu dateEnd là trước dateStart
+        if (request.getDateEnd().isBefore(request.getDateStart())) {
+            throw new RuntimeException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu");
+        }
+
+        // Kiểm tra giá trị giảm
+        if (request.getDiscountType() && request.getDiscountValue() > 100) {
+            throw new RuntimeException("Giá trị giảm theo % không được lớn hơn 100%");
+        }
+
+        // Cập nhật các trường của sale
+        sale.setCode(request.getCode());
+        sale.setName(request.getName());
+        sale.setDateStart(roundToMinute(request.getDateStart())); // Làm tròn đến phút
+        sale.setDateEnd(roundToMinute(request.getDateEnd())); // Làm tròn đến phút
+        sale.setDescription(request.getDescription());
+        sale.setDiscountValue(request.getDiscountValue());
+        sale.setDiscountType(request.getDiscountType() != null ? request.getDiscountType() : false);
+
+        if (request.getStatus() != null) {
+            sale.setStatus(request.getStatus());
+        }
+
+        // Lưu và làm mới đối tượng sale
+        sale = saleRepository.saveAndFlush(sale);
+
+        // Nếu Sale đang active, cập nhật lại price_sell
+        if (sale.getStatus() == StatusSale.ACTIVE) {
+            updateProductDetailsPrice(sale);
+        }
+
+        return saleMapper.toResponse(sale);
+    }
+
+    @Override
     @Transactional
     public void deleteSaleDetails(List<Integer> ids) {
         List<SaleDetail> saleDetails = saleDetailRepository.findAllById(ids);
@@ -275,14 +307,8 @@ public class SaleServiceImpl implements SaleService {
         }
     }
 
-    // Có thể tạo một phương thức trong SaleServiceImpl
-//    @Transactional
-//    public void recalculateAllPriceSell() {
-//        List<Sale> activeSales = saleRepository.findByStatus(StatusSale.ACTIVE);
-//        for (Sale sale : activeSales) {
-//            updateProductDetailsPrice(sale, true);
-//        }
-//    }
-
+    private LocalDateTime roundToMinute(LocalDateTime dateTime) {
+        return dateTime.truncatedTo(ChronoUnit.MINUTES);
+    }
 }
 

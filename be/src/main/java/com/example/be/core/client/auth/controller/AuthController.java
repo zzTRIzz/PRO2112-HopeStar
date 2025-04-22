@@ -35,11 +35,12 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
     @PostMapping("/sent-otp")
-    public ResponseEntity<String> sentOtpHandler(@RequestBody OtpRequest otpRequest) throws Exception {
+    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody OtpRequest otpRequest) throws Exception {
 
-        authService.sentLoginOtp(otpRequest.getEmail());
-
-        return ResponseEntity.ok("Otp sent successfully");
+        Object o = authService.sentOtp(otpRequest.getEmail());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(o);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PostMapping("/signing")
@@ -72,6 +73,25 @@ public class AuthController {
         AccountResponse accountResponse = authService.getAccountProfile(jwt);;
         return new ResponseEntity<>(accountResponse, HttpStatus.OK);
 
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse> forgotPassword(@RequestBody OtpRequest otpRequest) throws Exception {
+        Object o = authService.forgotPassword(otpRequest.getEmail());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(o);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Xử lý đặt lại mật khẩu
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword
+    ) throws Exception {
+
+        Object o = authService.resetPassword(token,newPassword);
+        return ResponseEntity.ok(o);
     }
 
 }

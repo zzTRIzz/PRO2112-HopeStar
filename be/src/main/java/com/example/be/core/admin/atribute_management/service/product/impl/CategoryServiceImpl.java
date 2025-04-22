@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -18,7 +20,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAll() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAll().stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -26,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category newCategory = new Category();
         newCategory.setCode("CATE_"+categoryRepository.getNewCode());
         if (categoryRepository.existsByNameTrimmedIgnoreCase(category.getName())){
-            throw new Exception("category name already exists");
+            throw new Exception("Tên danh mục đã tồn tại");
         }
         newCategory.setName(category.getName());
         newCategory.setStatus(category.getStatus());
@@ -42,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
                 category.setStatus(entity.getStatus());
                 categoryRepository.save(category);
             }else {
-                throw new Exception("category name already exists");
+                throw new Exception("Tên danh mục đã tồn tại");
             }
         }
     }
@@ -55,6 +59,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllActive() {
-        return categoryRepository.findByStatus(StatusCommon.ACTIVE);
+        return categoryRepository.findByStatus(StatusCommon.ACTIVE).stream()
+                .sorted((s1, s2) -> Long.compare(s2.getId(), s1.getId()))
+                .collect(Collectors.toList());
     }
 }

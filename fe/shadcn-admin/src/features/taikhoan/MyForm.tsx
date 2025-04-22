@@ -12,7 +12,7 @@ import {
   DatePicker,
   Dialog,
   Group,
-  Label,
+  Label as RacLabel,
   Popover,
 } from 'react-aria-components'
 import { toast, Toaster } from 'sonner'
@@ -38,40 +38,67 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { AddressSelect } from '../tinhthanh/components/AddressSelect'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createColumns } from './components/taikhoan-columns'
 import { TaiKhoanTable } from './components/taikhoan-table'
 import { TaiKhoan } from './schema/schema'
+import { Province, District, Ward } from '../tinhthanh/schema/types'
 
-// Hàm tạo mật khẩu ngẫu nhiên
-// function generateRandomPassword(length = 12) {
-//   const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-//   const lowercase = 'abcdefghijklmnopqrstuvwxyz'
-//   const numbers = '0123456789'
-//   const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?'
-//   const allChars = uppercase + lowercase + numbers + specialChars
-
-//   let password = ''
-//   password += uppercase[Math.floor(Math.random() * uppercase.length)]
-//   password += lowercase[Math.floor(Math.random() * lowercase.length)]
-//   password += numbers[Math.floor(Math.random() * numbers.length)]
-//   password += specialChars[Math.floor(Math.random() * specialChars.length)]
-
-//   for (let i = password.length; i < length; i++) {
-//     password += allChars[Math.floor(Math.random() * allChars.length)]
-//   }
-
-//   password = password
-//     .split('')
-//     .sort(() => Math.random() - 0.5)
-//     .join('')
-
-//   return password
-// }
+// const formSchema = z.object({
+//   fullName: z
+//     .string()
+//     .min(3, 'Họ và tên phải có ít nhất 3 ký tự')
+//     .max(50, 'Họ và tên không được quá 50 ký tự')
+//     .regex(/^[\p{L}\s]+$/u, 'Họ tên chỉ được chứa chữ cái và khoảng trắng'),
+//   gender: z.enum(['Nam', 'Nữ', 'Khác'], {
+//     required_error: 'Vui lòng chọn giới tính',
+//   }),
+//   email: z
+//     .string()
+//     .email('Email không hợp lệ')
+//     .min(5, 'Email phải có ít nhất 5 ký tự'),
+//   phone: z
+//     .string()
+//     .min(10, 'Số điện thoại phải có ít nhất 10 số')
+//     .max(15, 'Số điện thoại không được quá 15 số')
+//     .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +')
+//     .regex(/^(?:\+?84|0[35789])[0-9]{8}$/, 'Số điện thoại không đúng định dạng'),
+//   address: z
+//     .string()
+//     .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
+//     .max(200, 'Địa chỉ không được quá 200 ký tự'),
+//   birthDate: z.string().refine((date) => {
+//     if (!date) return false
+//     const birthDate = new Date(date)
+//     const today = new Date()
+//     let age = today.getFullYear() - birthDate.getFullYear()
+//     const monthDiff = today.getMonth() - birthDate.getMonth()
+//     if (
+//       monthDiff < 0 ||
+//       (monthDiff === 0 && today.getDate() < birthDate.getDate())
+//     ) {
+//       age--
+//     }
+//     return age >= 15 && age < 61
+//   }, 'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'),
+//   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
+//   googleId: z.string().default('string'),
+//   imageAvatar: z
+//     .string()
+//     .default(
+//       'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg'
+//     ),
+//   // Thêm các trường cho địa chỉ
+//   province: z.union([z.string(), z.number()]).transform(val => String(val)),
+//   district: z.union([z.string(), z.number()]).transform(val => String(val)),
+//   ward: z.union([z.string(), z.number()]).transform(val => String(val)),
+//   street: z.string().min(3, "Vui lòng nhập địa chỉ cụ thể")
+// })
 
 const formSchema = z.object({
   fullName: z
-    .string()
+    .string({ required_error: 'Họ và tên không được bỏ trống' })
     .min(3, 'Họ và tên phải có ít nhất 3 ký tự')
     .max(50, 'Họ và tên không được quá 50 ký tự')
     .regex(/^[\p{L}\s]+$/u, 'Họ tên chỉ được chứa chữ cái và khoảng trắng'),
@@ -79,33 +106,38 @@ const formSchema = z.object({
     required_error: 'Vui lòng chọn giới tính',
   }),
   email: z
-    .string()
+    .string({ required_error: 'Email không được bỏ trống' })
     .email('Email không hợp lệ')
     .min(5, 'Email phải có ít nhất 5 ký tự'),
-  // password: z.string().default(generateRandomPassword(8)),
   phone: z
-    .string()
+    .string({ required_error: 'Số điện thoại không được bỏ trống' })
     .min(10, 'Số điện thoại phải có ít nhất 10 số')
     .max(15, 'Số điện thoại không được quá 15 số')
-    .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +'),
+    .regex(/^[0-9+]+$/, 'Số điện thoại chỉ được chứa số và dấu +')
+    .regex(/^(?:\+?84|0[35789])[0-9]{8}$/, 'Số điện thoại không đúng định dạng'),
   address: z
-    .string()
+    .string({ required_error: 'Địa chỉ không được bỏ trống' })
     .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
     .max(200, 'Địa chỉ không được quá 200 ký tự'),
-  birthDate: z.string().refine((date) => {
-    if (!date) return false
-    const birthDate = new Date(date)
-    const today = new Date()
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--
-    }
-    return age >= 15
-  }, 'Người dùng phải đủ 15 tuổi'),
+  birthDate: z
+    .string({ required_error: 'Ngày sinh không được bỏ trống' })
+    .refine(
+      (date) => {
+        if (!date) return false;
+        const birthDate = new Date(date);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          age--;
+        }
+        return age >= 15 && age < 61;
+      },
+      'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'
+    ),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
   googleId: z.string().default('string'),
   imageAvatar: z
@@ -113,7 +145,25 @@ const formSchema = z.object({
     .default(
       'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg'
     ),
-})
+  province: z
+    .union([z.string(), z.number()], {
+      required_error: 'Vui lòng chọn tỉnh/thành phố',
+    })
+    .transform((val) => String(val)),
+  district: z
+    .union([z.string(), z.number()], {
+      required_error: 'Vui lòng chọn quận/huyện',
+    })
+    .transform((val) => String(val)),
+  ward: z
+    .union([z.string(), z.number()], {
+      required_error: 'Vui lòng chọn phường/xã',
+    })
+    .transform((val) => String(val)),
+  street: z
+    .string({ required_error: 'Vui lòng nhập địa chỉ cụ thể' })
+    .min(3, 'Vui lòng nhập địa chỉ cụ thể'),
+});
 
 type FormData = z.infer<typeof formSchema>
 
@@ -121,23 +171,104 @@ export default function MyForm() {
   const [accounts, setAccounts] = useState<TaiKhoan[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [fullAddress, setFullAddress] = useState<string>('')
+
+  // States cho địa chỉ
+  const [provinces, setProvinces] = useState<Province[]>([])
+  const [districts, setDistricts] = useState<District[]>([])
+  const [wards, setWards] = useState<Ward[]>([])
+  const [loading, setLoading] = useState({
+    provinces: true,
+    districts: false,
+    wards: false,
+  })
+  const [selectedProvince, setSelectedProvince] = useState<Province | null>(null)
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null)
+  const [selectedWard, setSelectedWard] = useState<Ward | null>(null)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: 'ACTIVE',
-      // password: 'string',
       googleId: 'string',
       imageAvatar:
         'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
     },
   })
 
-  // Cập nhật trường address trong form khi fullAddress thay đổi
+  // Fetch provinces on component mount
   useEffect(() => {
-    form.setValue('address', fullAddress)
-  }, [fullAddress, form])
+    const fetchProvinces = async () => {
+      try {
+        const response = await axios.get('https://provinces.open-api.vn/api/p/')
+        setProvinces(response.data)
+      } catch (error) {
+        toast.error('Không thể tải danh sách tỉnh thành')
+        console.error('Error fetching provinces:', error)
+      } finally {
+        setLoading((prev) => ({ ...prev, provinces: false }))
+      }
+    }
+    fetchProvinces()
+  }, [])
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!selectedProvince) {
+        setDistricts([])
+        return
+      }
+      setLoading((prev) => ({ ...prev, districts: true }))
+      try {
+        const response = await axios.get(
+          `https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`
+        )
+        setDistricts(response.data.districts || [])
+      } catch (error) {
+        toast.error('Không thể tải danh sách quận huyện')
+        console.error('Error fetching districts:', error)
+        setDistricts([])
+      } finally {
+        setLoading((prev) => ({ ...prev, districts: false }))
+      }
+    }
+    fetchDistricts()
+  }, [selectedProvince])
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!selectedDistrict) {
+        setWards([])
+        return
+      }
+      setLoading((prev) => ({ ...prev, wards: true }))
+      try {
+        const response = await axios.get(
+          `https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`
+        )
+        setWards(response.data.wards || [])
+      } catch (error) {
+        toast.error('Không thể tải danh sách phường xã')
+        console.error('Error fetching wards:', error)
+        setWards([])
+      } finally {
+        setLoading((prev) => ({ ...prev, wards: false }))
+      }
+    }
+    fetchWards()
+  }, [selectedDistrict])
+
+  // Cập nhật địa chỉ đầy đủ khi các thành phần thay đổi
+  useEffect(() => {
+    if (selectedProvince && selectedDistrict && selectedWard) {
+      const streetValue = form.getValues('street') || '';
+      if (streetValue) {
+        const fullAddress = `${streetValue}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
+        form.setValue('address', fullAddress);
+      }
+    }
+  }, [selectedProvince, selectedDistrict, selectedWard, form.watch('street')]);
 
   const fetchAccounts = async () => {
     try {
@@ -161,7 +292,6 @@ export default function MyForm() {
 
   const handleStatusChange = async (account: TaiKhoan, newStatus: boolean) => {
     try {
-      // Convert gender string to boolean
       let genderValue = false
       if (account.gender === 'Nam') {
         genderValue = true
@@ -172,13 +302,12 @@ export default function MyForm() {
         {
           fullName: account.fullName,
           email: account.email,
-          // password: 'string',
           phone: account.phone,
           address: account.address,
           googleId: 'string',
           imageAvatar: account.imageAvatar,
           idRole: 4,
-          gender: genderValue, // Send as boolean instead of string
+          gender: genderValue,
           birthDate: account.birthDate,
           status: newStatus ? 'ACTIVE' : 'IN_ACTIVE',
         }
@@ -209,44 +338,91 @@ export default function MyForm() {
     fetchAccounts()
   }, [])
 
-  async function onSubmit(values: FormData) {
-    setIsSubmitting(true)
-    try {
-      // Format lại ngày sinh sang ISO 8601
-      const formattedBirthDate = new Date(values.birthDate).toISOString()
+  const handleProvinceChange = (value: string) => {
+    const province = provinces.find((p) => p.code === value);
+    if (province) {
+      setSelectedProvince(province);
+      setSelectedDistrict(null);
+      setSelectedWard(null);
+      form.setValue('province', province.code);
+      form.setValue('district', '');
+      form.setValue('ward', '');
+      form.trigger('province');
+    }
+  };
+  
+  const handleDistrictChange = (value: string) => {
+    const district = districts.find((d) => d.code === value);
+    if (district) {
+      setSelectedDistrict(district);
+      setSelectedWard(null);
+      form.setValue('district', district.code);
+      form.setValue('ward', '');
+      form.trigger('district');
+    }
+  };
+  
+  const handleWardChange = (value: string) => {
+    const ward = wards.find((w) => w.code === value);
+    if (ward) {
+      setSelectedWard(ward);
+      form.setValue('ward', ward.code);
+      form.trigger('ward');
+    }
+  };
 
-      // Convert gender string to boolean expected by backend
-      let genderValue = false
+  async function onSubmit(values: FormData) {
+    // Báo lỗi nếu các trường địa chỉ không hợp lệ
+    if (!selectedProvince || !selectedDistrict || !selectedWard || !values.street) {
+      // Trigger validation cho tất cả các trường địa chỉ
+      await form.trigger(['province', 'district', 'ward', 'street']);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const formattedBirthDate = new Date(values.birthDate).toISOString();
+
+      let genderValue = false;
       if (values.gender === 'Nam') {
-        genderValue = true
+        genderValue = true;
+      }
+      
+      // Xây dựng địa chỉ đầy đủ nếu chưa được cập nhật
+      if (!values.address || values.address.length < 10) {
+        values.address = `${values.street}, ${selectedWard?.name}, ${selectedDistrict?.name}, ${selectedProvince?.name}`;
       }
 
       const payload = {
-        ...values,
+        fullName: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
         birthDate: formattedBirthDate.split('T')[0],
         idRole: 4,
-        gender: genderValue, // Send as boolean instead of string
+        gender: genderValue,
+        status: values.status,
         googleId: 'string',
         imageAvatar:
           'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
-      }
+      };
 
-      console.log('Sending payload:', payload)
+      console.log('Sending payload:', payload);
 
       const config = {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      };
 
       const response = await axios.post(
         'http://localhost:8080/api/account/add',
         payload,
         config
-      )
+      );
 
       if (response.data) {
-        toast.success('Đã tạo tài khoản mới.')
+        toast.success('Đã tạo tài khoản mới.');
         form.reset({
           fullName: '',
           email: '',
@@ -255,33 +431,39 @@ export default function MyForm() {
           gender: undefined,
           birthDate: undefined,
           status: 'ACTIVE',
-          // password: 'string',
           googleId: 'string',
           imageAvatar: 'string',
-        })
-        await fetchAccounts()
+          province: '',
+          district: '',
+          ward: '',
+          street: '',
+        });
+        // Reset các state địa chỉ
+        setSelectedProvince(null);
+        setSelectedDistrict(null);
+        setSelectedWard(null);
+        setDistricts([]);
+        setWards([]);
+        
+        await fetchAccounts();
       } else {
-        throw new Error(response.data?.message || 'Có lỗi xảy ra')
+        throw new Error(response.data?.message || 'Có lỗi xảy ra');
       }
     } catch (error: any) {
-      console.error('Form submission error:', error)
+      console.error('Form submission error:', error);
 
-      // Xử lý các loại lỗi cụ thể
       if (error.response) {
-        // Lỗi từ server
-        const message = error.response.data?.message || 'Lỗi server'
-        toast.error(`Lỗi: ${message}`)
+        const message = error.response.data?.message || 'Lỗi server';
+        toast.error(`${message}`);
       } else if (error.request) {
-        // Lỗi kết nối
         toast.error(
           'Không thể kết nối đến server. Vui lòng kiểm tra lại kết nối.'
-        )
+        );
       } else {
-        // Lỗi khác
-        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.')
+        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.');
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -438,8 +620,135 @@ export default function MyForm() {
             </div>
           </div>
 
-          {/* Thay thế trường address bằng AddressSelect */}
-          <AddressSelect onAddressChange={setFullAddress} />
+          {/* Phần địa chỉ tích hợp với FormField */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Chọn Địa Chỉ</CardTitle>
+              <CardDescription>
+                Chọn tỉnh/thành phố, quận/huyện, phường/xã và nhập địa chỉ cụ thể
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className='grid grid-cols-12 gap-4'>
+                <div className='col-span-4'>
+                  <FormField
+                    control={form.control}
+                    name="province"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={handleProvinceChange}
+                          disabled={loading.provinces}
+                        >
+                          <FormControl>
+                            <SelectTrigger id="province">
+                              <SelectValue
+                                placeholder={loading.provinces ? 'Đang tải...' : 'Chọn tỉnh/thành phố'}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {provinces.map((province) => (
+                              <SelectItem key={province.code} value={province.code}>
+                                {province.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className='col-span-4'>
+                  <FormField
+                    control={form.control}
+                    name="district"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="district">Quận/Huyện</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={handleDistrictChange}
+                          disabled={!selectedProvince || loading.districts}
+                        >
+                          <FormControl>
+                            <SelectTrigger id="district" className={loading.districts ? 'opacity-50' : ''}>
+                              <SelectValue
+                                placeholder={loading.districts ? 'Đang tải...' : 'Chọn quận/huyện'}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {districts.map((district) => (
+                              <SelectItem key={district.code} value={district.code}>
+                                {district.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className='col-span-4'>
+                  <FormField
+                    control={form.control}
+                    name="ward"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="ward">Phường/Xã</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={handleWardChange}
+                          disabled={!selectedDistrict || loading.wards}
+                        >
+                          <FormControl>
+                            <SelectTrigger id="ward" className={loading.wards ? 'opacity-50' : ''}>
+                              <SelectValue
+                                placeholder={loading.wards ? 'Đang tải...' : 'Chọn phường/xã'}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {wards.map((ward) => (
+                              <SelectItem key={ward.code} value={ward.code}>
+                                {ward.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="street">Địa chỉ cụ thể</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="street"
+                        placeholder="VD: Đường 123"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
           <FormField
             control={form.control}
