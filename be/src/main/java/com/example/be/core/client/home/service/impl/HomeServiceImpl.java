@@ -172,8 +172,6 @@ public class HomeServiceImpl implements HomeService {
 
         // Điền danh sách cặp RAM-ROM vào response
         response.setRamRomOptions(ramRomOptions);
-
-        // Xây dựng danh sách màu sắc
         List<ProductDetailViewResponse.ColorOption> colorOptions = productDetailList.stream()
                 .filter(pd -> pd.getColor() != null)
                 .map(pd -> {
@@ -185,8 +183,37 @@ public class HomeServiceImpl implements HomeService {
                 })
                 .distinct()
                 .collect(Collectors.toList());
-
         response.setColorOptions(colorOptions);
+        // Xây dựng danh sách màu sắc
+        Map<String, List<ProductDetailViewResponse.ColorOption>> availableColors = new HashMap<>();
+
+        // Duyệt qua danh sách productDetail để xây dựng map availableColors
+        for (ProductDetail pd : productDetailList) {
+            if (pd.getRam() != null && pd.getRom() != null && pd.getColor() != null) {
+                String ramRomKey = pd.getRam().getId() + "-" + pd.getRom().getId();
+
+                // Tạo ColorOption
+                ProductDetailViewResponse.ColorOption colorOption = new ProductDetailViewResponse.ColorOption();
+                colorOption.setId(pd.getColor().getId());
+                colorOption.setColorName(pd.getColor().getName());
+                colorOption.setColorCode(pd.getColor().getHex());
+
+                // Thêm vào map availableColors
+                availableColors.computeIfAbsent(ramRomKey, k -> new ArrayList<>())
+                        .add(colorOption);
+            }
+        }
+
+        // Loại bỏ các màu trùng lặp trong mỗi danh sách
+        availableColors.forEach((key, colors) -> {
+            List<ProductDetailViewResponse.ColorOption> uniqueColors = colors.stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+            availableColors.put(key, uniqueColors);
+        });
+
+        response.setAvailableColors(availableColors);
+
 
         List<String> imageUrls = productDetailList.stream()
                 .map(pd->pd.getImageUrl())
