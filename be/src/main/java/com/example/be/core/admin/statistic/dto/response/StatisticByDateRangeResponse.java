@@ -5,12 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class RevenueByYearResponse {
-    private Integer year;
+@Data @AllArgsConstructor @NoArgsConstructor
+public class StatisticByDateRangeResponse {
     private BigDecimal value;
-
+    private Long totalOrders;
+    private List<DailyStatistic> dailyStatistics;
 }

@@ -57,49 +57,49 @@ const statusMap: Record<string, {
   color_boder: string;
 }> = {
   CHO_XAC_NHAN: {
-    title: "Chờ Xác Nhận",
+    title: "Chờ xác nhận",
     icon: <Hourglass className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DA_XAC_NHAN: {
-    title: "Đã Xác Nhận",
+    title: "Đã xác nhận",
     icon: <ClipboardCheck className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DANG_CHUAN_BI_HANG: {
-    title: "Đang Chuẩn Bị Hàng",
+    title: "Đang chuẩn bị hàng",
     icon: <PackageOpen className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   DANG_GIAO_HANG: {
-    title: "Đang Giao Hàng",
+    title: "Đang giao hàng",
     icon: <PackageSearch className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
     color_boder: "border-blue-400",
   },
   HOAN_THANH: {
-    title: "Hoàn Thành",
+    title: "Hoàn thành",
     icon: <BadgeCheck className="w-6 h-6" />,
     color_bg: "bg-green-100",
     color_text: "text-green-600",
     color_boder: "border-green-400",
   },
   DA_HUY: {
-    title: "Đã Hủy",
+    title: "Đã hủy",
     icon: <XOctagon className="w-6 h-6" />,
     color_bg: "bg-red-100",
     color_text: "text-red-600",
     color_boder: "border-red-400",
   },
   CHO_THANH_TOAN: {
-    title: "Chờ Thanh Toán",
+    title: "Chờ thanh toán",
     icon: <WalletCards className="w-6 h-6" />,
     color_bg: "bg-blue-100",
     color_text: "text-blue-600",
@@ -319,7 +319,6 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         setNote("");
         showSuccessToast("Cập nhật trạng thái đơn hàng thành công.");
         loadTongBill();
-
       }
 
     };
@@ -403,7 +402,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     };
 
     return (
-      <div className="w-[985px]">
+      <div className="w-full">
         <div className="bg-white rounded-xl ring-1 ring-gray-200 shadow-xl p-4">
           {/* Header */}
           <div className="p-2 border-b border-gray-100 ml-[10px]">

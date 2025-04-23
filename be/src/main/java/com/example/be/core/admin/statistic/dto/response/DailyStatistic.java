@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RevenueByYearResponse {
-    private Integer year;
+public class DailyStatistic {
+    private String date;
     private BigDecimal value;
-
+    private Long orderCount;
 }

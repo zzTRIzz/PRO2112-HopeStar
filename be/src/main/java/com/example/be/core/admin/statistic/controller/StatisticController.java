@@ -1,12 +1,15 @@
 package com.example.be.core.admin.statistic.controller;
 
-        import com.example.be.core.admin.statistic.dto.response.*;
-        import com.example.be.core.admin.statistic.service.StatisticService;
-        import lombok.RequiredArgsConstructor;
-        import org.springframework.http.ResponseEntity;
-        import org.springframework.web.bind.annotation.*;
+import com.example.be.core.admin.statistic.dto.model.StatisticDateRangeRequest;
+import com.example.be.core.admin.statistic.dto.response.*;
+import com.example.be.core.admin.statistic.service.StatisticService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-        import java.util.List;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -97,4 +100,40 @@ public class StatisticController {
         return statisticService.getLowStockProducts();
     }
 
+    // Trong StatisticController.java
+
+    // Thống kê doanh thu 3 ngày gần nhất
+    @GetMapping("/revenue/last-3-days")
+    public List<StatisticByDateResponse> getRevenueLast3Days() {
+        return statisticService.getRevenueLast3Days();
+    }
+
+    // Thống kê doanh thu 7 ngày gần nhất
+    @GetMapping("/revenue/last-7-days")
+    public List<StatisticByDateResponse> getRevenueLast7Days() {
+        return statisticService.getRevenueLast7Days();
+    }
+
+    @GetMapping("/order-count/last-3-days")
+    public List<OrderCountByDateResponse> getOrderCountLast3Days() {
+        return statisticService.getOrderCountLast3Days();
+    }
+
+    // Thống kê số lượng hóa đơn 7 ngày gần nhất
+    @GetMapping("/order-count/last-7-days")
+    public List<OrderCountByDateResponse> getOrderCountLast7Days() {
+        return statisticService.getOrderCountLast7Days();
+    }
+
+    @GetMapping("/by-date-range")
+    public ResponseEntity<StatisticByDateRangeResponse> getStatisticByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        StatisticByDateRangeResponse response = statisticService.getStatisticByDateRange(
+                startDate,
+                endDate
+        );
+        return ResponseEntity.ok(response);
+    }
 }

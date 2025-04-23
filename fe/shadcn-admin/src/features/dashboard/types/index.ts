@@ -1,19 +1,19 @@
-export type ViewMode = 'day' | 'month' | 'year';
+export type ViewMode = 'day' | '3days' | '7days' | 'month' | 'year';
 
 export interface DayRevenue {
   date: string;
-  totalRevenue: number;
+  value: number;  // Changed from totalRevenue
 }
 
 export interface MonthRevenue {
   year: number;
   month: number;
-  totalRevenue: number;
+  value: number;  // Changed from totalRevenue
 }
 
 export interface YearRevenue {
   year: number;
-  totalRevenue: number;
+  value: number;  // Changed from totalRevenue
 }
 
 export interface DayOrderCount {
@@ -85,4 +85,16 @@ export interface MonthlyRevenue {
 export interface DailyProductSale {
   saleDate: string;
   dailyQuantitySold: number;
+}
+
+export interface DateRangeStatistic {
+  date: string;
+  value: number;  // Changed from revenue to value
+  orderCount: number;
+}
+
+export interface DateRangeResponse {
+  value: number;  // Changed from totalRevenue to value
+  totalOrders: number;
+  dailyStatistics: DateRangeStatistic[];
 }

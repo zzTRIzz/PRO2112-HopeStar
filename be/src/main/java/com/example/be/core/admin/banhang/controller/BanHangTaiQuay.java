@@ -261,7 +261,7 @@ public class BanHangTaiQuay {
     @PostMapping("/update_imei_sold/{idBill}/{idProduct}")
     public ResponseEntity<?> updateImeiSold(@RequestBody ImeiSoldDto imeiSoldDto,
                                             @PathVariable("idBill") Integer idBill,
-                                            @PathVariable("idProduct") Integer idProduct
+                                             @PathVariable("idProduct") Integer idProduct
     ) {
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));

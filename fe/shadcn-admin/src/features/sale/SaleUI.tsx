@@ -701,7 +701,7 @@ export default function SaleUI() {
                                 className="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 onClick={handleCreate}
                             >
-                                + Thêm mới
+                                + Tạo chương trình
                             </button>
                         </div>
                     </div>
@@ -716,9 +716,9 @@ export default function SaleUI() {
                                 <th className="p-3">Tên</th>
                                 <th className="p-3">Giá trị</th>
                                 <th className="p-3">Mô tả</th>
-                                <th className="p-3">Thời Gian</th>
-                                <th className="p-3">Trạng Thái</th>
-                                <th className="p-3">Thao Tác</th>
+                                <th className="p-3">Thời gian</th>
+                                <th className="p-3">Trạng thái</th>
+                                <th className="p-3">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>

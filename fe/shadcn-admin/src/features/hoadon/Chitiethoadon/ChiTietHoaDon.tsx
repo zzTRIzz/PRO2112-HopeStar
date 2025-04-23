@@ -245,27 +245,31 @@ const ChiTietHoaDon: React.FC = () => {
             console.error("Lỗi API:", error);
         }
     };
-
-
     const updateHandleImeiSold = async (idBillDetail: number) => {
         try {
-            await updateImeiSold({
+            if (selectedImei.length <= 0) {
+                showErrorToast("Vui lòng chọn imei");
+                return;
+            }
+            await createImeiSold({
                 id_Imei: selectedImei,
                 idBillDetail: idBillDetail
             },
                 idBill,
                 idProductDetail
             );
-            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật ${selectedImei.length} IMEI`);
+            // console.log("Imei mới:", newImei);
             setSelectedImei([]);
+            setIsDialogOpen(false); // Đóng dialog
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
-            showSuccessToast("Cập nhật IMEI thành công");
+            showSuccessToast("Thêm IMEI thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
         }
     };
+
 
     // Cập nhật product 
     const handleUpdateProduct = async (idPD: number, billDetaill: number) => {

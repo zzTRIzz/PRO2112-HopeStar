@@ -320,7 +320,7 @@ public class AccountService {
 
     public List<AccountResponse> getAllKhachHang() {
 
-        return accountRepository.getAllAcountKhachHang().stream()
+        return accountRepository.getAllAccountKhachHang().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }

@@ -407,37 +407,6 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-
-//    @Override
-//    public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
-//        try {
-//            Bill bill = billRepository.findById(request.getId()).orElseThrow(
-//                    () -> new RuntimeException("Bill not found with id: " + request.getId())
-//            );
-//
-//            BigDecimal oldFee = bill.getDeliveryFee();
-//            BigDecimal newFee = request.getDeliveryFee();
-//
-//            BigDecimal tongTien = bill.getTotalDue().subtract(oldFee).add(newFee);
-//
-//            bill.setTotalDue(tongTien);
-//            bill.setAddress(request.getAddress());
-//            bill.setNote(request.getNote());
-//            bill.setPhone(request.getPhone());
-//            bill.setName(request.getName());
-//            bill.setDeliveryFee(newFee);
-//
-////            System.out.println("Phi ship cũ: " + oldFee);
-////            System.out.println("Phi ship mới: " + newFee);
-////            System.out.println("Tổng tiền sau cập nhật: " + tongTien);
-//
-//            Bill saveBill = billRepository.save(bill);
-//            return billMapper.dtoBillMapper(saveBill);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
-//        }
-//    }
 @Override
 public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
     try {
