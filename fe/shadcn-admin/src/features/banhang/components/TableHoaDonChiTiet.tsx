@@ -99,13 +99,13 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="right">Stt</TableCell>
+                                    <TableCell align="right">STT</TableCell>
                                     <TableCell align="center">Hình ảnh</TableCell>
                                     <TableCell align="center">Sản phẩm</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Số lượng</TableCell>
-                                    <TableCell align="right">Thành tiền</TableCell>
-                                    <TableCell align="center">Action</TableCell>
+                                    <TableCell align="right">Tổng tiền</TableCell>
+                                    <TableCell align="center">Thao tác</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>

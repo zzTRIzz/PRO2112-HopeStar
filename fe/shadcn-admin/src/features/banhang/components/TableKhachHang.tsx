@@ -104,19 +104,19 @@ const TableKhachHang: React.FC<Props> =
                       <TableHead>
                         <TableRow>
                           <TableCell>Stt</TableCell>
-                          <TableCell>Mã</TableCell>
+                          {/* <TableCell>Mã</TableCell> */}
                           <TableCell>Họ và tên</TableCell>
                           <TableCell>Số điện thoại</TableCell>
                           <TableCell>Email</TableCell>
                           <TableCell>Địa chỉ</TableCell>
-                          <TableCell>Thao Tác</TableCell>
+                          <TableCell>Thao tác</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {filteredAccounts.map((ac, index) => (
                           <TableRow key={ac.id}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell>{ac.code}</TableCell>
+                            {/* <TableCell>{ac.code}</TableCell> */}
                             <TableCell>{ac.fullName}</TableCell>
                             <TableCell>{ac.phone}</TableCell>
                             <TableCell>{ac.email}</TableCell>

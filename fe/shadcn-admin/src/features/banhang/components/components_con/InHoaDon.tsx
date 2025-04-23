@@ -8,6 +8,7 @@ interface PrintInvoiceProps {
     staff: string;
     customer: string;
     phone: string;
+    address: string;
     items: Array<{
       product: string;
       imei: string[];
@@ -17,6 +18,8 @@ interface PrintInvoiceProps {
     totalPrice: number;
     discountedTotal: number;
     deliveryFee: number;
+    payInsurance: number;
+    totalDue: number;
     customerPayment: number;
     change: number;
   };
@@ -82,8 +85,11 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       {/* Thông tin bán hàng */}
       <div style={{ fontSize: "14px", marginTop: "10px" }}>
         <p><strong>Nhân viên bán hàng:</strong> {billData?.staff}</p>
-        <p><strong>Khách hàng:</strong> {billData?.customer}</p>
-        <p><strong>SDT:</strong> {billData?.phone}</p>
+        <p><strong>Tên khách hàng:</strong> {billData?.customer}</p>
+        <p><strong>Số điện thoại:</strong> {billData?.phone}</p>
+        {billData?.deliveryFee > 0 && (
+        <p><strong>Địa chỉ giao hàng:</strong> {billData?.address}</p>
+        )}
       </div>
 
       {/* Bảng sản phẩm */}
@@ -95,7 +101,7 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
             <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Số imei</th>
             <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Số lượng</th>
             <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Đơn giá</th>
-            <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Thành tiền</th>
+            <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Tổng tiền</th>
           </tr>
         </thead>
         <tbody>
@@ -120,12 +126,18 @@ const InvoiceTemplate: React.FC<PrintInvoiceProps> = ({ billData }) => {
       <div style={{ textAlign: "right", marginBottom: "20px", fontSize: "18px" }}>
         <p><strong>Tổng số lượng:</strong> {billData?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0)}</p>
         <p><strong>Tổng tiền hàng:</strong> {billData?.totalPrice?.toLocaleString("vi-VN")} đ</p>
-        <p><strong>Chiết khấu:</strong> {billData?.discountedTotal?.toLocaleString("vi-VN")} đ</p>
+        <p><strong>Giảm giá:</strong> {billData?.discountedTotal?.toLocaleString("vi-VN")} đ</p>
         {billData?.deliveryFee > 0 && (
           <p><strong>Phí ship:</strong> {billData?.deliveryFee?.toLocaleString("vi-VN")} đ</p>
         )}
+        {billData?.payInsurance > 0 && (
+          <p><strong>Phí bảo hiểm:</strong> {billData?.payInsurance?.toLocaleString("vi-VN")} đ</p>
+        )}
+        <p><strong>Thành tiền:</strong> {billData?.totalDue?.toLocaleString("vi-VN")} đ</p>
         <p><strong>Khách trả:</strong> {billData?.customerPayment?.toLocaleString("vi-VN")} đ</p>
+        {billData?.change > 0 && (
         <p><strong>Tiền thừa:</strong> {billData?.change?.toLocaleString("vi-VN")} đ</p>
+      )}
       </div>
 
       {/* Footer */}

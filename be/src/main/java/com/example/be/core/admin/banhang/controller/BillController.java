@@ -56,13 +56,5 @@ public class BillController {
     }
 
 
-    @GetMapping("/findBillByMaBill/{maBill}")
-    public ResponseEntity<?> findBillByMaBill(@PathVariable("maBill")String maBill){
-        Integer idBill = billRepository.findBillByMaBill(maBill);
-        if (idBill.describeConstable().isEmpty()){
-            throw new RuntimeException("Mã hóa đơn bị sai vui lòng thử lại");
-        }
-        BillRespones billHistoryRespones = billService.findByIdBill(idBill);
-        return ResponseEntity.ok(billHistoryRespones);
-    }
+
 }

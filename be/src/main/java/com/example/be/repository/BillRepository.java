@@ -33,14 +33,17 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 
 
     @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount " +
-            " and b.billType = 1")
+            "and b.delivery.id = 2")
     List<Bill> findAllByAccount(@Param("idAccount") Integer idAccount);
 
 
-    Optional<Bill> findById(Integer idBill);
+    @Query("SELECT b FROM Bill b WHERE b.id = :idBill " +
+            "and b.delivery.id = 2")
+    Optional<Bill> traCuuDonHang(@Param("idBill") Integer idBill);
 
 
-    @Query("SELECT b.id FROM Bill b WHERE b.maBill = :maBill")
+    @Query("SELECT b.id FROM Bill b WHERE b.maBill = :maBill " +
+            "and b.delivery.id = 2")
     Integer findBillByMaBill(@Param("maBill") String maBill);
 
 }

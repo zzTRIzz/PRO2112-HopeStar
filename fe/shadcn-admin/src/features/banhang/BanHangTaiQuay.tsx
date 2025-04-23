@@ -555,9 +555,9 @@ function BanHangTaiQuay() {
           totalPrice: searchBill?.totalPrice ?? 0,
           customerPayment: customerPayment,
           amountChange: tienKhachThieu,
-          deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
           totalDue: tongTien ?? 0,
-          payInsurance: (isBanGiaoHang == true ? insuranceFee : 0),
+          deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
+          payInsurance: insuranceFee ?? 0,
           customerRefund: searchBill?.customerRefund ?? 0,
           discountedTotal: searchBill?.discountedTotal ?? 0,
           receiptDate: searchBill?.receiptDate,
@@ -580,6 +580,7 @@ function BanHangTaiQuay() {
           staff: searchBill?.fullNameNV,
           customer: (isBanGiaoHang == true ? deliveryInfo?.customerName : searchBill?.name),
           phone: (isBanGiaoHang == true ? deliveryInfo?.customerPhone : searchBill?.phone),
+          address: (isBanGiaoHang == true ? deliveryInfo?.fullAddress : searchBill?.address),
           items: searchBill?.billDetailResponesList.map(detail => ({
             product: detail.productDetail.productName + ' ' +
               detail.productDetail.ram + '/' +
@@ -592,6 +593,8 @@ function BanHangTaiQuay() {
           totalPrice: searchBill?.totalPrice || 0,
           discountedTotal: searchBill?.discountedTotal || 0,
           deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
+          payInsurance: insuranceFee || 0,
+          totalDue: tongTien || 0,
           customerPayment: customerPayment || 0,
           change: (tienThua > 0 ? tienThua : 0),
         };
@@ -817,7 +820,7 @@ function BanHangTaiQuay() {
         }}
       >
         <div className='mb-2 flex items-center justify-between'>
-          <div className='ml-[750px] mr-[40px] flex space-x-2'>
+          <div className='ml-[800px] mr-[40px] flex space-x-2'>
             <Button
               variant='outline'
               className='text-2xs rounded-lg border border-blue-500 px-3 text-blue-600 hover:border-orange-600 hover:text-orange-600'
@@ -828,7 +831,7 @@ function BanHangTaiQuay() {
                 checked={isBanGiaoHang}
                 onCheckedChange={handleBanGiaoHangChange}
               />
-              Bán giao hàng
+              Giao hàng
             </Button>
           </div>
         </div>
@@ -860,7 +863,6 @@ function BanHangTaiQuay() {
             setIsVoucher={setIsVoucher}
             tienThua={tienThua}
             isBanGiaoHang={isBanGiaoHang}
-            // phiShip={phiShip}
             printData={printData}
             printRef={printRef}
             setIsThanhToanNhanHang={setIsThanhToanNhanHang}

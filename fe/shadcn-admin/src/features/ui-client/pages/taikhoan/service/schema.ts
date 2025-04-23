@@ -38,7 +38,7 @@ interface ProductDetail {
     deliveryDate: string;
     paymentDate: string;
     billType: number;
-    status:  'CHO_XAC_NHAN' | 'CHO_THANH_TOAN' | 'DANG_CHUAN_BI_HANG' | 'DANG_GIAO_HANG' | 'HOAN_THANH' | 'DA_HUY' ;
+    status:  'CHO_XAC_NHAN'  | 'DANG_CHUAN_BI_HANG' | 'DANG_GIAO_HANG' | 'HOAN_THANH' | 'DA_HUY' ;
     address: string;
     email: string;
     phone: string;
