@@ -20,17 +20,15 @@ import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 
-const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
-const { name, email,idRole } = signupData
 
-export const sidebarData: SidebarData = {
+export const sidebarData: Omit<SidebarData, 'user'> = {
   
-  user: {
-    name: name,
-    email: email,
-    avatar: '/avatars/shadcn.jpg',
-    role:idRole
-  },
+  // user: {
+  //   name: name,
+  //   email: email,
+  //   avatar: '/avatars/shadcn.jpg',
+  //   role:idRole
+  // },
   teams: [
     {
       name: 'HopeStar',

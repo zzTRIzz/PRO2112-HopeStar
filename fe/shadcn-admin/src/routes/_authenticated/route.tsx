@@ -6,6 +6,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import SkipToMain from '@/components/skip-to-main'
 import ForbiddenError from '@/features/errors/forbidden'
+import { jwtDecode } from 'jwt-decode'
 
 export const Route = createFileRoute('/_authenticated')({
   component: RouteComponent,
@@ -14,12 +15,19 @@ export const Route = createFileRoute('/_authenticated')({
 function RouteComponent() {
   const defaultOpen = Cookies.get('sidebar:state') !== 'false'
 
-  const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
-  const { idRole } = signupData
+  interface JwtPayload {
+    iat: number;
+    exp: number;
+    email: string;
+    role: string;
+  }
+  const token = Cookies.get('jwt')
+  const decoded = token ? jwtDecode<JwtPayload>(token) : null;
+  const idRole = decoded?.role || 0;
 
   return (
     <>
-      {idRole === 2 || idRole === 3 ? (
+      {idRole === "2" || idRole === "3" ? (
         <SearchProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <SkipToMain />
