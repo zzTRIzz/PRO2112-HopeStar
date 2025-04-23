@@ -7,7 +7,7 @@ import { Bill } from '../service/schema'
 
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
-  CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  // CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
@@ -39,11 +39,8 @@ export const OrdersPage = () => {
       // Lọc theo trạng thái
       if (selected !== 'all') {
         if (selected === 'CHO_XAC_NHAN') {
-          if (
-            bill.status !== 'CHO_XAC_NHAN' &&
-            bill.status !== 'CHO_THANH_TOAN'
-          ) {
-            return false
+          if (bill.status !== 'CHO_XAC_NHAN') {
+            return false;
           }
         } else if (bill.status !== selected) {
           return false
@@ -52,9 +49,9 @@ export const OrdersPage = () => {
 
       // Lọc theo từ khóa tìm kiếm
       if (searchKeyword.trim() !== '') {
-        const keyword = searchKeyword.toLowerCase()
-        const matchesCode = bill.code?.toLowerCase().includes(keyword)
-        const matchesProduct = bill.billDetailResponesList?.some((detail) =>
+        const keyword = searchKeyword.toLowerCase();
+        const matchesCode = bill?.maBill?.toLowerCase().includes(keyword);
+        const matchesProduct = bill?.billDetailResponesList?.some((detail) =>
           detail.productDetail?.productName?.toLowerCase().includes(keyword)
         )
         return matchesCode || matchesProduct

@@ -74,7 +74,7 @@ const ThongTinDonHang = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/admin/bill/findBillByMaBill/${maDonHang}`
+          `http://localhost:8080/bill/client/findBillByMaBill/${maDonHang}`
         );
         setBill(response.data);
       } catch (error) {
