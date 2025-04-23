@@ -11,6 +11,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class RevenueByYearResponse {
     private Integer year;
-    private BigDecimal totalRevenue;
+    private BigDecimal value;
 
 }

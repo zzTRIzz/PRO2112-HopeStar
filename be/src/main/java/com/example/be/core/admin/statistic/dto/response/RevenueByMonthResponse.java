@@ -12,5 +12,5 @@ import java.math.BigDecimal;
 public class RevenueByMonthResponse {
     private Integer year;
     private Integer month;
-    private BigDecimal totalRevenue;
+    private BigDecimal value;
 }

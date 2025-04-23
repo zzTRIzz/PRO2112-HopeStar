@@ -2,55 +2,58 @@ import React from 'react';
 import { Line } from '@ant-design/charts';
 import { ViewMode } from '../types';
 import { useQuery } from '@tanstack/react-query';
-import { getRevenueByDate, getRevenueByMonth, getRevenueByYear } from '../api/statisticsApi';
+import { 
+  getRevenueByDate, 
+  getRevenueByMonth, 
+  getRevenueByYear, 
+  getLast3DaysRevenue,
+  getLast7DaysRevenue 
+} from '../api/statisticsApi';
+import type { DateRangeResponse } from '../types';
 
 interface RevenueChartProps {
   viewMode: ViewMode;
+  dateRange?: [string, string] | null;
+  dateRangeData?: DateRangeResponse | null;
 }
 
-export const RevenueChart = ({ viewMode }: RevenueChartProps) => {
-  const { data: dayData } = useQuery({
-    queryKey: ['revenue', 'day'],
-    queryFn: getRevenueByDate,
-    enabled: viewMode === 'day'
-  });
+export const RevenueChart = ({ viewMode, dateRange, dateRangeData }: RevenueChartProps) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['revenue', viewMode, dateRange],
+    queryFn: () => {
+      if (dateRange && dateRangeData) {
+        return dateRangeData.dailyStatistics;
+      }
 
-  const { data: monthData } = useQuery({
-    queryKey: ['revenue', 'month'], 
-    queryFn: getRevenueByMonth,
-    enabled: viewMode === 'month'
-  });
-
-  const { data: yearData } = useQuery({
-    queryKey: ['revenue', 'year'],
-    queryFn: getRevenueByYear, 
-    enabled: viewMode === 'year'
+      switch (viewMode) {
+        case 'day':
+          return getRevenueByDate();
+        case '3days':
+          return getLast3DaysRevenue();
+        case '7days':
+          return getLast7DaysRevenue();
+        case 'month':
+          return getRevenueByMonth();
+        case 'year':
+          return getRevenueByYear();
+        default:
+          return getRevenueByMonth();
+      }
+    },
+    enabled: !dateRange || !dateRangeData
   });
 
   const chartData = React.useMemo(() => {
-    switch(viewMode) {
-      case 'day':
-        return dayData?.map(item => ({
-          date: item.date,
-          value: item.totalRevenue,
-          type: 'Doanh thu'
-        }));
-      case 'month':
-        return monthData?.map(item => ({
-          date: `${item.month}/${item.year}`,
-          value: item.totalRevenue,
-          type: 'Doanh thu'  
-        }));
-      case 'year':
-        return yearData?.map(item => ({
-          date: item.year.toString(),
-          value: item.totalRevenue,
-          type: 'Doanh thu'
-        }));
-      default:
-        return [];
-    }
-  }, [viewMode, dayData, monthData, yearData]);
+    const rawData = dateRangeData?.dailyStatistics || data || [];
+    
+    return rawData.map((item: any) => ({
+      date: item.date ? formatDate(item.date) : 
+            item.month ? `${item.month}/${item.year}` : 
+            item.year ? `${item.year}` : '',
+      value: item.value || 0,
+      type: 'Doanh thu'
+    }));
+  }, [data, dateRangeData, viewMode]);
 
   const config = {
     data: chartData || [],
@@ -89,3 +92,14 @@ export const RevenueChart = ({ viewMode }: RevenueChartProps) => {
 
   return <Line {...config} />;
 };
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Invalid Date';
+  
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}

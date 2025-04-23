@@ -46,7 +46,7 @@ export const StatsCards = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            Doanh thu tháng này
+            Doanh thu trong tháng 
           </CardTitle>
           <IconReceipt className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -64,7 +64,7 @@ export const StatsCards = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            Sản phẩm bán ra tháng này
+            Sản phẩm bán ra trong tháng 
           </CardTitle>
           <IconChartBar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>

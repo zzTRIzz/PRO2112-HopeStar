@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,8 @@ public class StatisticServiceImpl implements StatisticService {
                 ))
                         .collect(Collectors.toList());
     }
+
+
 
     @Override
     public List<RevenueByYearResponse> getRevenueByYear() {
@@ -206,5 +209,80 @@ public class StatisticServiceImpl implements StatisticService {
                 ((Number) row[3]).intValue(), // inventory_quantity
                 (String) row[4]    // status
         );
+    }
+
+    // Trong StatisticService.java
+
+    public List<StatisticByDateResponse> getRevenueLast3Days() {
+        List<Object[]> results = statisticRepository.getRevenueLast3Days();
+        return results.stream()
+                .map(this::mapToStatisticByDateResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<StatisticByDateResponse> getRevenueLast7Days() {
+        List<Object[]> results = statisticRepository.getRevenueLast7Days();
+        return results.stream()
+                .map(this::mapToStatisticByDateResponse)
+                .collect(Collectors.toList());
+    }
+
+    private StatisticByDateResponse mapToStatisticByDateResponse(Object[] result) {
+        Date date = (Date) result[0];
+        BigDecimal totalRevenue = (BigDecimal) result[1];
+        return new StatisticByDateResponse(date, totalRevenue);
+    }
+
+    @Override
+    public List<OrderCountByDateResponse> getOrderCountLast3Days() {
+        List<Object[]> results = statisticRepository.getOrderCountLast3Days();
+        return results.stream()
+                .map(result -> new OrderCountByDateResponse(
+                        ((java.sql.Date) result[0]).toString(),
+                        ((Number) result[1]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderCountByDateResponse> getOrderCountLast7Days() {
+        List<Object[]> results = statisticRepository.getOrderCountLast7Days();
+        return results.stream()
+                .map(result -> new OrderCountByDateResponse(
+                        ((java.sql.Date) result[0]).toString(),
+                        ((Number) result[1]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public StatisticByDateRangeResponse getStatisticByDateRange(LocalDate startDate, LocalDate endDate) {
+        // Validate date range
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
+
+        List<Object[]> results = statisticRepository.getDailyStatisticByDateRange(startDate, endDate);
+
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        Long totalOrders = 0L;
+        List<DailyStatistic> dailyStatistics = new ArrayList<>();
+
+        for (Object[] result : results) {
+            Date date = (Date) result[0];
+            BigDecimal dailyRevenue = (BigDecimal) result[1];
+            Long dailyOrderCount = ((Number) result[2]).longValue();
+
+            totalRevenue = totalRevenue.add(dailyRevenue);
+            totalOrders += dailyOrderCount;
+
+            dailyStatistics.add(new DailyStatistic(
+                    date.toString(),
+                    dailyRevenue,
+                    dailyOrderCount
+            ));
+        }
+
+        return new StatisticByDateRangeResponse(totalRevenue, totalOrders, dailyStatistics);
     }
 }
