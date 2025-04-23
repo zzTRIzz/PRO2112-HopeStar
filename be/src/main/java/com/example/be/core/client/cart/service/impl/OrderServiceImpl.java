@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal totalPrice = products.getPriceSell().multiply(BigDecimal.valueOf(products.getQuantity()));
             billDetail.setTotalPrice(totalPrice);
             billDetailRepository.save(billDetail);
-            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity() - products.getQuantity());
+//            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity() - products.getQuantity());
             productDetailRepository.save(productDetail);
             cartDetail.setStatus(StatusCartDetail.purchased);
             cartDetailRepository.save(cartDetail);
