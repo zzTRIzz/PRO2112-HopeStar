@@ -3,7 +3,8 @@ import Categories from '../components/categories'
 import FeaturedProducts from '../components/featured-products'
 import HeroSection from '../components/hero-section'
 import Navbar from '../components/navbar'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import CustomerChat from '../components/custom-chat'
 
 export default function HomePage() {
   useEffect(() => {
@@ -12,12 +13,17 @@ export default function HomePage() {
       document.title = 'HopeStar'
     }
   }, [])
+  const [isCustomerChatOpen, setIsCustomerChatOpen] = useState(false);
   return (
     <div className='min-h-screen bg-background'>
       <Navbar />
       <main>
         <HeroSection />
         <FeaturedProducts />
+        <CustomerChat
+        isOpen={isCustomerChatOpen}
+        toggleChat={() => setIsCustomerChatOpen(!isCustomerChatOpen)}
+      />
         <Categories />
       </main>
       <Footer />

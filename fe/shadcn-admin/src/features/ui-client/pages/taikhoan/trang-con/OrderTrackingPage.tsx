@@ -185,14 +185,14 @@ const OrderTrackingPage = () => {
             )}
           </CardBody>
         </Card>
-        <div style={{ textAlign: 'right' }}>
+        {/* <div style={{ textAlign: 'right' }}>
           <Button
             className="bg-red-500 text-white hover:bg-red-600"
             disabled={bill.status !== "CHO_THANH_TOAN" && bill.status !== "CHO_XAC_NHAN"}
           >
             Hủy đơn hàng
           </Button>
-        </div>
+        </div> */}
         <div className='grid gap-4 md:grid-cols-3'>
           <div className='space-y-4 md:col-span-2'>
             {/* Recipient Info */}

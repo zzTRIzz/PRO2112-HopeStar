@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
 import { BillRespones, Imei, ProductDetail } from '@/features/banhang/service/Schema';
+import { IconQuestionMark } from '@tabler/icons-react';
 
 
 
@@ -51,8 +52,8 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
             <>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" 
-                        className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                        <Button variant="outline"
+                            className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
                             onClick={() => setDialogContent('product')}
                             disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}>
                             Thêm sản phẩm
@@ -64,14 +65,14 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                             className="max-w-sm"
                         />
                         {dialogContent === 'product' ? (
-                            <TableContainer>
+                            <TableContainer className='h-[550px]'>
                                 {/* <h2>Sản phẩm </h2>   */}
                                 <Table>
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Stt</TableCell>
-                                            <TableCell>Mã code</TableCell>
-                                            <TableCell>Tên sản phẩm</TableCell>
+                                            {/* <TableCell>Mã code</TableCell> */}
+                                            <TableCell>Sản phẩm</TableCell>
                                             <TableCell>Giá tiền </TableCell>
                                             <TableCell>Số lượng tồn kho</TableCell>
                                             <TableCell>Thao Tác</TableCell>
@@ -81,8 +82,28 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         {listProduct?.map((product, index) => (
                                             <TableRow key={product?.id}>
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{product?.code}</TableCell>
-                                                <TableCell>{product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}</TableCell>
+                                                {/* <TableCell>{product?.code}</TableCell> */}
+                                                <TableCell>
+                                                    <div className="flex items-center space-x-2">
+                                                        <div className="h-20 w-16 flex-shrink-0">
+                                                            {product.imageUrl ? (
+                                                                <img
+                                                                    src={product.imageUrl}
+                                                                    alt={`${product.name}`}
+                                                                    className="h-full w-full rounded-sm object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted">
+                                                                    <IconQuestionMark className="h-6 w-6" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <span className="whitespace-nowrap text-sm">
+                                                            {product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+
                                                 <TableCell>{product?.priceSell?.toLocaleString('vi-VN')}</TableCell>
                                                 <TableCell align="center">{product.inventoryQuantity}</TableCell>
                                                 <TableCell>
@@ -130,7 +151,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                                         ))}
                                     </TableBody>
                                 </Table>
-                                
+
                                 <div className="absolute bottom-0 left-0 w-full bg-white p-4 shadow-md ">
                                     <Button
                                         className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"

@@ -2,13 +2,13 @@ package com.example.be.core.admin.chat.controller;
 
 import com.example.be.core.admin.chat.service.ChatService;
 import com.example.be.entity.ChatMessage;
+import com.example.be.entity.status.MessageStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,21 +48,29 @@ public class ChatController {
     @MessageMapping("/chat/send")
     public void sendMessageViaWebSocket(@Payload ChatMessageRequest request) {
         try {
-            ChatMessage message = chatService.sendMessage(
+            ChatMessage savedMessage = chatService.sendMessage(
                     request.getSenderId(),
                     request.getReceiverId(),
                     request.getMessage()
             );
-            // Gửi tin nhắn qua WebSocket đến người nhận
-            String destination = "/topic/messages/" + getConversationId(request.getSenderId(), request.getReceiverId());
-            messagingTemplate.convertAndSend(destination, message);
-        } catch (IllegalArgumentException e) {
-            // Gửi lỗi đến người gửi qua WebSocket (nếu cần)
-            messagingTemplate.convertAndSendToUser(
-                    String.valueOf(request.getSenderId()),
-                    "/topic/errors",
-                    "Invalid sender or receiver"
+            String conversationId = savedMessage.getConversationId();
+            messagingTemplate.convertAndSend("/topic/messages/" + conversationId, savedMessage);
+        } catch (Exception e) {
+            messagingTemplate.convertAndSend("/topic/errors", "Error: " + e.getMessage());
+        }
+    }
+
+    @MessageMapping("/chat/status")
+    public void updateMessageStatus(@Payload StatusUpdateRequest request) {
+        try {
+            ChatMessage updatedMessage = chatService.updateMessageStatus(
+                    request.getMessageId(),
+                    request.getStatus()
             );
+            String conversationId = updatedMessage.getConversationId();
+            messagingTemplate.convertAndSend("/topic/messages/" + conversationId, updatedMessage);
+        } catch (Exception e) {
+            messagingTemplate.convertAndSend("/topic/errors", "Error updating status: " + e.getMessage());
         }
     }
 
@@ -116,4 +124,14 @@ class ChatMessageRequest {
     public void setMessage(String message) {
         this.message = message;
     }
+}
+
+class StatusUpdateRequest {
+    private String messageId;
+    private MessageStatus status;
+
+    public String getMessageId() { return messageId; }
+    public void setMessageId(String messageId) { this.messageId = messageId; }
+    public MessageStatus getStatus() { return status; }
+    public void setStatus(MessageStatus status) { this.status = status; }
 }

@@ -1,5 +1,6 @@
 package com.example.be.entity;
 
+import com.example.be.entity.status.MessageStatus;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,5 +21,5 @@ public class ChatMessage {
     private Integer receiverId;
     private String message;
     private LocalDateTime timestamp;
-    private String status;
+    private MessageStatus status;
 }

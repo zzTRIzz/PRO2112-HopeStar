@@ -75,7 +75,7 @@ export default function ChatBotAi() {
       const welcomeMessages = [
         {
           id: "welcome-1",
-          content: signupData.name? `Xin chào ${signupData.name}, tôi là AI hỗ trợ của HopeStar`: "Xin chào, tôi là AI hỗ trợ của HopeStar",
+          content: signupData.name? `Xin chào **${signupData.name}**, tôi là AI hỗ trợ của HopeStar`: "Xin chào, tôi là AI hỗ trợ của HopeStar",
           isBot: true,
           timestamp: new Date(),
         },
@@ -181,15 +181,16 @@ export default function ChatBotAi() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-default-50 p-4 flex items-center justify-center">
+    <>
       <Button
         isIconOnly
         color="primary"
         variant="solid"
         onPress={onOpen}
-        className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
+        className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg z-50"
       >
-        <Icon icon="lucide:message-circle" className="h-6 w-6" />
+        <Icon icon="lucide:bot" className="h-7 w-7" />
+        {/* <Icon icon="lucide:bot-message-square" className="h-6 w-6" /> */}
       </Button>
 
       <Modal 
@@ -202,7 +203,7 @@ export default function ChatBotAi() {
           {(onClose) => (
             <>
               <ModalBody className="p-4">
-                <div className="flex flex-col h-[60vh]">
+                <div className="flex flex-col h-[61vh]">
                   <div className="flex items-center mb-4">
                     <h1 className="text-xl font-semibold">Tư vấn viên AI</h1>
                   </div>
@@ -218,6 +219,7 @@ export default function ChatBotAi() {
                   
                   <div className="border-t border-default-200 pt-4 mt-4">
                     <Input
+                      radius="full"
                       placeholder="Cho tôi biết bạn cần giúp gì..."
                       value={inputValue}
                       onValueChange={setInputValue}
@@ -230,9 +232,9 @@ export default function ChatBotAi() {
                           variant="flat"
                           onPress={handleSend}
                           isLoading={isLoading}
-                          className="h-full"
+                          className="h-8 rounded-full"
                         >
-                          <Icon icon="lucide:send" className="h-4 w-4" />
+                          <Icon icon="lucide:send" className="h-3 w-3" />
                         </Button>
                       }
                     />
@@ -243,6 +245,6 @@ export default function ChatBotAi() {
           )}
         </ModalContent>
       </Modal>
-    </div>
+    </>
   );
 }

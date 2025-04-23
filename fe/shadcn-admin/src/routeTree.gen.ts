@@ -96,6 +96,9 @@ const authTracuudonhangIndexLazyImport = createFileRoute(
 const authLienHeIndexLazyImport = createFileRoute('/(auth)/lien-he/')()
 const authGioHangIndexLazyImport = createFileRoute('/(auth)/gio-hang/')()
 const authDienthoaiIndexLazyImport = createFileRoute('/(auth)/dienthoai/')()
+const authChinhSachCuaCuaHangIndexLazyImport = createFileRoute(
+  '/(auth)/chinh-sach-cua-cua-hang/',
+)()
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
   '/_authenticated/settings/notifications',
 )()
@@ -342,6 +345,19 @@ const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
   .lazy(() =>
     import('./routes/(auth)/dienthoai/index.lazy').then((d) => d.Route),
   )
+
+const authChinhSachCuaCuaHangIndexLazyRoute =
+  authChinhSachCuaCuaHangIndexLazyImport
+    .update({
+      id: '/(auth)/chinh-sach-cua-cua-hang/',
+      path: '/chinh-sach-cua-cua-hang/',
+      getParentRoute: () => rootRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(auth)/chinh-sach-cua-cua-hang/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
 
 const authTaikhoanIndexRoute = authTaikhoanIndexImport.update({
   id: '/(auth)/taikhoan/',
@@ -906,6 +922,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authTaikhoanIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/chinh-sach-cua-cua-hang/': {
+      id: '/(auth)/chinh-sach-cua-cua-hang/'
+      path: '/chinh-sach-cua-cua-hang'
+      fullPath: '/chinh-sach-cua-cua-hang'
+      preLoaderRoute: typeof authChinhSachCuaCuaHangIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/(auth)/dienthoai/': {
       id: '/(auth)/dienthoai/'
       path: '/dienthoai'
@@ -1191,6 +1214,7 @@ export interface FileRoutesByFullPath {
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/dat-hang': typeof authDatHangIndexRoute
   '/taikhoan': typeof authTaikhoanIndexRoute
+  '/chinh-sach-cua-cua-hang': typeof authChinhSachCuaCuaHangIndexLazyRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/lien-he': typeof authLienHeIndexLazyRoute
@@ -1254,6 +1278,7 @@ export interface FileRoutesByTo {
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/dat-hang': typeof authDatHangIndexRoute
   '/taikhoan': typeof authTaikhoanIndexRoute
+  '/chinh-sach-cua-cua-hang': typeof authChinhSachCuaCuaHangIndexLazyRoute
   '/dienthoai': typeof authDienthoaiIndexLazyRoute
   '/gio-hang': typeof authGioHangIndexLazyRoute
   '/lien-he': typeof authLienHeIndexLazyRoute
@@ -1320,6 +1345,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
   '/(auth)/dat-hang/': typeof authDatHangIndexRoute
   '/(auth)/taikhoan/': typeof authTaikhoanIndexRoute
+  '/(auth)/chinh-sach-cua-cua-hang/': typeof authChinhSachCuaCuaHangIndexLazyRoute
   '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
   '/(auth)/gio-hang/': typeof authGioHangIndexLazyRoute
   '/(auth)/lien-he/': typeof authLienHeIndexLazyRoute
@@ -1386,6 +1412,7 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/dat-hang'
     | '/taikhoan'
+    | '/chinh-sach-cua-cua-hang'
     | '/dienthoai'
     | '/gio-hang'
     | '/lien-he'
@@ -1448,6 +1475,7 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/dat-hang'
     | '/taikhoan'
+    | '/chinh-sach-cua-cua-hang'
     | '/dienthoai'
     | '/gio-hang'
     | '/lien-he'
@@ -1512,6 +1540,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/notifications'
     | '/(auth)/dat-hang/'
     | '/(auth)/taikhoan/'
+    | '/(auth)/chinh-sach-cua-cua-hang/'
     | '/(auth)/dienthoai/'
     | '/(auth)/gio-hang/'
     | '/(auth)/lien-he/'
@@ -1553,6 +1582,7 @@ export interface RootRouteChildren {
   authDatHangPaymentResultLazyRoute: typeof authDatHangPaymentResultLazyRoute
   authDatHangIndexRoute: typeof authDatHangIndexRoute
   authTaikhoanIndexRoute: typeof authTaikhoanIndexRoute
+  authChinhSachCuaCuaHangIndexLazyRoute: typeof authChinhSachCuaCuaHangIndexLazyRoute
   authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
   authGioHangIndexLazyRoute: typeof authGioHangIndexLazyRoute
   authLienHeIndexLazyRoute: typeof authLienHeIndexLazyRoute
@@ -1581,6 +1611,7 @@ const rootRouteChildren: RootRouteChildren = {
   authDatHangPaymentResultLazyRoute: authDatHangPaymentResultLazyRoute,
   authDatHangIndexRoute: authDatHangIndexRoute,
   authTaikhoanIndexRoute: authTaikhoanIndexRoute,
+  authChinhSachCuaCuaHangIndexLazyRoute: authChinhSachCuaCuaHangIndexLazyRoute,
   authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
   authGioHangIndexLazyRoute: authGioHangIndexLazyRoute,
   authLienHeIndexLazyRoute: authLienHeIndexLazyRoute,
@@ -1619,6 +1650,7 @@ export const routeTree = rootRoute
         "/(auth)/dat-hang/payment-result",
         "/(auth)/dat-hang/",
         "/(auth)/taikhoan/",
+        "/(auth)/chinh-sach-cua-cua-hang/",
         "/(auth)/dienthoai/",
         "/(auth)/gio-hang/",
         "/(auth)/lien-he/",
@@ -1822,6 +1854,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/taikhoan/": {
       "filePath": "(auth)/taikhoan/index.tsx"
+    },
+    "/(auth)/chinh-sach-cua-cua-hang/": {
+      "filePath": "(auth)/chinh-sach-cua-cua-hang/index.lazy.tsx"
     },
     "/(auth)/dienthoai/": {
       "filePath": "(auth)/dienthoai/index.lazy.tsx"

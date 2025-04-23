@@ -18,7 +18,7 @@ import { BillRespones, Voucher } from '../service/Schema';
 import InHoaDon from './components_con/InHoaDon';
 import "../css/print_hoaDon.css"
 import TaoMaQr from './components_con/TaoMaQr';
-import { fromThanhCong, fromThatBai } from './components_con/ThongBao';
+import { fromThatBai } from './components_con/ThongBao';
 import Ship from './components_con/ship';
 // import { configConsumerProps } from 'antd/es/config-provider';
 interface ThanhToanProps {
@@ -282,7 +282,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         //     }
                                                         //     setCustomerPayment(value);
                                                         //   }}
-                                                        disabled={isThanhToanNhanHang} // Vô hiệu hóa ô input khi "Thanh toán khi nhận hàng" bật
+                                                        disabled={isThanhToanNhanHang} 
                                                     />
                                                 </p>
                                             </div>

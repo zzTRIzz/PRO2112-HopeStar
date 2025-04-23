@@ -3,6 +3,7 @@ package com.example.be.core.chatbot.controller;
 import com.example.be.core.admin.products_management.dto.response.ProductResponse;
 import com.example.be.core.admin.products_management.service.ProductService;
 import com.example.be.core.chatbot.tool.MyAiTools;
+import com.example.be.entity.Product;
 import com.example.be.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -26,6 +27,9 @@ public class AIChatController {
 //    private final MyAiTools myAiTools;
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public AIChatController(ChatClient.Builder chatClientBuilder) {
         System.out.println("ChatClient đang chạy....✅");
@@ -116,7 +120,8 @@ public class AIChatController {
     public Flux<String> chatWithStream(@RequestParam(required = false) String message) {
         System.out.println("Đang gọi API chat với stream...");
         System.out.println("👏Tin nhắn từ người dùng: " + message);
-        List<ProductResponse> database = productService.getAll();
+        //List<ProductResponse> database = productService.getAll();
+        List<Product> database = productRepository.findAll();
         String databaseContext = database.toString();
         System.out.println("Database: " + databaseContext);
         return chatClient

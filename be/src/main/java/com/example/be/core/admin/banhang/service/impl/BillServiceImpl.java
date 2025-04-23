@@ -407,40 +407,39 @@ public class BillServiceImpl implements BillService {
         }
     }
 
+@Override
+public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
+    try {
+        Bill bill = billRepository.findById(request.getId()).orElseThrow(
+                () -> new RuntimeException("Bill not found with id: " + request.getId())
+        );
 
-    @Override
-    public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
-        try {
-            Bill bill = billRepository.findById(request.getId()).orElseThrow(
-                    () -> new RuntimeException("Bill not found with id: " + request.getId())
-            );
+        BigDecimal oldFee = bill.getDeliveryFee();
+        BigDecimal newFee = request.getDeliveryFee();
 
-            BigDecimal oldFee = bill.getDeliveryFee();
-            BigDecimal newFee = request.getDeliveryFee();
-
+        // Nếu phí ship mới lớn hơn thì mới cập nhật
+        if (newFee.compareTo(oldFee) > 0) {
             BigDecimal tongTien = bill.getTotalDue().subtract(oldFee).add(newFee);
-
-            bill.setTotalDue(tongTien);
-            bill.setAddress(request.getAddress());
-            bill.setNote(request.getNote());
-            bill.setPhone(request.getPhone());
-            bill.setName(request.getName());
             bill.setDeliveryFee(newFee);
-
-            System.out.println("Phi ship cũ: " + oldFee);
-            System.out.println("Phi ship mới: " + newFee);
-            System.out.println("Tổng tiền sau cập nhật: " + tongTien);
-
-            Bill saveBill = billRepository.save(bill);
-            return billMapper.dtoBillMapper(saveBill);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
+            bill.setTotalDue(tongTien);
         }
+
+        // Luôn cập nhật các thông tin còn lại
+        bill.setAddress(request.getAddress());
+        bill.setNote(request.getNote());
+        bill.setPhone(request.getPhone());
+        bill.setName(request.getName());
+
+        Bill saveBill = billRepository.save(bill);
+        return billMapper.dtoBillMapper(saveBill);
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
     }
+}
 
 
-    //__________________________________________________________________________________________
+
 
 
     @Override

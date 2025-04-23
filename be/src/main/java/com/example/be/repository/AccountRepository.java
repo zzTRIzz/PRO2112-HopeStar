@@ -17,9 +17,8 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     Account findByEmail(@Size(max = 255) String email);
     Account findByPhone(@Size(max = 255) String phone);
 
-    @Query("select a from Account a " +
-            "where a.idRole.id = 4")
-    List<Account> getAllAcountKhachHang();
+    @Query("select a from Account a where a.idRole.id in (3, 4)")
+    List<Account> getAllAccountKhachHang();
 
 
 
