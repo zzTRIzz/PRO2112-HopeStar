@@ -361,7 +361,7 @@ export function OrderSummary({
               </div>
             )}
             <Ship
-              productValue={subtotal - voucherDiscount}
+              productValue={subtotal}
               weight={1500}
               address={confirmedAddress} // Truyền địa chỉ vào Ship
               onShippingFeeChange={handleShippingFeeChange}
