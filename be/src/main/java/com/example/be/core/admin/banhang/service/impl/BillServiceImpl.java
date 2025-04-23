@@ -161,7 +161,14 @@ public class BillServiceImpl implements BillService {
             billDto.setMaBill(generateBillCode());
             billDto.setStatus(StatusBill.CHO_THANH_TOAN);
             billDto.setNameBill("HD00" + billRepository.getNewCode());
-
+            billDto.setPayInsurance(BigDecimal.ZERO);
+            billDto.setDiscountedTotal(BigDecimal.ZERO);
+            billDto.setCustomerPayment(BigDecimal.ZERO);
+            billDto.setCustomerRefund(BigDecimal.ZERO);
+            billDto.setTotalDue(BigDecimal.ZERO);
+            billDto.setTotalPrice(BigDecimal.ZERO);
+            billDto.setDeliveryFee(BigDecimal.ZERO);
+            billDto.setAmountChange(BigDecimal.ZERO);
             Bill bill = billMapper.entityBillMapper(billDto);
 
             Bill savedBill = billRepository.save(bill);
@@ -290,7 +297,11 @@ public class BillServiceImpl implements BillService {
             if (newVoucher == null) {
                 bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
-                bill.setTotalDue(tongTien);
+                BigDecimal phiShip = bill.getDeliveryFee() != null ? bill.getDeliveryFee() : BigDecimal.ZERO;
+                BigDecimal baoHiem = bill.getPayInsurance() != null ? bill.getPayInsurance() : BigDecimal.ZERO;
+
+                BigDecimal tongTienFinal = tongTien.add(phiShip).add(baoHiem);
+                bill.setTotalDue(tongTienFinal);
                 billRepository.save(bill);
                 return billMapper.dtoBillMapper(bill);
             }
@@ -379,24 +390,28 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public void updateHuyHoaDon(Integer idBill) {
+    public void updateHuyHoaDon(Integer idBill, String note) {
         try {
             Bill bill = billRepository.findById(idBill).orElseThrow(
                     () -> new RuntimeException("Bill not found with id:" + idBill)
             );
+            System.out.println(bill);
             List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
             for (BillDetail bd : billDetail) {
                 imeiSoldService.deleteImeiSold(bd.getId());
                 productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
-                productDetailService.updateStatusProduct(bd.getIdProductDetail().getId());
                 capNhatVoucherKhiChon(idBill, null);
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
-
+            System.out.println(bill);
             BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
             billHistoryRequest.setIdBill(bill.getId());
-            billHistoryRequest.setNote("Đơn hàng đã hủy ");
+            if (note == null || note.trim().isEmpty()) {
+                billHistoryRequest.setNote("Đơn hàng đã hủy");
+            } else {
+                billHistoryRequest.setNote(note);
+            }
             billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
             billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
             billHistoryService.addBillHistory(billHistoryRequest);
@@ -597,7 +612,6 @@ public BillDto updateCustomerRequest(UpdateCustomerRequest request) {
                 }
                 imeiSoldRepository.deleteImeiSold(billDetail.getId());
                 productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
-                productDetailService.updateStatusProduct(billDetail.getIdProductDetail().getId());
                 capNhatVoucherKhiChon(bill.getId(), null);
 
             }

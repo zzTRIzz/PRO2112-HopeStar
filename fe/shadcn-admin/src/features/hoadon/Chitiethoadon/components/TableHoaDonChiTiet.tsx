@@ -115,7 +115,6 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                     <TableRow
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                        {/* <TableCell align="right">{index + 1}</TableCell> */}
                                         <TableCell component="th" scope="row" align="center">
                                             {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
                                         </TableCell>
@@ -126,7 +125,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                             {searchBill?.billDetailResponesList?.some(
                                                 (item) =>
                                                     item.productDetail.id === pr.idProductDetail &&
-                                                    (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0)
+                                                    (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0) && item?.quantity > 0
                                             ) && (
                                                     <div className="text-red-500 text-xs font-medium mt-1">Thiếu imei</div>
                                                 )}
@@ -143,10 +142,15 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 handleUpdateProduct(pr.idProductDetail, pr.id);
                                                                 setOpenDialogId(pr.id);
                                                             }}
-                                                            disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "") || searchBill?.payment != 4}
+                                                            disabled={!(
+                                                                searchBill?.status === "CHO_XAC_NHAN" &&
+                                                                Number(searchBill?.billType) === 1
+                                                            )}
+
                                                         >
                                                             Cập nhật
                                                         </Button>
+
                                                     </DialogTrigger>
                                                     <DialogContent className="sm:max-w-[730px] z-[1000]  flex flex-col">
                                                         <Input

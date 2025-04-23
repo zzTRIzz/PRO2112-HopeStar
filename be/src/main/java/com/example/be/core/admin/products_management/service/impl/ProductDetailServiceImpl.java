@@ -38,23 +38,23 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public void updateStatus(Integer id) throws Exception {
-        ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(()->
-                new Exception("product-detail not found with id: "+id));
-        if (productDetail.getStatus().equals(ProductDetailStatus.DESIST)){
+        ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() ->
+                new Exception("product-detail not found with id: " + id));
+        if (productDetail.getStatus().equals(ProductDetailStatus.DESIST)) {
             new Exception("Sản phẩm hiện tại đã hết hàng không thể cập nhật trạng thái");
         }
-        if (productDetail != null){
-            if (productDetail.getStatus().equals(ProductDetailStatus.ACTIVE)){
+        if (productDetail != null) {
+            if (productDetail.getStatus().equals(ProductDetailStatus.ACTIVE)) {
                 productDetail.setStatus(ProductDetailStatus.IN_ACTIVE);
-                for (Imei imei: productDetail.getImeis()) {
-                    if (imei.getStatus().equals(StatusImei.NOT_SOLD)){
+                for (Imei imei : productDetail.getImeis()) {
+                    if (imei.getStatus().equals(StatusImei.NOT_SOLD)) {
                         imei.setStatus(StatusImei.IN_ACTIVE);
                     }
                 }
-            }else if (productDetail.getStatus().equals(ProductDetailStatus.IN_ACTIVE)){
+            } else if (productDetail.getStatus().equals(ProductDetailStatus.IN_ACTIVE)) {
                 productDetail.setStatus(ProductDetailStatus.ACTIVE);
-                for (Imei imei: productDetail.getImeis()) {
-                    if (imei.getStatus().equals(StatusImei.IN_ACTIVE)){
+                for (Imei imei : productDetail.getImeis()) {
+                    if (imei.getStatus().equals(StatusImei.IN_ACTIVE)) {
                         imei.setStatus(StatusImei.NOT_SOLD);
                     }
                 }
@@ -65,9 +65,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public List<ProductDetailResponse> searchProductDetails(SearchProductDetailRequest searchProductDetailRequest, Integer id) {
-        List<ProductDetail> allMatchingProductDetails = productDetailRepository.findAllMatching(searchProductDetailRequest,id);
+        List<ProductDetail> allMatchingProductDetails = productDetailRepository.findAllMatching(searchProductDetailRequest, id);
 
-        List<ProductDetailResponse> detailResponseList = allMatchingProductDetails .stream()
+        List<ProductDetailResponse> detailResponseList = allMatchingProductDetails.stream()
                 .map(productDetail -> productDetailMapper.dtoToResponse(productDetailMapper.entityToDTO(productDetail)))
                 .collect(Collectors.toList());
         return detailResponseList;
@@ -75,11 +75,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public void updateProductDetail(Integer idProductDetail, ProductDetailRequest productDetailRequest) throws Exception {
-        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(()->
-                new Exception("Product detail not found"+ idProductDetail)
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(() ->
+                new Exception("Product detail not found" + idProductDetail)
         );
         System.out.println(productDetailRequest.getPriceSell());
-        if(productDetail.getPrice().compareTo(productDetail.getPriceSell())>0){
+        if (productDetail.getPrice().compareTo(productDetail.getPriceSell()) > 0) {
             throw new Exception("Sản phẩm này hiện đang có chương trình khuyến mãi, không thể cập nhật giá");
         }
         productDetail.setPrice(productDetailRequest.getPriceSell());
@@ -91,58 +91,88 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public void addQuantityProductDetail(Integer idProductDetail, List<ProductImeiRequest> listImeiRequest) throws Exception {
-        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(()->
-                new Exception("product detail not found"+ idProductDetail));
-        for (ProductImeiRequest imeiRequest :listImeiRequest) {
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail).orElseThrow(() ->
+                new Exception("product detail not found" + idProductDetail));
+        for (ProductImeiRequest imeiRequest : listImeiRequest) {
             Imei imei = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
-            if (imei !=null){
-                throw new Exception("Imei đã tồn tại:"+imeiRequest.getImeiCode());
+            if (imei != null) {
+                throw new Exception("Imei đã tồn tại:" + imeiRequest.getImeiCode());
             }
         }
         Integer count = 0;
-        for (ProductImeiRequest imeiRequest :listImeiRequest){
+        for (ProductImeiRequest imeiRequest : listImeiRequest) {
             Imei imei = new Imei();
             imei.setImeiCode(imeiRequest.getImeiCode());
             imei.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
             imei.setStatus(StatusImei.NOT_SOLD);
             imei.setProductDetail(productDetail);
             imeiRepository.save(imei);
-            count ++;
+            count++;
         }
-            productDetail.setStatus(ProductDetailStatus.ACTIVE);
-            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+count);
-            productDetailRepository.save(productDetail);
+        productDetail.setStatus(ProductDetailStatus.ACTIVE);
+        productDetail.setInventoryQuantity(productDetail.getInventoryQuantity() + count);
+        productDetailRepository.save(productDetail);
 
 
     }
 
+    //    @Override
+//    public void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity){
+//       ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+//               .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+//        Integer soLuongConLai = productDetail.getInventoryQuantity() - quantity;
+//        productDetail.setInventoryQuantity(soLuongConLai);
+//        productDetailRepository.save(productDetail);
+//    }
+//
+//    @Override
+//    public void updateStatusProduct(Integer idProductDetail){
+//            ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+//                    .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
+//            if (productDetail.getInventoryQuantity() <= 0){
+//                productDetail.setStatus(ProductDetailStatus.DESIST);
+//                productDetailRepository.save(productDetail);
+//            }else {
+//                productDetail.setStatus(ProductDetailStatus.ACTIVE);
+//                productDetailRepository.save(productDetail);
+//            }
+//    }
     @Override
-    public void updateSoLuongProductDetail(Integer idProductDetail, Integer quantity){
-       ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-               .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-        Integer soLuongConLai = productDetail.getInventoryQuantity() - quantity;
+    public void capNhatSoLuongVaTrangThaiProductDetail(Integer idProductDetail, Integer quantityDaBan) {
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Product Detail"));
+
+        Integer soLuongConLai = productDetail.getInventoryQuantity() - quantityDaBan;
+
+        if (soLuongConLai < 0) {
+            throw new RuntimeException("Số lượng tồn kho không đủ để bán");
+        }
+
         productDetail.setInventoryQuantity(soLuongConLai);
+
+        if (soLuongConLai <= 0) {
+            productDetail.setStatus(ProductDetailStatus.DESIST);
+        } else {
+            productDetail.setStatus(ProductDetailStatus.ACTIVE);
+        }
+
         productDetailRepository.save(productDetail);
     }
 
     @Override
-    public void updateStatusProduct(Integer idProductDetail){
-            ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-                    .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-            if (productDetail.getInventoryQuantity() <= 0){
-                productDetail.setStatus(ProductDetailStatus.DESIST);
-                productDetailRepository.save(productDetail);
-            }else {
-                productDetail.setStatus(ProductDetailStatus.ACTIVE);
-                productDetailRepository.save(productDetail);
-            }
-    }
-
-    @Override
-    public void updateSoLuongSanPham(Integer idProductDetail, Integer quantity){
+    public void updateSoLuongSanPham(Integer idProductDetail, Integer quantity) {
         ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
-                .orElseThrow(()->new RuntimeException("Khong tim thay product detail"));
-        productDetail.setInventoryQuantity(productDetail.getInventoryQuantity()+quantity);
+                .orElseThrow(() -> new RuntimeException("Khong tim thay product detail"));
+
+        Integer soLuongConLai = productDetail.getInventoryQuantity() + quantity;
+
+        productDetail.setInventoryQuantity(soLuongConLai);
+
+        if (soLuongConLai <= 0) {
+            productDetail.setStatus(ProductDetailStatus.DESIST);
+        } else {
+            productDetail.setStatus(ProductDetailStatus.ACTIVE);
+        }
         productDetailRepository.save(productDetail);
     }
 
