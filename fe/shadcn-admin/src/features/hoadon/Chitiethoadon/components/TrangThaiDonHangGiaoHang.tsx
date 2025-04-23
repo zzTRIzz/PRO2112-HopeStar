@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass } from "lucide-react";
 import { BillRespones } from "@/features/banhang/service/Schema";
-import { updateStatus } from "../../service/HoaDonService";
+import { huyHoaDon, updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react'
 import { showErrorToast, showSuccessToast } from "./components_con/ThongBao";
@@ -269,16 +269,17 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     const handleNextStatus = async () => {
       // Kiểm tra xem có bất kỳ chi tiết sản phẩm nào thiếu IMEI hay không
       const isMissingImei = searchBill?.billDetailResponesList.some(
-        (detail) => !detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0
+        (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0)
+          && detail.quantity > 0
       );
 
       if (isMissingImei) {
-        showErrorToast("Một số sản phẩm chưa có IMEI.");
-        console.error("Một số sản phẩm chưa có IMEI.");
+        showErrorToast("Cập nhập imei cho tất cả sản phẩm trước khi tiếp tục");
         return;
       }
+
       if (!note?.trim()) {
-        showErrorToast("Vui lòng nhập ghi chú.");
+        showErrorToast("Vui lòng nhập ghi chú");
         return;
       }
 
@@ -333,12 +334,20 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
       setCurrentStatus("DA_HUY");
       await updateStatus(searchBill.id, "DA_HUY");
-      themBillHistory("DA_HUY", note);
+      // themBillHistory("DA_HUY", note);
       setOpen(false);
+      await huyHoaDon(searchBill?.id, note);
       showSuccessToast("Đã hủy đơn hàng thành công.");
       loadTongBill();
     };
 
+    const getNextStatus = (): string | null => {
+      const currentIndex = statusOrder.indexOf(currentStatus);
+      if (currentIndex < statusOrder.length - 1) {
+        return statusOrder[currentIndex + 1];
+      }
+      return null;
+    };
 
     const printRef = useRef<HTMLDivElement>(null)
     const [printData, setPrintData] = useState<any>(null)
@@ -398,7 +407,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     const handleOpenDialog = (type: "confirm" | "cancel") => {
       setDialogType(type);
       setOpen(true);
-      console.log(currentStatus + "dsddz")
+      // console.log(currentStatus + "dsddz")
     };
 
     return (
@@ -434,8 +443,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                   "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
                 )}
               >
-                Xác nhận
-              </Button>
+                {getNextStatus() ? `${statusMap[getNextStatus()!]?.title}` : "Xác nhận"}              </Button>
 
               {/* Nút Hủy đơn */}
               <Button
@@ -482,7 +490,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
-                {dialogType === "cancel" ? "Hủy đơn hàng" : "Xác nhận đơn hàng"}
+                {dialogType === "cancel"
+                  ? "Hủy đơn hàng"
+                  : (getNextStatus()
+                    ? `${statusMap[getNextStatus()!]?.title} đơn hàng`
+                    : "Xác nhận")}
               </DialogTitle>
             </DialogHeader>
             <div className="py-2">

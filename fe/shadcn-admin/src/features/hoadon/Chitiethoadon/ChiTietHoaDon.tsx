@@ -194,6 +194,14 @@ const ChiTietHoaDon: React.FC = () => {
                 setIsDialogOpen(false);
                 return;
             }
+            const isMissingImei = searchBill?.billDetailResponesList.some(
+                (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0) && detail.quantity > 0
+            );
+
+            if (isMissingImei) {
+                showErrorToast("Vui lòng cập nhập imei cho tất cả sản phẩm");
+                return;
+            }
             const newProduct = await addHDCT({
                 idBill: idBill,
                 idProductDetail: product.id
@@ -245,31 +253,29 @@ const ChiTietHoaDon: React.FC = () => {
             console.error("Lỗi API:", error);
         }
     };
+
+
     const updateHandleImeiSold = async (idBillDetail: number) => {
         try {
-            if (selectedImei.length <= 0) {
-                showErrorToast("Vui lòng chọn imei");
-                return;
-            }
-            await createImeiSold({
+            await updateImeiSold({
                 id_Imei: selectedImei,
                 idBillDetail: idBillDetail
             },
                 idBill,
                 idProductDetail
             );
-            // console.log("Imei mới:", newImei);
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật ${selectedImei.length} IMEI`);
             setSelectedImei([]);
-            setIsDialogOpen(false); // Đóng dialog
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
-            showSuccessToast("Thêm IMEI thành công");
+            showSuccessToast("Cập nhật số lượng sản phẩm thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
+            showErrorToast("Lỗi cập nhật số lượng sản phẩm");
+
         }
     };
-
 
     // Cập nhật product 
     const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
