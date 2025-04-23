@@ -194,6 +194,14 @@ const ChiTietHoaDon: React.FC = () => {
                 setIsDialogOpen(false);
                 return;
             }
+            const isMissingImei = searchBill?.billDetailResponesList.some(
+                (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0) && detail.quantity > 0
+            );
+
+            if (isMissingImei) {
+                showErrorToast("Vui lòng cập nhập imei cho tất cả sản phẩm");
+                return;
+            }
             const newProduct = await addHDCT({
                 idBill: idBill,
                 idProductDetail: product.id

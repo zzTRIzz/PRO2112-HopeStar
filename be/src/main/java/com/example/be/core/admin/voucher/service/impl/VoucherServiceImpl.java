@@ -114,8 +114,10 @@ public class VoucherServiceImpl implements VoucherService {
             existingVoucher.setStatus(StatusVoucher.UPCOMING);
         } else if (now.isAfter(existingVoucher.getEndTime())) {
             existingVoucher.setStatus(StatusVoucher.EXPIRED);
+
         } else {
             existingVoucher.setStatus(StatusVoucher.ACTIVE);
+
         }
 
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);

@@ -2,7 +2,7 @@
 import { toast } from "react-toastify";
 import "../../../../banhang/css/custom-toast.css"
 export const showSuccessToast = (message: string) => {
-    toast.dismiss(); // Đóng tất cả các thông báo trước đó
+    toast.dismiss(); 
     toast.success(message, {
         position: "top-right",
         className: "custom-toast",

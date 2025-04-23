@@ -679,7 +679,7 @@ function BanHangTaiQuay() {
 
       fromThanhCong(`Đã thêm sản phẩm ${productDetail.name}`)
     } catch (error: any) {
-      fromThatBai('Lỗi khi thêm sản phẩm !')
+      fromThatBai('Lỗi khi thêm sản phẩm!')
     } finally {
       isProcessing.current = false
       setIsScanning(false)
