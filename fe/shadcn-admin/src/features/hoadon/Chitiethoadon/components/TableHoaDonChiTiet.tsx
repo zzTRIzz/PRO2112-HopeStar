@@ -115,7 +115,6 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                     <TableRow
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                        {/* <TableCell align="right">{index + 1}</TableCell> */}
                                         <TableCell component="th" scope="row" align="center">
                                             {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
                                         </TableCell>
