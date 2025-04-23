@@ -45,25 +45,25 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       if (response.status === 0 && response.data?.jwt) {
         Cookies.set('jwt', response.data.jwt, { expires: 7 })
         // Giải mã JWT để lấy role
-      // const decoded = jwtDecode<JwtPayload>(response.data.jwt);
-      // const userRole = decoded.role;
-      //   toast({
-      //     title: 'Đăng nhập thành công',
-      //     description: response.data.message || 'Chào mừng bạn quay trở lại',
-      //   })
+      const decoded = jwtDecode<JwtPayload>(response.data.jwt);
+      const userRole = decoded.role;
+        toast({
+          title: 'Đăng nhập thành công',
+          description: response.data.message || 'Chào mừng bạn quay trở lại',
+        })
 
-      //   switch(userRole) {
-      //     case '2': // Admin
-      //       navigate({ to: '/dashboard' });
-      //       break;
-      //     case '3': // Staff
-      //       navigate({ to: '/banhang' });
-      //       break;
-      //     case '4': // User thông thường
-      //       navigate({ to: '/' });
-      //       break;
-      //   }
-      navigate({ to: '/' });
+        switch(userRole) {
+          case '2': // Admin
+            navigate({ to: '/dashboard' });
+            break;
+          case '3': // Staff
+            navigate({ to: '/banhang' });
+            break;
+          case '4': // User thông thường
+            navigate({ to: '/' });
+            break;
+        }
+      // navigate({ to: '/' });
       } else {
         // Xử lý khi API trả về status khác 0
         throw new Error(response.data?.message || 'Đăng nhập thất bại')
