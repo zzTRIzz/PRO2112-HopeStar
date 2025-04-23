@@ -12,5 +12,5 @@ import java.util.Date;
 @NoArgsConstructor
 public class StatisticByDateResponse {
     private Date date;
-    private BigDecimal totalRevenue;
+    private BigDecimal value;
 }

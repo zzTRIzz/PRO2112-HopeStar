@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -175,4 +176,64 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
                     "AND pd.status = 'ACTIVE' " +
                     "ORDER BY pd.inventory_quantity ASC")
     List<Object[]> findLowStockProducts();
+
+    // Doanh thu 3 ngày gần nhất
+    @Query(value = """
+    SELECT DATE(payment_date) AS paymentDate, 
+           SUM(total_due) AS totalRevenue
+    FROM bill
+    WHERE status = 'HOAN_THANH'
+    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
+    GROUP BY DATE(payment_date)
+    ORDER BY paymentDate DESC
+    """, nativeQuery = true)
+    List<Object[]> getRevenueLast3Days();
+
+    // Doanh thu 7 ngày gần nhất
+    @Query(value = """
+    SELECT DATE(payment_date) AS paymentDate, 
+           SUM(total_due) AS totalRevenue
+    FROM bill
+    WHERE status = 'HOAN_THANH'
+    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+    GROUP BY DATE(payment_date)
+    ORDER BY paymentDate DESC
+    """, nativeQuery = true)
+    List<Object[]> getRevenueLast7Days();
+
+    @Query(value = """
+    SELECT DATE(payment_date) AS order_date, 
+           COUNT(*) AS total_orders
+    FROM bill
+    WHERE status = 'HOAN_THANH'
+    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
+    GROUP BY DATE(payment_date)
+    ORDER BY order_date DESC
+    """, nativeQuery = true)
+    List<Object[]> getOrderCountLast3Days();
+
+    @Query(value = """
+    SELECT DATE(payment_date) AS order_date, 
+           COUNT(*) AS total_orders
+    FROM bill
+    WHERE status = 'HOAN_THANH'
+    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+    GROUP BY DATE(payment_date)
+    ORDER BY order_date DESC
+    """, nativeQuery = true)
+    List<Object[]> getOrderCountLast7Days();
+
+    @Query(value = """
+    SELECT 
+        DATE(b.payment_date) as payment_date,
+        SUM(b.total_due) as daily_revenue,
+        COUNT(b.id) as daily_order_count
+    FROM bill b
+    WHERE b.status = 'HOAN_THANH'
+    AND DATE(b.payment_date) BETWEEN :startDate AND :endDate
+    GROUP BY DATE(b.payment_date)
+    ORDER BY payment_date
+    """, nativeQuery = true)
+    List<Object[]> getDailyStatisticByDateRange(@Param("startDate") LocalDate startDate,
+                                                @Param("endDate") LocalDate endDate);
 }

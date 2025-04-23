@@ -114,10 +114,18 @@ public class VoucherServiceImpl implements VoucherService {
             existingVoucher.setStatus(StatusVoucher.UPCOMING);
         } else if (now.isAfter(existingVoucher.getEndTime())) {
             existingVoucher.setStatus(StatusVoucher.EXPIRED);
-
+            List<VoucherAccount> list = voucherAccountRepository.findByIdVoucherAndStatus(existingVoucher,VoucherAccountStatus.NOT_USED);
+            for (VoucherAccount voucherAccount: list) {
+                voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
+                voucherAccountRepository.save(voucherAccount);
+            }
         } else {
             existingVoucher.setStatus(StatusVoucher.ACTIVE);
-
+            List<VoucherAccount> list = voucherAccountRepository.findByIdVoucherAndStatus(existingVoucher,VoucherAccountStatus.EXPIRED);
+            for (VoucherAccount voucherAccount: list) {
+                voucherAccount.setStatus(VoucherAccountStatus.NOT_USED);
+                voucherAccountRepository.save(voucherAccount);
+            }
         }
 
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);

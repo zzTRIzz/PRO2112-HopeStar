@@ -12,6 +12,7 @@ import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -291,6 +292,30 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<ProductViewResponse> phoneFilter(PhoneFilterRequest phoneFilterRequest) {
         List<Product> productList = productRepository.filterProducts(phoneFilterRequest);
+        if (phoneFilterRequest.getPriceMax() != null && phoneFilterRequest.getPriceMax()) {
+            productList = productList.stream()
+                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
+                    .sorted(Comparator.comparing(
+                            p -> p.getProductDetails().get(0).getPriceSell(),
+                            Comparator.reverseOrder() // Giảm dần
+                    ))
+                    .collect(Collectors.toList());
+        } else if (phoneFilterRequest.getPriceMin() != null && phoneFilterRequest.getPriceMin()) {
+            productList = productList.stream()
+                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
+                    .sorted(Comparator.comparing(
+                            p -> p.getProductDetails().get(0).getPriceSell() // Tăng dần
+                    ))
+                    .collect(Collectors.toList());
+        } else if (phoneFilterRequest.getProductSale() != null && phoneFilterRequest.getProductSale()) {
+            productList = productList.stream()
+                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
+                    .sorted(Comparator.comparing(
+                            p -> p.getProductDetails().get(0).getPrice().multiply(p.getProductDetails().get(0).getPriceSell()),
+                            Comparator.reverseOrder() // Giảm dần
+                    ))
+                    .collect(Collectors.toList());
+        }
         List<ProductViewResponse> test = handlerProductView(productList);
         return test;
     }

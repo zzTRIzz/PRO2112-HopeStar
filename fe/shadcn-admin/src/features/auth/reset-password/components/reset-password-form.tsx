@@ -21,7 +21,8 @@ import { Route } from '@/routes/(auth)/reset-password'
 const formSchema = z
   .object({
     password: z
-      .string()
+      .string().trim()
+      .min(1, 'Vui lòng nhập mật khẩu')
       .min(7, 'Mật khẩu phải có ít nhất 7 ký tự')
       ,
     confirmPassword: z.string(),

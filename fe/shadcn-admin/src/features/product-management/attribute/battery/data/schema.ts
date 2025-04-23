@@ -4,7 +4,6 @@ export const batterySchema = z.object({
   id: z.number().optional(),
   type: z
     .string()
-    .trim()
     .min(1, 'Loại pin là bắt buộc')
     .max(255, 'Loại không được quá 255 ký tự')
     .trim()

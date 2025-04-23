@@ -2,6 +2,7 @@ package com.example.be.core.admin.statistic.service;
 
 import com.example.be.core.admin.statistic.dto.response.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface StatisticService {
@@ -19,4 +20,9 @@ public interface StatisticService {
     MonthlyRevenueResponse getMonthlyRevenue();
     List<ProductSalesResponse> getMonthlyProductSales();
     List<LowStockProductResponse> getLowStockProducts();
+    List<StatisticByDateResponse> getRevenueLast3Days();
+    List<StatisticByDateResponse> getRevenueLast7Days();
+    List<OrderCountByDateResponse> getOrderCountLast3Days();
+    List<OrderCountByDateResponse> getOrderCountLast7Days();
+    StatisticByDateRangeResponse getStatisticByDateRange(LocalDate startDate, LocalDate endDate);
 }

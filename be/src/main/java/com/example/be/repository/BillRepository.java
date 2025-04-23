@@ -32,7 +32,8 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
                                            @Param("status")StatusBill statusBill);
 
 
-    @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount")
+    @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount " +
+            " and b.billType = 1")
     List<Bill> findAllByAccount(@Param("idAccount") Integer idAccount);
 
 

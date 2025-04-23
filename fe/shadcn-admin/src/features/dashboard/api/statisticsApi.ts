@@ -13,13 +13,30 @@ import type {
   LowStockProduct,
   TodayRevenue, 
   MonthlyRevenue, 
-  DailyProductSale
+  DailyProductSale,
+  DateRangeResponse
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080/api/statistics';
 
-export const getRevenueByDate = async (): Promise<DayRevenue[]> => {
-  const response = await axios.get(`${API_BASE_URL}/revenue-by-date`);
+interface DateRangeParams {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const getRevenueByDate = async (params?: DateRangeParams): Promise<DayRevenue[]> => {
+  const queryParams = new URLSearchParams();
+  if (params?.startDate) queryParams.append('startDate', params.startDate);
+  if (params?.endDate) queryParams.append('endDate', params.endDate);
+  
+  const response = await axios.get(`${API_BASE_URL}/revenue-by-date?${queryParams}`);
+  return response.data;
+};
+
+export const getRevenueByDateRange = async (startDate: string, endDate: string): Promise<DayRevenue[]> => {
+  const response = await axios.get(`${API_BASE_URL}/revenue-by-date-range`, {
+    params: { startDate, endDate }
+  });
   return response.data;
 };
 
@@ -93,5 +110,32 @@ export const getMonthlyRevenue = async (): Promise<MonthlyRevenue> => {
 
 export const getMonthlyProductSales = async (): Promise<DailyProductSale[]> => {
   const response = await axios.get(`${API_BASE_URL}/monthly-product-sales`);
+  return response.data;
+};
+
+export const getLast3DaysRevenue = async (): Promise<DayRevenue[]> => {
+  const response = await axios.get(`${API_BASE_URL}/revenue/last-3-days`);
+  return response.data;
+};
+
+export const getLast3DaysOrderCount = async (): Promise<DayOrderCount[]> => {
+  const response = await axios.get(`${API_BASE_URL}/order-count/last-3-days`);
+  return response.data;
+};
+
+export const getLast7DaysRevenue = async (): Promise<DayRevenue[]> => {
+  const response = await axios.get(`${API_BASE_URL}/revenue/last-7-days`);
+  return response.data;
+};
+
+export const getLast7DaysOrderCount = async (): Promise<DayOrderCount[]> => {
+  const response = await axios.get(`${API_BASE_URL}/order-count/last-7-days`);
+  return response.data;
+};
+
+export const getStatisticsByDateRange = async (startDate: string, endDate: string): Promise<DateRangeResponse> => {
+  const response = await axios.get(`${API_BASE_URL}/by-date-range`, {
+    params: { startDate, endDate }
+  });
   return response.data;
 };
