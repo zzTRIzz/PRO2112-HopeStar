@@ -6,6 +6,7 @@ import com.example.be.core.client.cart.service.OrderService;
 import com.example.be.entity.*;
 import com.example.be.entity.status.*;
 import com.example.be.repository.*;
+import com.example.be.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final VoucherRepository voucherRepository;
     private final VoucherAccountRepository voucherAccountRepository;
     private final BillHistoryRepository billHistoryRepository;
+    private final EmailService emailService;
 
     public String generateBillCode() {
         String timePart = LocalDateTime.now()
@@ -149,6 +151,59 @@ public class OrderServiceImpl implements OrderService {
 
         creteBill.setTotalDue(orderRequest.getTotalDue());
         billRepository.save(creteBill);
-        return "Đặt hàng thành công";
+        if (orderRequest.getEInvoice()){
+
+            String subject = "HopeStar - Gửi hóa đơn điện tử";
+            String title = "HopeStar - Gửi hóa đơn điện tử";
+            String header = "<tr>\n" +
+                    "    <td style=\"background: #ff6200; padding: 24px; text-align: center; color: white;\">\n" +
+                    "        <h1 style=\"font-size: 28px; font-weight: bold; margin: 0;\">HopeStar - Gửi hóa đơn điện tử</h1>\n" +
+                    "    </td>\n" +
+                    "</tr>\n";
+
+            String content = "<tr>\n" +
+                    "    <td style=\"padding: 40px;\">\n" +
+                    "        <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Xin chào,</p>\n" +
+                    "        <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Cảm ơn bạn đã đặt hàng. Cửa hàng gửi bạn mã hóa đơn để tiện theo dõi đơn hàng của mình!</p>\n" +
+                    "        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                    "            <tr>\n" +
+                    "                <td align=\"center\">\n" +
+                    "                    <a style=\"background: #ff6200; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;\">" + creteBill.getMaBill() + "</a>\n" +
+                    "                </td>\n" +
+                    "            </tr>\n" +
+                    "        </table>\n" +
+                    "    </td>\n" +
+                    "</tr>\n";
+
+            emailService.sendEmailFormat(customerInfo.getEmail(), subject, title, header, content);
+
+        }else {
+            if (account == null) {
+                String subject = "HopeStar - Gửi mã hóa đơn";
+                String title = "HopeStar - Gửi mã hóa đơn";
+                String header = "<tr>\n" +
+                        "    <td style=\"background: #ff6200; padding: 24px; text-align: center; color: white;\">\n" +
+                        "        <h1 style=\"font-size: 28px; font-weight: bold; margin: 0;\">HopeStar - Gửi mã hóa đơn</h1>\n" +
+                        "    </td>\n" +
+                        "</tr>\n";
+
+                String content = "<tr>\n" +
+                        "    <td style=\"padding: 40px;\">\n" +
+                        "        <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Xin chào,</p>\n" +
+                        "        <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Cảm ơn bạn đã đặt hàng. Cửa hàng gửi bạn mã hóa đơn để tiện theo dõi đơn hàng của mình!</p>\n" +
+                        "        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                        "            <tr>\n" +
+                        "                <td align=\"center\">\n" +
+                        "                    <a style=\"background: #ff6200; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;\">" + creteBill.getMaBill() + "</a>\n" +
+                        "                </td>\n" +
+                        "            </tr>\n" +
+                        "        </table>\n" +
+                        "    </td>\n" +
+                        "</tr>\n";
+
+                emailService.sendEmailFormat(customerInfo.getEmail(), subject, title, header, content);
+            }
+        }
+        return "Đơn hàng: " + creteBill.getMaBill() + " đã được đặt thành công";
     }
 }

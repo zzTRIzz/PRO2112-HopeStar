@@ -10,6 +10,9 @@ export const ramSchema = z.object({
     .trim()
     .refine((value) => value.length > 0, {
       message: 'Không được nhập chỉ khoảng trắng',
+    })
+    .refine((value) => ['GB', 'TB'].includes(value), {
+      message: 'Chỉ chấp nhận giá trị GB hoặc TB',
     }),
   status: z.string().min(1, 'Status is required'),
 })

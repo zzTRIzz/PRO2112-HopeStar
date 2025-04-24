@@ -18,6 +18,7 @@ public class OrderRequest {
     private BigDecimal discountedTotal; // gia giam vc
     private BigDecimal insuranceFee; // phi bao hanh
     private BigDecimal totalDue;
+    private Boolean eInvoice;
 
     @Data
     public static class CustomerInfo {

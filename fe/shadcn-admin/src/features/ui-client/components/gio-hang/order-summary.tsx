@@ -35,15 +35,17 @@ interface OrderSummaryProps {
     total: number
     selectedVoucher: Voucher | null
   }) => void
+  isSubmitting?: boolean 
 }
 
 export function OrderSummary({
   onCheckout,
   products,
   isValid,
-  confirmedAddress, // Nhận prop
+  confirmedAddress, 
   errors,
   onValuesChange,
+  isSubmitting = false, 
 }: OrderSummaryProps) {
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null)
   const [voucherCode, setVoucherCode] = useState('')
@@ -381,9 +383,16 @@ export function OrderSummary({
             className='mt-4 h-12 w-full bg-[#338cf1] text-lg font-medium text-white hover:bg-[#338cf1]'
             type='submit'
             onPress={onOpen}
-            isDisabled={!isValid}
+            isDisabled={!isValid || isSubmitting}
           >
-            Đặt hàng
+            {isSubmitting ? (
+              <div className='flex items-center gap-2'>
+                <span className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
+                <span>Đang xử lý...</span>
+              </div>
+            ) : (
+              'Đặt hàng'
+            )}
           </Button>
 
           <Modal isOpen={isOpen} onClose={onClose} size='sm'>
@@ -407,7 +416,12 @@ export function OrderSummary({
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color='danger' variant='light' className='border' onPress={onClose}>
+                <Button
+                  color='danger'
+                  variant='light'
+                  className='border'
+                  onPress={onClose}
+                >
                   Hủy
                 </Button>
                 <Button color='primary' onPress={handleConfirmOrder}>
