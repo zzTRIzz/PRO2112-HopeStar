@@ -1,7 +1,9 @@
-import React from 'react'
-import { Card, CardBody, Avatar, Progress, Button, Image } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Card, CardBody, Avatar, Progress, Image } from '@heroui/react'
 import { Icon } from '@iconify/react'
-
+import React from 'react'
+import DanhGiaSanPham from './danh-gia/danh-gia-san-pham'
+import { productDetailViewResponse } from '../data/schema'
 interface Review {
   id: number
   user: {
@@ -13,8 +15,12 @@ interface Review {
   content: string
   images?: string[]
 }
+interface RatingStats {
+  productDetail : productDetailViewResponse;
+}
 
-export function ProductReviews() {
+const ProductReviews: React.FC<RatingStats> = ({productDetail}) => {
+  const [open, setOpen] = React.useState(false)
   const reviews: Review[] = [
     {
       id: 1,
@@ -22,7 +28,7 @@ export function ProductReviews() {
         name: 'Nguyễn Văn A',
         avatar: 'https://i.pravatar.cc/150?u=1',
       },
-      rating: 5,
+      rating: 4,
       date: '2024-03-10',
       content: 'Sản phẩm rất tốt, đóng gói cẩn thận, giao hàng nhanh!',
       images: [
@@ -55,7 +61,7 @@ export function ProductReviews() {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4'>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         <Card>
           <CardBody>
@@ -78,6 +84,7 @@ export function ProductReviews() {
                 <div className='text-small text-default-500'>
                   {ratingStats.total} đánh giá
                 </div>
+                <DanhGiaSanPham open={open} setOpen={setOpen} productDetail={productDetail}/>
               </div>
               <div className='flex-1 space-y-2'>
                 {ratingStats.distribution.map((stat) => (
@@ -154,3 +161,4 @@ export function ProductReviews() {
     </div>
   )
 }
+export default ProductReviews;
