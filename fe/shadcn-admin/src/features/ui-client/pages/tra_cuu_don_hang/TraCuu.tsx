@@ -26,7 +26,7 @@ const TraCuu: React.FC = () => {
 
     try {
       // Gọi API để kiểm tra mã hóa đơn
-      const response = await fetch(`http://localhost:8080/api/admin/bill/findBillByMaBill/${maDonHang}`);
+      const response = await fetch(`http://localhost:8080/bill/client/findBillByMaBill/${maDonHang}`);
       if (!response.ok) {
         toast({
           title: 'Lỗi',

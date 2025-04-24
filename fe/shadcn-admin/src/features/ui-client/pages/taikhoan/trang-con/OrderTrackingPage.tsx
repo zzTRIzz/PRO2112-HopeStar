@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react'
 import { Bill } from '../service/schema'
 import { useState, useEffect } from 'react'
 import { getBillAllClientByAccount } from '../service/api-bill-client-service'
-import { Button } from '@/components/ui/button'
 
 const orderStatusSteps = [
   {
@@ -96,10 +95,6 @@ const OrderTrackingPage = () => {
   return (
     <div className='min-h-screen bg-[#F7F7F7] p-4 md:p-4'>
       <div className='mx-auto max-w-6xl space-y-2'>
-        {/* Order Header */}
-        {/* <a href="/taikhoan/don-hang-cua-toi" className='text-sm text-blue-600'>Đơn hàng của tôi</a>
-        <a href="" className='text-sm text-cyan-600'>{' > '}Chi tiết đơn hàng</a> */}
-
         <div className='flex items-center gap-1 text-sm ml-[6px]'>
           <a href="/taikhoan/don-hang-cua-toi" className='text-blue-600'>Đơn hàng của tôi</a>
           <span className='text-gray-400'>{'>'}</span>
@@ -185,14 +180,6 @@ const OrderTrackingPage = () => {
             )}
           </CardBody>
         </Card>
-        {/* <div style={{ textAlign: 'right' }}>
-          <Button
-            className="bg-red-500 text-white hover:bg-red-600"
-            disabled={bill.status !== "CHO_THANH_TOAN" && bill.status !== "CHO_XAC_NHAN"}
-          >
-            Hủy đơn hàng
-          </Button>
-        </div> */}
         <div className='grid gap-4 md:grid-cols-3'>
           <div className='space-y-4 md:col-span-2'>
             {/* Recipient Info */}
