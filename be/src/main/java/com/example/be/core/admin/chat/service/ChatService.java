@@ -1,6 +1,7 @@
 package com.example.be.core.admin.chat.service;
 
 
+import com.example.be.core.admin.chat.dto.response.ChatUserResponse;
 import com.example.be.entity.Account;
 import com.example.be.entity.ChatMessage;
 import com.example.be.entity.status.MessageStatus;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,12 +64,8 @@ public class ChatService {
         if (message.getStatus() == MessageStatus.SEEN) {
             throw new IllegalStateException("Message is already SEEN");
         }
-        if (message.getStatus() == MessageStatus.DELIVERED && newStatus != MessageStatus.SEEN) {
-            throw new IllegalStateException("Invalid status transition from DELIVERED to " + newStatus);
-        }
-        if (message.getStatus() == MessageStatus.SENT && newStatus == MessageStatus.SEEN) {
-            message.setStatus(MessageStatus.DELIVERED);
-            chatMessageRepository.save(message);
+        if (newStatus != MessageStatus.SEEN) {
+            throw new IllegalStateException("Invalid status transition to " + newStatus);
         }
 
         message.setStatus(newStatus);
@@ -78,4 +76,35 @@ public class ChatService {
         String conversationId = senderId < receiverId ? senderId + "_" + receiverId : receiverId + "_" + senderId;
         return chatMessageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
     }
+
+    public List<ChatMessage> getLatestMessagesForAdmin(Integer adminId) {
+        return chatMessageRepository.findLatestMessagesForAdmin(adminId);
+    }
+
+    public List<ChatUserResponse> getListChatUser(Integer adminId) throws Exception {
+        List<ChatMessage> listChatMessage = chatMessageRepository.findLatestMessagesForAdmin(adminId);
+        List<ChatUserResponse> chatUserResponseList = new ArrayList<>();
+        for (ChatMessage chatMessage:listChatMessage) {
+            ChatUserResponse chatUserResponse = new ChatUserResponse();
+            Account account;
+            if (chatMessage.getSenderId() !=9){
+                account = accountRepository.findById(chatMessage.getSenderId()).orElseThrow(()->
+                        new Exception("user not found"));
+                chatUserResponse.setRole(false);
+            }else {
+                account = accountRepository.findById(chatMessage.getReceiverId()).orElseThrow(()->
+                        new Exception("user not found"));
+                chatUserResponse.setRole(true);
+            }
+
+            chatUserResponse.setId(account.getId());
+            chatUserResponse.setAvatar(account.getImageAvatar());
+            chatUserResponse.setName(account.getFullName());
+            chatUserResponse.setMessage(chatMessage.getMessage());
+            chatUserResponseList.add(chatUserResponse);
+
+        }
+        return chatUserResponseList;
+    }
+
 }

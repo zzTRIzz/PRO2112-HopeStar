@@ -1,6 +1,9 @@
 package com.example.be.core.admin.chat.controller;
 
+import com.example.be.core.admin.chat.dto.request.ChatMessageRequest;
+import com.example.be.core.admin.chat.dto.request.StatusUpdateRequest;
 import com.example.be.core.admin.chat.service.ChatService;
+import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.ChatMessage;
 import com.example.be.entity.status.MessageStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate; // Dùng để gửi tin nhắn qua WebSocket
@@ -78,8 +84,10 @@ public class ChatController {
     @GetMapping("/history")
     public ResponseEntity<List<ChatMessage>> getChatHistory(
             @RequestParam Integer senderId,
-            @RequestParam Integer receiverId) {
+            @RequestParam Integer receiverId,
+            @RequestHeader("Authorization") String jwt) {
         try {
+            authService.findAccountByJwt(jwt);
             List<ChatMessage> messages = chatService.getChatHistory(senderId, receiverId);
             return new ResponseEntity<>(messages, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -93,45 +101,13 @@ public class ChatController {
     private String getConversationId(Integer senderId, Integer receiverId) {
         return senderId < receiverId ? senderId + "_" + receiverId : receiverId + "_" + senderId;
     }
-}
 
-// DTO để nhận dữ liệu từ request gửi tin nhắn
-class ChatMessageRequest {
-    private Integer senderId;
-    private Integer receiverId;
-    private String message;
-
-    public Integer getSenderId() {
-        return senderId;
+    @GetMapping("/latest-messages")
+    public List<ChatMessage> getLatestMessagesForAdmin() {
+        return chatService.getLatestMessagesForAdmin(9); // Admin ID = 9
     }
-
-    public void setSenderId(Integer senderId) {
-        this.senderId = senderId;
+    @GetMapping("/user-chat")
+    public List<ChatMessage> getUserChat() {
+        return chatService.getLatestMessagesForAdmin(9); // Admin ID = 9
     }
-
-    public Integer getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(Integer receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-}
-
-class StatusUpdateRequest {
-    private String messageId;
-    private MessageStatus status;
-
-    public String getMessageId() { return messageId; }
-    public void setMessageId(String messageId) { this.messageId = messageId; }
-    public MessageStatus getStatus() { return status; }
-    public void setStatus(MessageStatus status) { this.status = status; }
 }

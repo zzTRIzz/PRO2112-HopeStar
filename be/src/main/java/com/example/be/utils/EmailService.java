@@ -147,7 +147,7 @@ public class EmailService {
     }
 
     // test form email format
-    public void sendEmailFormat(String userEmail, String subject, String title, String header, String content) throws MessagingException {
+    public void sendEmailFormat(String userEmail, String subject, String title, String header, String content, String footer) throws MessagingException {
 
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -172,11 +172,7 @@ public class EmailService {
                     "                    <!-- Content -->\n" +
                     content +
                     "                    <!-- Footer -->\n" +
-                    "                    <tr>\n" +
-                    "                        <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
-                    "                            <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng quần áo HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
-                    "                        </td>\n" +
-                    "                    </tr>\n" +
+                    footer +
                     "                </table>\n" +
                     "            </td>\n" +
                     "        </tr>\n" +

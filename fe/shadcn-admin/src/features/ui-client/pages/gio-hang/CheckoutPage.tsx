@@ -24,7 +24,7 @@ interface CheckoutData {
     commune?: string
   }
   paymentMethod: number
-  eInvoice: boolean
+  eInvoice?: boolean
 }
 
 export function CheckoutPage() {
@@ -282,6 +282,7 @@ export function CheckoutPage() {
         discountedTotal: canApplyVoucher ? orderValues.voucherDiscount : 0,
         idVoucher: canApplyVoucher ? orderValues.selectedVoucher?.id : null,
       }
+      console.log('eInvoice value:', checkoutData.eInvoice, typeof checkoutData.eInvoice);
 
       if (orderData.paymentMethod === 3) {
         try {

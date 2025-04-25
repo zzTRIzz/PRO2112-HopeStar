@@ -1,5 +1,6 @@
 package com.example.be.core.client.cart.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -11,6 +12,8 @@ public class OrderRequest {
     private CustomerInfo customerInfo;
     private Location location;
     private Integer paymentMethod;
+    @JsonProperty("eInvoice")
+    private Boolean eInvoice;
     private List<Products> products;
     private BigDecimal totalPrice;
     private BigDecimal deliveryFee; //phi ship
@@ -18,7 +21,6 @@ public class OrderRequest {
     private BigDecimal discountedTotal; // gia giam vc
     private BigDecimal insuranceFee; // phi bao hanh
     private BigDecimal totalDue;
-    private Boolean eInvoice;
 
     @Data
     public static class CustomerInfo {
