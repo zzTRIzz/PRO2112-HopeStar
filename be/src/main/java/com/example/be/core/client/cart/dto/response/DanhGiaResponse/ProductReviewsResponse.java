@@ -1,4 +1,4 @@
-package com.example.be.core.client.cart.dto.response;
+package com.example.be.core.client.cart.dto.response.DanhGiaResponse;
 
 import lombok.Data;
 
@@ -7,14 +7,13 @@ import java.util.List;
 
 @Data
 public class ProductReviewsResponse {
-
-    private Integer productId;
-    private Integer accountId;
+    private Integer id;
+    private Products product;
+    private Account account;
     private Integer generalRating;
     private String comment;
-    private LocalDateTime date_assessment;
+    private LocalDateTime dateAssessment;
     private List<String> imageUrls;
-
 
     @Data
     public static class Products {
@@ -24,6 +23,9 @@ public class ProductReviewsResponse {
     @Data
     public static class Account{
         private String fullName;
+        private String avatar;
     }
+
+
 
 }

@@ -46,4 +46,14 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
             "and b.delivery.id = 2")
     Integer findBillByMaBill(@Param("maBill") String maBill);
 
+
+    @Query("SELECT CASE WHEN COUNT(bd) > 0 THEN true ELSE false END " +
+            "FROM BillDetail bd JOIN bd.idBill b " +
+            "WHERE b.idAccount.id = :customerId " +
+            "AND bd.idProductDetail.product.id = :productId " +
+            "AND b.status = :status")
+    boolean existsByCustomerIdAndProductId(@Param("customerId") Integer customerId,
+                                           @Param("productId") Integer productId,
+                                           @Param("status") StatusBill statusBill);
+
 }

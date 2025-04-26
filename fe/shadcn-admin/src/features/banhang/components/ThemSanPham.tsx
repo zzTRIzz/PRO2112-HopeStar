@@ -339,31 +339,6 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                         {listProduct.map((product, index) => (
                           <TableRow key={product.id}>
                             <TableCell>{index + 1}</TableCell>
-                            {/* <TableCell>
-                              <div className='h-20 w-16'>
-                                {product.imageUrl ? (
-                                  <img
-                                    src={product.imageUrl}
-                                    alt={`${product.name}`}
-                                    className='h-full w-full rounded-sm object-cover'
-                                  />
-                                ) : (
-                                  <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
-                                    <IconQuestionMark className='h-6 w-6' />
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {product?.name +
-                                ' ' +
-                                product?.ram +
-                                '/' +
-                                product.rom +
-                                'GB ( ' +
-                                product.color +
-                                ' )'}
-                            </TableCell> */}
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <div className="h-20 w-16 flex-shrink-0">

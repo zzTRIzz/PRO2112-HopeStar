@@ -35,6 +35,6 @@ public class ProductReviews {
     @JoinColumn(name = "id_product", nullable = false)
     private Product product;
 
-    @OneToMany(mappedBy = "productReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productReviews", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> images;
 }

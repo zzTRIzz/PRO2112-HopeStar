@@ -41,12 +41,6 @@ public class BillRespones {
     private BigDecimal discountedTotal; // tien giam
 
     private BigDecimal payInsurance;
-//
-//    private LocalDateTime deliveryDate;
-//
-//    private LocalDateTime  customerPreferredDate;
-//
-//    private LocalDateTime  customerAppointmentDate;
 
     private LocalDateTime  receiptDate;
 
