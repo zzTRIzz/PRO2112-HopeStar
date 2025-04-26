@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { ToastContainer } from 'react-toastify';
 import { AccountKhachHang } from '../service/Schema';
 import { Link } from '@heroui/react';
+import { IconQuestionMark } from '@tabler/icons-react';
 
 interface Props {
   listKhachHang: AccountKhachHang | undefined;
@@ -46,7 +47,21 @@ const TableKhachHang: React.FC<Props> =
       );
     });
 
+    const CartEmpty = () => {
+      return (
+        <>
+          <div className="flex flex-col items-center justify-center mt-4" style={{ height: "260px" }}>
+            <div className="flex items-center justify-center mb-4">
+              <IconQuestionMark className="w-10 h-10 text-gray-400" />
+            </div>
+            <p className="text-dark font-semibold text-center text-lg">
+              Hiện tại không có khách hàng nào!
+            </p>
+          </div>
 
+        </>
+      );
+    };
     return (
       <>
         <div className='p-2 bg-white
@@ -65,17 +80,16 @@ const TableKhachHang: React.FC<Props> =
                     Chọn khách hàng
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[980px] h-[650px] flex flex-col">
+                <DialogContent className="sm:max-w-[980px] flex flex-col">
                   <div className="grid grid-cols-10 gap-4">
                     <div className='col-span-7'>
                       <Input
                         placeholder="Tìm họ tên, số điện thoại hoặc email"
                         className="max-w-sm"
-                        value={searchTerm} // Giá trị nhập vào
-                        onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị tìm kiếm
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-                    {/* <div className="grid grid-cols-2 gap-4"> */}
                     <div className='col-span-1'>
                       <Button variant="outline" className="bg-white-500 border
                      border-black rounded-sm border-opacity-50
@@ -83,10 +97,6 @@ const TableKhachHang: React.FC<Props> =
                         Khách lẻ
                       </Button> </div>
                     <div className='col-span-2'>
-                      {/* <Button variant="outline" 
-                      className="bg-blue-600 text-white hover:bg-gray-400 text-white">
-                      Thêm khách hàng
-                    </Button> */}
                       <Link
                         href="/taikhoan/khachhang"
                         className="bg-blue-600 hover:bg-gray-400 
@@ -98,42 +108,44 @@ const TableKhachHang: React.FC<Props> =
 
                     </div>
                   </div>
-                  {/* </div> */}
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Stt</TableCell>
-                          {/* <TableCell>Mã</TableCell> */}
-                          <TableCell>Họ và tên</TableCell>
-                          <TableCell>Số điện thoại</TableCell>
-                          <TableCell>Email</TableCell>
-                          <TableCell>Địa chỉ</TableCell>
-                          <TableCell>Thao tác</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredAccounts.map((ac, index) => (
-                          <TableRow key={ac.id}>
-                            <TableCell>{index + 1}</TableCell>
-                            {/* <TableCell>{ac.code}</TableCell> */}
-                            <TableCell>{ac.fullName}</TableCell>
-                            <TableCell>{ac.phone}</TableCell>
-                            <TableCell>{ac.email}</TableCell>
-                            <TableCell>{ac.address}</TableCell>
-                            <TableCell>
-                              <Button className='bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600
-                            ' color="primary"
-                                onClick={() => handleAddKhachHang(ac.id)}>
-                                Chọn
-                              </Button>
+                  {filteredAccounts.length === 0 ? (
+                    <CartEmpty />
+                  ) : (
 
-                            </TableCell>
+                    <TableContainer className="overflow-auto max-h-[520px] mt-4">
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Stt</TableCell>
+                            <TableCell>Họ và tên</TableCell>
+                            <TableCell>Số điện thoại</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Địa chỉ</TableCell>
+                            <TableCell>Thao tác</TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                          {filteredAccounts.map((ac, index) => (
+                            <TableRow key={ac.id}>
+                              <TableCell>{index + 1}</TableCell>
+                              <TableCell>{ac.fullName}</TableCell>
+                              <TableCell>{ac.phone}</TableCell>
+                              <TableCell>{ac.email}</TableCell>
+                              <TableCell>{ac.address}</TableCell>
+                              <TableCell>
+                                <Button className='bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600
+                            ' color="primary"
+                                  onClick={() => handleAddKhachHang(ac.id)}>
+                                  Chọn
+                                </Button>
+
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
                 </DialogContent>
               </Dialog>
               <ToastContainer />
