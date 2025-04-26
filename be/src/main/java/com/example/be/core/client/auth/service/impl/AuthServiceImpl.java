@@ -64,13 +64,13 @@ public class AuthServiceImpl implements AuthService {
         verification.setOtp(otp);
         verification.setEmail(email);
         verificationRepository.save(verification);
-        String subject ="Hope Star xác thực đăng kí tài khoản";
+        String subject ="HopeStar xác thực đăng kí tài khoản";
         String text = "<!DOCTYPE html>\n" +
                 "<html lang=\"vi\">\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Hope Star xác thực đăng kí tài khoản</title>\n" +
+                "    <title>HopeStar xác thực đăng kí tài khoản</title>\n" +
                 "</head>\n" +
                 "<body style=\"margin: 0; padding: 0; background-color: #fff7ed; font-family: Arial, sans-serif; color: #1a1a1a;\">\n" +
                 "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
@@ -239,7 +239,7 @@ public class AuthServiceImpl implements AuthService {
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Hope Star xác thực thông tin tài khoản</title>\n" +
+                "    <title>HopeStar xác thực thông tin tài khoản</title>\n" +
                 "</head>\n" +
                 "<body style=\"margin: 0; padding: 0; background-color: #fff7ed; font-family: Arial, sans-serif; color: #1a1a1a;\">\n" +
                 "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
