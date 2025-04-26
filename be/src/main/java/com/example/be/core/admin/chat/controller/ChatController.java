@@ -2,6 +2,7 @@ package com.example.be.core.admin.chat.controller;
 
 import com.example.be.core.admin.chat.dto.request.ChatMessageRequest;
 import com.example.be.core.admin.chat.dto.request.StatusUpdateRequest;
+import com.example.be.core.admin.chat.dto.response.ChatUserResponse;
 import com.example.be.core.admin.chat.service.ChatService;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.entity.ChatMessage;
@@ -102,12 +103,13 @@ public class ChatController {
         return senderId < receiverId ? senderId + "_" + receiverId : receiverId + "_" + senderId;
     }
 
+    //test
     @GetMapping("/latest-messages")
     public List<ChatMessage> getLatestMessagesForAdmin() {
         return chatService.getLatestMessagesForAdmin(9); // Admin ID = 9
     }
     @GetMapping("/user-chat")
-    public List<ChatMessage> getUserChat() {
-        return chatService.getLatestMessagesForAdmin(9); // Admin ID = 9
+    public List<ChatUserResponse> getUserChat() throws Exception {
+        return chatService.getListChatUser(9); // Admin ID = 9
     }
 }

@@ -207,6 +207,26 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
     })
   }
 
+  // Add formatMessageDate helper function
+  const formatMessageDate = (timestamp: string) => {
+    const messageDate = new Date(timestamp)
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    if (messageDate.toDateString() === today.toDateString()) {
+      return 'Hôm nay'
+    } else if (messageDate.toDateString() === yesterday.toDateString()) {
+      return 'Hôm qua'
+    } else {
+      return messageDate.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    }
+  }
+
   return (
     <div className='fixed bottom-16 right-4 z-50 pb-2'>
       <button
@@ -279,37 +299,50 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
                 </div>
               </div>
             ) : (
-              <>
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`mb-4 ${msg.senderId === senderId ? 'text-right' : 'text-left'}`}
-                  >
-                    <p className='text-xs text-gray-600'>
-                      {msg.senderId === senderId ? 'Bạn' : 'Admin'} •{' '}
-                      {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                      })}
-                    </p>
-                    <div
-                      className={`inline-block rounded-lg p-2 text-sm ${
-                        msg.senderId === senderId
-                          ? 'bg-gray-200 text-black'
-                          : 'bg-blue-100 text-black'
-                      }`}
-                    >
-                      {msg.message}
+              <div className='space-y-4'>
+                {messages.map((msg, index) => {
+                  // Check if we need to show date separator
+                  const showDate =
+                    index === 0 ||
+                    formatMessageDate(messages[index - 1].timestamp) !==
+                      formatMessageDate(msg.timestamp)
+
+                  return (
+                    <div key={msg.id} className='space-y-2'>
+                      {showDate && (
+                        <div className='flex justify-center'>
+                          <span className='rounded-full bg-muted px-3 py-1 text-xs text-gray-500'>
+                            {formatMessageDate(msg.timestamp)}
+                          </span>
+                        </div>
+                      )}
+                      <div
+                        className={`mb-4 ${msg.senderId === senderId ? 'text-right' : 'text-left'}`}
+                      >
+                        <p className='text-xs text-gray-600'>
+                          {msg.senderId === senderId ? 'Bạn' : 'Admin'} •{' '}
+                          {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                        <div
+                          className={`inline-block rounded-lg p-2 text-sm ${
+                            msg.senderId === senderId
+                              ? 'bg-gray-200 text-black'
+                              : 'bg-blue-100 text-black'
+                          }`}
+                        >
+                          {msg.message}
+                        </div>
+                        <p className='text-xs text-gray-500'>
+                          {msg.status === 'SENT' ? 'Đã gửi' : 'Đã xem'}
+                        </p>
+                      </div>
                     </div>
-                    <p className='text-xs text-gray-500'>
-                      {msg.status === 'SENT' ? 'Đã gửi' : 'Đã xem'}
-                    </p>
-                  </div>
-                ))}
-              </>
+                  )
+                })}
+              </div>
             )}
             <div
               ref={messagesEndRef}
