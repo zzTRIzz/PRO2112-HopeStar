@@ -383,11 +383,15 @@ export default function VoucherUI() {
         }
     };
 
-    // Modify handleSubmit function
+    // Thêm state loading cho form
+    const [formLoading, setFormLoading] = useState(false);
+
+    // Sửa lại hàm handleSubmit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
+            setFormLoading(true); // Bật loading khi bắt đầu xử lý
+
             // Validate required fields
             if (!formData.code.trim()) {
                 toast.error('Mã voucher không được để trống');
@@ -507,6 +511,8 @@ export default function VoucherUI() {
             } else {
                 toast.error('Có lỗi xảy ra khi lưu voucher');
             }
+        } finally {
+            setFormLoading(false); // Tắt loading khi hoàn thành
         }
     };
 
@@ -748,12 +754,12 @@ export default function VoucherUI() {
                                     <th className="p-3 whitespace-nowrap">Mã</th>
                                     <th className="p-3 whitespace-nowrap">Tên</th>
                                     <th className="p-3 whitespace-nowrap">Giá trị</th>
-                                    <th className="p-3 whitespace-nowrap">Điều Kiện</th>
-                                    <th className="p-3 whitespace-nowrap">Số Lượng</th>
-                                    <th className="p-3 whitespace-nowrap">Thời Gian</th>
-                                    <th className="p-3 whitespace-nowrap">Trạng Thái</th>
+                                    <th className="p-3 whitespace-nowrap">Điều kiện</th>
+                                    <th className="p-3 whitespace-nowrap">Số lượng</th>
+                                    <th className="p-3 whitespace-nowrap">Thời gian</th>
+                                    <th className="p-3 whitespace-nowrap">Trạng thái</th>
                                     <th className="p-3 whitespace-nowrap">Loại</th>
-                                    <th className="p-3 whitespace-nowrap">Thao Tác</th>
+                                    <th className="p-3 whitespace-nowrap">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -897,7 +903,7 @@ export default function VoucherUI() {
                                 <div className="relative bg-white rounded-2xl w-[90%] max-w-[900px] max-h-[90vh] flex flex-col"> {/* Thay đổi rounded-lg thành rounded-2xl */}
                                     <div className="p-6 border-b flex-shrink-0 rounded-t-2xl"> {/* Thêm rounded-t-2xl */}
                                         <h2 className="text-2xl font-semibold"> {/* Tăng kích thước text */}
-                                            {isEditing ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
+                                            {isEditing ? 'Cập nhật voucher' : 'Tạo voucher mới'}
                                         </h2>
                                     </div>
                                     
@@ -1144,10 +1150,10 @@ export default function VoucherUI() {
                                                                                 }}
                                                                             />
                                                                         </th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Họ tên</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Email</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Số điện thoại</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Trạng thái sử dụng</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody className="divide-y">
@@ -1195,16 +1201,24 @@ export default function VoucherUI() {
                                                 type="button"
                                                 className="px-6 py-2 border rounded-lg hover:bg-gray-100"
                                                 onClick={handleCloseModal}
+                                                disabled={formLoading}
                                             >
                                                 Hủy
                                             </button>
                                             <button
                                                 type="submit"
                                                 onClick={handleSubmit}
-                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                                disabled={loading}
+                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                                                disabled={formLoading}
                                             >
-                                                {isEditing ? 'Cập nhật' : 'Tạo'}
+                                                {formLoading ? (
+                                                    <>
+                                                        <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+                                                        <span>{isEditing ? 'Đang cập nhật...' : 'Đang tạo...'}</span>
+                                                    </>
+                                                ) : (
+                                                    <span>{isEditing ? 'Cập nhật' : 'Tạo'}</span>
+                                                )}
                                             </button>
                                         </div>
                                     </div>
@@ -1249,42 +1263,64 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
-    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus>>({});
+    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
 
     // Fetch customers when component mounts
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
             try {
                 setLoading(true);
+                
                 // Lấy danh sách khách hàng
                 const response = await axios.get(`${API_BASE_URL}/account/list`);
                 
-                // Lấy danh sách tài khoản đã có voucher này
+                // Lấy danh sách tài khoản đã có voucher
                 const voucherAccountsResponse = await axios.get(
                     `${API_BASE_URL}/admin/voucher/${voucher.id}/accounts`
                 );
+
+                // Khởi tạo statusMap là một object rỗng với kiểu chính xác
+                const statusMap: Record<number, VoucherAccountStatus | null> = {};
                 
-                const existingAccountIds = voucherAccountsResponse.data.data.map(
-                    (account: AccountResponse) => account.id
-                );
+                // Lấy trạng thái hiện tại của voucher
+                const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
 
-                // Lấy trạng thái sử dụng của voucher
-                const usageStatusResponse = await getVoucherUsageStatuses(voucher.id);
-                const statusMap = usageStatusResponse.reduce((acc, status) => ({
-                    ...acc,
-                    [status.accountId]: status.status
-                }), {});
-                setUsageStatuses(statusMap);
-
-                // Lọc khách hàng
+                // Lọc ra những account là khách hàng
                 const customers = response.data.data.filter((account: AccountResponse) => 
                     account.idRole?.id === 4 && 
                     account.status === 'ACTIVE'
                 );
 
+                // Log để debug
+                console.log('Voucher accounts response:', voucherAccountsResponse.data);
+
+                // Xử lý trạng thái cho từng voucher account
+                if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+                    voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+                        // Kiểm tra cấu trúc dữ liệu
+                        if (voucherAccount && voucherAccount.idAccount) {
+                            const accountId = voucherAccount.idAccount.id;
+                            
+                            if (voucherAccount.status === VoucherAccountStatus.USED) {
+                                statusMap[accountId] = VoucherAccountStatus.USED;
+                            } else {
+                                if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+                                    statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+                                } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+                                    statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+                                } else {
+                                    statusMap[accountId] = null; // For UPCOMING vouchers
+                                }
+                            }
+                        }
+                    });
+                }
+
+                setUsageStatuses(statusMap);
                 setAccounts(customers);
+
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error fetching data:', error);
                 setError('Không thể tải danh sách khách hàng');
             } finally {
                 setLoading(false);
@@ -1292,7 +1328,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
         };
 
         fetchCustomersAndStatus();
-    }, [voucher.id]);
+    }, [voucher.id, voucher.startTime, voucher.endTime]);
 
     // Handle assign button click
     const handleAssign = async () => {
@@ -1325,6 +1361,47 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
             toast.error('Có lỗi xảy ra khi thêm voucher');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Update status display in table
+    const getStatusDisplay = (accountId: number) => {
+        const status = usageStatuses[accountId];
+        
+        if (!status) {
+            const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+            return (
+                <span className="text-sm text-gray-500">
+                    {voucherStatus === VoucherStatus.ACTIVE ? "Chưa sử dụng" : "Chưa kích hoạt"}
+                </span>
+            );
+        }
+
+        switch (status) {
+            case VoucherAccountStatus.USED:
+                return (
+                    <span className="px-2 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                        Đã sử dụng
+                    </span>
+                );
+            case VoucherAccountStatus.NOT_USED:
+                return (
+                    <span className="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                        Chưa sử dụng
+                    </span>
+                );
+            case VoucherAccountStatus.EXPIRED:
+                return (
+                    <span className="px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                        Hết hạn
+                    </span>
+                );
+            default:
+                return (
+                    <span className="text-sm text-gray-500">
+                        Chưa kích hoạt
+                    </span>
+                );
         }
     };
 
@@ -1394,7 +1471,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                                             }}
                                                         />
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
@@ -1422,20 +1499,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                                         <td className="px-4 py-3">{account.email}</td>
                                                         <td className="px-4 py-3">{account.phone || '-'}</td>
                                                         <td className="px-4 py-3">
-                                                            {usageStatuses[account.id] ? (
-                                                                <VoucherStatusBadge status={usageStatuses[account.id]} />
-                                                            ) : (
-                                                                <span className="text-sm text-gray-500">
-                                                                    {(() => {
-                                                                        const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
-                                                                        if (voucherStatus === VoucherStatus.ACTIVE) {
-                                                                            return "Chưa sử dụng";
-                                                                        } else {
-                                                                            return "Chưa kích hoạt";
-                                                                        }
-                                                                    })()}
-                                                                </span>
-                                                            )}
+                                                            {getStatusDisplay(account.id)}
                                                         </td>
                                                     </tr>
                                                 ))}
