@@ -1,6 +1,6 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import { Select, Card, Row, Col, Statistic, Spin, DatePicker, Button } from 'antd';
+import { Select, Card, Row, Col, Statistic, Spin, Button } from 'antd';
 import { ShoppingCartOutlined, SearchOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { getTotalPaidOrders, getStatisticsByDateRange } from './api/statisticsApi';
@@ -11,6 +11,11 @@ import { BestSellingProductsChart } from './components/best-selling-products-cha
 import { PaidBillsTable } from './components/paid-bills-table';
 import { LowStockTable } from './components/low-stock-table';
 import { StatsCards } from './components/stats-cards';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type ViewMode = 'day' | '3days' | '7days' | 'month' | 'year';
 
@@ -34,16 +39,30 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = React.useState<ViewMode>('month');
   const [dateRange, setDateRange] = React.useState<[string, string] | null>(null);
   const [dateRangeData, setDateRangeData] = React.useState<DateRangeResponse | null>(null);
+  const [dateBatDau, setDateBatDau] = React.useState<Date>();
+  const [dateKetThuc, setDateKetThuc] = React.useState<Date>();
+  const [error, setError] = React.useState<string | null>(null);
   const { data: totalOrders, isLoading } = useQuery({
     queryKey: ['total-orders'],
     queryFn: getTotalPaidOrders
   });
 
   const handleSearch = async () => {
-    if (dateRange) {
-      const data = await getStatisticsByDateRange(dateRange[0], dateRange[1]);
+    if (dateBatDau && dateKetThuc) {
+      const startDate = format(dateBatDau, 'yyyy-MM-dd');
+      const endDate = format(dateKetThuc, 'yyyy-MM-dd');
+      const data = await getStatisticsByDateRange(startDate, endDate);
       setDateRangeData(data);
     }
+  };
+
+  const validateDates = () => {
+    if (dateBatDau && dateKetThuc && dateBatDau > dateKetThuc) {
+      setError('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+      return false;
+    }
+    setError(null);
+    return true;
   };
 
   // Add handler for viewMode changes
@@ -75,18 +94,62 @@ export default function Dashboard() {
       {/* View Mode Select */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
-          <DatePicker.RangePicker
-            className="w-[300px]"
-            onChange={(dates, dateStrings) => setDateRange(dateStrings)}
-            value={dateRange ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
-          />
-          <Button 
-            type="primary"
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-          >
-            Tìm kiếm
-          </Button>
+          {/* Date Pickers */}
+          <div className="flex gap-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  className="w-[200px] justify-start border-2 border-black hover:bg-black/5"
+                  variant="outline"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateBatDau ? format(dateBatDau, 'dd/MM/yyyy') : 'Ngày bắt đầu'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateBatDau}
+                  onSelect={setDateBatDau}
+                  disabled={(date) =>
+                    date > new Date() || (dateKetThuc ? date > dateKetThuc : false)
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  className="w-[200px] justify-start border-2 border-black hover:bg-black/5"
+                  variant="outline"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateKetThuc ? format(dateKetThuc, 'dd/MM/yyyy') : 'Ngày kết thúc'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateKetThuc}
+                  onSelect={setDateKetThuc}
+                  disabled={(date) =>
+                    date > new Date() || (dateBatDau ? date < dateBatDau : false)
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Button 
+              onClick={handleSearch}
+              className="flex items-center border-black"
+            >
+              <SearchOutlined className="mr-2" />
+              Tìm kiếm
+            </Button>
+          </div>
         </div>
         <Select
           value={viewMode}
@@ -101,6 +164,12 @@ export default function Dashboard() {
           ]}
         />
       </div>
+
+      {error && (
+        <div className="text-red-500 text-sm mt-1">
+          {error}
+        </div>
+      )}
 
       {/* Charts Section */}
       <Row gutter={[16, 16]}>
