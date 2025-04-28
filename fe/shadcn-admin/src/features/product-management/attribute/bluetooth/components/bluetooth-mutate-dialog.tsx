@@ -75,7 +75,7 @@ export function BluetoothMutateDialog({
         toast({
           title: 'Lỗi',
           description:
-            error.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`,
+            error.response.data.message || `Không thể ${isUpdate ? 'cập nhật' : 'tạo mới'}`,
           variant: 'destructive',
           className: 'fixed top-4 right-4 md:max-w-[300px]',
           duration: 2000,

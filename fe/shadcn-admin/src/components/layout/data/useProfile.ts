@@ -27,6 +27,7 @@ export const useProfile = () => {
               Authorization: `Bearer ${jwt}`,
             },
           });
+          console.log('Thông tin người dùng:', response.data);
           setProfile(response.data);
           setError(null);
         } catch (err) {

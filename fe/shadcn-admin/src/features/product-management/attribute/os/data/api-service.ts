@@ -1,11 +1,17 @@
+import Cookies from 'js-cookie';
 import { Os } from './schema';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
 
 export const getOs = async () => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.get(`${API_BASE_URL}/os`);
+    const response = await axios.get(`${API_BASE_URL}/os`,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching os:', error);
@@ -15,28 +21,33 @@ export const getOs = async () => {
 
 
 export const addOs = async (os: Os) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.post(`${API_BASE_URL}/os`, os);
+    const response = await axios.post(`${API_BASE_URL}/os`, os,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     // Log chi tiết lỗi để debug
     console.error('Error response:', error.response?.data);
     
-    if (error.response?.data.message === 'os name already exists') {
-      throw new Error(`Os name "${os.name}" already exists`);
-    }
     throw error;
   }
 };
 
 export const updateOs = async (os: Os) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.put(`${API_BASE_URL}/os/${os.id}`, os);
+    const response = await axios.put(`${API_BASE_URL}/os/${os.id}`, os,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
-    if (error.response?.data.message === 'os name already exists') {
-      throw new Error(`Os name "${os.name}" already exists`);
-    }
+    console.error('Error updating os:', error.response?.data);
     throw error;
   }
 };

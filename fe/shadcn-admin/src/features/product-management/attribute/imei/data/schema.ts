@@ -26,6 +26,7 @@ export type ImeiResponse = z.infer<typeof imeiResponseSchema>
 
 // Request schema for creating/updating IMEI
 export const imeiRequestSchema = z.object({
+  id: z.number().optional(),
   imeiCode: z.string().min(15, 'IMEI phải có 15 kí tự').max(15, 'IMEI phải có 15 kí tự'),
 })
 
