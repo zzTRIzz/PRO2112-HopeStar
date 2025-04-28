@@ -12,6 +12,7 @@ export const getProfile = async () => {
         Authorization: `Bearer ${jwt}`,
       },
     })
+    console.log('Thông tin người dùng client:', response.data)
     return response.data
   }
 }

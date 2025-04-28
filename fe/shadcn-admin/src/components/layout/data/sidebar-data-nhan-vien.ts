@@ -21,17 +21,7 @@ import { type SidebarData } from '../types'
 
 
 
-const signupData = JSON.parse(localStorage.getItem('profile') || '{}')
-const { name, email,idRole } = signupData
-
-export const sidebarDataNhanVien: SidebarData = {
-  
-  user: {
-    name: name,
-    email: email,
-    avatar: '/avatars/shadcn.jpg',
-    role:idRole
-  },
+export const sidebarDataNhanVien: Omit<SidebarData, 'user'> = {
   teams: [
     {
       name: 'HopeStar',

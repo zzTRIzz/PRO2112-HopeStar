@@ -18,7 +18,7 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
   const receiverId = 9 // ID admin
   const jwt = Cookies.get('jwt')
 
-  const fetchChatHistory = async (userId) => {
+  const fetchChatHistory = async (userId:number) => {
     try {
       const response = await axios.get(
         `http://localhost:8080/api/chat/history?senderId=${userId}&receiverId=${receiverId}`,
@@ -155,56 +155,59 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
   }
 
   const updateMessageStatus = (messageId, status, retries = 3) => {
-    if (!stompClient || !stompClient.connected) {
-      if (retries > 0) {
-        setTimeout(() => {
-          updateMessageStatus(messageId, status, retries - 1)
-        }, 1000)
-      } else {
-        toast.error(
-          'Không thể cập nhật trạng thái tin nhắn. Vui lòng thử lại sau!'
+    if (jwt) {
+      try {
+        if (!stompClient || !stompClient.connected) {
+          if (retries > 0) {
+            setTimeout(() => {
+              updateMessageStatus(messageId, status, retries - 1)
+            }, 1000)
+          } else {
+            toast.error(
+              'Không thể cập nhật trạng thái tin nhắn. Vui lòng thử lại sau!'
+            )
+          }
+          return
+        }
+
+        const statusUpdate = {
+          messageId,
+          status,
+        }
+        stompClient.publish({
+          destination: '/app/chat/status',
+          body: JSON.stringify(statusUpdate),
+        })
+        console.log(
+          `Sent status update: messageId=${messageId}, status=${status}`
         )
+      } catch (error) {
+        toast.error('Lỗi khi cập nhật trạng thái: ' + error.message)
+        console.error('Lỗi cập nhật trạng thái:', error)
       }
-      return
-    }
-
-    const statusUpdate = {
-      messageId,
-      status,
-    }
-
-    try {
-      stompClient.publish({
-        destination: '/app/chat/status',
-        body: JSON.stringify(statusUpdate),
-      })
-      console.log(
-        `Sent status update: messageId=${messageId}, status=${status}`
-      )
-    } catch (error) {
-      toast.error('Lỗi khi cập nhật trạng thái: ' + error.message)
-      console.error('Lỗi cập nhật trạng thái:', error)
     }
   }
 
   const handleMessageSeen = () => {
-    if (!isWebSocketConnected) {
-      toast.warn('Đang kết nối đến server. Vui lòng thử lại!')
-      return
+    if (jwt) {
+      if (!isWebSocketConnected) {
+        toast.warn('Đang kết nối đến server. Vui lòng thử lại!')
+        return
+      }
+
+      const messagesToUpdate = messages.filter(
+        (msg) => msg.senderId !== senderId && msg.status === 'SENT'
+      )
+
+      if (messagesToUpdate.length === 0) {
+        console.log('No messages to mark as SEEN')
+        return
+      }
+
+      messagesToUpdate.forEach((msg) => {
+        updateMessageStatus(msg.id, 'SEEN')
+      })
     }
-
-    const messagesToUpdate = messages.filter(
-      (msg) => msg.senderId !== senderId && msg.status === 'SENT'
-    )
-
-    if (messagesToUpdate.length === 0) {
-      console.log('No messages to mark as SEEN')
-      return
-    }
-
-    messagesToUpdate.forEach((msg) => {
-      updateMessageStatus(msg.id, 'SEEN')
-    })
   }
 
   // Add formatMessageDate helper function

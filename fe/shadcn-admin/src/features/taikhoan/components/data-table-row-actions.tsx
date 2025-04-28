@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { TaiKhoan } from '../schema/schema'
+import Cookies from 'js-cookie'
 
 // Province/city type definitions
 interface Province {
@@ -184,13 +185,19 @@ export function DataTableRowActions({
     },
   })
 
+  const jwt = Cookies.get('jwt')
   // Fetch account data when dialog opens
   const fetchAccountData = async () => {
     if (!isDialogOpen) return
     setIsLoading(true)
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/account/get/${account.id}`
+        `http://localhost:8080/api/account/get/${account.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
       )
       if (response.data.status === 200) {
         setCurrentAccount(response.data.data)
@@ -326,6 +333,11 @@ export function DataTableRowActions({
           gender: values.gender === 'Nam',
           birthDate: values.birthDate,
           status: values.status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         }
       )
 

@@ -1,11 +1,17 @@
+import Cookies from 'js-cookie';
 import { Category } from './schema';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
 
 export const getCategory = async () => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.get(`${API_BASE_URL}/category`);
+    const response = await axios.get(`${API_BASE_URL}/category`,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching categorys:', error);
@@ -15,28 +21,32 @@ export const getCategory = async () => {
 
 
 export const addCategory = async (category: Category) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.post(`${API_BASE_URL}/category`, category);
+    const response = await axios.post(`${API_BASE_URL}/category`, category,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     // Log chi tiết lỗi để debug
     console.error('Error response:', error.response?.data);
-    
-    if (error.response?.data.message === 'category name already exists') {
-      throw new Error(`Category name "${category.name}" already exists`);
-    }
     throw error;
   }
 };
 
 export const updateCategory = async (category: Category) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.put(`${API_BASE_URL}/category/${category.id}`, category);
+    const response = await axios.put(`${API_BASE_URL}/category/${category.id}`, category,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
-    if (error.response?.data.message === 'category name already exists') {
-      throw new Error(`Category name "${category.name}" already exists`);
-    }
+    console.error('Error updating category:', error.response?.data);
     throw error;
   }
 };

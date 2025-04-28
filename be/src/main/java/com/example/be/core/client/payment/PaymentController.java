@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/payment")
+@RequestMapping("/apis/v1/payment")
 public class PaymentController {
     @Autowired
     private VNPayService vnPayService;

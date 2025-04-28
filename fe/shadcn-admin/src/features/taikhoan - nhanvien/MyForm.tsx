@@ -51,6 +51,7 @@ import { createColumns } from './components/taikhoan-columns'
 import { TaiKhoanTable } from './components/taikhoan-table'
 import { TaiKhoan } from './schema/schema'
 import { code } from '@heroui/react'
+import Cookies from 'js-cookie'
 
 // const formSchema = z.object({
 //   fullName: z
@@ -103,6 +104,7 @@ import { code } from '@heroui/react'
 //   street: z.string().min(3, "Vui lòng nhập địa chỉ cụ thể")
 // })
 
+const jwt = Cookies.get('jwt')
 const formSchema = z.object({
   fullName: z
     .string({ required_error: 'Họ và tên không được bỏ trống' })
@@ -289,7 +291,11 @@ export default function MyForm() {
   const fetchAccounts = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:8080/api/account/list-nhan-vien'
+        'http://localhost:8080/api/account/list-nhan-vien',{
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
       )
       if (response.status === 200) {
         const accountsData = response.data.data.map((acc: any) => ({
@@ -327,6 +333,11 @@ export default function MyForm() {
           gender: genderValue,
           birthDate: account.birthDate,
           status: newStatus ? 'ACTIVE' : 'IN_ACTIVE',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         }
       )
 
@@ -434,9 +445,10 @@ export default function MyForm() {
 
       const config = {
         headers: {
+          Authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json',
         },
-      }
+      };
 
       const response = await axios.post(
         'http://localhost:8080/api/account/add-nhan-vien',
