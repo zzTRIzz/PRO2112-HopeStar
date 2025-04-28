@@ -39,7 +39,7 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({ children }) => {
       <div className="container mx-auto px-4">
         <div className="flex gap-6">
           {/* Sidebar */}
-          <Card className="w-[280px] p-3 shadow-sm">
+          <Card className="sticky top-8 self-start w-[280px] p-3 shadow-sm">
             <div className="flex flex-col gap-1">
               {menuItems.map((item) => {
                 const isActive = router.state.location.pathname === item.path;

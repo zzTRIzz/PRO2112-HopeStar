@@ -44,6 +44,7 @@ import { createColumns } from './components/taikhoan-columns'
 import { TaiKhoanTable } from './components/taikhoan-table'
 import { TaiKhoan } from './schema/schema'
 import { Province, District, Ward } from '../tinhthanh/schema/types'
+import Cookies from 'js-cookie'
 
 // const formSchema = z.object({
 //   fullName: z
@@ -95,7 +96,7 @@ import { Province, District, Ward } from '../tinhthanh/schema/types'
 //   ward: z.union([z.string(), z.number()]).transform(val => String(val)),
 //   street: z.string().min(3, "Vui lòng nhập địa chỉ cụ thể")
 // })
-
+const jwt = Cookies.get('jwt')
 const formSchema = z.object({
   fullName: z
     .string({ required_error: 'Họ và tên không được bỏ trống' })
@@ -273,7 +274,11 @@ export default function MyForm() {
   const fetchAccounts = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:8080/api/account/list-khach-hang'
+        'http://localhost:8080/api/account/list-khach-hang',{
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
       )
       if (response.status === 200) {
         const accountsData = response.data.data.map((acc: any) => ({
@@ -310,6 +315,11 @@ export default function MyForm() {
           gender: genderValue,
           birthDate: account.birthDate,
           status: newStatus ? 'ACTIVE' : 'IN_ACTIVE',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         }
       )
 
@@ -411,6 +421,7 @@ export default function MyForm() {
 
       const config = {
         headers: {
+          Authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json',
         },
       };
@@ -419,6 +430,7 @@ export default function MyForm() {
         'http://localhost:8080/api/account/add',
         payload,
         config
+        
       );
 
       if (response.data) {

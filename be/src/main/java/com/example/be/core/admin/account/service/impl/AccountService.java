@@ -131,6 +131,7 @@ public class AccountService {
     public List<AccountResponse> getAll() {
         return accountRepository.findAll().stream()
                 .map(this::convertToResponse)
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
                 .collect(Collectors.toList());
     }
 
@@ -139,6 +140,7 @@ public class AccountService {
         return accountRepository.findAccountsByIdRole(role)
                 .stream()
                 .map(this::convertToResponse)
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
                 .collect(Collectors.toList());
     }
 
@@ -147,6 +149,7 @@ public class AccountService {
         return accountRepository.findAccountsByIdRole(role)
                 .stream()
                 .map(this::convertToResponse)
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
                 .collect(Collectors.toList());
     }
 
@@ -337,6 +340,17 @@ public class AccountService {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi tìm khách hàng cho hóa đơn: " + e.getMessage());
         }
+    }
+
+    public AccountResponse updateProfile(String email, AccountRequest request) {
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            throw new IllegalArgumentException("Không tìm thấy tài khoản với email: " + email);
+        }
+        account.setFullName(request.getFullName());
+        account.setGender(request.getGender());
+        account.setBirthDate(request.getBirthDate());
+        return convertToResponse(accountRepository.save(account));
     }
 
 

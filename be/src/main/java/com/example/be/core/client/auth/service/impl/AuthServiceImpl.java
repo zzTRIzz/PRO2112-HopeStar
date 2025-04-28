@@ -200,6 +200,7 @@ public class AuthServiceImpl implements AuthService {
         accountResponse.setAvatar(account.getImageAvatar());
         accountResponse.setIdRole(account.getIdRole().getId());
         accountResponse.setGender(account.getGender());
+        accountResponse.setBirthDate(account.getBirthDate());
         return accountResponse;
     }
 
