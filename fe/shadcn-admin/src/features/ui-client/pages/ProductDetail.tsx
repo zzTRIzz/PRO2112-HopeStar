@@ -271,7 +271,7 @@ export default function ProductDetail() {
           {/* Product Images */}
           <ProductGallery
             defaultImage={
-              currentProductDetail?.imageUrl || defaultProductDetail.imageUrl
+              currentProductDetail?.imageUrl || defaultProductDetail?.imageUrl
             }
             imageUrls={imageUrls}
           />
@@ -307,7 +307,7 @@ export default function ProductDetail() {
                     currency: 'VND',
                   }).format(
                     currentProductDetail?.priceSell ||
-                      defaultProductDetail.priceSell
+                      defaultProductDetail?.priceSell
                   )}
                 </span>
                 {currentProductDetail?.price !==
@@ -319,7 +319,7 @@ export default function ProductDetail() {
                         currency: 'VND',
                       }).format(
                         currentProductDetail?.price ||
-                          defaultProductDetail.price
+                          defaultProductDetail?.price
                       )}
                     </span>
                     <Badge color='danger' className='ml-2'>
@@ -414,7 +414,7 @@ export default function ProductDetail() {
                 <span className='text-sm text-gray-500'>
                   Còn{' '}
                   {currentProductDetail?.inventoryQuantity ||
-                    defaultProductDetail.inventoryQuantity}{' '}
+                    defaultProductDetail?.inventoryQuantity}{' '}
                   sản phẩm
                 </span>
               </div>
@@ -435,7 +435,7 @@ export default function ProductDetail() {
                 color='success'
                 size='lg'
                 className='flex-1'
-                onClick={(e) => {
+                onClick={() => {
                   // e.preventDefault()
                   handleBuyNow(currentProductDetail?.productDetailId)
                 }}
@@ -460,16 +460,16 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
-                  <Icon
+                  {/* <Icon
                     icon='lucide:repeat'
                     className='h-6 w-6 text-blue-500'
-                  />
-                  <div>
+                  /> */}
+                  {/* <div>
                     <h4 className='font-semibold'>Đổi trả miễn phí</h4>
                     <p className='text-sm text-gray-500'>
                       30 ngày đổi trả miễn phí
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               </CardBody>
             </Card>
@@ -653,7 +653,8 @@ export default function ProductDetail() {
                 </div>
               }
             >
-              <ProductReviews productDetail={productDetail} />
+              <ProductReviews productDetail={productDetail}
+              currentProductDetail={currentProductDetail} />
             </Tab>
           </Tabs>
         </div>

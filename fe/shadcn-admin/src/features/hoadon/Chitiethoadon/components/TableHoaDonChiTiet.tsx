@@ -152,11 +152,15 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 handleUpdateProduct(pr.idProductDetail, pr.id);
                                                                 setOpenDialogId(pr.id);
                                                             }}
+                                                            // disabled={!(
+                                                            //     isMissingImei(pr.idProductDetail) &&
+                                                            //     Number(searchBill?.billType) === 1
+                                                            // )}
                                                             disabled={!(
-                                                                isMissingImei(pr.idProductDetail) &&
-                                                                Number(searchBill?.billType) === 1
+                                                                // isMissingImei(pr.idProductDetail) &&
+                                                                Number(searchBill?.billType) === 1 &&
+                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN') // Kiểm tra trạng thái hóa đơn
                                                             )}
-
                                                         >
                                                             Cập nhật
                                                         </Button>

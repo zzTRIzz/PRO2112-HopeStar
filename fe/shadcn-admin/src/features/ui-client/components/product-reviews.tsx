@@ -4,7 +4,6 @@ import { Icon } from '@iconify/react';
 import React, { useEffect, useState } from 'react';
 import DanhGiaSanPham from './danh-gia/danh-gia-san-pham';
 import { productDetailViewResponse } from '../data/schema';
-import { Route } from '@/routes/(auth)/product.$id';
 import Cookies from 'js-cookie';
 
 export interface Review {
@@ -34,30 +33,32 @@ interface RatingData {
   reviews: Review[];
   ratingSummaryResponse: RatingSummary | null;
   hasPurchased: boolean;
+  numberSold: number;
+  evaluate: number;
 }
 
 interface ReviewsProps {
   productDetail: productDetailViewResponse;
+  currentProductDetail: any;
+  onUpdateStats: (stats: { numberSol: number; evaluat: number }) => void;
 }
 
-const ProductReviews: React.FC<ReviewsProps> = ({ productDetail }) => {
+const ProductReviews: React.FC<ReviewsProps> = ({ productDetail, currentProductDetail }) => {
   const [open, setOpen] = React.useState(false);
   const [reviewData, setReviewData] = useState<RatingData>({
     reviews: [],
     ratingSummaryResponse: null,
     hasPurchased: false,
+    evaluate: 0,
+    numberSold: 0
   });
-  const { id } = Route.useParams();
-  const [displayLimit, setDisplayLimit] = useState(3)
 
-  useEffect(() => {
-    getAllReviews();
-  }, []);
+  const [displayLimit, setDisplayLimit] = useState(3);
 
   const getAllReviews = async () => {
     try {
       const jwt = Cookies.get('jwt');
-
+      console.log('jwt', jwt)
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
@@ -65,7 +66,7 @@ const ProductReviews: React.FC<ReviewsProps> = ({ productDetail }) => {
         headers['Authorization'] = `Bearer ${jwt}`;
       }
 
-      const response = await fetch(`http://localhost:8080/api/product-reviews/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/product-reviews/${currentProductDetail?.productDetailId}`, {
         method: 'GET',
         headers: headers
       });
@@ -80,7 +81,13 @@ const ProductReviews: React.FC<ReviewsProps> = ({ productDetail }) => {
         setReviewData(data.data);
       } else {
         console.warn('Không có dữ liệu đánh giá.');
-        setReviewData({ reviews: [], ratingSummaryResponse: null, hasPurchased: false });
+        setReviewData({
+          reviews: [],
+          ratingSummaryResponse: null,
+          hasPurchased: false,
+          evaluate: 0,
+          numberSold: 0
+        });
       }
     } catch (error) {
       console.error('Lỗi khi tải đánh giá:', error);
@@ -103,6 +110,12 @@ const ProductReviews: React.FC<ReviewsProps> = ({ productDetail }) => {
       2 * ratingStats.twoStar +
       1 * ratingStats.oneStar) /
     (ratingStats.total || 1);
+
+  useEffect(() => {
+    if (currentProductDetail?.productDetailId) {
+      getAllReviews();
+    }
+  }, [currentProductDetail?.productDetailId, getAllReviews]);
 
   return (
     <div className="space-y-4">
@@ -137,6 +150,7 @@ const ProductReviews: React.FC<ReviewsProps> = ({ productDetail }) => {
                   productDetail={productDetail}
                   hasPurchased={reviewData.hasPurchased}
                   getAllReviews={getAllReviews}
+                  currentProductDetail={currentProductDetail}
                 />
               </div>
               <div className="flex-1 space-y-2">
