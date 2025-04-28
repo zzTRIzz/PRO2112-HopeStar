@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
@@ -14,20 +15,40 @@ axios.interceptors.response.use(
     }
 );
 
+// First, create an authenticated axios instance
+const authAxios = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Add request interceptor to inject JWT token
+authAxios.interceptors.request.use(
+    (config) => {
+        const jwt = Cookies.get('jwt');
+        if (jwt) {
+            config.headers.Authorization = `Bearer ${jwt}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Update all API calls to use authAxios
 export const getVouchers = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/voucher/list`); // Thêm /list vào endpoint
-    if (response.data) {
-      return response.data;
+    try {
+        const response = await authAxios.get('/voucher/list');
+        return response.data || [];
+    } catch (error) {
+        console.error('Error fetching vouchers:', error);
+        if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || 'Không thể tải danh sách voucher');
+        }
+        return [];
     }
-    return [];
-  } catch (error) {
-    console.error('Error fetching vouchers:', error);
-    if (axios.isAxiosError(error)) {
-      toast.error(error.response?.data?.message || 'Không thể tải danh sách voucher');
-    }
-    return []; // Return empty array on error
-  }
 };
 
 // Add interface for search params
@@ -38,9 +59,6 @@ interface VoucherSearchParams {
     isPrivate?: boolean;
     status?: VoucherStatus; // Sửa từ StatusType thành VoucherStatus
 }
-
-
-
 
 // Update searchVouchers function
 export const searchVouchers = async (params: VoucherSearchParams) => {
@@ -65,7 +83,7 @@ export const searchVouchers = async (params: VoucherSearchParams) => {
 
         console.log("Search params:", queryParams);
 
-        const response = await axios.get(`${API_BASE_URL}/voucher/searchWithFilters`, {
+        const response = await authAxios.get('/voucher/searchWithFilters', {
             params: queryParams
         });
 
@@ -81,7 +99,7 @@ export const searchVouchers = async (params: VoucherSearchParams) => {
 
 export const checkVoucherCode = async (code: string, excludeId?: number): Promise<boolean> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+    const response = await authAxios.get('/admin/voucher/check-code', {
       params: { 
         code,
         excludeId
@@ -162,7 +180,7 @@ export const assignVoucherToCustomers = async (
     customers: AccountResponse[]
 ): Promise<AssignVoucherResponse> => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/voucher/assign`, {
+        const response = await authAxios.post('/voucher/assign', {
             voucherId,
             customerIds: customers.map(customer => customer.id)
         });
@@ -230,7 +248,7 @@ type BigDecimal = {
 export const getCustomers = async (): Promise<AccountResponse[]> => {
   try {
       // Update API endpoint to match your backend controller
-      const response = await axios.get(`http://localhost:8080/api/account/list`);
+      const response = await authAxios.get('/account/list');
       
       // Log the raw response for debugging
       console.log('Raw API response:', response.data);
@@ -289,7 +307,7 @@ interface VoucherAccountResponse {
 // Add new function to get voucher usage status
 export const getVoucherUsageStatus = async (voucherId: number, accountId: number): Promise<VoucherAccountResponse | null> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/voucher-account/status`, {
+        const response = await authAxios.get('/voucher-account/status', {
             params: {
                 voucherId,
                 accountId
@@ -308,8 +326,8 @@ export const updateVoucherAccountStatus = async (
     status: VoucherAccountStatus
 ): Promise<VoucherAccountResponse> => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/admin/voucher-account/${id}/status`,
+        const response = await authAxios.put(
+            `/admin/voucher-account/${id}/status`,
             null,
             { params: { status } }
         );
@@ -323,10 +341,10 @@ export const updateVoucherAccountStatus = async (
 // Thêm function để lấy trạng thái sử dụng voucher
 export const getVoucherUsageStatuses = async (voucherId: number): Promise<VoucherAccountResponse[]> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/voucher/${voucherId}/usage-status`);
+        const response = await authAxios.get(`/voucher/${voucherId}/usage-status`);
         
         // Get voucher details to check status
-        const voucherResponse = await axios.get(`${API_BASE_URL}/voucher/detail/${voucherId}`);
+        const voucherResponse = await authAxios.get(`/voucher/detail/${voucherId}`);
         const voucher = voucherResponse.data;
         
         // Map response and update statuses based on voucher status
@@ -348,7 +366,7 @@ export const getVoucherUsageStatuses = async (voucherId: number): Promise<Vouche
 // Add function to auto-update expired voucher statuses
 export const updateExpiredVoucherStatuses = async (voucherId: number): Promise<void> => {
     try {
-        await axios.put(`${API_BASE_URL}/voucher/${voucherId}/update-expired-statuses`);
+        await authAxios.put(`/voucher/${voucherId}/update-expired-statuses`);
     } catch (error) {
         console.error('Error updating expired voucher statuses:', error);
     }

@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import { 
-    getVouchers, 
+import {
+    getVouchers,
 
     checkVoucherCode,  // Make sure this is imported
     assignVoucherToCustomers,
@@ -14,17 +14,33 @@ import {
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import Cookies from "js-cookie";
 // Add API base URL constant
 const API_BASE_URL = 'http://localhost:8080/api';
 
-const api = axios.create({
+// Create an authenticated axios instance
+const authAxios = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-api.interceptors.response.use(
+// Add request interceptor to automatically add JWT token
+authAxios.interceptors.request.use(
+    (config) => {
+        const jwt = Cookies.get('jwt');
+        if (jwt) {
+            config.headers.Authorization = `Bearer ${jwt}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+authAxios.interceptors.response.use(
     (response) => response,
     (error) => {
         console.error('API Error:', error);
@@ -202,7 +218,7 @@ export default function VoucherUI() {
         const now = new Date();
         const startDate = new Date(startTime);
         const endDate = new Date(endTime);
-    
+
         if (now < startDate) {
             return VoucherStatus.UPCOMING;
         } else if (now > endDate) {
@@ -255,9 +271,10 @@ export default function VoucherUI() {
             if (!showModal || !formData.isPrivate) return;
 
             try {
+                const jwt = Cookies.get('jwt');
                 setLoading(true);
-                const response = await axios.get(`${API_BASE_URL}/account/list`);
-                const customers = response.data.data.filter((account: AccountResponse) => 
+                const response = await authAxios.get(`/account/list`);
+                const customers = response.data.data.filter((account: AccountResponse) =>
                     account.idRole?.id === 4 && account.status === 'ACTIVE'
                 );
                 setAccounts(customers);
@@ -293,7 +310,7 @@ export default function VoucherUI() {
                     if (newStatus !== voucher.status) {
                         try {
                             // Gọi API để cập nhật status
-                            await axios.put(`${API_BASE_URL}/admin/voucher/update-status/${voucher.id}`);
+                            await authAxios.put(`/admin/voucher/update-status/${voucher.id}`);
                         } catch (error) {
                             console.error('Error updating voucher status:', error);
                         }
@@ -360,10 +377,11 @@ export default function VoucherUI() {
             toast.error('Mã voucher không được để trống');
             return false;
         }
-        
+
         try {
+            const jwt = Cookies.get('jwt');
             setIsCheckingCode(true);
-            const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+            const response = await authAxios.get(`/admin/voucher/check-code`, {
                 params: {
                     code: code.trim(),
                     excludeId: isEditing ? editId : undefined
@@ -457,10 +475,10 @@ export default function VoucherUI() {
                 }
 
                 // Gọi API thêm mới
-                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
-                
+                const response = await authAxios.post(`/admin/voucher`, formData);
+
                 if (formData.isPrivate && selectedAccounts.length > 0) {
-                    await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
+                    await authAxios.post(`/admin/voucher/assign`, {
                         voucherId: response.data.id,
                         customerIds: selectedAccounts
                     });
@@ -479,7 +497,7 @@ export default function VoucherUI() {
 
                 // Kiểm tra trạng thái hiện tại
                 const currentStatus = getVoucherStatus(currentVoucher.startTime, currentVoucher.endTime);
-                
+
                 if (currentStatus !== VoucherStatus.UPCOMING) {
                     // Nếu không phải UPCOMING, không được thay đổi startTime
                     const oldStartDate = new Date(currentVoucher.startTime);
@@ -496,7 +514,7 @@ export default function VoucherUI() {
                 }
 
                 // Gọi API cập nhật
-                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
+                await authAxios.put(`/admin/voucher/${editId}`, formData);
                 toast.success('Cập nhật voucher thành công!');
             }
 
@@ -570,7 +588,7 @@ export default function VoucherUI() {
             const results = await searchVouchers(searchParamsToSend);
             setVouchers(results);
             setCurrentPage(1);
-            
+
             if (results.length === 0) {
                 toast.info('Không tìm thấy voucher phù hợp');
             }
@@ -786,7 +804,7 @@ export default function VoucherUI() {
                                                     day: '2-digit',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
-                                                })} 
+                                                })}
                                                 {' - '}
                                                 {new Date(voucher.endTime).toLocaleString('vi-VN', {
                                                     year: 'numeric',
@@ -801,7 +819,7 @@ export default function VoucherUI() {
                                                     const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
                                                     const statusDisplay = getStatusDisplay(currentStatus);
                                                     return (
-                                                        <span 
+                                                        <span
                                                             className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${statusDisplay.className}`}
                                                             title={`Cập nhật lần cuối: ${lastUpdate.toLocaleTimeString()}`}
                                                         >
@@ -811,11 +829,10 @@ export default function VoucherUI() {
                                                 })()}
                                             </td>
                                             <td className="p-3">
-                                                <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${
-                                                    voucher.isPrivate 
-                                                        ? 'bg-purple-100 text-purple-800' 
+                                                <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${voucher.isPrivate
+                                                        ? 'bg-purple-100 text-purple-800'
                                                         : 'bg-green-100 text-green-800'
-                                                }`}>
+                                                    }`}>
                                                     {voucher.isPrivate ? 'Riêng tư' : 'Công khai'}
                                                 </span>
                                             </td>
@@ -824,7 +841,7 @@ export default function VoucherUI() {
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
-                                                    <SaveAsIcon/>
+                                                    <SaveAsIcon />
                                                 </button>
                                                 {voucher.isPrivate && (
                                                     <button
@@ -834,7 +851,7 @@ export default function VoucherUI() {
                                                             setShowAssignModal(true);
                                                         }}
                                                     >
-                                                        <PersonAddIcon/>
+                                                        <PersonAddIcon />
                                                     </button>
                                                 )}
                                             </td>
@@ -856,8 +873,8 @@ export default function VoucherUI() {
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
                                 className={`px-3 py-1 rounded ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 Trước
@@ -868,8 +885,8 @@ export default function VoucherUI() {
                                     key={index + 1}
                                     onClick={() => setCurrentPage(index + 1)}
                                     className={`px-3 py-1 rounded ${currentPage === index + 1
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 hover:bg-gray-200'
                                         }`}
                                 >
                                     {index + 1}
@@ -880,8 +897,8 @@ export default function VoucherUI() {
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
                                 className={`px-3 py-1 rounded ${currentPage === totalPages
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 Sau
@@ -906,14 +923,14 @@ export default function VoucherUI() {
                                             {isEditing ? 'Cập nhật voucher' : 'Tạo voucher mới'}
                                         </h2>
                                     </div>
-                                    
+
                                     <div className="px-6 py-4 overflow-y-auto flex-grow">
                                         {error && (
                                             <div className="mb-4 p-3 bg-red-100 text-red-600 rounded">
                                                 {error.message}
                                             </div>
                                         )}
-                                        
+
                                         <form onSubmit={handleSubmit}>
                                             <div className="grid grid-cols-2 gap-6"> {/* Chia layout thành 2 cột */}
                                                 <div className="space-y-4">
@@ -937,7 +954,7 @@ export default function VoucherUI() {
                                                                 className="w-full p-2 border rounded"
                                                                 value={formData.name}
                                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                                
+
                                                             />
                                                         </div>
                                                         {/* Sửa lại phần input giá trị trong form */}
@@ -949,9 +966,9 @@ export default function VoucherUI() {
                                                                         type="number"
                                                                         className="w-full p-2 border rounded"
                                                                         value={formData.discountValue === 0 ? '' : formData.discountValue}
-                                                                        onChange={(e) => setFormData({ 
-                                                                            ...formData, 
-                                                                            discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                        onChange={(e) => setFormData({
+                                                                            ...formData,
+                                                                            discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                         })}
                                                                         min="0"
                                                                         placeholder="Nhập giá trị giảm"
@@ -959,8 +976,8 @@ export default function VoucherUI() {
                                                                     <select
                                                                         className="p-2 border rounded"
                                                                         value={formData.voucherType ? "true" : "false"}
-                                                                        onChange={(e) => setFormData({ 
-                                                                            ...formData, 
+                                                                        onChange={(e) => setFormData({
+                                                                            ...formData,
                                                                             voucherType: e.target.value === "true",
                                                                             // Reset maxDiscountAmount when switching to VND
                                                                             maxDiscountAmount: e.target.value === "false" ? 0 : formData.maxDiscountAmount
@@ -970,7 +987,7 @@ export default function VoucherUI() {
                                                                         <option value="true">%</option>
                                                                     </select>
                                                                 </div>
-                                                                
+
                                                                 {/* Hiển thị input giá trị giảm tối đa khi chọn % */}
                                                                 {formData.voucherType && (
                                                                     <div>
@@ -1008,12 +1025,12 @@ export default function VoucherUI() {
                                                                     type="number"
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.conditionPriceMin === 0 ? '' : formData.conditionPriceMin}
-                                                                    onChange={(e) => setFormData({ 
-                                                                        ...formData, 
-                                                                        conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    onChange={(e) => setFormData({
+                                                                        ...formData,
+                                                                        conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                     })}
                                                                     min="0"
-                                                                    
+
                                                                 />
                                                             </div>
                                                             <div>
@@ -1022,12 +1039,12 @@ export default function VoucherUI() {
                                                                     type="number"
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.conditionPriceMax === 0 ? '' : formData.conditionPriceMax}
-                                                                    onChange={(e) => setFormData({ 
-                                                                        ...formData, 
-                                                                        conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    onChange={(e) => setFormData({
+                                                                        ...formData,
+                                                                        conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                     })}
                                                                     min="0"
-                                                                    
+
                                                                 />
                                                             </div>
                                                         </div>
@@ -1044,12 +1061,12 @@ export default function VoucherUI() {
                                                                 type="number"
                                                                 className="w-full p-2 border rounded"
                                                                 value={formData.quantity === 0 ? '' : formData.quantity}
-                                                                onChange={(e) => setFormData({ 
-                                                                    ...formData, 
-                                                                    quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                onChange={(e) => setFormData({
+                                                                    ...formData,
+                                                                    quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                 })}
                                                                 min="0"
-                                                                
+
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-4">
@@ -1060,7 +1077,7 @@ export default function VoucherUI() {
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.startTime}
                                                                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                                                    
+
                                                                 />
                                                             </div>
                                                             <div>
@@ -1070,7 +1087,7 @@ export default function VoucherUI() {
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.endTime}
                                                                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                                                    
+
                                                                 />
                                                             </div>
                                                         </div>
@@ -1126,7 +1143,7 @@ export default function VoucherUI() {
                                                             Đã chọn {selectedAccounts.length} khách hàng
                                                         </span>
                                                     </div>
-                                                    
+
                                                     {loading ? (
                                                         <div className="flex items-center justify-center py-8">
                                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -1268,26 +1285,27 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     // Fetch customers when component mounts
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
+            const jwt = Cookies.get('jwt');
             try {
                 setLoading(true);
-                
+
                 // Lấy danh sách khách hàng
-                const response = await axios.get(`${API_BASE_URL}/account/list`);
-                
+                const response = await authAxios.get(`/account/list`);
+
                 // Lấy danh sách tài khoản đã có voucher
-                const voucherAccountsResponse = await axios.get(
-                    `${API_BASE_URL}/admin/voucher/${voucher.id}/accounts`
+                const voucherAccountsResponse = await authAxios.get(
+                    `/admin/voucher/${voucher.id}/accounts`
                 );
 
                 // Khởi tạo statusMap là một object rỗng với kiểu chính xác
                 const statusMap: Record<number, VoucherAccountStatus | null> = {};
-                
+
                 // Lấy trạng thái hiện tại của voucher
                 const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
 
                 // Lọc ra những account là khách hàng
-                const customers = response.data.data.filter((account: AccountResponse) => 
-                    account.idRole?.id === 4 && 
+                const customers = response.data.data.filter((account: AccountResponse) =>
+                    account.idRole?.id === 4 &&
                     account.status === 'ACTIVE'
                 );
 
@@ -1300,7 +1318,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                         // Kiểm tra cấu trúc dữ liệu
                         if (voucherAccount && voucherAccount.idAccount) {
                             const accountId = voucherAccount.idAccount.id;
-                            
+
                             if (voucherAccount.status === VoucherAccountStatus.USED) {
                                 statusMap[accountId] = VoucherAccountStatus.USED;
                             } else {
@@ -1337,7 +1355,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
 
             // Kiểm tra trạng thái hiện tại của voucher
             const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
-            
+
             // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
             let initialStatus = null;
             if (currentStatus === VoucherStatus.ACTIVE) {
@@ -1345,7 +1363,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
             }
             // Nếu UPCOMING hoặc EXPIRED thì giữ null
 
-            const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
+            const response = await authAxios.post(`/admin/voucher/assign`, {
                 voucherId: voucher.id,
                 customerIds: selectedAccounts,
                 initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
@@ -1367,7 +1385,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
     // Update status display in table
     const getStatusDisplay = (accountId: number) => {
         const status = usageStatuses[accountId];
-        
+
         if (!status) {
             const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
             return (
