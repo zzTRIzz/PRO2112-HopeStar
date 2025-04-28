@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/chat-ai")
+@RequestMapping("/chat-ai")
 public class AIChatController {
 
     private final ChatClient chatClient;
