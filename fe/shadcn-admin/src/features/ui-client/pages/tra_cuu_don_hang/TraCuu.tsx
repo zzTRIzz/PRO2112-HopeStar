@@ -26,11 +26,11 @@ const TraCuu: React.FC = () => {
 
     try {
       // Gọi API để kiểm tra mã hóa đơn
-      const response = await fetch(`http://localhost:8080/api/admin/bill/findBillByMaBill/${maDonHang}`);
+      const response = await fetch(`http://localhost:8080/bill/client/findBillByMaBill/${maDonHang}`);
       if (!response.ok) {
         toast({
           title: 'Lỗi',
-          description: 'Mã đơn hàng không tồn tại!',
+          description: 'Không thể tra cứu mã đơn hàng này!',
           variant: 'destructive'
         })
         return;
@@ -40,7 +40,6 @@ const TraCuu: React.FC = () => {
       localStorage.setItem("ma-don-hang", maDonHang);
       window.location.href = `/tra_cuu_don_hang/thong-tin`;
     } catch (error) {
-      // Hiển thị thông báo lỗi nếu mã không tồn tại
       alert(error.message || "Có lỗi xảy ra, vui lòng thử lại!");
     }
   };

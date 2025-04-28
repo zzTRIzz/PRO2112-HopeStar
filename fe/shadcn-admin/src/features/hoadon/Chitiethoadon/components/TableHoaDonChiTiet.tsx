@@ -44,7 +44,7 @@ interface TableHoaDonChiTietProps {
     listImei: imei[];
     searchBill: BillRespones | null;
     selectedImei: number[];
-    openDialogId: number | null; // Nhận từ file tổng
+    openDialogId: number | null;
     setOpenDialogId: (open: number | null) => void;
     handleUpdateProduct: (idProductDetail: number, idBillDetail: number) => void
     handleCheckboxChange: (id: number) => void;
@@ -91,7 +91,13 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
             imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
         );
 
-
+        const isMissingImei = (idProductDetail: number) => {
+            return searchBill?.billDetailResponesList?.some(
+                (item) =>
+                    item.productDetail.id === idProductDetail &&
+                    (!item.imeiSoldRespones || item.imeiSoldRespones.length < item.quantity)
+            );
+        };
 
         return (
             <>
@@ -102,12 +108,11 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    {/* <TableCell align="right">Stt</TableCell> */}
                                     <TableCell align="center">Sản phẩm</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Số lượng</TableCell>
-                                    <TableCell align="right">Thành tiền</TableCell>
-                                    <TableCell align="center">Action</TableCell>
+                                    <TableCell align="right">Tổng tiền</TableCell>
+                                    <TableCell align="center">Thao tác</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -122,13 +127,18 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
                                         </TableCell>
                                         <TableCell align="center" className='w-[95px]'>{pr?.quantity}
-                                            {searchBill?.billDetailResponesList?.some(
+                                            {/* {searchBill?.billDetailResponesList?.some(
                                                 (item) =>
                                                     item.productDetail.id === pr.idProductDetail &&
                                                     (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0) && item?.quantity > 0
                                             ) && (
                                                     <div className="text-red-500 text-xs font-medium mt-1">Thiếu imei</div>
-                                                )}
+                                                )} */}
+                                            {isMissingImei(pr.idProductDetail) && (
+                                                <div className="text-red-500 text-xs font-medium mt-1">
+                                                    Thiếu imei
+                                                </div>
+                                            )}
                                         </TableCell>
                                         <TableCell align="right">{pr?.totalPrice?.toLocaleString('vi-VN')} VND
                                         </TableCell>
@@ -143,7 +153,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 setOpenDialogId(pr.id);
                                                             }}
                                                             disabled={!(
-                                                                searchBill?.status === "CHO_XAC_NHAN" &&
+                                                                isMissingImei(pr.idProductDetail) &&
                                                                 Number(searchBill?.billType) === 1
                                                             )}
 

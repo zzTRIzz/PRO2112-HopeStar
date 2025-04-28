@@ -34,8 +34,8 @@ public class Brand extends AuditEntity {
     @Enumerated(EnumType.STRING)
     private StatusCommon status;
 
-//    @Size(max = 255)
-//    @Column(name = "image_url")
-//    private String imageUrl;
+    @Size(max = 255)
+    @Column(name = "image_url")
+    private String imageUrl;
 
 }

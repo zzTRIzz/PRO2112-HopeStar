@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Cookies from 'js-cookie'
 import {
   ProductConfigRequest,
   ProductResponse,
@@ -6,11 +7,16 @@ import {
   SearchProductRequest,
 } from './schema'
 
-const API_BASE_URL = 'http://localhost:8080/api/admin' // Thay thế bằng URL của back-end Java của bạn
+const API_BASE_URL = 'http://localhost:8080/api/admin' 
 
 export const getProducts = async () => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.get(`${API_BASE_URL}/product`)
+    const response = await axios.get(`${API_BASE_URL}/product`,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    })
     return response.data
   } catch (error) {
     console.error('Error fetching products:', error)
@@ -21,9 +27,13 @@ export const getProducts = async () => {
 export const searchProducts = async (
   searchProductRequest: SearchProductRequest
 ) => {
+  const jwt = Cookies.get('jwt')
   try {
     const response = await axios.get(`${API_BASE_URL}/product/search`, {
       params: searchProductRequest,
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
     })
     return response.data
   } catch (error) {
@@ -33,10 +43,15 @@ export const searchProducts = async (
 }
 
 export const createProduct = async (productData: ProductConfigRequest) => {
+  const jwt = Cookies.get('jwt')
   try {
     const response = await axios.post(
       `${API_BASE_URL}/product/create-product`,
-      productData
+      productData,{
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
     )
     return response.data
   } catch (error) {
@@ -49,10 +64,15 @@ export const updateProduct = async (
   productId: number,
   productUpdate: ProductUpdate
 ) => {
+  const jwt = Cookies.get('jwt')
   try {
     const response = await axios.put(
       `${API_BASE_URL}/product/${productId}`,
-      productUpdate
+      productUpdate,{
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
     )
     return response.data
   } catch (error) {
@@ -62,8 +82,13 @@ export const updateProduct = async (
 }
 
 export const updateStatus = async (product: ProductResponse) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.patch(`${API_BASE_URL}/product/${product.id}`)
+    const response = await axios.patch(`${API_BASE_URL}/product/${product.id}`,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    })
     return response.data
   } catch (error) {
     console.error('Error updating product:', error)
@@ -72,9 +97,14 @@ export const updateStatus = async (product: ProductResponse) => {
 }
 
 export const productDetailById = async (id: number) => {
+  const jwt = Cookies.get('jwt')
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/product/${id}/product-detail`
+      `${API_BASE_URL}/product/${id}/product-detail`,{
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
     )
     return response.data
   } catch (error) {

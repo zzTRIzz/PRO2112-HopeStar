@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
-import axios from 'axios'
-import { useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { toast } from '@/hooks/use-toast'
 import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { toast } from '@/hooks/use-toast'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import axios from 'axios'
+import React, { useState } from 'react'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
@@ -24,7 +24,7 @@ interface CheckoutData {
     commune?: string
   }
   paymentMethod: number
-  eInvoice: boolean
+  eInvoice?: boolean
 }
 
 export function CheckoutPage() {
@@ -207,6 +207,8 @@ export function CheckoutPage() {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.customerInfo.email)
     ) {
       errors.customerInfo.email = 'Email không hợp lệ'
+    }if (!checkoutData.customerInfo.email.trim()) {
+      errors.customerInfo.email = 'Vui lòng nhập email'
     }
 
     // Check if using saved address from profile
@@ -242,9 +244,14 @@ export function CheckoutPage() {
 
   const navigate = useNavigate()
 
+  // Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const handleCheckout = async () => {
     if (!validateForm()) return
-
+    
+    setIsSubmitting(true) // Start loading
+    
     try {
       const profile = JSON.parse(localStorage.getItem('profile') || '{}')
       const hasSavedAddress = !!profile.address
@@ -275,6 +282,7 @@ export function CheckoutPage() {
         discountedTotal: canApplyVoucher ? orderValues.voucherDiscount : 0,
         idVoucher: canApplyVoucher ? orderValues.selectedVoucher?.id : null,
       }
+      console.log('eInvoice value:', checkoutData.eInvoice, typeof checkoutData.eInvoice);
 
       if (orderData.paymentMethod === 3) {
         try {
@@ -286,7 +294,7 @@ export function CheckoutPage() {
           )
 
           const response = await axios.post(
-            'http://localhost:8080/api/v1/payment/create-payment',
+            'http://localhost:8080/apis/v1/payment/create-payment',
             orderData
           )
 
@@ -307,11 +315,11 @@ export function CheckoutPage() {
         return // Exit early for VNPay flow
       } else if (orderData.paymentMethod === 4) {
         console.log('Order data:', orderData)
-        await order(orderData)
+        const data = await order(orderData)
 
         toast({
           title: 'Đặt hàng thành công',
-          description: 'Đơn hàng của bạn đã được tạo thành công',
+          description: data.data||'Đơn hàng của bạn đã được tạo thành công',
         })
 
         await queryClient.invalidateQueries({ queryKey: ['cart'] })
@@ -324,6 +332,8 @@ export function CheckoutPage() {
         description: error?.response?.data?.message || 'Không thể tạo đơn hàng',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false) // Stop loading
     }
   }
 
@@ -397,13 +407,14 @@ export function CheckoutPage() {
                     }
                   />
                   <Input
-                    label='Email (Không bắt buộc)'
+                    label='Email'
                     placeholder='Nhập email'
                     variant='bordered'
                     value={customerInfo.email}
                     onChange={(e) =>
                       handleCustomerInfoChange('email', e.target.value)
                     }
+                    isRequired
                     errorMessage={errors.email}
                     isInvalid={!!errors.email}
                     isDisabled={isLoggedIn}
@@ -460,9 +471,9 @@ export function CheckoutPage() {
                 <div className='mt-6 flex items-center justify-between'>
                   <div>
                     <p className='font-medium'>Xuất hóa đơn điện tử</p>
-                    {/* <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500">
                       Hóa đơn sẽ được gửi qua email của bạn
-                    </p> */}
+                    </p>
                   </div>
                   <Switch
                     isSelected={checkoutData.eInvoice}
@@ -483,6 +494,7 @@ export function CheckoutPage() {
               confirmedAddress={confirmedAddress}
               errors={formErrors}
               onValuesChange={handleOrderSummaryChange}
+              isSubmitting={isSubmitting} // Pass loading state
             />
           </div>
         </div>

@@ -7,6 +7,7 @@ import com.example.be.core.client.home.dto.response.ProductViewResponse;
 import com.example.be.core.client.home.dto.response.ProductViewResponseAll;
 import com.example.be.core.client.home.service.HomeService;
 import com.example.be.entity.*;
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusCommon;
 import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class HomeServiceImpl implements HomeService {
         List<Product> products = productRepository.findByStatusOrderByCreatedAtDesc(StatusCommon.ACTIVE);
         List<Product> products2 = productRepository.findTop10SellingProducts(StatusCommon.ACTIVE);
 
-        List<ProductViewResponse> newestProducts = handlerProductView(products);
-        List<ProductViewResponse> bestSellingProducts = handlerProductView(products2);
+        List<ProductViewResponse> newestProducts = handlerProductView(products,false,false,false);
+        List<ProductViewResponse> bestSellingProducts = handlerProductView(products2,false,false,false);
 
         ProductViewResponseAll productViewResponseAll = new ProductViewResponseAll();
         productViewResponseAll.setNewestProducts(newestProducts);
@@ -41,14 +42,14 @@ public class HomeServiceImpl implements HomeService {
         return productViewResponseAll;
     }
 
-    public List<ProductViewResponse> handlerProductView(List<Product> products){
+    public List<ProductViewResponse> handlerProductView(List<Product> products,Boolean priceMax, Boolean priceMin, Boolean priceSale){
         List<ProductViewResponse> productViewResponseList = new ArrayList<>();
         for (Product product:products) {
             ProductViewResponse productViewResponse = new ProductViewResponse();
 
             List<ProductDetail> productDetailList = productDetailRepository.findAllByProduct(product);
             List<ProductDetail> availableProducts = productDetailList.stream()
-                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0)
+                    .filter(pd -> pd.getInventoryQuantity() != null && pd.getInventoryQuantity() > 0 && pd.getStatus().equals(ProductDetailStatus.ACTIVE))
                     .collect(Collectors.toList());
             ProductDetail productDetail;
             if (availableProducts.size() !=0){
@@ -60,21 +61,21 @@ public class HomeServiceImpl implements HomeService {
                 productViewResponse.setPriceSeller(productDetail.getPriceSell());
                 productViewResponse.setImage(productDetail.getImageUrl());
                 // Lấy danh sách capacity duy nhất
-                List<String> uniqueRamCapacities = productDetailList.stream()
+                List<String> uniqueRamCapacities = availableProducts.stream()
                         .filter(pd -> pd.getRam() != null)         // Loại bỏ ProductDetail không có Ram
                         .map(pd -> pd.getRam().getCapacity()+pd.getRam().getDescription())      // Lấy capacity từ Ram
                         .filter(Objects::nonNull)                  // Loại bỏ capacity null
                         .distinct()                                // Chỉ giữ giá trị duy nhất
                         .collect(Collectors.toList());
 
-                List<String> uniqueRomCapacities = productDetailList.stream()
+                List<String> uniqueRomCapacities = availableProducts.stream()
                         .filter(pd -> pd.getRom() != null)
                         .map(pd -> pd.getRom().getCapacity()+pd.getRom().getDescription())
                         .filter(Objects::nonNull)
                         .distinct()
                         .collect(Collectors.toList());
 
-                List<String> uniqueColorHex = productDetailList.stream()
+                List<String> uniqueColorHex = availableProducts.stream()
                         .filter(pd -> pd.getColor() != null)
                         .map(pd -> pd.getColor().getHex())
                         .filter(Objects::nonNull)
@@ -88,6 +89,33 @@ public class HomeServiceImpl implements HomeService {
                 productViewResponseList.add(productViewResponse);
             }
         }
+
+        if (priceMax){
+            productViewResponseList = productViewResponseList
+                    .stream()
+                    .sorted(Comparator.comparing(
+                            p -> p.getPriceSeller(),
+                            Comparator.reverseOrder() // Giảm dần
+                    ))
+                    .collect(Collectors.toList());
+        }else if(priceMin){
+            productViewResponseList = productViewResponseList
+                    .stream()
+                    .sorted(Comparator.comparing(
+                            p -> p.getPriceSeller()
+                    ))
+                    .collect(Collectors.toList());
+        }else if(priceSale){
+            productViewResponseList = productViewResponseList
+                    .stream()
+                    .filter(p -> p.getPriceSeller().subtract(p.getPrice()).compareTo(BigDecimal.ZERO) > 0)
+                    .sorted(Comparator.comparing(
+                            p -> p.getPriceSeller().subtract(p.getPrice()),
+                            Comparator.reverseOrder()
+                    ))
+                    .collect(Collectors.toList());
+        }
+
         return productViewResponseList;
     }
 
@@ -292,31 +320,14 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<ProductViewResponse> phoneFilter(PhoneFilterRequest phoneFilterRequest) {
         List<Product> productList = productRepository.filterProducts(phoneFilterRequest);
-        if (phoneFilterRequest.getPriceMax() != null && phoneFilterRequest.getPriceMax()) {
-            productList = productList.stream()
-                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
-                    .sorted(Comparator.comparing(
-                            p -> p.getProductDetails().get(0).getPriceSell(),
-                            Comparator.reverseOrder() // Giảm dần
-                    ))
-                    .collect(Collectors.toList());
-        } else if (phoneFilterRequest.getPriceMin() != null && phoneFilterRequest.getPriceMin()) {
-            productList = productList.stream()
-                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
-                    .sorted(Comparator.comparing(
-                            p -> p.getProductDetails().get(0).getPriceSell() // Tăng dần
-                    ))
-                    .collect(Collectors.toList());
-        } else if (phoneFilterRequest.getProductSale() != null && phoneFilterRequest.getProductSale()) {
-            productList = productList.stream()
-                    .filter(p -> p.getProductDetails() != null && !p.getProductDetails().isEmpty())
-                    .sorted(Comparator.comparing(
-                            p -> p.getProductDetails().get(0).getPrice().multiply(p.getProductDetails().get(0).getPriceSell()),
-                            Comparator.reverseOrder() // Giảm dần
-                    ))
-                    .collect(Collectors.toList());
-        }
-        List<ProductViewResponse> test = handlerProductView(productList);
+        List<ProductViewResponse> test = handlerProductView(productList,false,false,false);
+                if (phoneFilterRequest.getPriceMax() != null && phoneFilterRequest.getPriceMax()) {
+                    test = handlerProductView(productList,true,false,false);
+                }else if (phoneFilterRequest.getPriceMin() != null && phoneFilterRequest.getPriceMin()) {
+                    test = handlerProductView(productList,false,true,false);
+                }else if (phoneFilterRequest.getProductSale() != null && phoneFilterRequest.getProductSale()) {
+                    test = handlerProductView(productList,false,false,true);
+                }
         return test;
     }
 

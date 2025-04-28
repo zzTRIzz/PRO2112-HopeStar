@@ -105,7 +105,7 @@ public class BillServiceClientImpl implements BillServiceClient {
 
     @Override
     public BillRespones getAllBillByAccount(Integer idBill) {
-        Optional<Bill> optionalBill = billRepository.findById(idBill);
+        Optional<Bill> optionalBill = billRepository.traCuuDonHang(idBill);
 
         if (optionalBill.isEmpty()) {
             return null;
@@ -179,5 +179,9 @@ public class BillServiceClientImpl implements BillServiceClient {
 
         return billRespones;
     }
+
+
+
+
 
 }

@@ -144,7 +144,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                 <div className="w-[460px] min-w-[400px]  bg-white  p-4 rounded-lg">
                     <div className="ml-auto mr-5 w-fit text-lg">
                         <div className="mb-4 flex items-center gap-2">
-                            <p className="font-bold text-base">Mã Giảm Giá</p>
+                            <p className="font-bold text-base">Mã giảm giá</p>
                             <div className="flex items-center border rounded-md px-2 py-1 bg-gray-100">
                                 <span className="text-gray-700  text-sm">{searchBill?.idVoucher == null ? 'No voucher' : setVoucherDangDung?.code}</span>
                                 <button className="ml-2 text-sm text-gray-500 hover:text-gray-700"
@@ -158,7 +158,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     <Button variant="outline"
                                         className="bg-yellow-400 text-black font-semibold 
                                         px-4 py-2 rounded-md hover:bg-yellow-500">
-                                        Chọn Mã Giảm Giá
+                                        Mã giảm giá
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[980px]">
@@ -167,11 +167,11 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             <Table>
                                                 <TableHead>
                                                     <TableRow>
-                                                        <TableCell>Stt</TableCell>
+                                                        <TableCell>STT</TableCell>
                                                         <TableCell>Mã</TableCell>
                                                         <TableCell>Điều kiện</TableCell>
                                                         <TableCell>Giá trị giảm</TableCell>
-                                                        <TableCell align='center'>Số lượng </TableCell>
+                                                        <TableCell align='center'>Số lượng</TableCell>
                                                         <TableCell>Thao tác </TableCell>
                                                     </TableRow>
                                                 </TableHead>
@@ -235,7 +235,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     </div>
                                     {isBanGiaoHang == true && (
                                         <Ship
-                                            productValue={tongTien}
+                                            productValue={searchBill?.totalPrice}
                                             weight={1500}
                                             address={confirmedAddress}
                                             onShippingFeeChange={handleShippingFeeChange}
@@ -293,7 +293,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                             </div> */}
                                             <div className="mt-4 flex justify-between border-b pb-2 items-center font-bold text-lg text-red-600">
                                                 <p className="text-base">Tiền thừa trả khách:</p>
-                                                {tienThua > 1000000000 ? (
+                                                {tienThua > 10000000 ? (
                                                     <p className="text-red-600 text-sm">
                                                         Số tiền trả lại quá lớn,<br />vui lòng kiểm tra lại.
                                                     </p>

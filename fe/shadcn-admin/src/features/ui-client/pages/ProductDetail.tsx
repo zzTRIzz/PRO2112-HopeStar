@@ -16,11 +16,11 @@ import { Icon } from '@iconify/react'
 import { toast } from '@/hooks/use-toast'
 import Navbar from '../components/navbar'
 import { ProductGallery } from '../components/product-gallery'
-import { ProductReviews } from '../components/product-reviews'
 import { RelatedProducts } from '../components/related-products'
 import { addProductToCart } from '../data/api-cart-service'
 import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
+import ProductReviews from '../components/product-reviews'
 
 export default function ProductDetail() {
   const { id } = Route.useParams()
@@ -653,7 +653,7 @@ export default function ProductDetail() {
                 </div>
               }
             >
-              <ProductReviews />
+              <ProductReviews productDetail={productDetail} />
             </Tab>
           </Tabs>
         </div>

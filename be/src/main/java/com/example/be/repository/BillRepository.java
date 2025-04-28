@@ -32,14 +32,28 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
                                            @Param("status")StatusBill statusBill);
 
 
-    @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount")
+    @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount " +
+            "and b.delivery.id = 2")
     List<Bill> findAllByAccount(@Param("idAccount") Integer idAccount);
 
 
-    Optional<Bill> findById(Integer idBill);
+    @Query("SELECT b FROM Bill b WHERE b.id = :idBill " +
+            "and b.delivery.id = 2")
+    Optional<Bill> traCuuDonHang(@Param("idBill") Integer idBill);
 
 
-    @Query("SELECT b.id FROM Bill b WHERE b.maBill = :maBill")
+    @Query("SELECT b.id FROM Bill b WHERE b.maBill = :maBill " +
+            "and b.delivery.id = 2")
     Integer findBillByMaBill(@Param("maBill") String maBill);
+
+
+    @Query("SELECT CASE WHEN COUNT(bd) > 0 THEN true ELSE false END " +
+            "FROM BillDetail bd JOIN bd.idBill b " +
+            "WHERE b.idAccount.id = :customerId " +
+            "AND bd.idProductDetail.product.id = :productId " +
+            "AND b.status = :status")
+    boolean existsByCustomerIdAndProductId(@Param("customerId") Integer customerId,
+                                           @Param("productId") Integer productId,
+                                           @Param("status") StatusBill statusBill);
 
 }

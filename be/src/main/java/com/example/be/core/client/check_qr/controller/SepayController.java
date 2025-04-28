@@ -16,17 +16,6 @@ public class SepayController {
     @Autowired
     SepayService sepayService;
 
-    //    @GetMapping("/transactions")
-//    public ResponseEntity<?> getTransactions(
-//            @RequestParam("transaction_date_min") String transactionDateMin
-//    ) {
-//        try {
-//            String response = sepayService.fetchTransactions(transactionDateMin);
-//            return ResponseEntity.ok(response);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi gọi Sepay: " + e.getMessage());
-//        }
-//    }
     @GetMapping("/check-payment")
     public ResponseEntity<?> checkPayment(
             @RequestParam("desc") String desc,

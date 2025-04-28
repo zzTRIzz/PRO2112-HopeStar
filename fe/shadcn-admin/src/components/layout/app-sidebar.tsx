@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
   const token = Cookies.get('jwt')
   const decoded = token ? jwtDecode<JwtPayload>(token) : null;
-  const idRole = decoded?.role || 0;
+  const idRole = decoded?.role;
 
   const {profile} = useProfile();
 

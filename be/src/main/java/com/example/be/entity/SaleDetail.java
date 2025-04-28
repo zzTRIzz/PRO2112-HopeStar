@@ -25,6 +25,4 @@ public class SaleDetail extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_detail_id", nullable = false)
     private ProductDetail productDetail;
-
-
 }

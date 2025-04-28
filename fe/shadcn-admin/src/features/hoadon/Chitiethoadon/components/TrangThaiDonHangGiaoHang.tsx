@@ -267,14 +267,14 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       "HOAN_THANH"
     ];
     const handleNextStatus = async () => {
-      // Kiểm tra xem có bất kỳ chi tiết sản phẩm nào thiếu IMEI hay không
+
       const isMissingImei = searchBill?.billDetailResponesList.some(
         (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0)
           && detail.quantity > 0
       );
 
       if (isMissingImei) {
-        showErrorToast("Cập nhập imei cho tất cả sản phẩm trước khi tiếp tục");
+        showErrorToast("Vui lòng cập nhập imei cho tất cả sản phẩm");
         return;
       }
 
@@ -440,10 +440,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 }
                 className={cn(
                   "px-4 py-2 rounded-md text-white transition-all duration-300",
-                  "flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
+                  "flex items-center gap-2 bg-orange-500 hover:bg-orange-600 ml-[10px]"
                 )}
               >
-                {getNextStatus() ? `${statusMap[getNextStatus()!]?.title}` : "Xác nhận"}              </Button>
+                {getNextStatus() ? `${statusMap[getNextStatus()!]?.title}` : "Xác nhận"}
+              </Button>
 
               {/* Nút Hủy đơn */}
               <Button
@@ -462,7 +463,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 Hủy đơn
               </Button>
 
-              <div className="ml-[500px]">
+              <div className="ml-[480px]">
                 <Button
                   disabled={
                     currentStatus === "CHO_THANH_TOAN"
