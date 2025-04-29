@@ -18,15 +18,19 @@ public class ShoppingCart extends AuditEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_account")
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "id_account", unique = true,nullable = true)
     private Account idAccount;
 
     @Size(max = 255)
     @Column(name = "code")
     private String code;
 
+    @Column(name = "guest_id", unique = true) // Lưu guest_cart_id từ cookie
+    private String guestId;
+
     @Column(name = "status")
-    private Byte status;
+    //@Enumerated(EnumType.STRING)
+    private String status;
 
 }

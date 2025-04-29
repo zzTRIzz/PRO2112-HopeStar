@@ -1,16 +1,11 @@
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Row } from '@tanstack/react-table'
-import { IconTrash } from '@tabler/icons-react'
+import { IconEye, IconPencil } from '@tabler/icons-react'
+import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useTasks } from '../context/tasks-context'
-import { productSchema } from '../data/schema'
+import { useProduct } from '../context/product-context'
+import { productResponseSchema } from '../data/schema'
+
+// Assuming you're using a toast library for notifications
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -19,41 +14,48 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const product = productSchema.parse(row.original)
+  const { setOpen, setCurrentRow } = useProduct()
 
-  const { setOpen, setCurrentRow } = useTasks()
+  const handleViewClick = () => {
+    try {
+      console.log('Row data:', row.original)
+      const product = productResponseSchema.parse(row.original)
+      console.log('Parsed product:', product) // Log the parsed product for debugging
+      setCurrentRow(product)
+      setOpen('display')
+    } catch (error) {
+      console.error('Lỗi xử lý dữ liệu:', error)
+      toast.error('Invalid product data')
+    }
+  }
+
+  const handleUpdateClick = () => {
+    try {
+      const product = productResponseSchema.parse(row.original)
+      setCurrentRow(product)
+      setOpen('update')
+    } catch (error) {
+      console.error('Lỗi xử lý dữ liệu:', error)
+      toast.error('Invalid product data')
+    }
+  }
 
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant='ghost'
-          className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'
-        >
-          <DotsHorizontalIcon className='h-4 w-4' />
-          <span className='sr-only'>Open menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align='end' className='w-[160px]'>
-        <DropdownMenuItem
-          onClick={() => {
-            setCurrentRow(product)
-            setOpen('update')
-          }}
-        >
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            setCurrentRow(product)
-            setOpen('delete')
-          }}
-        >
-          Delete
-          <IconTrash size={16} className='ml-2' />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className='flex items-center gap-2'>
+      <Button
+        className='h-8 w-8 bg-blue-600 p-0 hover:bg-gray-500'
+        onClick={handleViewClick}
+        aria-label='View product'
+      >
+        <IconEye stroke={3.5} />
+      </Button>
+      <Button
+        className='h-8 w-8 bg-yellow-500 p-0 hover:bg-gray-500'
+        onClick={handleUpdateClick}
+        aria-label='Edit product'
+      >
+        <IconPencil stroke={3.5} />
+      </Button>
+    </div>
   )
 }

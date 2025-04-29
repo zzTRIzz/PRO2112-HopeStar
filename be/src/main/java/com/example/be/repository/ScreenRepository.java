@@ -1,7 +1,13 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Screen;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.entity.status.StatusCommon;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ScreenRepository extends JpaRepository<Screen, Integer> {
+import java.util.List;
+
+@Repository
+public interface ScreenRepository extends BaseRepository<Screen, Integer> {
+  List<Screen> findByStatus(StatusCommon status);
   }

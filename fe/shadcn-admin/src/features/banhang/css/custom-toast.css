@@ -1,0 +1,48 @@
+.custom-toast {
+  background-color: #2ecc71 !important; /* Màu xanh lá */
+  color: white !important;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 12px;
+  height: 20px;
+}
+
+.custom-toast .Toastify__toast-body {
+  display: flex;
+  align-items: center;
+  background-color: aliceblue;
+
+}
+
+.custom-toast .Toastify__toast-body::before {
+  content: "✔";
+  font-size: 20px;
+  margin-right: 8px;
+  background-color: aliceblue;
+}
+
+.custom-thatBai {
+  background-color: rgb(238, 76, 76) !important; /* Màu xanh lá */
+  color: white !important;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 12px;
+  height: 20px;
+}
+
+.custom-thatBai .Toastify__toast-body {
+  display: flex;
+  align-items: center;
+  background-color: aliceblue;
+
+}
+
+.custom-thatBai .Toastify__toast-body::before {
+  content: "⚠️";
+  font-size: 20px;
+  margin-right: 8px;
+  /* background-color: rgb(243, 246, 247);
+  color: aliceblue; */
+}

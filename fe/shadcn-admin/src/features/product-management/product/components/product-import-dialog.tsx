@@ -39,7 +39,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export function TasksImportDialog({ open, onOpenChange }: Props) {
+export function ProductImportDialog({ open, onOpenChange }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { file: undefined },
@@ -80,10 +80,8 @@ export function TasksImportDialog({ open, onOpenChange }: Props) {
     >
       <DialogContent className='gap-2 sm:max-w-sm'>
         <DialogHeader className='text-left'>
-          <DialogTitle>Import Tasks</DialogTitle>
-          <DialogDescription>
-            Import tasks quickly from a CSV file.
-          </DialogDescription>
+          <DialogTitle>Tải tệp sản phẩm</DialogTitle>
+          <DialogDescription>Tải tệp để thêm sản phẩm.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form id='task-import-form' onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,7 +90,7 @@ export function TasksImportDialog({ open, onOpenChange }: Props) {
               name='file'
               render={() => (
                 <FormItem className='mb-2 space-y-1'>
-                  <FormLabel>File</FormLabel>
+                  <FormLabel>Tệp</FormLabel>
                   <FormControl>
                     <Input type='file' {...fileRef} className='h-8' />
                   </FormControl>
@@ -104,10 +102,10 @@ export function TasksImportDialog({ open, onOpenChange }: Props) {
         </Form>
         <DialogFooter className='gap-2 sm:gap-0'>
           <DialogClose asChild>
-            <Button variant='outline'>Close</Button>
+            <Button variant='outline'>Hủy</Button>
           </DialogClose>
           <Button type='submit' form='task-import-form'>
-            Import
+            Hoàn tất
           </Button>
         </DialogFooter>
       </DialogContent>

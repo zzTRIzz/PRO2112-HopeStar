@@ -1,8 +1,11 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.VoucherAccountStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,5 +27,10 @@ public class VoucherAccount extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_voucher")
     private Voucher idVoucher;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private VoucherAccountStatus status;
 
+    @Column(name = "used_date")
+    private LocalDateTime usedDate;
 }

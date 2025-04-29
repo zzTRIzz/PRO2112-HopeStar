@@ -1,11 +1,12 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusSale;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,13 +30,14 @@ public class Sale extends AuditEntity {
     private String name;
 
     @Column(name = "date_start")
-    private Instant dateStart;
+    private LocalDateTime dateStart;
 
     @Column(name = "date_end")
-    private Instant dateEnd;
+    private LocalDateTime dateEnd;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private StatusSale status;
 
     @Size(max = 1000)
     @Column(name = "description", length = 1000)
@@ -46,5 +48,5 @@ public class Sale extends AuditEntity {
 
     @Column(name = "discount_type")
     private Boolean discountType;
-
 }
+
