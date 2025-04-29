@@ -1,10 +1,16 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusCommon;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +19,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "product")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,13 +79,19 @@ public class Product extends AuditEntity {
     private Battery battery;
 
     @Column(name = "charger_type")
-    private Byte chargerType;
+//    @Enumerated(EnumType.STRING)
+    private String chargerType;
 
     @Column(name = "status")
-    private Byte status;
+    @Enumerated(EnumType.STRING)
+    private StatusCommon status;
 
     @Lob
     @Column(name = "content")
     private String content;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product")
+    private List<ProductDetail> productDetails= new ArrayList<>();
 
 }

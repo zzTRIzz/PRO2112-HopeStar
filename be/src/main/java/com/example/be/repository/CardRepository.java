@@ -1,7 +1,23 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Card;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.be.entity.status.StatusCommon;
+import com.example.be.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public interface CardRepository extends JpaRepository<Card, Integer> {
-  }
+import java.util.List;
+
+@Repository
+public interface CardRepository extends BaseRepository<Card, Integer> {
+
+  List<Card> findByStatus(StatusCommon status);
+
+  @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM #{#entityName} b WHERE LOWER(TRIM(b.type)) = LOWER(TRIM(:type))")
+  boolean existsByTypeTrimmedIgnoreCase(@Param("type") String type);
+
+  @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM #{#entityName} b WHERE LOWER(TRIM(b.type)) = LOWER(TRIM(:type)) AND b.id <> :id")
+  boolean existsByTypeTrimmedIgnoreCaseAndNotId(@Param("type") String type, @Param("id") Integer id);
+
+}

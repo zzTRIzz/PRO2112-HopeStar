@@ -1,10 +1,12 @@
 import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
+import Cookies from 'js-cookie'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { IconBrandFacebook, IconBrandGoogle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -16,43 +18,76 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
-
+import { login } from '../data/api-service'
+import { loginRequestSchema } from '../data/schema'
+import {jwtDecode} from 'jwt-decode';
+import JwtPayload from '../../type'
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
-
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(1, {
-      message: 'Please enter your password',
-    })
-    .min(7, {
-      message: 'Password must be at least 7 characters long',
-    }),
-})
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginRequestSchema>>({
+    resolver: zodResolver(loginRequestSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof loginRequestSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+    try {
+      const response = await login(data)
 
-    setTimeout(() => {
+      // Xử lý khi thành công
+      if (response.status === 0 && response.data?.jwt) {
+        Cookies.set('jwt', response.data.jwt, { expires: 7 })
+        // Giải mã JWT để lấy role
+      const decoded = jwtDecode<JwtPayload>(response.data.jwt);
+      const userRole = decoded.role;
+        toast({
+          title: 'Đăng nhập thành công',
+          description: response.data.message || 'Chào mừng bạn quay trở lại',
+        })
+
+        switch(userRole) {
+          case '2': // Admin
+            navigate({ to: '/dashboard' });
+            break;
+          case '3': // Staff
+            navigate({ to: '/banhang' });
+            break;
+          case '4': // User thông thường
+            navigate({ to: '/' });
+            break;
+        }
+      // navigate({ to: '/' });
+      } else {
+        // Xử lý khi API trả về status khác 0
+        throw new Error(response.data?.message || 'Đăng nhập thất bại')
+      }
+    } catch (error: any) {
+      console.error('Lỗi đăng nhập:', error)
+
+      // Xử lý lỗi từ API
+      let errorMessage = 'Đã có lỗi xảy ra'
+
+      if (error.response?.data?.error === 'Bad Request') {
+        errorMessage =
+          error.response.data.message || 'Email hoặc mật khẩu không chính xác'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+
+      form.setError('root', {
+        type: 'manual',
+        message: errorMessage,
+      })
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
   }
 
   return (
@@ -67,35 +102,51 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 <FormItem className='space-y-1'>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
+                    <Input
+                      placeholder='email@example.com'
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='password'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
                   <div className='flex items-center justify-between'>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Mật khẩu</FormLabel>
                     <Link
                       to='/forgot-password'
                       className='text-sm font-medium text-muted-foreground hover:opacity-75'
                     >
-                      Forgot password?
+                      Quên mật khẩu?
                     </Link>
                   </div>
                   <FormControl>
-                    <PasswordInput placeholder='********' {...field} />
+                    <PasswordInput
+                      placeholder='Nhập mật khẩu'
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {form.formState.errors.root && (
+              <p className='text-sm font-medium text-destructive'>
+                {form.formState.errors.root.message}
+              </p>
+            )}
+
             <Button className='mt-2' disabled={isLoading}>
-              Login
+              {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
             </Button>
 
             <div className='relative my-2'>
@@ -104,7 +155,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               </div>
               <div className='relative flex justify-center text-xs uppercase'>
                 <span className='bg-background px-2 text-muted-foreground'>
-                  Or continue with
+                  hoặc tiếp tục với
                 </span>
               </div>
             </div>
@@ -116,7 +167,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 type='button'
                 disabled={isLoading}
               >
-                <IconBrandGithub className='h-4 w-4' /> GitHub
+                <IconBrandGoogle className='h-4 w-4' /> Google
               </Button>
               <Button
                 variant='outline'

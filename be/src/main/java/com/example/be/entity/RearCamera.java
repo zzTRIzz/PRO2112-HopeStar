@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusCommon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -27,5 +28,9 @@ public class RearCamera extends AuditEntity {
 
     @Column(name = "resolution")
     private Integer resolution;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private StatusCommon status;
 
 }

@@ -1,6 +1,7 @@
 package com.example.be.entity;
 
 import com.example.be.entity.base.AuditEntity;
+import com.example.be.entity.status.StatusCommon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -21,5 +22,9 @@ public class Os extends AuditEntity {
     @Size(max = 255)
     @Column(name = "name")
     private String name;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private StatusCommon status;
 
 }

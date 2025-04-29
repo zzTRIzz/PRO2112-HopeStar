@@ -2,8 +2,10 @@ import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
+import { useNavigate } from '@tanstack/react-router'
+import { IconBrandFacebook, IconBrandGoogle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,50 +17,55 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
+import { sentOtp } from '../../otp/data/api-service'
+import { signupRequestSchema } from '../data/schema'
 
 type SignUpFormProps = HTMLAttributes<HTMLDivElement>
 
-const formSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, { message: 'Please enter your email' })
-      .email({ message: 'Invalid email address' }),
-    password: z
-      .string()
-      .min(1, {
-        message: 'Please enter your password',
-      })
-      .min(7, {
-        message: 'Password must be at least 7 characters long',
-      }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ['confirmPassword'],
-  })
-
 export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate() // Sử dụng useNavigate để chuyển hướng
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signupRequestSchema>>({
+    resolver: zodResolver(signupRequestSchema),
     defaultValues: {
+      fullName: '',
       email: '',
       password: '',
       confirmPassword: '',
+      otp: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof signupRequestSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+    try {
+      // Gọi API gửi OTP
+      const otpResponse = await sentOtp({ email: data.email })
+      console.log('OTP đã được gửi:', otpResponse)
 
-    setTimeout(() => {
+      if (otpResponse.status === 0) {
+        toast({
+          title: 'Thông báo',
+          description: otpResponse.data.message || 'Xác thực OTP đã được gửi',
+        })
+
+        // Lưu trữ dữ liệu đăng ký tạm thời (có thể sử dụng state hoặc context)
+        localStorage.setItem('signupData', JSON.stringify(data))
+
+        // Chuyển hướng sang form OTP
+        navigate({ to: '/otp' })
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Thông báo lỗi',
+        variant: 'destructive',
+        description: error.response.data.message || 'Đăng ký thất bại',
+      })
+      console.error('Lỗi khi gửi OTP:', error)
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
   }
 
   return (
@@ -66,6 +73,19 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className='grid gap-2'>
+            <FormField
+              control={form.control}
+              name='fullName'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Họ và tên</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Nguyễn Văn A' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name='email'
@@ -84,7 +104,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name='password'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Mật khẩu</FormLabel>
                   <FormControl>
                     <PasswordInput placeholder='********' {...field} />
                   </FormControl>
@@ -97,7 +117,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name='confirmPassword'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>Xác nhận mật khẩu</FormLabel>
                   <FormControl>
                     <PasswordInput placeholder='********' {...field} />
                   </FormControl>
@@ -106,7 +126,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               )}
             />
             <Button className='mt-2' disabled={isLoading}>
-              Create Account
+              {isLoading ? 'Đang xử lý...' : 'Tạo tài khoản'}
             </Button>
 
             <div className='relative my-2'>
@@ -115,7 +135,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               </div>
               <div className='relative flex justify-center text-xs uppercase'>
                 <span className='bg-background px-2 text-muted-foreground'>
-                  Or continue with
+                  hoặc tiếp tục với
                 </span>
               </div>
             </div>
@@ -127,7 +147,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 type='button'
                 disabled={isLoading}
               >
-                <IconBrandGithub className='h-4 w-4' /> GitHub
+                <IconBrandGoogle className='h-4 w-4' /> Google
               </Button>
               <Button
                 variant='outline'

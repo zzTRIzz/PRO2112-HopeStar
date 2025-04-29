@@ -1,0 +1,22 @@
+/* Trong file CSS chính
+.fixed {
+    position: fixed;
+  }
+  .inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  .bg-opacity-75 {
+    background-color: rgba(0, 0, 0, 0.75);
+  } */
+#barcode-scanner {
+    width: 300px;
+    height: 200px;
+    border: 1px solid #ddd;
+    margin: 0 auto;
+    border-radius: 10px;
+    /* Bo góc 10px */
+    overflow: hidden;
+}

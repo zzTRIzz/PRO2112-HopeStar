@@ -1,75 +1,56 @@
-import { toast } from '@/hooks/use-toast'
-import { ConfirmDialog } from '@/components/confirm-dialog'
-import { useTasks } from '../context/tasks-context'
-import { TasksImportDialog } from './product-import-dialog'
-import { TasksMutateDrawer } from './product-mutate-drawer'
+import { ProductResponsesUpdateDialog } from '@/features/product-management/product/components/product-update-dialog'
+import { useProduct } from '../context/product-context'
+import { ProductDisplayDialog } from './product-display-dialog'
+import { ProductImportDialog } from './product-import-dialog'
 
-export function TasksDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useTasks()
+// Define dialog types as constants
+export const DialogType = {
+  IMPORT: 'import',
+  UPDATE: 'update',
+  DISPLAY: 'display',
+} as const
+
+export function ProductDialogs() {
+  const { open, setOpen, currentRow, setCurrentRow } = useProduct()
+
+  // Reset currentRow after dialog closes
+  const handleDialogClose = () => {
+    setCurrentRow(null)
+  }
+
   return (
     <>
-      <TasksMutateDrawer
-        key='product-create'
-        open={open === 'create'}
-        onOpenChange={() => setOpen('create')}
-      />
-
-      <TasksImportDialog
+      {/* Import Dialog */}
+      <ProductImportDialog
         key='products-import'
-        open={open === 'import'}
-        onOpenChange={() => setOpen('import')}
+        open={open === DialogType.IMPORT}
+        onOpenChange={(isOpen) => {
+          setOpen(isOpen ? DialogType.IMPORT : null)
+          if (!isOpen) handleDialogClose()
+        }}
       />
 
+      {/* Update and Display Dialogs (only render if currentRow exists) */}
       {currentRow && (
         <>
-          <TasksMutateDrawer
+          <ProductResponsesUpdateDialog
             key={`product-update-${currentRow.id}`}
-            open={open === 'update'}
-            onOpenChange={() => {
-              setOpen('update')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
+            open={open === DialogType.UPDATE}
+            onOpenChange={(isOpen) => {
+              setOpen(isOpen ? DialogType.UPDATE : null)
+              if (!isOpen) handleDialogClose()
             }}
             currentRow={currentRow}
           />
 
-          <ConfirmDialog
-            key='product-delete'
-            destructive
-            open={open === 'delete'}
-            onOpenChange={() => {
-              setOpen('delete')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
+          <ProductDisplayDialog
+            key={`product-display-${currentRow.id}`}
+            open={open === DialogType.DISPLAY}
+            onOpenChange={(isOpen) => {
+              setOpen(isOpen ? DialogType.DISPLAY : null)
+              if (!isOpen) handleDialogClose()
             }}
-            handleConfirm={() => {
-              setOpen(null)
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
-              toast({
-                title: 'The following product has been deleted:',
-                description: (
-                  <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-                    <code className='text-white'>
-                      {JSON.stringify(currentRow, null, 2)}
-                    </code>
-                  </pre>
-                ),
-              })
-            }}
-            className='max-w-md'
-            title={`Delete this product: ${currentRow.id} ?`}
-            desc={
-              <>
-                You are about to delete a product with the ID{' '}
-                <strong>{currentRow.id}</strong>. <br />
-                This action cannot be undone.
-              </>
-            }
-            confirmText='Delete'
+            currentRow={currentRow}
           />
         </>
       )}

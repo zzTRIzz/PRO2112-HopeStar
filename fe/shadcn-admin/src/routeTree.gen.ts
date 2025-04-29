@@ -13,19 +13,25 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as HomeImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
-import { Route as TrangchuTrangchuImport } from './routes/trangchu/trangchu'
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
+import { Route as authResetPasswordImport } from './routes/(auth)/reset-password'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as authTaikhoanIndexImport } from './routes/(auth)/taikhoan/index'
+import { Route as authDatHangIndexImport } from './routes/(auth)/dat-hang/index'
+import { Route as AuthenticatedVoucherCreateImport } from './routes/_authenticated/voucher/create'
 import { Route as AuthenticatedProductWifiImport } from './routes/_authenticated/product/wifi'
 import { Route as AuthenticatedProductSimImport } from './routes/_authenticated/product/sim'
 import { Route as AuthenticatedProductScreenImport } from './routes/_authenticated/product/screen'
 import { Route as AuthenticatedProductRomImport } from './routes/_authenticated/product/rom'
+import { Route as AuthenticatedProductResolutionImport } from './routes/_authenticated/product/resolution'
+import { Route as AuthenticatedProductRearCameraImport } from './routes/_authenticated/product/rear-camera'
 import { Route as AuthenticatedProductRamImport } from './routes/_authenticated/product/ram'
+import { Route as AuthenticatedProductOsImport } from './routes/_authenticated/product/os'
 import { Route as AuthenticatedProductImeiImport } from './routes/_authenticated/product/imei'
+import { Route as AuthenticatedProductFrontCameraImport } from './routes/_authenticated/product/front-camera'
+import { Route as AuthenticatedProductCreateProductImport } from './routes/_authenticated/product/create-product'
 import { Route as AuthenticatedProductColorImport } from './routes/_authenticated/product/color'
 import { Route as AuthenticatedProductChipImport } from './routes/_authenticated/product/chip'
 import { Route as AuthenticatedProductCategoryImport } from './routes/_authenticated/product/category'
@@ -33,48 +39,65 @@ import { Route as AuthenticatedProductCardImport } from './routes/_authenticated
 import { Route as AuthenticatedProductBrandImport } from './routes/_authenticated/product/brand'
 import { Route as AuthenticatedProductBluetoothImport } from './routes/_authenticated/product/bluetooth'
 import { Route as AuthenticatedProductBatteryImport } from './routes/_authenticated/product/battery'
+import { Route as AuthenticatedHoadonHoadonchitietImport } from './routes/_authenticated/hoadon/hoadonchitiet'
+import { Route as authTracuudonhangThongTinImport } from './routes/(auth)/tra_cuu_don_hang/thong-tin'
+import { Route as authProductIdImport } from './routes/(auth)/product.$id'
+import { Route as AuthenticatedTaikhoanNhanvienIndexImport } from './routes/_authenticated/taikhoan/nhanvien/index'
+import { Route as AuthenticatedTaikhoanKhachhangIndexImport } from './routes/_authenticated/taikhoan/khachhang/index'
+import { Route as authTaikhoanThongTinCaNhanIndexImport } from './routes/(auth)/taikhoan/thong-tin-ca-nhan/index'
+import { Route as authTaikhoanDonHangCuaToiIndexImport } from './routes/(auth)/taikhoan/don-hang-cua-toi/index'
+import { Route as AuthenticatedProductIdProductDetailImport } from './routes/_authenticated/product/$id.product-detail'
 
 // Create Virtual Routes
 
+const authIndexLazyImport = createFileRoute('/(auth)/')()
 const errors503LazyImport = createFileRoute('/(errors)/503')()
 const errors500LazyImport = createFileRoute('/(errors)/500')()
 const errors404LazyImport = createFileRoute('/(errors)/404')()
 const errors403LazyImport = createFileRoute('/(errors)/403')()
 const errors401LazyImport = createFileRoute('/(errors)/401')()
 const authSignUpLazyImport = createFileRoute('/(auth)/sign-up')()
-const authSignIn2LazyImport = createFileRoute('/(auth)/sign-in-2')()
 const authForgotPasswordLazyImport = createFileRoute(
   '/(auth)/forgot-password',
 )()
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
 )()
-const AuthenticatedUsersIndexLazyImport = createFileRoute(
-  '/_authenticated/users/',
-)()
-const AuthenticatedTasksIndexLazyImport = createFileRoute(
-  '/_authenticated/tasks/',
-)()
-const AuthenticatedTaikhoanIndexLazyImport = createFileRoute(
-  '/_authenticated/taikhoan/',
+const AuthenticatedVoucherIndexLazyImport = createFileRoute(
+  '/_authenticated/voucher/',
 )()
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
   '/_authenticated/settings/',
 )()
+const AuthenticatedSaleIndexLazyImport = createFileRoute(
+  '/_authenticated/sale/',
+)()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
 )()
-const AuthenticatedHomeIndexLazyImport = createFileRoute(
-  '/_authenticated/home/',
+const AuthenticatedHoadonIndexLazyImport = createFileRoute(
+  '/_authenticated/hoadon/',
 )()
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
   '/_authenticated/help-center/',
 )()
+const AuthenticatedDashboardIndexLazyImport = createFileRoute(
+  '/_authenticated/dashboard/',
+)()
 const AuthenticatedChatsIndexLazyImport = createFileRoute(
   '/_authenticated/chats/',
 )()
-const AuthenticatedAppsIndexLazyImport = createFileRoute(
-  '/_authenticated/apps/',
+const AuthenticatedBanhangIndexLazyImport = createFileRoute(
+  '/_authenticated/banhang/',
+)()
+const authTracuudonhangIndexLazyImport = createFileRoute(
+  '/(auth)/tra_cuu_don_hang/',
+)()
+const authLienHeIndexLazyImport = createFileRoute('/(auth)/lien-he/')()
+const authGioHangIndexLazyImport = createFileRoute('/(auth)/gio-hang/')()
+const authDienthoaiIndexLazyImport = createFileRoute('/(auth)/dienthoai/')()
+const authChinhSachCuaCuaHangIndexLazyImport = createFileRoute(
+  '/(auth)/chinh-sach-cua-cua-hang/',
 )()
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
   '/_authenticated/settings/notifications',
@@ -88,25 +111,27 @@ const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
   '/_authenticated/settings/account',
 )()
+const authDatHangPaymentResultLazyImport = createFileRoute(
+  '/(auth)/dat-hang/payment-result',
+)()
+const authTaikhoanDonHangCuaToiThongTinIndexLazyImport = createFileRoute(
+  '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/',
+)()
 
 // Create/Update Routes
-
-const HomeRoute = HomeImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const authIndexLazyRoute = authIndexLazyImport
+  .update({
+    id: '/(auth)/',
+    path: '/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() => import('./routes/(auth)/index.lazy').then((d) => d.Route))
 
 const errors503LazyRoute = errors503LazyImport
   .update({
@@ -156,14 +181,6 @@ const authSignUpLazyRoute = authSignUpLazyImport
   } as any)
   .lazy(() => import('./routes/(auth)/sign-up.lazy').then((d) => d.Route))
 
-const authSignIn2LazyRoute = authSignIn2LazyImport
-  .update({
-    id: '/(auth)/sign-in-2',
-    path: '/sign-in-2',
-    getParentRoute: () => rootRoute,
-  } as any)
-  .lazy(() => import('./routes/(auth)/sign-in-2.lazy').then((d) => d.Route))
-
 const authForgotPasswordLazyRoute = authForgotPasswordLazyImport
   .update({
     id: '/(auth)/forgot-password',
@@ -183,15 +200,15 @@ const AuthenticatedSettingsRouteLazyRoute =
     import('./routes/_authenticated/settings/route.lazy').then((d) => d.Route),
   )
 
-const TrangchuTrangchuRoute = TrangchuTrangchuImport.update({
-  id: '/trangchu/trangchu',
-  path: '/trangchu/trangchu',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const authSignInRoute = authSignInImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authResetPasswordRoute = authResetPasswordImport.update({
+  id: '/(auth)/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -207,31 +224,13 @@ const auth500Route = auth500Import.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedUsersIndexLazyRoute =
-  AuthenticatedUsersIndexLazyImport.update({
-    id: '/users/',
-    path: '/users/',
+const AuthenticatedVoucherIndexLazyRoute =
+  AuthenticatedVoucherIndexLazyImport.update({
+    id: '/voucher/',
+    path: '/voucher/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import('./routes/_authenticated/users/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedTasksIndexLazyRoute =
-  AuthenticatedTasksIndexLazyImport.update({
-    id: '/tasks/',
-    path: '/tasks/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/tasks/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedTaikhoanIndexLazyRoute =
-  AuthenticatedTaikhoanIndexLazyImport.update({
-    id: '/taikhoan/',
-    path: '/taikhoan/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/taikhoan/index.lazy').then((d) => d.Route),
+    import('./routes/_authenticated/voucher/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedSettingsIndexLazyRoute =
@@ -243,6 +242,16 @@ const AuthenticatedSettingsIndexLazyRoute =
     import('./routes/_authenticated/settings/index.lazy').then((d) => d.Route),
   )
 
+const AuthenticatedSaleIndexLazyRoute = AuthenticatedSaleIndexLazyImport.update(
+  {
+    id: '/sale/',
+    path: '/sale/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_authenticated/sale/index.lazy').then((d) => d.Route),
+)
+
 const AuthenticatedProductIndexLazyRoute =
   AuthenticatedProductIndexLazyImport.update({
     id: '/product/',
@@ -252,15 +261,14 @@ const AuthenticatedProductIndexLazyRoute =
     import('./routes/_authenticated/product/index.lazy').then((d) => d.Route),
   )
 
-const AuthenticatedHomeIndexLazyRoute = AuthenticatedHomeIndexLazyImport.update(
-  {
-    id: '/home/',
-    path: '/home/',
+const AuthenticatedHoadonIndexLazyRoute =
+  AuthenticatedHoadonIndexLazyImport.update({
+    id: '/hoadon/',
+    path: '/hoadon/',
     getParentRoute: () => AuthenticatedRouteRoute,
-  } as any,
-).lazy(() =>
-  import('./routes/_authenticated/home/index.lazy').then((d) => d.Route),
-)
+  } as any).lazy(() =>
+    import('./routes/_authenticated/hoadon/index.lazy').then((d) => d.Route),
+  )
 
 const AuthenticatedHelpCenterIndexLazyRoute =
   AuthenticatedHelpCenterIndexLazyImport.update({
@@ -273,6 +281,15 @@ const AuthenticatedHelpCenterIndexLazyRoute =
     ),
   )
 
+const AuthenticatedDashboardIndexLazyRoute =
+  AuthenticatedDashboardIndexLazyImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/dashboard/index.lazy').then((d) => d.Route),
+  )
+
 const AuthenticatedChatsIndexLazyRoute =
   AuthenticatedChatsIndexLazyImport.update({
     id: '/chats/',
@@ -282,15 +299,77 @@ const AuthenticatedChatsIndexLazyRoute =
     import('./routes/_authenticated/chats/index.lazy').then((d) => d.Route),
   )
 
-const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
-  {
-    id: '/apps/',
-    path: '/apps/',
+const AuthenticatedBanhangIndexLazyRoute =
+  AuthenticatedBanhangIndexLazyImport.update({
+    id: '/banhang/',
+    path: '/banhang/',
     getParentRoute: () => AuthenticatedRouteRoute,
-  } as any,
-).lazy(() =>
-  import('./routes/_authenticated/apps/index.lazy').then((d) => d.Route),
-)
+  } as any).lazy(() =>
+    import('./routes/_authenticated/banhang/index.lazy').then((d) => d.Route),
+  )
+
+const authTracuudonhangIndexLazyRoute = authTracuudonhangIndexLazyImport
+  .update({
+    id: '/(auth)/tra_cuu_don_hang/',
+    path: '/tra_cuu_don_hang/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/tra_cuu_don_hang/index.lazy').then((d) => d.Route),
+  )
+
+const authLienHeIndexLazyRoute = authLienHeIndexLazyImport
+  .update({
+    id: '/(auth)/lien-he/',
+    path: '/lien-he/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() => import('./routes/(auth)/lien-he/index.lazy').then((d) => d.Route))
+
+const authGioHangIndexLazyRoute = authGioHangIndexLazyImport
+  .update({
+    id: '/(auth)/gio-hang/',
+    path: '/gio-hang/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/gio-hang/index.lazy').then((d) => d.Route),
+  )
+
+const authDienthoaiIndexLazyRoute = authDienthoaiIndexLazyImport
+  .update({
+    id: '/(auth)/dienthoai/',
+    path: '/dienthoai/',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/dienthoai/index.lazy').then((d) => d.Route),
+  )
+
+const authChinhSachCuaCuaHangIndexLazyRoute =
+  authChinhSachCuaCuaHangIndexLazyImport
+    .update({
+      id: '/(auth)/chinh-sach-cua-cua-hang/',
+      path: '/chinh-sach-cua-cua-hang/',
+      getParentRoute: () => rootRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(auth)/chinh-sach-cua-cua-hang/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
+
+const authTaikhoanIndexRoute = authTaikhoanIndexImport.update({
+  id: '/(auth)/taikhoan/',
+  path: '/taikhoan/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authDatHangIndexRoute = authDatHangIndexImport.update({
+  id: '/(auth)/dat-hang/',
+  path: '/dat-hang/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthenticatedSettingsNotificationsLazyRoute =
   AuthenticatedSettingsNotificationsLazyImport.update({
@@ -336,6 +415,24 @@ const AuthenticatedSettingsAccountLazyRoute =
     ),
   )
 
+const authDatHangPaymentResultLazyRoute = authDatHangPaymentResultLazyImport
+  .update({
+    id: '/(auth)/dat-hang/payment-result',
+    path: '/dat-hang/payment-result',
+    getParentRoute: () => rootRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(auth)/dat-hang/payment-result.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedVoucherCreateRoute = AuthenticatedVoucherCreateImport.update(
+  {
+    id: '/voucher/create',
+    path: '/voucher/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any,
+)
+
 const AuthenticatedProductWifiRoute = AuthenticatedProductWifiImport.update({
   id: '/product/wifi',
   path: '/product/wifi',
@@ -362,9 +459,29 @@ const AuthenticatedProductRomRoute = AuthenticatedProductRomImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
+const AuthenticatedProductResolutionRoute =
+  AuthenticatedProductResolutionImport.update({
+    id: '/product/resolution',
+    path: '/product/resolution',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedProductRearCameraRoute =
+  AuthenticatedProductRearCameraImport.update({
+    id: '/product/rear-camera',
+    path: '/product/rear-camera',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const AuthenticatedProductRamRoute = AuthenticatedProductRamImport.update({
   id: '/product/ram',
   path: '/product/ram',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const AuthenticatedProductOsRoute = AuthenticatedProductOsImport.update({
+  id: '/product/os',
+  path: '/product/os',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -373,6 +490,20 @@ const AuthenticatedProductImeiRoute = AuthenticatedProductImeiImport.update({
   path: '/product/imei',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+
+const AuthenticatedProductFrontCameraRoute =
+  AuthenticatedProductFrontCameraImport.update({
+    id: '/product/front-camera',
+    path: '/product/front-camera',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedProductCreateProductRoute =
+  AuthenticatedProductCreateProductImport.update({
+    id: '/product/create-product',
+    path: '/product/create-product',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 const AuthenticatedProductColorRoute = AuthenticatedProductColorImport.update({
   id: '/product/color',
@@ -419,6 +550,73 @@ const AuthenticatedProductBatteryRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedHoadonHoadonchitietRoute =
+  AuthenticatedHoadonHoadonchitietImport.update({
+    id: '/hoadon/hoadonchitiet',
+    path: '/hoadon/hoadonchitiet',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const authTracuudonhangThongTinRoute = authTracuudonhangThongTinImport.update({
+  id: '/(auth)/tra_cuu_don_hang/thong-tin',
+  path: '/tra_cuu_don_hang/thong-tin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authProductIdRoute = authProductIdImport.update({
+  id: '/(auth)/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedTaikhoanNhanvienIndexRoute =
+  AuthenticatedTaikhoanNhanvienIndexImport.update({
+    id: '/taikhoan/nhanvien/',
+    path: '/taikhoan/nhanvien/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedTaikhoanKhachhangIndexRoute =
+  AuthenticatedTaikhoanKhachhangIndexImport.update({
+    id: '/taikhoan/khachhang/',
+    path: '/taikhoan/khachhang/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const authTaikhoanThongTinCaNhanIndexRoute =
+  authTaikhoanThongTinCaNhanIndexImport.update({
+    id: '/(auth)/taikhoan/thong-tin-ca-nhan/',
+    path: '/taikhoan/thong-tin-ca-nhan/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const authTaikhoanDonHangCuaToiIndexRoute =
+  authTaikhoanDonHangCuaToiIndexImport.update({
+    id: '/(auth)/taikhoan/don-hang-cua-toi/',
+    path: '/taikhoan/don-hang-cua-toi/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const AuthenticatedProductIdProductDetailRoute =
+  AuthenticatedProductIdProductDetailImport.update({
+    id: '/product/$id/product-detail',
+    path: '/product/$id/product-detail',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const authTaikhoanDonHangCuaToiThongTinIndexLazyRoute =
+  authTaikhoanDonHangCuaToiThongTinIndexLazyImport
+    .update({
+      id: '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/',
+      path: '/taikhoan/don-hang-cua-toi/thong-tin/',
+      getParentRoute: () => rootRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(auth)/taikhoan/don-hang-cua-toi/thong-tin/index.lazy'
+      ).then((d) => d.Route),
+    )
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -428,13 +626,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
     '/(auth)/500': {
@@ -451,18 +642,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authOtpImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
     '/(auth)/sign-in': {
       id: '/(auth)/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInImport
-      parentRoute: typeof rootRoute
-    }
-    '/trangchu/trangchu': {
-      id: '/trangchu/trangchu'
-      path: '/trangchu/trangchu'
-      fullPath: '/trangchu/trangchu'
-      preLoaderRoute: typeof TrangchuTrangchuImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/settings': {
@@ -477,13 +668,6 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof authForgotPasswordLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/sign-in-2': {
-      id: '/(auth)/sign-in-2'
-      path: '/sign-in-2'
-      fullPath: '/sign-in-2'
-      preLoaderRoute: typeof authSignIn2LazyImport
       parentRoute: typeof rootRoute
     }
     '/(auth)/sign-up': {
@@ -528,11 +712,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof errors503LazyImport
       parentRoute: typeof rootRoute
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/(auth)/': {
+      id: '/(auth)/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexImport
+      preLoaderRoute: typeof authIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/product/$id': {
+      id: '/(auth)/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof authProductIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/tra_cuu_don_hang/thong-tin': {
+      id: '/(auth)/tra_cuu_don_hang/thong-tin'
+      path: '/tra_cuu_don_hang/thong-tin'
+      fullPath: '/tra_cuu_don_hang/thong-tin'
+      preLoaderRoute: typeof authTracuudonhangThongTinImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/hoadon/hoadonchitiet': {
+      id: '/_authenticated/hoadon/hoadonchitiet'
+      path: '/hoadon/hoadonchitiet'
+      fullPath: '/hoadon/hoadonchitiet'
+      preLoaderRoute: typeof AuthenticatedHoadonHoadonchitietImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/battery': {
@@ -584,6 +789,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductColorImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/create-product': {
+      id: '/_authenticated/product/create-product'
+      path: '/product/create-product'
+      fullPath: '/product/create-product'
+      preLoaderRoute: typeof AuthenticatedProductCreateProductImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/front-camera': {
+      id: '/_authenticated/product/front-camera'
+      path: '/product/front-camera'
+      fullPath: '/product/front-camera'
+      preLoaderRoute: typeof AuthenticatedProductFrontCameraImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/imei': {
       id: '/_authenticated/product/imei'
       path: '/product/imei'
@@ -591,11 +810,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductImeiImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/product/os': {
+      id: '/_authenticated/product/os'
+      path: '/product/os'
+      fullPath: '/product/os'
+      preLoaderRoute: typeof AuthenticatedProductOsImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/product/ram': {
       id: '/_authenticated/product/ram'
       path: '/product/ram'
       fullPath: '/product/ram'
       preLoaderRoute: typeof AuthenticatedProductRamImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/rear-camera': {
+      id: '/_authenticated/product/rear-camera'
+      path: '/product/rear-camera'
+      fullPath: '/product/rear-camera'
+      preLoaderRoute: typeof AuthenticatedProductRearCameraImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/product/resolution': {
+      id: '/_authenticated/product/resolution'
+      path: '/product/resolution'
+      fullPath: '/product/resolution'
+      preLoaderRoute: typeof AuthenticatedProductResolutionImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/rom': {
@@ -626,6 +866,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductWifiImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/voucher/create': {
+      id: '/_authenticated/voucher/create'
+      path: '/voucher/create'
+      fullPath: '/voucher/create'
+      preLoaderRoute: typeof AuthenticatedVoucherCreateImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/(auth)/dat-hang/payment-result': {
+      id: '/(auth)/dat-hang/payment-result'
+      path: '/dat-hang/payment-result'
+      fullPath: '/dat-hang/payment-result'
+      preLoaderRoute: typeof authDatHangPaymentResultLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/_authenticated/settings/account': {
       id: '/_authenticated/settings/account'
       path: '/account'
@@ -654,11 +908,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsNotificationsLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
-    '/_authenticated/apps/': {
-      id: '/_authenticated/apps/'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AuthenticatedAppsIndexLazyImport
+    '/(auth)/dat-hang/': {
+      id: '/(auth)/dat-hang/'
+      path: '/dat-hang'
+      fullPath: '/dat-hang'
+      preLoaderRoute: typeof authDatHangIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/taikhoan/': {
+      id: '/(auth)/taikhoan/'
+      path: '/taikhoan'
+      fullPath: '/taikhoan'
+      preLoaderRoute: typeof authTaikhoanIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/chinh-sach-cua-cua-hang/': {
+      id: '/(auth)/chinh-sach-cua-cua-hang/'
+      path: '/chinh-sach-cua-cua-hang'
+      fullPath: '/chinh-sach-cua-cua-hang'
+      preLoaderRoute: typeof authChinhSachCuaCuaHangIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/dienthoai/': {
+      id: '/(auth)/dienthoai/'
+      path: '/dienthoai'
+      fullPath: '/dienthoai'
+      preLoaderRoute: typeof authDienthoaiIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/gio-hang/': {
+      id: '/(auth)/gio-hang/'
+      path: '/gio-hang'
+      fullPath: '/gio-hang'
+      preLoaderRoute: typeof authGioHangIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/lien-he/': {
+      id: '/(auth)/lien-he/'
+      path: '/lien-he'
+      fullPath: '/lien-he'
+      preLoaderRoute: typeof authLienHeIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/tra_cuu_don_hang/': {
+      id: '/(auth)/tra_cuu_don_hang/'
+      path: '/tra_cuu_don_hang'
+      fullPath: '/tra_cuu_don_hang'
+      preLoaderRoute: typeof authTracuudonhangIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/banhang/': {
+      id: '/_authenticated/banhang/'
+      path: '/banhang'
+      fullPath: '/banhang'
+      preLoaderRoute: typeof AuthenticatedBanhangIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/chats/': {
@@ -668,6 +971,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/help-center/': {
       id: '/_authenticated/help-center/'
       path: '/help-center'
@@ -675,11 +985,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/home/': {
-      id: '/_authenticated/home/'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof AuthenticatedHomeIndexLazyImport
+    '/_authenticated/hoadon/': {
+      id: '/_authenticated/hoadon/'
+      path: '/hoadon'
+      fullPath: '/hoadon'
+      preLoaderRoute: typeof AuthenticatedHoadonIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/product/': {
@@ -689,6 +999,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/sale/': {
+      id: '/_authenticated/sale/'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof AuthenticatedSaleIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -696,26 +1013,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
-    '/_authenticated/taikhoan/': {
-      id: '/_authenticated/taikhoan/'
-      path: '/taikhoan'
-      fullPath: '/taikhoan'
-      preLoaderRoute: typeof AuthenticatedTaikhoanIndexLazyImport
+    '/_authenticated/voucher/': {
+      id: '/_authenticated/voucher/'
+      path: '/voucher'
+      fullPath: '/voucher'
+      preLoaderRoute: typeof AuthenticatedVoucherIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/tasks/': {
-      id: '/_authenticated/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksIndexLazyImport
+    '/_authenticated/product/$id/product-detail': {
+      id: '/_authenticated/product/$id/product-detail'
+      path: '/product/$id/product-detail'
+      fullPath: '/product/$id/product-detail'
+      preLoaderRoute: typeof AuthenticatedProductIdProductDetailImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
+    '/(auth)/taikhoan/don-hang-cua-toi/': {
+      id: '/(auth)/taikhoan/don-hang-cua-toi/'
+      path: '/taikhoan/don-hang-cua-toi'
+      fullPath: '/taikhoan/don-hang-cua-toi'
+      preLoaderRoute: typeof authTaikhoanDonHangCuaToiIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/taikhoan/thong-tin-ca-nhan/': {
+      id: '/(auth)/taikhoan/thong-tin-ca-nhan/'
+      path: '/taikhoan/thong-tin-ca-nhan'
+      fullPath: '/taikhoan/thong-tin-ca-nhan'
+      preLoaderRoute: typeof authTaikhoanThongTinCaNhanIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/taikhoan/khachhang/': {
+      id: '/_authenticated/taikhoan/khachhang/'
+      path: '/taikhoan/khachhang'
+      fullPath: '/taikhoan/khachhang'
+      preLoaderRoute: typeof AuthenticatedTaikhoanKhachhangIndexImport
       parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/taikhoan/nhanvien/': {
+      id: '/_authenticated/taikhoan/nhanvien/'
+      path: '/taikhoan/nhanvien'
+      fullPath: '/taikhoan/nhanvien'
+      preLoaderRoute: typeof AuthenticatedTaikhoanNhanvienIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/': {
+      id: '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/'
+      path: '/taikhoan/don-hang-cua-toi/thong-tin'
+      fullPath: '/taikhoan/don-hang-cua-toi/thong-tin'
+      preLoaderRoute: typeof authTaikhoanDonHangCuaToiThongTinIndexLazyImport
+      parentRoute: typeof rootRoute
     }
   }
 }
@@ -750,7 +1095,7 @@ const AuthenticatedSettingsRouteLazyRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedHoadonHoadonchitietRoute: typeof AuthenticatedHoadonHoadonchitietRoute
   AuthenticatedProductBatteryRoute: typeof AuthenticatedProductBatteryRoute
   AuthenticatedProductBluetoothRoute: typeof AuthenticatedProductBluetoothRoute
   AuthenticatedProductBrandRoute: typeof AuthenticatedProductBrandRoute
@@ -758,26 +1103,35 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductCategoryRoute: typeof AuthenticatedProductCategoryRoute
   AuthenticatedProductChipRoute: typeof AuthenticatedProductChipRoute
   AuthenticatedProductColorRoute: typeof AuthenticatedProductColorRoute
+  AuthenticatedProductCreateProductRoute: typeof AuthenticatedProductCreateProductRoute
+  AuthenticatedProductFrontCameraRoute: typeof AuthenticatedProductFrontCameraRoute
   AuthenticatedProductImeiRoute: typeof AuthenticatedProductImeiRoute
+  AuthenticatedProductOsRoute: typeof AuthenticatedProductOsRoute
   AuthenticatedProductRamRoute: typeof AuthenticatedProductRamRoute
+  AuthenticatedProductRearCameraRoute: typeof AuthenticatedProductRearCameraRoute
+  AuthenticatedProductResolutionRoute: typeof AuthenticatedProductResolutionRoute
   AuthenticatedProductRomRoute: typeof AuthenticatedProductRomRoute
   AuthenticatedProductScreenRoute: typeof AuthenticatedProductScreenRoute
   AuthenticatedProductSimRoute: typeof AuthenticatedProductSimRoute
   AuthenticatedProductWifiRoute: typeof AuthenticatedProductWifiRoute
-  AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
+  AuthenticatedVoucherCreateRoute: typeof AuthenticatedVoucherCreateRoute
+  AuthenticatedBanhangIndexLazyRoute: typeof AuthenticatedBanhangIndexLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
+  AuthenticatedDashboardIndexLazyRoute: typeof AuthenticatedDashboardIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
-  AuthenticatedHomeIndexLazyRoute: typeof AuthenticatedHomeIndexLazyRoute
+  AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
-  AuthenticatedTaikhoanIndexLazyRoute: typeof AuthenticatedTaikhoanIndexLazyRoute
-  AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
-  AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
+  AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
+  AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
+  AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
+  AuthenticatedTaikhoanKhachhangIndexRoute: typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  AuthenticatedTaikhoanNhanvienIndexRoute: typeof AuthenticatedTaikhoanNhanvienIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteLazyRoute:
     AuthenticatedSettingsRouteLazyRouteWithChildren,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedHoadonHoadonchitietRoute: AuthenticatedHoadonHoadonchitietRoute,
   AuthenticatedProductBatteryRoute: AuthenticatedProductBatteryRoute,
   AuthenticatedProductBluetoothRoute: AuthenticatedProductBluetoothRoute,
   AuthenticatedProductBrandRoute: AuthenticatedProductBrandRoute,
@@ -785,20 +1139,33 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductCategoryRoute: AuthenticatedProductCategoryRoute,
   AuthenticatedProductChipRoute: AuthenticatedProductChipRoute,
   AuthenticatedProductColorRoute: AuthenticatedProductColorRoute,
+  AuthenticatedProductCreateProductRoute:
+    AuthenticatedProductCreateProductRoute,
+  AuthenticatedProductFrontCameraRoute: AuthenticatedProductFrontCameraRoute,
   AuthenticatedProductImeiRoute: AuthenticatedProductImeiRoute,
+  AuthenticatedProductOsRoute: AuthenticatedProductOsRoute,
   AuthenticatedProductRamRoute: AuthenticatedProductRamRoute,
+  AuthenticatedProductRearCameraRoute: AuthenticatedProductRearCameraRoute,
+  AuthenticatedProductResolutionRoute: AuthenticatedProductResolutionRoute,
   AuthenticatedProductRomRoute: AuthenticatedProductRomRoute,
   AuthenticatedProductScreenRoute: AuthenticatedProductScreenRoute,
   AuthenticatedProductSimRoute: AuthenticatedProductSimRoute,
   AuthenticatedProductWifiRoute: AuthenticatedProductWifiRoute,
-  AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
+  AuthenticatedVoucherCreateRoute: AuthenticatedVoucherCreateRoute,
+  AuthenticatedBanhangIndexLazyRoute: AuthenticatedBanhangIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
+  AuthenticatedDashboardIndexLazyRoute: AuthenticatedDashboardIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
-  AuthenticatedHomeIndexLazyRoute: AuthenticatedHomeIndexLazyRoute,
+  AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
-  AuthenticatedTaikhoanIndexLazyRoute: AuthenticatedTaikhoanIndexLazyRoute,
-  AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
-  AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
+  AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
+  AuthenticatedProductIdProductDetailRoute:
+    AuthenticatedProductIdProductDetailRoute,
+  AuthenticatedTaikhoanKhachhangIndexRoute:
+    AuthenticatedTaikhoanKhachhangIndexRoute,
+  AuthenticatedTaikhoanNhanvienIndexRoute:
+    AuthenticatedTaikhoanNhanvienIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -806,20 +1173,21 @@ const AuthenticatedRouteRouteWithChildren =
 
 export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
-  '/home': typeof AuthenticatedHomeIndexLazyRoute
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
-  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-in-2': typeof authSignIn2LazyRoute
   '/sign-up': typeof authSignUpLazyRoute
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
+  '/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -827,40 +1195,63 @@ export interface FileRoutesByFullPath {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
+  '/product/os': typeof AuthenticatedProductOsRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
+  '/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/dat-hang': typeof authDatHangIndexRoute
+  '/taikhoan': typeof authTaikhoanIndexRoute
+  '/chinh-sach-cua-cua-hang': typeof authChinhSachCuaCuaHangIndexLazyRoute
+  '/dienthoai': typeof authDienthoaiIndexLazyRoute
+  '/gio-hang': typeof authGioHangIndexLazyRoute
+  '/lien-he': typeof authLienHeIndexLazyRoute
+  '/tra_cuu_don_hang': typeof authTracuudonhangIndexLazyRoute
+  '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/taikhoan': typeof AuthenticatedTaikhoanIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/don-hang-cua-toi': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/taikhoan/thong-tin-ca-nhan': typeof authTaikhoanThongTinCaNhanIndexRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/taikhoan/don-hang-cua-toi/thong-tin': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
-  '/home': typeof AuthenticatedHomeIndexLazyRoute
+  '': typeof AuthenticatedRouteRouteWithChildren
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
-  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-in-2': typeof authSignIn2LazyRoute
   '/sign-up': typeof authSignUpLazyRoute
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
   '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof authIndexLazyRoute
+  '/product/$id': typeof authProductIdRoute
+  '/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
+  '/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/product/battery': typeof AuthenticatedProductBatteryRoute
   '/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/product/brand': typeof AuthenticatedProductBrandRoute
@@ -868,44 +1259,66 @@ export interface FileRoutesByTo {
   '/product/category': typeof AuthenticatedProductCategoryRoute
   '/product/chip': typeof AuthenticatedProductChipRoute
   '/product/color': typeof AuthenticatedProductColorRoute
+  '/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/product/imei': typeof AuthenticatedProductImeiRoute
+  '/product/os': typeof AuthenticatedProductOsRoute
   '/product/ram': typeof AuthenticatedProductRamRoute
+  '/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/product/rom': typeof AuthenticatedProductRomRoute
   '/product/screen': typeof AuthenticatedProductScreenRoute
   '/product/sim': typeof AuthenticatedProductSimRoute
   '/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/apps': typeof AuthenticatedAppsIndexLazyRoute
+  '/dat-hang': typeof authDatHangIndexRoute
+  '/taikhoan': typeof authTaikhoanIndexRoute
+  '/chinh-sach-cua-cua-hang': typeof authChinhSachCuaCuaHangIndexLazyRoute
+  '/dienthoai': typeof authDienthoaiIndexLazyRoute
+  '/gio-hang': typeof authGioHangIndexLazyRoute
+  '/lien-he': typeof authLienHeIndexLazyRoute
+  '/tra_cuu_don_hang': typeof authTracuudonhangIndexLazyRoute
+  '/banhang': typeof AuthenticatedBanhangIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
+  '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
+  '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
-  '/taikhoan': typeof AuthenticatedTaikhoanIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
+  '/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/taikhoan/don-hang-cua-toi': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/taikhoan/thong-tin-ca-nhan': typeof authTaikhoanThongTinCaNhanIndexRoute
+  '/taikhoan/khachhang': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/taikhoan/nhanvien': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/taikhoan/don-hang-cua-toi/thong-tin': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/home': typeof HomeRoute
   '/(auth)/500': typeof auth500Route
   '/(auth)/otp': typeof authOtpRoute
+  '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
-  '/trangchu/trangchu': typeof TrangchuTrangchuRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
-  '/(auth)/sign-in-2': typeof authSignIn2LazyRoute
   '/(auth)/sign-up': typeof authSignUpLazyRoute
   '/(errors)/401': typeof errors401LazyRoute
   '/(errors)/403': typeof errors403LazyRoute
   '/(errors)/404': typeof errors404LazyRoute
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/(auth)/': typeof authIndexLazyRoute
+  '/(auth)/product/$id': typeof authProductIdRoute
+  '/(auth)/tra_cuu_don_hang/thong-tin': typeof authTracuudonhangThongTinRoute
+  '/_authenticated/hoadon/hoadonchitiet': typeof AuthenticatedHoadonHoadonchitietRoute
   '/_authenticated/product/battery': typeof AuthenticatedProductBatteryRoute
   '/_authenticated/product/bluetooth': typeof AuthenticatedProductBluetoothRoute
   '/_authenticated/product/brand': typeof AuthenticatedProductBrandRoute
@@ -913,45 +1326,66 @@ export interface FileRoutesById {
   '/_authenticated/product/category': typeof AuthenticatedProductCategoryRoute
   '/_authenticated/product/chip': typeof AuthenticatedProductChipRoute
   '/_authenticated/product/color': typeof AuthenticatedProductColorRoute
+  '/_authenticated/product/create-product': typeof AuthenticatedProductCreateProductRoute
+  '/_authenticated/product/front-camera': typeof AuthenticatedProductFrontCameraRoute
   '/_authenticated/product/imei': typeof AuthenticatedProductImeiRoute
+  '/_authenticated/product/os': typeof AuthenticatedProductOsRoute
   '/_authenticated/product/ram': typeof AuthenticatedProductRamRoute
+  '/_authenticated/product/rear-camera': typeof AuthenticatedProductRearCameraRoute
+  '/_authenticated/product/resolution': typeof AuthenticatedProductResolutionRoute
   '/_authenticated/product/rom': typeof AuthenticatedProductRomRoute
   '/_authenticated/product/screen': typeof AuthenticatedProductScreenRoute
   '/_authenticated/product/sim': typeof AuthenticatedProductSimRoute
   '/_authenticated/product/wifi': typeof AuthenticatedProductWifiRoute
+  '/_authenticated/voucher/create': typeof AuthenticatedVoucherCreateRoute
+  '/(auth)/dat-hang/payment-result': typeof authDatHangPaymentResultLazyRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
-  '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
+  '/(auth)/dat-hang/': typeof authDatHangIndexRoute
+  '/(auth)/taikhoan/': typeof authTaikhoanIndexRoute
+  '/(auth)/chinh-sach-cua-cua-hang/': typeof authChinhSachCuaCuaHangIndexLazyRoute
+  '/(auth)/dienthoai/': typeof authDienthoaiIndexLazyRoute
+  '/(auth)/gio-hang/': typeof authGioHangIndexLazyRoute
+  '/(auth)/lien-he/': typeof authLienHeIndexLazyRoute
+  '/(auth)/tra_cuu_don_hang/': typeof authTracuudonhangIndexLazyRoute
+  '/_authenticated/banhang/': typeof AuthenticatedBanhangIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
-  '/_authenticated/home/': typeof AuthenticatedHomeIndexLazyRoute
+  '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
+  '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/_authenticated/taikhoan/': typeof AuthenticatedTaikhoanIndexLazyRoute
-  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
-  '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
+  '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
+  '/_authenticated/product/$id/product-detail': typeof AuthenticatedProductIdProductDetailRoute
+  '/(auth)/taikhoan/don-hang-cua-toi/': typeof authTaikhoanDonHangCuaToiIndexRoute
+  '/(auth)/taikhoan/thong-tin-ca-nhan/': typeof authTaikhoanThongTinCaNhanIndexRoute
+  '/_authenticated/taikhoan/khachhang/': typeof AuthenticatedTaikhoanKhachhangIndexRoute
+  '/_authenticated/taikhoan/nhanvien/': typeof AuthenticatedTaikhoanNhanvienIndexRoute
+  '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/': typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
-    | '/home'
     | '/500'
     | '/otp'
+    | '/reset-password'
     | '/sign-in'
-    | '/trangchu/trangchu'
     | '/settings'
     | '/forgot-password'
-    | '/sign-in-2'
     | '/sign-up'
     | '/401'
     | '/403'
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
+    | '/tra_cuu_don_hang/thong-tin'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -959,39 +1393,62 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
+    | '/product/front-camera'
     | '/product/imei'
+    | '/product/os'
     | '/product/ram'
+    | '/product/rear-camera'
+    | '/product/resolution'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
+    | '/dat-hang/payment-result'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
-    | '/apps'
-    | '/chats'
-    | '/help-center'
-    | '/product'
-    | '/settings/'
+    | '/dat-hang'
     | '/taikhoan'
-    | '/tasks'
-    | '/users'
+    | '/chinh-sach-cua-cua-hang'
+    | '/dienthoai'
+    | '/gio-hang'
+    | '/lien-he'
+    | '/tra_cuu_don_hang'
+    | '/banhang'
+    | '/chats'
+    | '/dashboard'
+    | '/help-center'
+    | '/hoadon'
+    | '/product'
+    | '/sale'
+    | '/settings/'
+    | '/voucher'
+    | '/product/$id/product-detail'
+    | '/taikhoan/don-hang-cua-toi'
+    | '/taikhoan/thong-tin-ca-nhan'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
+    | '/taikhoan/don-hang-cua-toi/thong-tin'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/home'
+    | ''
     | '/500'
     | '/otp'
+    | '/reset-password'
     | '/sign-in'
-    | '/trangchu/trangchu'
     | '/forgot-password'
-    | '/sign-in-2'
     | '/sign-up'
     | '/401'
     | '/403'
     | '/404'
     | '/503'
     | '/'
+    | '/product/$id'
+    | '/tra_cuu_don_hang/thong-tin'
+    | '/hoadon/hoadonchitiet'
     | '/product/battery'
     | '/product/bluetooth'
     | '/product/brand'
@@ -999,42 +1456,64 @@ export interface FileRouteTypes {
     | '/product/category'
     | '/product/chip'
     | '/product/color'
+    | '/product/create-product'
+    | '/product/front-camera'
     | '/product/imei'
+    | '/product/os'
     | '/product/ram'
+    | '/product/rear-camera'
+    | '/product/resolution'
     | '/product/rom'
     | '/product/screen'
     | '/product/sim'
     | '/product/wifi'
+    | '/voucher/create'
+    | '/dat-hang/payment-result'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
-    | '/apps'
-    | '/chats'
-    | '/help-center'
-    | '/product'
-    | '/settings'
+    | '/dat-hang'
     | '/taikhoan'
-    | '/tasks'
-    | '/users'
+    | '/chinh-sach-cua-cua-hang'
+    | '/dienthoai'
+    | '/gio-hang'
+    | '/lien-he'
+    | '/tra_cuu_don_hang'
+    | '/banhang'
+    | '/chats'
+    | '/dashboard'
+    | '/help-center'
+    | '/hoadon'
+    | '/product'
+    | '/sale'
+    | '/settings'
+    | '/voucher'
+    | '/product/$id/product-detail'
+    | '/taikhoan/don-hang-cua-toi'
+    | '/taikhoan/thong-tin-ca-nhan'
+    | '/taikhoan/khachhang'
+    | '/taikhoan/nhanvien'
+    | '/taikhoan/don-hang-cua-toi/thong-tin'
   id:
     | '__root__'
     | '/_authenticated'
-    | '/home'
     | '/(auth)/500'
     | '/(auth)/otp'
+    | '/(auth)/reset-password'
     | '/(auth)/sign-in'
-    | '/trangchu/trangchu'
     | '/_authenticated/settings'
     | '/(auth)/forgot-password'
-    | '/(auth)/sign-in-2'
     | '/(auth)/sign-up'
     | '/(errors)/401'
     | '/(errors)/403'
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
-    | '/_authenticated/'
+    | '/(auth)/'
+    | '/(auth)/product/$id'
+    | '/(auth)/tra_cuu_don_hang/thong-tin'
+    | '/_authenticated/hoadon/hoadonchitiet'
     | '/_authenticated/product/battery'
     | '/_authenticated/product/bluetooth'
     | '/_authenticated/product/brand'
@@ -1042,60 +1521,105 @@ export interface FileRouteTypes {
     | '/_authenticated/product/category'
     | '/_authenticated/product/chip'
     | '/_authenticated/product/color'
+    | '/_authenticated/product/create-product'
+    | '/_authenticated/product/front-camera'
     | '/_authenticated/product/imei'
+    | '/_authenticated/product/os'
     | '/_authenticated/product/ram'
+    | '/_authenticated/product/rear-camera'
+    | '/_authenticated/product/resolution'
     | '/_authenticated/product/rom'
     | '/_authenticated/product/screen'
     | '/_authenticated/product/sim'
     | '/_authenticated/product/wifi'
+    | '/_authenticated/voucher/create'
+    | '/(auth)/dat-hang/payment-result'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
-    | '/_authenticated/apps/'
+    | '/(auth)/dat-hang/'
+    | '/(auth)/taikhoan/'
+    | '/(auth)/chinh-sach-cua-cua-hang/'
+    | '/(auth)/dienthoai/'
+    | '/(auth)/gio-hang/'
+    | '/(auth)/lien-he/'
+    | '/(auth)/tra_cuu_don_hang/'
+    | '/_authenticated/banhang/'
     | '/_authenticated/chats/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/help-center/'
-    | '/_authenticated/home/'
+    | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
+    | '/_authenticated/sale/'
     | '/_authenticated/settings/'
-    | '/_authenticated/taikhoan/'
-    | '/_authenticated/tasks/'
-    | '/_authenticated/users/'
+    | '/_authenticated/voucher/'
+    | '/_authenticated/product/$id/product-detail'
+    | '/(auth)/taikhoan/don-hang-cua-toi/'
+    | '/(auth)/taikhoan/thong-tin-ca-nhan/'
+    | '/_authenticated/taikhoan/khachhang/'
+    | '/_authenticated/taikhoan/nhanvien/'
+    | '/(auth)/taikhoan/don-hang-cua-toi/thong-tin/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  HomeRoute: typeof HomeRoute
   auth500Route: typeof auth500Route
   authOtpRoute: typeof authOtpRoute
+  authResetPasswordRoute: typeof authResetPasswordRoute
   authSignInRoute: typeof authSignInRoute
-  TrangchuTrangchuRoute: typeof TrangchuTrangchuRoute
   authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
-  authSignIn2LazyRoute: typeof authSignIn2LazyRoute
   authSignUpLazyRoute: typeof authSignUpLazyRoute
   errors401LazyRoute: typeof errors401LazyRoute
   errors403LazyRoute: typeof errors403LazyRoute
   errors404LazyRoute: typeof errors404LazyRoute
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
+  authIndexLazyRoute: typeof authIndexLazyRoute
+  authProductIdRoute: typeof authProductIdRoute
+  authTracuudonhangThongTinRoute: typeof authTracuudonhangThongTinRoute
+  authDatHangPaymentResultLazyRoute: typeof authDatHangPaymentResultLazyRoute
+  authDatHangIndexRoute: typeof authDatHangIndexRoute
+  authTaikhoanIndexRoute: typeof authTaikhoanIndexRoute
+  authChinhSachCuaCuaHangIndexLazyRoute: typeof authChinhSachCuaCuaHangIndexLazyRoute
+  authDienthoaiIndexLazyRoute: typeof authDienthoaiIndexLazyRoute
+  authGioHangIndexLazyRoute: typeof authGioHangIndexLazyRoute
+  authLienHeIndexLazyRoute: typeof authLienHeIndexLazyRoute
+  authTracuudonhangIndexLazyRoute: typeof authTracuudonhangIndexLazyRoute
+  authTaikhoanDonHangCuaToiIndexRoute: typeof authTaikhoanDonHangCuaToiIndexRoute
+  authTaikhoanThongTinCaNhanIndexRoute: typeof authTaikhoanThongTinCaNhanIndexRoute
+  authTaikhoanDonHangCuaToiThongTinIndexLazyRoute: typeof authTaikhoanDonHangCuaToiThongTinIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  HomeRoute: HomeRoute,
   auth500Route: auth500Route,
   authOtpRoute: authOtpRoute,
+  authResetPasswordRoute: authResetPasswordRoute,
   authSignInRoute: authSignInRoute,
-  TrangchuTrangchuRoute: TrangchuTrangchuRoute,
   authForgotPasswordLazyRoute: authForgotPasswordLazyRoute,
-  authSignIn2LazyRoute: authSignIn2LazyRoute,
   authSignUpLazyRoute: authSignUpLazyRoute,
   errors401LazyRoute: errors401LazyRoute,
   errors403LazyRoute: errors403LazyRoute,
   errors404LazyRoute: errors404LazyRoute,
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
+  authIndexLazyRoute: authIndexLazyRoute,
+  authProductIdRoute: authProductIdRoute,
+  authTracuudonhangThongTinRoute: authTracuudonhangThongTinRoute,
+  authDatHangPaymentResultLazyRoute: authDatHangPaymentResultLazyRoute,
+  authDatHangIndexRoute: authDatHangIndexRoute,
+  authTaikhoanIndexRoute: authTaikhoanIndexRoute,
+  authChinhSachCuaCuaHangIndexLazyRoute: authChinhSachCuaCuaHangIndexLazyRoute,
+  authDienthoaiIndexLazyRoute: authDienthoaiIndexLazyRoute,
+  authGioHangIndexLazyRoute: authGioHangIndexLazyRoute,
+  authLienHeIndexLazyRoute: authLienHeIndexLazyRoute,
+  authTracuudonhangIndexLazyRoute: authTracuudonhangIndexLazyRoute,
+  authTaikhoanDonHangCuaToiIndexRoute: authTaikhoanDonHangCuaToiIndexRoute,
+  authTaikhoanThongTinCaNhanIndexRoute: authTaikhoanThongTinCaNhanIndexRoute,
+  authTaikhoanDonHangCuaToiThongTinIndexLazyRoute:
+    authTaikhoanDonHangCuaToiThongTinIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1109,26 +1633,38 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_authenticated",
-        "/home",
         "/(auth)/500",
         "/(auth)/otp",
+        "/(auth)/reset-password",
         "/(auth)/sign-in",
-        "/trangchu/trangchu",
         "/(auth)/forgot-password",
-        "/(auth)/sign-in-2",
         "/(auth)/sign-up",
         "/(errors)/401",
         "/(errors)/403",
         "/(errors)/404",
         "/(errors)/500",
-        "/(errors)/503"
+        "/(errors)/503",
+        "/(auth)/",
+        "/(auth)/product/$id",
+        "/(auth)/tra_cuu_don_hang/thong-tin",
+        "/(auth)/dat-hang/payment-result",
+        "/(auth)/dat-hang/",
+        "/(auth)/taikhoan/",
+        "/(auth)/chinh-sach-cua-cua-hang/",
+        "/(auth)/dienthoai/",
+        "/(auth)/gio-hang/",
+        "/(auth)/lien-he/",
+        "/(auth)/tra_cuu_don_hang/",
+        "/(auth)/taikhoan/don-hang-cua-toi/",
+        "/(auth)/taikhoan/thong-tin-ca-nhan/",
+        "/(auth)/taikhoan/don-hang-cua-toi/thong-tin/"
       ]
     },
     "/_authenticated": {
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/settings",
-        "/_authenticated/",
+        "/_authenticated/hoadon/hoadonchitiet",
         "/_authenticated/product/battery",
         "/_authenticated/product/bluetooth",
         "/_authenticated/product/brand",
@@ -1136,24 +1672,30 @@ export const routeTree = rootRoute
         "/_authenticated/product/category",
         "/_authenticated/product/chip",
         "/_authenticated/product/color",
+        "/_authenticated/product/create-product",
+        "/_authenticated/product/front-camera",
         "/_authenticated/product/imei",
+        "/_authenticated/product/os",
         "/_authenticated/product/ram",
+        "/_authenticated/product/rear-camera",
+        "/_authenticated/product/resolution",
         "/_authenticated/product/rom",
         "/_authenticated/product/screen",
         "/_authenticated/product/sim",
         "/_authenticated/product/wifi",
-        "/_authenticated/apps/",
+        "/_authenticated/voucher/create",
+        "/_authenticated/banhang/",
         "/_authenticated/chats/",
+        "/_authenticated/dashboard/",
         "/_authenticated/help-center/",
-        "/_authenticated/home/",
+        "/_authenticated/hoadon/",
         "/_authenticated/product/",
-        "/_authenticated/taikhoan/",
-        "/_authenticated/tasks/",
-        "/_authenticated/users/"
+        "/_authenticated/sale/",
+        "/_authenticated/voucher/",
+        "/_authenticated/product/$id/product-detail",
+        "/_authenticated/taikhoan/khachhang/",
+        "/_authenticated/taikhoan/nhanvien/"
       ]
-    },
-    "/home": {
-      "filePath": "home.tsx"
     },
     "/(auth)/500": {
       "filePath": "(auth)/500.tsx"
@@ -1161,11 +1703,11 @@ export const routeTree = rootRoute
     "/(auth)/otp": {
       "filePath": "(auth)/otp.tsx"
     },
+    "/(auth)/reset-password": {
+      "filePath": "(auth)/reset-password.tsx"
+    },
     "/(auth)/sign-in": {
       "filePath": "(auth)/sign-in.tsx"
-    },
-    "/trangchu/trangchu": {
-      "filePath": "trangchu/trangchu.tsx"
     },
     "/_authenticated/settings": {
       "filePath": "_authenticated/settings/route.lazy.tsx",
@@ -1180,9 +1722,6 @@ export const routeTree = rootRoute
     },
     "/(auth)/forgot-password": {
       "filePath": "(auth)/forgot-password.lazy.tsx"
-    },
-    "/(auth)/sign-in-2": {
-      "filePath": "(auth)/sign-in-2.lazy.tsx"
     },
     "/(auth)/sign-up": {
       "filePath": "(auth)/sign-up.lazy.tsx"
@@ -1202,8 +1741,17 @@ export const routeTree = rootRoute
     "/(errors)/503": {
       "filePath": "(errors)/503.lazy.tsx"
     },
-    "/_authenticated/": {
-      "filePath": "_authenticated/index.tsx",
+    "/(auth)/": {
+      "filePath": "(auth)/index.lazy.tsx"
+    },
+    "/(auth)/product/$id": {
+      "filePath": "(auth)/product.$id.tsx"
+    },
+    "/(auth)/tra_cuu_don_hang/thong-tin": {
+      "filePath": "(auth)/tra_cuu_don_hang/thong-tin.tsx"
+    },
+    "/_authenticated/hoadon/hoadonchitiet": {
+      "filePath": "_authenticated/hoadon/hoadonchitiet.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/battery": {
@@ -1234,12 +1782,32 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/color.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/product/create-product": {
+      "filePath": "_authenticated/product/create-product.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/front-camera": {
+      "filePath": "_authenticated/product/front-camera.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/imei": {
       "filePath": "_authenticated/product/imei.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/product/os": {
+      "filePath": "_authenticated/product/os.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/product/ram": {
       "filePath": "_authenticated/product/ram.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/rear-camera": {
+      "filePath": "_authenticated/product/rear-camera.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/product/resolution": {
+      "filePath": "_authenticated/product/resolution.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/rom": {
@@ -1258,6 +1826,13 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/product/wifi.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/voucher/create": {
+      "filePath": "_authenticated/voucher/create.tsx",
+      "parent": "/_authenticated"
+    },
+    "/(auth)/dat-hang/payment-result": {
+      "filePath": "(auth)/dat-hang/payment-result.lazy.tsx"
+    },
     "/_authenticated/settings/account": {
       "filePath": "_authenticated/settings/account.lazy.tsx",
       "parent": "/_authenticated/settings"
@@ -1274,41 +1849,83 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/settings/notifications.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
-    "/_authenticated/apps/": {
-      "filePath": "_authenticated/apps/index.lazy.tsx",
+    "/(auth)/dat-hang/": {
+      "filePath": "(auth)/dat-hang/index.tsx"
+    },
+    "/(auth)/taikhoan/": {
+      "filePath": "(auth)/taikhoan/index.tsx"
+    },
+    "/(auth)/chinh-sach-cua-cua-hang/": {
+      "filePath": "(auth)/chinh-sach-cua-cua-hang/index.lazy.tsx"
+    },
+    "/(auth)/dienthoai/": {
+      "filePath": "(auth)/dienthoai/index.lazy.tsx"
+    },
+    "/(auth)/gio-hang/": {
+      "filePath": "(auth)/gio-hang/index.lazy.tsx"
+    },
+    "/(auth)/lien-he/": {
+      "filePath": "(auth)/lien-he/index.lazy.tsx"
+    },
+    "/(auth)/tra_cuu_don_hang/": {
+      "filePath": "(auth)/tra_cuu_don_hang/index.lazy.tsx"
+    },
+    "/_authenticated/banhang/": {
+      "filePath": "_authenticated/banhang/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/chats/": {
       "filePath": "_authenticated/chats/index.lazy.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/dashboard/": {
+      "filePath": "_authenticated/dashboard/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/help-center/": {
       "filePath": "_authenticated/help-center/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/home/": {
-      "filePath": "_authenticated/home/index.lazy.tsx",
+    "/_authenticated/hoadon/": {
+      "filePath": "_authenticated/hoadon/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/product/": {
       "filePath": "_authenticated/product/index.lazy.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/sale/": {
+      "filePath": "_authenticated/sale/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/settings/": {
       "filePath": "_authenticated/settings/index.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
-    "/_authenticated/taikhoan/": {
-      "filePath": "_authenticated/taikhoan/index.lazy.tsx",
+    "/_authenticated/voucher/": {
+      "filePath": "_authenticated/voucher/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/tasks/": {
-      "filePath": "_authenticated/tasks/index.lazy.tsx",
+    "/_authenticated/product/$id/product-detail": {
+      "filePath": "_authenticated/product/$id.product-detail.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/users/": {
-      "filePath": "_authenticated/users/index.lazy.tsx",
+    "/(auth)/taikhoan/don-hang-cua-toi/": {
+      "filePath": "(auth)/taikhoan/don-hang-cua-toi/index.tsx"
+    },
+    "/(auth)/taikhoan/thong-tin-ca-nhan/": {
+      "filePath": "(auth)/taikhoan/thong-tin-ca-nhan/index.tsx"
+    },
+    "/_authenticated/taikhoan/khachhang/": {
+      "filePath": "_authenticated/taikhoan/khachhang/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/_authenticated/taikhoan/nhanvien/": {
+      "filePath": "_authenticated/taikhoan/nhanvien/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/(auth)/taikhoan/don-hang-cua-toi/thong-tin/": {
+      "filePath": "(auth)/taikhoan/don-hang-cua-toi/thong-tin/index.lazy.tsx"
     }
   }
 }

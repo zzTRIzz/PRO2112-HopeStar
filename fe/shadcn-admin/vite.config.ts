@@ -15,4 +15,19 @@ export default defineConfig({
       '@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
     },
   },
+  server: {
+    port: 5173,
+    proxy: {
+      "/services/shipment/fee": {
+        target: "https://services.giaohangtietkiem.vn",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) =>
+          path.replace(/^\/services\/shipment\/fee/, "/services/shipment/fee"),
+      },
+    },
+  },
+  define: {
+    global: 'window', // Ánh xạ global thành window
+  },
 })
