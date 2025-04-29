@@ -18,7 +18,6 @@ import com.example.be.utils.CustomUser;
 import com.example.be.utils.EmailService;
 import com.example.be.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -200,6 +199,7 @@ public class AuthServiceImpl implements AuthService {
         accountResponse.setAvatar(account.getImageAvatar());
         accountResponse.setIdRole(account.getIdRole().getId());
         accountResponse.setGender(account.getGender());
+        accountResponse.setBirthDate(account.getBirthDate());
         return accountResponse;
     }
 
@@ -208,7 +208,10 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtProvider.getEmailFromJwtToken(jwt);
         Account account = accountRepository.findByEmail(email);
         if (account == null){
-            throw new Exception("account not found");
+            throw new Exception("Tài khoản không tồn tại");
+        }
+        if(account.getStatus().equals(StatusCommon.IN_ACTIVE)){
+            throw new Exception("Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!");
         }
         return account;
     }

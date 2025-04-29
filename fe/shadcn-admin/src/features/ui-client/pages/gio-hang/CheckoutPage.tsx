@@ -294,7 +294,7 @@ export function CheckoutPage() {
           )
 
           const response = await axios.post(
-            'http://localhost:8080/api/v1/payment/create-payment',
+            'http://localhost:8080/apis/v1/payment/create-payment',
             orderData
           )
 

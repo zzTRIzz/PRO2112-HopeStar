@@ -5,6 +5,7 @@ import axios from 'axios'
 import { IconEdit } from "@tabler/icons-react" // Remove IconEye
 import { Checkbox } from "@/components/ui/checkbox"
 import { toServerDateTime, fromServerDateTime, toInputDateTime } from '@/utils/datetime'
+import Cookies from "js-cookie"
 
 interface Sale {
     id: number;
@@ -64,6 +65,15 @@ interface IProductDetails {
 }
 
 export default function SaleUI() {
+    const getAuthConfig = () => {
+        const jwt = Cookies.get('jwt');
+        return {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        };
+      };
+    const jwt = Cookies.get('jwt')
     const [sales, setSales] = useState<Sale[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
@@ -140,17 +150,26 @@ export default function SaleUI() {
 
         try {
             // 1. Load danh sách sản phẩm 
-            const productsResponse = await axios.get('http://localhost:8080/api/admin/products');
+            const productsResponse = await axios.get(
+                'http://localhost:8080/api/admin/products',
+                getAuthConfig()
+            );
             setSelectedSaleProducts(productsResponse.data);
 
             // 2. Load danh sách sản phẩm đã được chọn cho sale này
-            const saleProductsResponse = await axios.get(`http://localhost:8080/api/admin/sale/${sale.id}/products`);
+            const saleProductsResponse = await axios.get(
+                `http://localhost:8080/api/admin/sale/${sale.id}/products`,
+                getAuthConfig()
+            );
             const selectedProductIds: Set<number> = new Set(saleProductsResponse.data.map((item: any) => item.productId));
             setSelectedProducts(selectedProductIds);
 
             // 3. Load chi tiết sản phẩm cho mỗi sản phẩm đã chọn
             const detailsPromises = Array.from(selectedProductIds).map((productId: number) =>
-                axios.get(`http://localhost:8080/api/admin/product-details/by-product/${productId}`)
+                axios.get(
+                    `http://localhost:8080/api/admin/product-details/by-product/${productId}`,
+                    getAuthConfig()
+                )
             );
             
             const detailsResponses = await Promise.all(detailsPromises);
@@ -164,7 +183,10 @@ export default function SaleUI() {
             setProductDetails(productDetailsMap);
 
             // 4. Load danh sách sản phẩm chi tiết đã được chọn
-            const selectedDetailsResponse = await axios.get(`http://localhost:8080/api/admin/sale/${sale.id}/product-details`);
+            const selectedDetailsResponse = await axios.get(
+                `http://localhost:8080/api/admin/sale/${sale.id}/product-details`,
+                getAuthConfig()
+            );
             const selectedDetailIds: Set<number> = new Set(selectedDetailsResponse.data.map((detail: any) => detail.id));
             setSelectedDetails(selectedDetailIds);
 
@@ -190,7 +212,10 @@ export default function SaleUI() {
 
             if (isEditing && editId) {
                 // 1. Get current sale details
-                const currentDetailsResponse = await axios.get(`http://localhost:8080/api/admin/sale/${editId}/product-details`);
+                const currentDetailsResponse = await axios.get(
+                    `http://localhost:8080/api/admin/sale/${editId}/product-details`,
+                    getAuthConfig()
+                );
                 const currentDetailIds = currentDetailsResponse.data.map((detail: any) => detail.id);
 
                 // 2. Find details to delete (those not in selectedDetails)
@@ -198,9 +223,13 @@ export default function SaleUI() {
 
                 // 3. Delete unchecked details
                 if (detailsToDelete.length > 0) {
-                    await axios.delete('http://localhost:8080/api/admin/sale/details', {
-                        data: { ids: detailsToDelete }
-                    });
+                    await axios.delete(
+                        'http://localhost:8080/api/admin/sale/details',
+                        {
+                            ...getAuthConfig(),
+                            data: { ids: detailsToDelete }
+                        }
+                    );
                 }
 
                 // 4. Update sale basic info
@@ -228,10 +257,14 @@ export default function SaleUI() {
                 
                 if (selectedDetailIds.length > 0) {
                     // Call API để gán sản phẩm chi tiết vào sale
-                    await axios.post(`http://localhost:8080/api/admin/sale/assign-products`, {
-                        saleId: saleId,
-                        productDetailIds: selectedDetailIds
-                    });
+                    await axios.post(
+                        `http://localhost:8080/api/admin/sale/assign-products`,
+                        {
+                            saleId: saleId,
+                            productDetailIds: selectedDetailIds
+                        },
+                        getAuthConfig()
+                    );
 
                 }
             }
@@ -275,8 +308,12 @@ export default function SaleUI() {
         
         // Load products when opening create modal
         try {
+            const jwt = Cookies.get('jwt');
             setLoadingProducts(true);
-            const response = await axios.get('http://localhost:8080/api/admin/products');
+            const response = await axios.get(
+                'http://localhost:8080/api/admin/products',
+                getAuthConfig()
+            );
             setSelectedSaleProducts(response.data);
         } catch (error) {
             console.error('Error:', error);
@@ -359,7 +396,11 @@ export default function SaleUI() {
 
             // Tự động load chi tiết sản phẩm
             try {
-                const response = await axios.get(`http://localhost:8080/api/admin/product-details/by-product/${productId}`);
+                const jwt = Cookies.get('jwt');
+                const response = await axios.get(
+                    `http://localhost:8080/api/admin/product-details/by-product/${productId}`,
+                    getAuthConfig()
+                );
                 const productDetailsList = response.data;
                 
                 // Lưu chi tiết sản phẩm vào state
@@ -452,10 +493,14 @@ export default function SaleUI() {
         try {
             setLoading(true);
             // Thêm tất cả sản phẩm chi tiết đã chọn vào chương trình khi nhấn xác nhận
-            await axios.post(`http://localhost:8080/api/admin/sale/assign-products`, {
-                saleId: currentSaleId,
-                productDetailIds: currentSelectedDetails
-            });
+            await axios.post(
+                `http://localhost:8080/api/admin/sale/assign-products`,
+                {
+                    saleId: currentSaleId,
+                    productDetailIds: currentSelectedDetails
+                },
+                getAuthConfig()
+            );
 
             toast({
                 title: "Thông báo",
@@ -486,8 +531,12 @@ export default function SaleUI() {
 
             // Load chi tiết cho từng sản phẩm
             try {
+                const jwt = Cookies.get('jwt');
                 const detailsPromises = Array.from(newSelectedProducts).map(productId =>
-                    axios.get(`http://localhost:8080/api/admin/product-details/by-product/${productId}`)
+                    axios.get(
+                        `http://localhost:8080/api/admin/product-details/by-product/${productId}`,
+                        getAuthConfig()
+                    )
                 );
                 
                 const detailsResponses = await Promise.all(detailsPromises);
@@ -624,10 +673,17 @@ export default function SaleUI() {
         try {
             setLoading(true);
             // Assign selected product details to the sale
-            await axios.post(`http://localhost:8080/api/admin/sale/assign-products`, {
-                saleId: currentSaleId,
-                productDetailIds: selectedDetailIds
-            });
+            await axios.post(
+                `http://localhost:8080/api/admin/sale/assign-products`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${jwt}`,
+                    },
+                    saleId: currentSaleId,
+                    productDetailIds: selectedDetailIds
+                },
+                getAuthConfig()
+            );
 
             toast({
                 title: "Thông báo",

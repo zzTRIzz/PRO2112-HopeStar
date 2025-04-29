@@ -1,11 +1,17 @@
 import axios from 'axios';
 import type { Battery } from './schema';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin';
 
 export const getBattery = async () => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.get(`${API_BASE_URL}/battery`);
+    const response = await axios.get(`${API_BASE_URL}/battery`,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching batteries:', error);
@@ -14,10 +20,13 @@ export const getBattery = async () => {
 };
 
 export const addBattery = async (battery: Battery) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.post(`${API_BASE_URL}/battery`, {
-      ...battery,
-      capacity: Number(battery.capacity)
+    const response = await axios.post(`${API_BASE_URL}/battery`, 
+      battery,{
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
     });
     return response.data;
   } catch (error: any) {
@@ -27,10 +36,12 @@ export const addBattery = async (battery: Battery) => {
 };
 
 export const updateBattery = async (battery: Battery) => {
+  const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.put(`${API_BASE_URL}/battery/${battery.id}`, {
-      ...battery,
-      capacity: Number(battery.capacity)
+    const response = await axios.put(`${API_BASE_URL}/battery/${battery.id}`,battery, {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
     });
     return response.data;
   } catch (error: any) {

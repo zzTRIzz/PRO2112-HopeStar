@@ -2,6 +2,8 @@ package com.example.be.core.client.auth.dto.response;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class AccountResponse {
     private Integer id;
@@ -12,4 +14,5 @@ public class AccountResponse {
     private String avatar;
     private Integer idRole;
     private Boolean gender;
+    private LocalDate birthDate;
 }

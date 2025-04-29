@@ -34,106 +34,60 @@ public class CartController {
     private final VoucherService voucherService;
 
     @GetMapping("/cart")
-    public ResponseEntity<ResponseData<?>> getCart(@RequestHeader(value = "Authorization", required = false) String jwt,
-                                                   @CookieValue(value = "guest_cart_id", required = false) String guestCartId) throws Exception {
-        if (jwt !=null){
+    public ResponseEntity<ResponseData<?>> getCart(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+
             Account account = authService.findAccountByJwt(jwt);
             CartResponse cartResponse = cartService.getCart(account);
             return ResponseEntity.ok(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
-        }
-
-        // 2. Xử lý khách không tài khoản
-        String cartId = guestCartId != null ? guestCartId : UUID.randomUUID().toString();
-        CartResponse cartResponse = cartService.getOrCreateGuestCart(cartId);
-
-        // Trả về cookie nếu là lần đầu
-        if (guestCartId == null) {
-            ResponseCookie cookie = ResponseCookie.from("guest_cart_id", cartId)
-                    .httpOnly(true)
-                    .secure(false)
-                    .maxAge(29 * 24 * 60 * 60) // 29 ngày
-                    .path("/")
-                    .build();
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
-        }
-
-        return ResponseEntity.ok(new ResponseData<>(HttpStatus.OK, "ok", cartResponse));
-
 
     }
     @PostMapping("/add-to-cart")
-    public ResponseData<?> addToCart(@RequestHeader(value = "Authorization", required = false) String jwt,
-                                     @RequestBody AddToCartRequest addToCartRequest,
-                                     @CookieValue(value = "guest_cart_id", required = false)String guestCartId) throws Exception {
-        Account account = null;
-        if (jwt !=null) {
-            account = authService.findAccountByJwt(jwt);
-        }
-        Object o = cartService.addToCart(addToCartRequest,account,guestCartId);
+    public ResponseData<?> addToCart(@RequestHeader(value = "Authorization") String jwt,
+                                     @RequestBody AddToCartRequest addToCartRequest) throws Exception {
+
+        Account account = authService.findAccountByJwt(jwt);
+        Object o = cartService.addToCart(addToCartRequest,account,null);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }
 
     @PutMapping("/cart-detail/update/{itemId}")
-    public ResponseData<?> updateCartDetail(@RequestHeader(value = "Authorization", required = false) String jwt,
+    public ResponseData<?> updateCartDetail(@RequestHeader(value = "Authorization") String jwt,
                                             @PathVariable("itemId") Integer id,
                                             @RequestBody CartDetailRequest cartDetailRequest) throws Exception {
 
-        if (jwt !=null) {
-            authService.findAccountByJwt(jwt);
-        }
+        authService.findAccountByJwt(jwt);
         Object o = cartDetailService.updateQuantityCartDetail(id,cartDetailRequest);
         return new ResponseData<>(HttpStatus.ACCEPTED,"ok",o);
 
     }
 
     @DeleteMapping("/cart-detail/delete/{itemId}")
-    public ResponseData<?> deleteCartDetail(@RequestHeader(value = "Authorization", required = false) String jwt,
+    public ResponseData<?> deleteCartDetail(@RequestHeader(value = "Authorization") String jwt,
                                             @PathVariable("itemId") Integer id) throws Exception {
 
-        if (jwt !=null) {
-            authService.findAccountByJwt(jwt);
-        }
+        authService.findAccountByJwt(jwt);
         Object o = cartDetailService.deleteCartDetail(id);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }
 
-    @PostMapping("/cart-detail/check-product")
-    public ResponseData<?> checkCartDetail(@RequestHeader(value = "Authorization", required = false) String jwt,
-                                           @RequestBody List<Integer> idCartDetailList ) throws Exception {
-
-        if (jwt !=null) {
-            authService.findAccountByJwt(jwt);
-        }
-        Object o = cartDetailService.checkCartDetail(idCartDetailList);
-        return new ResponseData<>(HttpStatus.OK,"ok",o);
-
-    }
-
     @PostMapping("/order")
-    public ResponseData<?> order(@RequestHeader(value = "Authorization", required = false) String jwt,
+    public ResponseData<?> order(@RequestHeader(value = "Authorization") String jwt,
                                  @RequestBody OrderRequest orderRequest) throws Exception {
 
-        Account account = null;
-        if (jwt !=null) {
-            account = authService.findAccountByJwt(jwt);
-        }
+
+        Account account = authService.findAccountByJwt(jwt);
         Object o = orderService.order(orderRequest,account);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }
 
     @GetMapping("/voucher")
-    public ResponseData<List<?>> getVoucher(@RequestHeader(value = "Authorization", required = false) String jwt) throws Exception {
+    public ResponseData<List<?>> getVoucher(@RequestHeader(value = "Authorization") String jwt) throws Exception {
 
-        Account account = null;
-        if (jwt !=null) {
-            account = authService.findAccountByJwt(jwt);
-        }
+
+        Account account = authService.findAccountByJwt(jwt);
         List<VoucherApplyResponse> list = voucherService.getVoucherApply(account);
         return new ResponseData<>(HttpStatus.OK,"ok",list);
 
