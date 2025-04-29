@@ -70,6 +70,7 @@ export interface LowStockProduct {
   mauSac: string;
   soLuong: number;
   trangThai: string;
+  imageUrl: string; // Add imageUrl field
 }
 
 export interface TodayRevenue {

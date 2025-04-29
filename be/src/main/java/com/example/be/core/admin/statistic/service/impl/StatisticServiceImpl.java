@@ -203,11 +203,12 @@ public class StatisticServiceImpl implements StatisticService {
 
     private LowStockProductResponse mapToLowStockResponse(Object[] row) {
         return new LowStockProductResponse(
-                (String) row[0],   // product_detail_code
-                (String) row[1],   // product_name
-                (String) row[2],   // color_name
-                ((Number) row[3]).intValue(), // inventory_quantity
-                (String) row[4]    // status
+                (String) row[0],   // product_detail_code (maSP)
+                (String) row[1],   // product_name (tenSP)
+                (String) row[2],   // color_name (mauSac)
+                ((Number) row[3]).intValue(), // inventory_quantity (soLuong)
+                (String) row[4],   // status (trangThai)
+                (String) row[5]    // image_url (imageUrl) - Thêm dòng này
         );
     }
 

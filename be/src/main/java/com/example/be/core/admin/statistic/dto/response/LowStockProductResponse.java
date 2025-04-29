@@ -13,4 +13,5 @@ public class LowStockProductResponse {
     private String mauSac;
     private Integer soLuong;
     private String trangThai;
+    private String imageUrl; // Thêm trường này
 }
