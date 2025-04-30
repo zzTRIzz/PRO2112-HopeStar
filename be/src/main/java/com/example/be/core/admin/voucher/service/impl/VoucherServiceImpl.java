@@ -3,15 +3,18 @@ package com.example.be.core.admin.voucher.service.impl;
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.RoleResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.CustomersResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
+import com.example.be.entity.Role;
 import com.example.be.entity.Voucher;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.entity.VoucherAccount;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.AccountRepository;
+import com.example.be.repository.RoleRepository;
 import com.example.be.repository.VoucherAccountRepository;
 import com.example.be.repository.VoucherRepository;
 import com.example.be.core.admin.voucher.service.VoucherService;
@@ -44,6 +47,8 @@ public class VoucherServiceImpl implements VoucherService {
 
 
     private final EmailService emailService;
+
+    private final RoleRepository roleRepository;
 
     @Override
     public List<VoucherResponse> getAll() {
@@ -563,6 +568,38 @@ public class VoucherServiceImpl implements VoucherService {
         List<VoucherApplyResponse> listOfPublic = handlerVoucherApplyResponses(voucherPublic);
         listVoucher.addAll(listOfPublic);
         return listVoucher;
+    }
+
+    @Override
+    public List<CustomersResponse> getCustomers(Integer voucherId) throws Exception {
+        Voucher voucher = voucherRepository.findById(voucherId).orElseThrow(()->
+            new Exception("Voucher không tồn tại ")
+        );
+
+        Role role = roleRepository.findById(3).get();
+        Role role2 = roleRepository.findById(4).get();
+        List<Account> list = accountRepository.findAccountsByIdRole(role);
+        list.addAll(accountRepository.findAccountsByIdRole(role2));
+        List<CustomersResponse> customersResponses = new ArrayList<>();
+        for (Account account:list) {
+            VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucherAndIdAccount(voucherId,account.getId()).orElse(null);
+            CustomersResponse customersResponse = new CustomersResponse();
+            customersResponse.setId(account.getId());
+            customersResponse.setName(account.getFullName());
+            customersResponse.setEmail(account.getEmail());
+            customersResponse.setPhone(account.getPhone());
+            if (voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.USED)){
+            customersResponse.setStatus(1);
+            }else if(voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.NOT_USED)){
+                customersResponse.setStatus(2);
+            }else if(voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.EXPIRED)){
+                customersResponse.setStatus(3);
+            }else {
+                customersResponse.setStatus(4);
+            }
+            customersResponses.add(customersResponse);
+        }
+        return customersResponses;
     }
 
     private List<VoucherApplyResponse> handlerVoucherApplyResponses(List<Voucher> voucherList){
