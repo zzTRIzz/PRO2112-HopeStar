@@ -286,4 +286,42 @@ public class StatisticServiceImpl implements StatisticService {
 
         return new StatisticByDateRangeResponse(totalRevenue, totalOrders, dailyStatistics);
     }
+
+    @Override
+    public List<ListCustomerCancelOrderResponse> getCustomersWithCanceledOrders() {
+        List<Object[]> results = statisticRepository.findCustomersWithCanceledOrders();
+        return results.stream()
+                .map(this::mapToCancelOrderResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ListCustomerCancelOrderResponse mapToCancelOrderResponse(Object[] row) {
+        return new ListCustomerCancelOrderResponse(
+                ((Number) row[0]).longValue(),    // customerId
+                (String) row[1],                  // customerName
+                (String) row[2],                  // email
+                (String) row[3],                  // phone
+                (String) row[4],                  // address
+                (String) row[5],                  // billCode
+                (String) row[6]                   // billStatus
+        );
+    }
+
+    @Override
+    public List<RevenueTop10CustomerResponse> getTop10RevenueCustomers() {
+        List<Object[]> results = statisticRepository.findTop10RevenueCustomers();
+        return results.stream()
+                .map(this::mapToRevenueResponse)
+                .collect(Collectors.toList());
+    }
+
+    private RevenueTop10CustomerResponse mapToRevenueResponse(Object[] row) {
+        return new RevenueTop10CustomerResponse(
+                ((Number) row[0]).longValue(),    // customerId
+                (String) row[1],                   // customerName
+                (String) row[2],                   // email
+                (String) row[3],                   // phone
+                new BigDecimal(row[4].toString())  // totalDueSum
+        );
+    }
 }

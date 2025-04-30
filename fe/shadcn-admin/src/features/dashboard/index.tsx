@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CanceledOrdersTable } from './components/canceled-orders-table';
+import { TopRevenueCustomersTable } from './components/top-revenue-customers-table';
 
 export type ViewMode = 'day' | '3days' | '7days' | 'month' | 'year';
 
@@ -82,7 +84,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="flex flex-col gap-4 p-8">
       <StatsCards />
       {/* Metrics Section */}
       <Row gutter={16}>
@@ -204,6 +206,11 @@ export default function Dashboard() {
       </Row>
 
       <LowStockTable />
+
+      <div className="flex flex-col gap-4">
+        <TopRevenueCustomersTable />
+        <CanceledOrdersTable />
+      </div>
     </div>
   );
 }
