@@ -15,7 +15,7 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false)
   const messagesEndRef = useRef(null)
   const [senderId, setSenderId] = useState(null)
-  const receiverId = 9 // ID admin
+  const receiverId = 2 // ID admin
   const jwt = Cookies.get('jwt')
 
   const fetchChatHistory = async (userId:number) => {
@@ -232,6 +232,7 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
 
   return (
     <div className='fixed bottom-16 right-4 z-50 pb-2'>
+      {!isOpen && (
       <button
         onClick={toggleChat}
         className='rounded-full bg-blue-600 p-4 text-white shadow-lg hover:bg-blue-700 focus:outline-none'
@@ -250,6 +251,7 @@ const CustomerChat = ({ isOpen, toggleChat }) => {
           />
         </svg>
       </button>
+      )}
 
       {isOpen && (
         <div

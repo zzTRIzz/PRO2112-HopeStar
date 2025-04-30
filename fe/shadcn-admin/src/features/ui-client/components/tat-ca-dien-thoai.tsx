@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from '@tanstack/react-router'
-import { IconLoader2 } from '@tabler/icons-react'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { Heart, Star } from 'lucide-react'
 import { getHome, searchPhones } from '../data/api-service'
 import { productViewResponse } from '../data/schema'
@@ -9,8 +8,11 @@ import BoLocDienThoai, { PhoneFilterRequest } from './bo-loc-dien-thoai'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
+import { Route } from '@/routes/(auth)/dienthoai/index.lazy'
 
 export default function TatCaDienThoai() {
+  const search = Route.useSearch()
+  const navigate = useNavigate()
   const [products, setProducts] = useState<productViewResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -19,28 +21,71 @@ export default function TatCaDienThoai() {
   // Add state to track if filters are active
   const [isFiltered, setIsFiltered] = useState(false)
 
+  // Xử lý initial filters từ URL khi component mount
+  useEffect(() => {
+    if (Object.keys(search).length > 0) {
+      const initialFilters: PhoneFilterRequest = {
+        key: search.key as string,
+        brand: search.brand ? Number(search.brand) : undefined,
+        chip: search.chip ? Number(search.chip) : undefined,
+        category: search.category ? Number(search.category) : undefined,
+        os: search.os ? Number(search.os) : undefined,
+        ram: search.ram ? Number(search.ram) : undefined,
+        rom: search.rom ? Number(search.rom) : undefined,
+        nfc: search.nfc ? Boolean(search.nfc) : undefined,
+        typeScreen: search.typeScreen as string,
+        priceStart: search.priceStart ? Number(search.priceStart) : undefined,
+        priceEnd: search.priceEnd ? Number(search.priceEnd) : undefined,
+        priceMax: search.priceMax ? Boolean(search.priceMax) : undefined,
+        priceMin: search.priceMin ? Boolean(search.priceMin) : undefined,
+        productSale: search.productSale
+          ? Boolean(search.productSale)
+          : undefined,
+      }
+      handleFilterChange(initialFilters)
+    } else {
+      // Load default data if no filters
+      const loadInitialData = async () => {
+        try {
+          const data = await getHome()
+          setProducts(data.newestProducts)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadInitialData()
+    }
+  }, [])
+
   const handleFilterChange = async (filters: PhoneFilterRequest) => {
     try {
+      setLoading(true)
+
+      // Cập nhật URL với các filter
+      const searchParams = new URLSearchParams()
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.set(key, value.toString())
+        }
+      })
+
+      // Cập nhật URL mà không reload trang
+      navigate({
+        search: searchParams.toString(),
+        replace: true,
+      })
+
       // Check if any filter is active
-      const hasActiveFilters =
-        filters.priceStart !== 0 ||
-        filters.priceEnd !== 50000000 ||
-        filters.brand ||
-        filters.chip ||
-        filters.category ||
-        filters.os ||
-        filters.priceMax ||
-        filters.priceMin ||
-        filters.productSale
+      const hasActiveFilters = Object.values(filters).some(
+        (value) => value !== undefined && value !== null
+      )
 
       setIsFiltered(hasActiveFilters)
 
       if (!hasActiveFilters) {
-        // If no filters active, fetch home data
         const data = await getHome()
         setProducts(data.newestProducts)
       } else {
-        // Otherwise fetch filtered data
         const data = await searchPhones(filters)
         setProducts(data)
       }
@@ -50,27 +95,6 @@ export default function TatCaDienThoai() {
       setLoading(false)
     }
   }
-
-  // useEffect(() => {
-  //   const fetchHome = async () => {
-  //     try {
-  //       const data = await getHome()
-  //       setProducts(data.newestProducts)
-  //     } catch (error) {
-  //       setError(error as Error)
-  //     } finally {
-  //       setLoading(false)
-  //     }
-  //   }
-  //   fetchHome()
-  // }, [])
-
-  // if (loading)
-  //   return (
-  //     <div className='flex h-full items-center justify-center'>
-  //       <IconLoader2 className='h-8 w-8 animate-spin' />
-  //     </div>
-  //   )
 
   if (error)
     return (

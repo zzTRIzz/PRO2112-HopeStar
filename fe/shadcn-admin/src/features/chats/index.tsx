@@ -43,7 +43,7 @@ export default function Chats() {
   const [stompClient, setStompClient] = useState<Client | null>(null)
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const adminId = 9
+  const adminId = 2
   const queryClient = useQueryClient()
 
   // Fetch chat users list
@@ -55,7 +55,7 @@ export default function Chats() {
   // Cập nhật toast errors
   useEffect(() => {
     if (selectedChat) {
-      getChatHistory(9, selectedChat)
+      getChatHistory(adminId, selectedChat)
         .then((data) => {
           setMessages(data)
         })
