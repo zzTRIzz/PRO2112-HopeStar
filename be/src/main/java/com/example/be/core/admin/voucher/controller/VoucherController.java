@@ -7,6 +7,7 @@ import com.example.be.core.admin.voucher.dto.model.VoucherAccountDTO;
 import com.example.be.core.admin.voucher.dto.request.EmailRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherAssignRequest;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.CustomersResponse;
 import com.example.be.core.admin.voucher.dto.response.ErrorResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
@@ -356,5 +357,11 @@ public class VoucherController {
     public ResponseEntity<List<?>> getAccountsAddVoucherByStatus(@PathVariable Integer idVoucher) {
         List<AccountResponse> statuses = voucherAccountService.getAccountsAddVoucherByStatus(idVoucher);
         return ResponseEntity.ok(statuses);
+    }
+
+    @GetMapping("/customers/{idVoucher}")
+    public ResponseData<List<?>> getCustomers(@PathVariable("idVoucher") Integer idVoucher) throws Exception {
+        List<CustomersResponse> customersResponses = voucherService.getCustomers(idVoucher);
+        return new ResponseData<>(HttpStatus.OK,"ok",customersResponses);
     }
 }
