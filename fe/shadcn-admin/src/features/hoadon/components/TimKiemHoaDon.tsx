@@ -27,7 +27,7 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
   React.useEffect(() => {
     applyFilters();
   }, [keyword, dateBatDau, dateKetThuc, billType, status]);
-
+  const trimmedKeyword = keyword.trim(); 
   const applyFilters = () => {
     if (!validateDates()) return;
     const dateTimeKetThuc = dateKetThuc
@@ -36,9 +36,9 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
 
     const filtered = originalList.filter((bill) => {
       const matchesKeyword =
-        bill?.maBill?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill?.name?.toLowerCase().includes(keyword.toLowerCase()) ||
-        bill?.phone?.toLowerCase().includes(keyword.toLowerCase());
+        bill?.maBill?.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+        bill?.name?.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+        bill?.phone?.toLowerCase().includes(trimmedKeyword.toLowerCase());
 
       const billDate = bill?.paymentDate ? new Date(bill?.paymentDate) : null;
       const matchesDate =

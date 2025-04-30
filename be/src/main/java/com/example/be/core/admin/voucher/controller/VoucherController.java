@@ -12,6 +12,7 @@ import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.core.admin.voucher.service.VoucherAccountService;
 import com.example.be.core.admin.voucher.service.VoucherService;
+import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
@@ -41,7 +42,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VoucherController {
     private final VoucherService voucherService;
-private final VoucherAccountService voucherAccountService;
+    private final VoucherAccountService voucherAccountService;
     private final EmailService emailService;
     private final VoucherRepository voucherRepository;
     private final VoucherMapper voucherMapper;
@@ -99,6 +100,7 @@ private final VoucherAccountService voucherAccountService;
         }
 
     }
+
     @Scheduled(fixedRate = 60000) // Chạy mỗi phút
     public void updateVoucherStatuses() {
         try {
@@ -107,6 +109,7 @@ private final VoucherAccountService voucherAccountService;
             log.error("Error updating voucher statuses: ", e);
         }
     }
+
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateVoucherStatus(@PathVariable Integer id) {
         try {
@@ -132,6 +135,7 @@ private final VoucherAccountService voucherAccountService;
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping("/check-code")
     public ResponseEntity<Boolean> checkCode(@RequestParam String code) {
         try {
@@ -210,6 +214,7 @@ private final VoucherAccountService voucherAccountService;
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Có lỗi xảy ra khi tìm kiếm: " + e.getMessage());
         }
     }
+
     @PostMapping("/assign")
     public ResponseData<?> assignVoucherToCustomers(@RequestBody VoucherAssignRequest request) {
         try {
@@ -251,6 +256,7 @@ private final VoucherAccountService voucherAccountService;
             );
         }
     }
+
     @PostMapping("/send")
     public ResponseEntity<?> sendEmail(@RequestBody EmailRequest request) {
         try {
@@ -263,6 +269,7 @@ private final VoucherAccountService voucherAccountService;
                     }});
         }
     }
+
     @GetMapping("/detail/{id}")
     public ResponseEntity<VoucherResponse> getVoucherDetail(@PathVariable Integer id) {
         try {
@@ -276,18 +283,19 @@ private final VoucherAccountService voucherAccountService;
             return ResponseEntity.badRequest().build();
         }
     }
+
     @GetMapping("/test-email")
     public ResponseEntity<?> testEmail() {
         try {
             log.info("Bắt đầu test gửi email...");
 
             String testContent = """
-            <div style="font-family: Arial, sans-serif;">
-                <h2>Test Email từ HopeStar</h2>
-                <p>Thời gian gửi: %s</p>
-                <p>Đây là email test.</p>
-            </div>
-            """.formatted(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    <div style="font-family: Arial, sans-serif;">
+                        <h2>Test Email từ HopeStar</h2>
+                        <p>Thời gian gửi: %s</p>
+                        <p>Đây là email test.</p>
+                    </div>
+                    """.formatted(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
 
             emailService.sendEmail(
                     "tringuyenquoc15102004@gmail.com",
@@ -301,6 +309,7 @@ private final VoucherAccountService voucherAccountService;
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping("/searchWithFilters")
     public ResponseEntity<List<VoucherResponse>> searchWithFilters(
             @RequestParam(required = false) String keyword,
@@ -322,6 +331,7 @@ private final VoucherAccountService voucherAccountService;
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
+
     @PutMapping("/voucher-account/{id}/status")
     public ResponseEntity<?> updateVoucherAccountStatus(
             @PathVariable Integer id,
@@ -339,6 +349,12 @@ private final VoucherAccountService voucherAccountService;
     @GetMapping("/{id}/usage-status")
     public ResponseEntity<List<VoucherAccountDTO>> getVoucherUsageStatus(@PathVariable Integer id) {
         List<VoucherAccountDTO> statuses = voucherAccountService.getVoucherUsageStatuses(id);
+        return ResponseEntity.ok(statuses);
+    }
+
+    @GetMapping("/get-account-da-add-voucher/{idVoucher}")
+    public ResponseEntity<List<?>> getAccountsAddVoucherByStatus(@PathVariable Integer idVoucher) {
+        List<AccountResponse> statuses = voucherAccountService.getAccountsAddVoucherByStatus(idVoucher);
         return ResponseEntity.ok(statuses);
     }
 }

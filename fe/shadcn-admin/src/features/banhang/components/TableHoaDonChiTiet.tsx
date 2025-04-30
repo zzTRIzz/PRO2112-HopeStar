@@ -87,7 +87,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
 
         const filteredImeiList = listImei.filter((imei) =>
-            imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
+            imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase().trim())
         );
 
         return (
