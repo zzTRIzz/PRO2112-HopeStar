@@ -20,6 +20,8 @@ import { RelatedProducts } from '../components/related-products'
 import { addProductToCart } from '../data/api-cart-service'
 import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
+import ProductReviews, { RatingData } from '../components/product-reviews'
+import Cookies from 'js-cookie'
 import ProductReviews from '../components/product-reviews'
 import Footer from '@/components/layout/footer'
 
@@ -220,6 +222,81 @@ export default function ProductDetail() {
     }
   }
 
+
+
+  const [reviewData, setReviewData] = useState<RatingData>({
+    reviews: [],
+    ratingSummaryResponse: null,
+    hasPurchased: false,
+    evaluate: 0,
+    numberSold: 0,
+    product: ''
+  });
+
+  const getAllReviews = async () => {
+    try {
+      const jwt = Cookies.get('jwt');
+      console.log('jwt', jwt)
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (jwt) {
+        headers['Authorization'] = `Bearer ${jwt}`;
+      }
+
+      const response = await fetch(`http://localhost:8080/api/product-reviews/${currentProductDetail?.productDetailId}`, {
+        method: 'GET',
+        headers: headers
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lỗi server: ${response.status}`);
+      }
+
+
+      const data = await response.json();
+      if (data && data.data) {
+        setReviewData(data.data);
+        console.log('Dữ liệu đánh giá:', data.data);
+      } else {
+        console.warn('Không có dữ liệu đánh giá.');
+        // setReviewData({
+        //   reviews: [],
+        //   ratingSummaryResponse: null,
+        //   hasPurchased: false,
+        //   evaluate: 0,
+        //   numberSold: 0
+        // });
+      }
+    } catch (error) {
+      console.error('Lỗi khi tải đánh giá:', error);
+    }
+  };
+
+  const ratingStats = reviewData.ratingSummaryResponse || {
+    oneStar: 0,
+    twoStar: 0,
+    threeStar: 0,
+    fourStar: 0,
+    fiveStar: 0,
+    total: 0,
+  };
+
+  const averageRating =
+    (5 * ratingStats.fiveStar +
+      4 * ratingStats.fourStar +
+      3 * ratingStats.threeStar +
+      2 * ratingStats.twoStar +
+      1 * ratingStats.oneStar) /
+    (ratingStats.total || 1);
+
+  useEffect(() => {
+    if (currentProductDetail?.productDetailId) {
+      getAllReviews();
+    }
+  }, [currentProductDetail?.productDetailId]);
+
+
   if (loading) {
     return (
       <div className='flex h-full items-center justify-center'>
@@ -249,6 +326,10 @@ export default function ProductDetail() {
     imageUrls,
     attribute,
   } = productDetail
+
+
+
+
 
   return (
     <>
@@ -286,20 +367,24 @@ export default function ProductDetail() {
               </div>
               <div className='mt-2 flex items-center gap-2'>
                 <div className='flex items-center gap-1'>
-                  <span className='text-warning'>4.8</span>
+                  <span className='text-warning'> {averageRating.toFixed(1)}</span>
                   <div className='flex items-center'>
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Icon
                         key={i}
-                        icon='lucide:star'
-                        className={i < 4 ? 'text-warning' : 'text-default-300'}
+                        icon="lucide:star"
+                        className={
+                          i < Math.floor(averageRating)
+                            ? 'text-warning'
+                            : 'text-default-300'
+                        }
                       />
                     ))}
                   </div>
-                  <span className='text-default-500'>(1 đánh giá)</span>
+                  <span className='text-default-500'>( {ratingStats.total} đánh giá)</span>
                 </div>
                 <span className='text-default-500'>|</span>
-                <span className='text-success'>Đã bán 1.2k+</span>
+                <span className='text-success'>Đã bán {reviewData.numberSold}</span>
               </div>
               <div className='mt-4 flex items-center gap-2'>
                 <span className='text-3xl font-bold text-red-600'>
@@ -308,32 +393,32 @@ export default function ProductDetail() {
                     currency: 'VND',
                   }).format(
                     currentProductDetail?.priceSell ||
-                      defaultProductDetail?.priceSell
+                    defaultProductDetail?.priceSell
                   )}
                 </span>
                 {currentProductDetail?.price !==
                   currentProductDetail?.priceSell && (
-                  <>
-                    <span className='text-lg text-gray-500 line-through'>
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      }).format(
-                        currentProductDetail?.price ||
+                    <>
+                      <span className='text-lg text-gray-500 line-through'>
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        }).format(
+                          currentProductDetail?.price ||
                           defaultProductDetail?.price
-                      )}
-                    </span>
-                    <Badge color='danger' className='ml-2'>
-                      {(
-                        ((currentProductDetail?.price -
-                          currentProductDetail?.priceSell) /
-                          currentProductDetail?.price) *
-                        100
-                      ).toFixed(0)}
-                      % giảm
-                    </Badge>
-                  </>
-                )}
+                        )}
+                      </span>
+                      <Badge color='danger' className='ml-2'>
+                        {(
+                          ((currentProductDetail?.price -
+                            currentProductDetail?.priceSell) /
+                            currentProductDetail?.price) *
+                          100
+                        ).toFixed(0)}
+                        % giảm
+                      </Badge>
+                    </>
+                  )}
               </div>
             </div>
 
@@ -370,11 +455,10 @@ export default function ProductDetail() {
                 {availableColorsForSelection.map((color) => (
                   <div
                     key={color.id}
-                    className={`flex cursor-pointer flex-col items-center gap-2 ${
-                      selectedColor === color.colorCode
+                    className={`flex cursor-pointer flex-col items-center gap-2 ${selectedColor === color.colorCode
                         ? 'rounded-lg p-1 ring-2 ring-blue-500'
                         : ''
-                    }`}
+                      }`}
                     onClick={() => setSelectedColor(color.colorCode)}
                   >
                     <div
@@ -446,7 +530,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Additional Info */}
-            <Card>
+            {/* <Card>
               <CardBody className='space-y-4'>
                 <div className='flex items-start gap-3'>
                   <Icon
@@ -461,19 +545,19 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
-                  {/* <Icon
+                  <Icon
                     icon='lucide:repeat'
                     className='h-6 w-6 text-blue-500'
-                  /> */}
-                  {/* <div>
+                  />
+                  <div>
                     <h4 className='font-semibold'>Đổi trả miễn phí</h4>
                     <p className='text-sm text-gray-500'>
                       30 ngày đổi trả miễn phí
                     </p>
-                  </div> */}
+                  </div>
                 </div>
               </CardBody>
-            </Card>
+            </Card> */}
           </div>
         </div>
 
@@ -655,7 +739,12 @@ export default function ProductDetail() {
               }
             >
               <ProductReviews productDetail={productDetail}
-              currentProductDetail={currentProductDetail} />
+                currentProductDetail={currentProductDetail} 
+                averageRating={averageRating}
+                getAllReviews={getAllReviews}
+                reviewData={reviewData}
+                ratingStats={ratingStats}
+                />
             </Tab>
           </Tabs>
         </div>

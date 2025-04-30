@@ -259,20 +259,24 @@ public class BanHangTaiQuay {
                                             @PathVariable("idBill") Integer idBill,
                                             @PathVariable("idProduct") Integer idProduct
     ) {
+        System.out.println("imeiSoldDto"+imeiSoldDto.getId_Imei());
+        System.out.println("imeiSoldDto"+imeiSoldDto.getIdBillDetail());
+        System.out.println("idBill"+idBill);
+        System.out.println("idProduct"+idProduct);
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
-
-        Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
-
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
+        Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
 
-        if (billDetail.getQuantity() - quantyti == 0) {
-            billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
-        } else {
+
+//        if (billDetail.getQuantity() - quantyti == 0) {
+//            billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
+//        } else {
             billDetailService.thayDoiSoLuongKhiCungSPVaHD(
                     idBill, idProduct, quantyti);
-        }
+//        }
+
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
 

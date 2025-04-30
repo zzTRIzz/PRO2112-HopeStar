@@ -55,6 +55,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 //    boolean existsByCustomerIdAndProductId(@Param("customerId") Integer customerId,
 //                                           @Param("productDetailId") Integer productDetailId,
 //                                           @Param("status") StatusBill statusBill);
+
     @Query("SELECT SUM(bd.quantity) " +
             "FROM BillDetail bd JOIN bd.idBill b " +
             "WHERE b.idAccount.id = :customerId " +
@@ -64,4 +65,10 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
                                                      @Param("productDetailId") Integer productDetailId,
                                                      @Param("status") StatusBill statusBill);
 
+    @Query("SELECT SUM(bd.quantity) " +
+            "FROM BillDetail bd JOIN bd.idBill b " +
+            "WHERE bd.idProductDetail.id = :productDetailId " +
+            "AND b.status = :status")
+    Integer getTotalQuantity(@Param("productDetailId") Integer productDetailId,
+                             @Param("status") StatusBill statusBill);
 }

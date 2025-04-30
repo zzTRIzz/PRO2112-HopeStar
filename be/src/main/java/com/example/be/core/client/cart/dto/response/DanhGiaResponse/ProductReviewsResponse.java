@@ -8,7 +8,6 @@ import java.util.List;
 @Data
 public class ProductReviewsResponse {
     private Integer id;
-//    private Products product;
     private Account account;
     private Integer generalRating;
     private String comment;
