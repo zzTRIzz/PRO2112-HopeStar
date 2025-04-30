@@ -197,8 +197,67 @@ export default function SaleUI() {
         setShowModal(true);
     };
 
+    // Thêm function để lấy giá lớn nhất từ các sản phẩm chi tiết đã chọn
+    const getMaxPriceFromSelectedDetails = () => {
+        let maxPrice = 0;
+        
+        // Lặp qua tất cả sản phẩm chi tiết đã chọn
+        Object.values(productDetails).forEach(details => {
+            details.forEach((detail: ProductDetailSale) => {
+                if (selectedDetails.has(detail.id)) {
+                    // Lấy giá gốc thay vì giá khuyến mãi
+                    maxPrice = Math.max(maxPrice, detail.price);
+                }
+            });
+        });
+
+        return maxPrice;
+    };
+
+    const handleDiscountValueChange = (value: number) => {
+        if (!formData.discountType) { // Nếu là giảm theo VND
+            const maxPrice = getMaxPriceFromSelectedDetails();
+            if (value > maxPrice) {
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo",
+                    description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+                });
+                return;
+            }
+        }
+        setFormData(prev => ({
+            ...prev,
+            discountValue: value
+        }));
+    };
+
+    // Sửa lại phần validate form khi submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validate discount value
+        if (!formData.discountType) { // Nếu là giảm theo VND
+            const maxPrice = getMaxPriceFromSelectedDetails();
+            if (formData.discountValue > maxPrice) {
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo",
+                    description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+                });
+                return;
+            }
+        } else { // Nếu là giảm theo %
+            if (formData.discountValue > 100) {
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo", 
+                    description: "Phần trăm giảm không được vượt quá 100%"
+                });
+                return;
+            }
+        }
+
         try {
             setLoading(true);
             
@@ -937,28 +996,7 @@ export default function SaleUI() {
                                                 type="number"
                                                 className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.discountValue}
-                                                onChange={(e) => {
-                                                    const value = Number(e.target.value);
-                                                    if (formData.discountType) {
-                                                        // Nếu là %, giới hạn từ 0-100
-                                                        if (value >= 0 && value <= 100) {
-                                                            setFormData({ ...formData, discountValue: value });
-                                                        }
-                                                    } else {
-                                                        // Nếu là VND, chỉ cần >= 0
-                                                        if (value >= 0) {
-                                                            // Find minimum price from visible product details
-                                                            const minPrice = Math.min(
-                                                                ...Object.values(productDetails)
-                                                                    .flat()
-                                                                    .map(detail => detail.price)
-                                                            );
-                                                            // Limit discount to minPrice
-                                                            const validDiscount = Math.min(value, minPrice || Infinity);
-                                                            setFormData({ ...formData, discountValue: validDiscount });
-                                                        }
-                                                    }
-                                                }}
+                                                onChange={(e) => handleDiscountValueChange(Number(e.target.value))}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
                                                 // required

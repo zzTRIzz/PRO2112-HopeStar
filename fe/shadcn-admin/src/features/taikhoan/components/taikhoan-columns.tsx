@@ -97,7 +97,24 @@ export const createColumns = (props: TaiKhoanColumnsProps): ColumnDef<TaiKhoan>[
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Giới tính" />
     ),
-    cell: ({ row }) => <div>{row.getValue("gender") ? "Nam" : "Nữ"}</div>,
+    cell: ({ row }) => {
+      // Lấy giá trị boolean từ dữ liệu
+      const genderValue = row.getValue("gender") 
+      // Chuyển đổi boolean sang chuỗi "Nam"/"Nữ"
+      const genderDisplay = genderValue === true ? "Nam" : "Nữ"
+      return <div>{genderDisplay}</div>
+    },
+    // Thêm filterFn để bộ lọc hoạt động đúng
+    filterFn: (row, id, filterValue) => {
+      // Nếu không có giá trị lọc, trả về true
+      if (!filterValue || filterValue.length === 0) return true
+      
+      // Chuyển đổi giá trị boolean sang "Nam"/"Nữ"
+      const cellValue = row.getValue(id) === true ? "Nam" : "Nữ"
+      
+      // Kiểm tra giá trị đã chuyển đổi có nằm trong các giá trị lọc
+      return filterValue.includes(cellValue)
+    },
   },
   {
     accessorKey: "birthDate",
