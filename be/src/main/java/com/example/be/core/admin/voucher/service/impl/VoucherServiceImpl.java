@@ -355,7 +355,7 @@ public class VoucherServiceImpl implements VoucherService {
                 Account removedAccount = accountRepository.findById(removedId)
                         .orElse(null);
                 if (removedAccount != null) {
-                    //add vào chõ này 
+                    //add vào chõ này
                     sendVoucherExpiredEmail(removedAccount, voucher); // Gửi email xin lỗi
                     removedAssigned.add(removedAccount.getFullName());
                     log.info("Đã xóa voucher của {} và gửi email xin lỗi", removedAccount.getEmail());

@@ -295,6 +295,10 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idProduct: number
 ) => {
     const jwt = Cookies.get('jwt')
+    if (!imeiSold || !idBill || !idProduct) {
+        console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
+        throw new Error('Dữ liệu không hợp lệ');
+      }
     try {
         const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold, {
             headers: {
