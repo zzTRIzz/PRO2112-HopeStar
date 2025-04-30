@@ -16,18 +16,18 @@ const statuses = [
     label: "Hoạt động",
   },
   {
-    value: "INACTIVE",
+    value: "IN_ACTIVE",
     label: "Không hoạt động",
   },
 ]
 
 const genders = [
   {
-    value: "true",
+    value: "Nam",
     label: "Nam",
   },
   {
-    value: "false",
+    value: "Nữ",
     label: "Nữ",
   },
 ]
@@ -37,15 +37,22 @@ export function DataTableToolbar({
 }: DataTableToolbarProps) {
   const isFiltered = table.getState().columnFilters.length > 0
 
+  const handleSearchChange = (value: string) => {
+    // Kiểm tra nếu chuỗi chỉ chứa khoảng trắng hoặc rỗng
+    if (value.trim() === "") {
+      table.getColumn("fullName")?.setFilterValue("")
+    } else {
+      table.getColumn("fullName")?.setFilterValue(value)
+    }
+  }
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Tìm kiếm theo tên..."
           value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("fullName")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => handleSearchChange(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
         {table.getColumn("status") && (

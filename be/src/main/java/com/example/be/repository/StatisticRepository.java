@@ -168,7 +168,8 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
                     "p.name AS product_name, " +
                     "c.name AS color_name, " +
                     "pd.inventory_quantity, " +
-                    "pd.status " +
+                    "pd.status, " +
+                    "pd.image_url " +
                     "FROM product_detail pd " +
                     "JOIN product p ON pd.product_id = p.id " +
                     "LEFT JOIN color c ON pd.color_id = c.id " +
