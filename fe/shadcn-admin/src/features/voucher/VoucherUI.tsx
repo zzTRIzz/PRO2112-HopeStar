@@ -90,6 +90,7 @@ interface AccountResponse {
     gender: boolean;
     status: string;
     voucherStatus?: VoucherAccountStatus;
+    voucherAccountId?: number;
 }
 
 // interface ResponseData<T> {
@@ -471,15 +472,26 @@ export default function VoucherUI() {
                     return;
                 }
 
+                // Validate quantity for private vouchers
+                if (formData.isPrivate && selectedAccounts.length > formData.quantity) {
+                    toast.error(`Số lượng voucher (${formData.quantity}) không đủ để phân phối cho ${selectedAccounts.length} khách hàng`);
+                    return;
+                }
+
                 // Gọi API thêm mới
                 const response = await authAxios.post(`/admin/voucher`, formData);
 
                 if (formData.isPrivate && selectedAccounts.length > 0) {
-                    await authAxios.post(`/admin/voucher/assign`, {
-                        voucherId: response.data.id,
-                        customerIds: selectedAccounts
-                    });
-                    toast.success('Tạo voucher và thêm khách hàng thành công!');
+                    try {
+                        await authAxios.post(`/admin/voucher/assign`, {
+                            voucherId: response.data.id,
+                            customerIds: selectedAccounts
+                        });
+                        toast.success(`Đã tạo voucher và thêm cho ${selectedAccounts.length} khách hàng!`);
+                    } catch (assignError) {
+                        console.error('Error assigning voucher:', assignError);
+                        toast.error('Có lỗi khi thêm voucher cho khách hàng');
+                    }
                 } else {
                     toast.success('Tạo voucher mới thành công!');
                 }
@@ -1522,6 +1534,27 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                                         <td className="px-4 py-3">{account.fullName}</td>
                                                         <td className="px-4 py-3">{account.email}</td>
                                                         <td className="px-4 py-3">{account.phone || '-'}</td>
+                                                        <td className="px-4 py-3">
+      {usageStatuses[account.id] ? (
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          usageStatuses[account.id] === VoucherAccountStatus.USED
+            ? 'bg-green-100 text-green-800'
+            : usageStatuses[account.id] === VoucherAccountStatus.NOT_USED
+            ? 'bg-blue-100 text-blue-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {usageStatuses[account.id] === VoucherAccountStatus.USED
+            ? 'Đã sử dụng'
+            : usageStatuses[account.id] === VoucherAccountStatus.NOT_USED
+            ? 'Chưa sử dụng'
+            : 'Hết hạn'}
+        </span>
+      ) : (
+        <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+          Chưa có voucher
+        </span>
+      )}
+    </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
