@@ -26,9 +26,8 @@ public class ProductReviewsController {
 
     @GetMapping("/{idProductDetail}")
     public ResponseEntity<ResponseData<?>> getAll(
-            @PathVariable("idProductDetail") Integer idProductDetail,
+                @PathVariable("idProductDetail") Integer idProductDetail,
             @RequestHeader(value = "Authorization", required = false) String jwt) throws Exception {
-
         Account account = null;
         if (jwt != null && !jwt.isEmpty()) {
             account = authService.findAccountByJwt(jwt);

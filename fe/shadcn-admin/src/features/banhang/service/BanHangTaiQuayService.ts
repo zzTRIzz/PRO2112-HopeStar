@@ -298,9 +298,12 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     if (!imeiSold || !idBill || !idProduct) {
         console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
         throw new Error('Dữ liệu không hợp lệ');
-      }
+    }
+    console.log('imeiSold:', imeiSold);
+    console.log('idBill:', idBill);
+    console.log('idProduct:', idProduct);
     try {
-        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`,  imeiSold, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
@@ -369,7 +372,7 @@ export const findVoucherByAccount = async (idAccount?: number) => {
 export const huyHoaDon = async (idBillCanHuy: number) => {
     const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`,{idBillCanHuy}, {
+        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`, { idBillCanHuy }, {
             headers: {
                 Authorization: `Bearer ${jwt}`
             },

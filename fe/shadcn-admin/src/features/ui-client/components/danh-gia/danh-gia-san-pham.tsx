@@ -3,22 +3,21 @@ import { Icon } from '@iconify/react';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Cookies from 'js-cookie';
-import { productDetailViewResponse } from '@/features/ui-client/data/schema';
 
 interface ProductReviews {
   setOpen: (open: boolean) => void;
   open: boolean;
-  productDetail: productDetailViewResponse;
+  // productDetail: productDetailViewResponse;
   hasPurchased: boolean;
   getAllReviews: () => void;
-  currentProductDetail: any
+  currentProductDetail: any;
+  reviewData: any;
 }
 
-const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, hasPurchased, getAllReviews, currentProductDetail }) => {
-  const [generalRating, setGeneralRating] = useState<number>(0);
+const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, hasPurchased, getAllReviews, currentProductDetail }) => {
+  const [generalRating, setGeneralRating] = useState<number>(5);
   const [comment, setComment] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
-  // const [idProduct, setIdProduct] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
@@ -131,7 +130,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, hasPurchased,
           <div className="w-full bg-white rounded-lg p-4 space-y-6">
             <h2 className="text-lg font-bold">Đánh giá & nhận xét</h2>
             <div className="text-base font-bold text-green-600">
-              {currentProductDetail?.productDetailId}
+             {reviewData?.product}
             </div>
             <div>
               <div className="text-sm font-semibold mb-1">Đánh giá chung</div>
@@ -215,7 +214,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, hasPurchased,
               className="w-65 h-50 object-contain"
             />
             <div className="text-red-500 font-bold text-center">
-              Gửi đánh giá không thành công! {currentProductDetail?.productDetailId} chưa được mua.
+              Gửi đánh giá không thành công!
             </div>
             <p> Quý khách vui lòng mua hàng để tham gia đánh giá sản phẩm.</p>
           </div>
