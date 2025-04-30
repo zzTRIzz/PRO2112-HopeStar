@@ -116,16 +116,16 @@ export const checkVoucherCode = async (code: string, excludeId?: number): Promis
   }
 };
 
-interface EmailRequest {
-    to: string;
-    subject: string;
-    content: string;
-}
+// interface EmailRequest {
+//     to: string;
+//     subject: string;
+//     content: string;
+// }
 
-interface RoleResponse {
-    id: number;
-    name: string;
-}
+// interface RoleResponse {
+//     id: number;
+//     name: string;
+// }
 
 interface AccountResponse {
     id: number;
@@ -146,23 +146,23 @@ interface AccountResponse {
     // ...other fields
 }
 
-interface VoucherResponse {
-    id: number;
-    code: string;
-    name: string;
-    conditionPriceMin: BigDecimal;
-    conditionPriceMax: BigDecimal;
-    discountValue: BigDecimal;
-    maxDiscountAmount: BigDecimal;
-    voucherType: boolean;
-    quantity: number;
-    startTime: string;
-    endTime: string;
-    status: VoucherStatus; // Sửa kiểu từ string sang VoucherStatus
-    moTa: string;
-    isPrivate: boolean;
-    isApply: boolean;     // Thêm trường này
-}
+// interface VoucherResponse {
+//     id: number;
+//     code: string;
+//     name: string;
+//     conditionPriceMin: BigDecimal;
+//     conditionPriceMax: BigDecimal;
+//     discountValue: BigDecimal;
+//     maxDiscountAmount: BigDecimal;
+//     voucherType: boolean;
+//     quantity: number;
+//     startTime: string;
+//     endTime: string;
+//     status: VoucherStatus; // Sửa kiểu từ string sang VoucherStatus
+//     moTa: string;
+//     isPrivate: boolean;
+//     isApply: boolean;     // Thêm trường này
+// }
 
 // Thêm interface cho response gán voucher
 interface AssignVoucherResponse {
@@ -195,54 +195,54 @@ export const assignVoucherToCustomers = async (
     }
 };
 
-const generateEmailContent = (customer: AccountResponse, voucher: VoucherResponse): string => {
-    return `
-        <div style="font-family: Arial, sans-serif;">
-            <h2>Xin chào ${customer.fullName}!</h2>
-            <p>Bạn vừa được thêm một voucher mới vào tài khoản của mình.</p>
-            <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-                <p><strong>Chi tiết voucher:</strong></p>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li><strong>Mã voucher:</strong> ${voucher.code}</li>
-                    <li><strong>Tên voucher:</strong> ${voucher.name}</li>
-                    <li><strong>Giá trị:</strong> ${formatCurrency(voucher.discountValue)}${voucher.voucherType ? '%' : 'đ'}</li>
-                    <li><strong>Điều kiện áp dụng:</strong> Đơn hàng từ ${formatCurrency(voucher.conditionPriceMin)}đ</li>
-                    <li><strong>Thời hạn sử dụng:</strong> ${formatDateTime(voucher.startTime)} - ${formatDateTime(voucher.endTime)}</li>
-                </ul>
-            </div>
-            <p>Hãy sử dụng voucher này cho đơn hàng tiếp theo của bạn!</p>
-            <p style="margin-top: 20px;">Trân trọng,<br>HopeStar</p>
-        </div>
-    `;
-};
+// const generateEmailContent = (customer: AccountResponse, voucher: VoucherResponse): string => {
+//     return `
+//         <div style="font-family: Arial, sans-serif;">
+//             <h2>Xin chào ${customer.fullName}!</h2>
+//             <p>Bạn vừa được thêm một voucher mới vào tài khoản của mình.</p>
+//             <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+//                 <p><strong>Chi tiết voucher:</strong></p>
+//                 <ul style="list-style: none; padding-left: 0;">
+//                     <li><strong>Mã voucher:</strong> ${voucher.code}</li>
+//                     <li><strong>Tên voucher:</strong> ${voucher.name}</li>
+//                     <li><strong>Giá trị:</strong> ${formatCurrency(voucher.discountValue)}${voucher.voucherType ? '%' : 'đ'}</li>
+//                     <li><strong>Điều kiện áp dụng:</strong> Đơn hàng từ ${formatCurrency(voucher.conditionPriceMin)}đ</li>
+//                     <li><strong>Thời hạn sử dụng:</strong> ${formatDateTime(voucher.startTime)} - ${formatDateTime(voucher.endTime)}</li>
+//                 </ul>
+//             </div>
+//             <p>Hãy sử dụng voucher này cho đơn hàng tiếp theo của bạn!</p>
+//             <p style="margin-top: 20px;">Trân trọng,<br>HopeStar</p>
+//         </div>
+//     `;
+// };
 
 // Helper functions
-const formatCurrency = (value: number | string | BigDecimal): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
-    return new Intl.NumberFormat('vi-VN').format(numValue);
-};
+// const formatCurrency = (value: number | string | BigDecimal): string => {
+//     const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+//     return new Intl.NumberFormat('vi-VN').format(numValue);
+// };
 
-const formatDateTime = (dateStr: string): string => {
-    if (!dateStr) return 'Không xác định';
-    try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return 'Ngày không hợp lệ';
+// const formatDateTime = (dateStr: string): string => {
+//     if (!dateStr) return 'Không xác định';
+//     try {
+//         const date = new Date(dateStr);
+//         if (isNaN(date.getTime())) return 'Ngày không hợp lệ';
         
-        return new Intl.DateTimeFormat('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }).format(date);
-    } catch (error) {
-        console.error('Lỗi format ngày:', error);
-        return 'Ngày không hợp lệ';
-    }
-};
+//         return new Intl.DateTimeFormat('vi-VN', {
+//             day: '2-digit',
+//             month: '2-digit',
+//             year: 'numeric'
+//         }).format(date);
+//     } catch (error) {
+//         console.error('Lỗi format ngày:', error);
+//         return 'Ngày không hợp lệ';
+//     }
+// };
 
 // Type definition for BigDecimal from Java
-type BigDecimal = {
-    toString(): string;
-} | number | string;  // Thêm string vào union type
+// type BigDecimal = {
+//     toString(): string;
+// } | number | string;  // Thêm string vào union type
 
 // Add a new function to get only customers (role_4)
 export const getCustomers = async (): Promise<AccountResponse[]> => {
@@ -372,11 +372,28 @@ export const updateExpiredVoucherStatuses = async (voucherId: number): Promise<v
     }
 };
 
+export const getAccountsVoucher = async (voucherId: number): Promise<void> => {
+    try {
+        await authAxios.get(`getAccountsAddVoucherByStatus/${voucherId}`);
+    } catch (error) {
+        console.error('Error updating expired voucher statuses:', error);
+    }
+};
+
+
+export const getAccountDaAddVoucher = async (voucherId: number): Promise<void> => {
+    try {
+      const response = await authAxios.get(`/voucher/get-account-da-add-voucher/${voucherId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching accounts added to voucher:', error);
+      toast.error('Không thể tải danh sách tài khoản đã thêm vào voucher');
+    }
+  };
+
+
 export enum VoucherStatus {
     UPCOMING = "UPCOMING",
     ACTIVE = "ACTIVE",
     EXPIRED = "EXPIRED"
 }
-
-// Xóa type cũ
-// type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";

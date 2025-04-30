@@ -1,17 +1,21 @@
 package com.example.be.core.admin.voucher.service.impl;
 
+import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.voucher.dto.model.VoucherAccountDTO;
 import com.example.be.core.admin.voucher.mapper.VoucherAccountMapper;
 import com.example.be.core.admin.voucher.service.VoucherAccountService;
+import com.example.be.entity.Account;
 import com.example.be.entity.Voucher;
 import com.example.be.entity.VoucherAccount;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
+import com.example.be.repository.AccountRepository;
 import com.example.be.repository.VoucherAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +25,7 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
 
     private final VoucherAccountRepository voucherAccountRepository;
     private final VoucherAccountMapper voucherAccountMapper;
+    private final AccountRepository accountRepository;
 
     @Override
     public VoucherAccountDTO getVoucherAccountById(Integer id) {
@@ -75,6 +80,7 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public void deleteVoucherAccount(Integer id) {
         voucherAccountRepository.deleteById(id);
@@ -109,4 +115,23 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
         VoucherAccount saved = voucherAccountRepository.save(voucherAccount);
         return voucherAccountMapper.toDTO(saved);
     }
+
+
+
+    @Override
+    public List<AccountResponse> getAccountsAddVoucherByStatus(Integer voucherId) {
+        List<Account> accountList = accountRepository.getAccountsAddVoucherByStatus(voucherId, VoucherAccountStatus.USED);
+        List<AccountResponse> responseList = new ArrayList<>();
+
+        for (Account ac : accountList) {
+            AccountResponse accountResponse = new AccountResponse();
+            accountResponse.setId(ac.getId());
+            accountResponse.setFullName(ac.getFullName());
+            accountResponse.setCode(ac.getCode());
+            responseList.add(accountResponse);
+        }
+
+        return responseList;
+    }
+
 }

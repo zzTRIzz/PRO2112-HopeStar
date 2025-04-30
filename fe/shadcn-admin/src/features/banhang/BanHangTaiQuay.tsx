@@ -367,7 +367,7 @@ function BanHangTaiQuay() {
     }
   }
 
-  // Ca
+  // Cập nhật danh sách IMEI đã bán
   const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
     setSelectedImei([]);
     try {
@@ -378,12 +378,13 @@ function BanHangTaiQuay() {
       }
       const ids: number[] = data.map((imei) => imei.id)
       setSelectedImei(ids)
-      // setIsCapNhatImei(true)
     } catch (error) {
       console.error('Lỗi khi lấy danh sách IMEI đã bán:', error)
     }
     findImeiByIdProductDetail(idPD, billDetaill)
   }
+
+  
   const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
 

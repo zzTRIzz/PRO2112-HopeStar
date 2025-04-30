@@ -13,8 +13,8 @@ import java.util.List;
 public interface ProductReviewsRepository extends JpaRepository<ProductReviews, Integer> {
 
     @Query("select pr from ProductReviews pr " +
-            "where pr.product.id = :idProduct")
-    List<ProductReviews> findByProduct(@Param("idProduct") Integer idProduct);
+            "where pr.productDetail.id = :idProductDetail")
+    List<ProductReviews> findByProduct(@Param("idProductDetail") Integer idProductDetail);
 
 
 }

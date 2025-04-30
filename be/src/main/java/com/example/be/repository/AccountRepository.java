@@ -2,6 +2,7 @@ package com.example.be.repository;
 
 import com.example.be.entity.Account;
 import com.example.be.entity.Role;
+import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.base.BaseRepository;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,5 +38,15 @@ public interface AccountRepository extends BaseRepository<Account,Integer> {
     boolean existsById(Integer id);
 
     boolean existsByCode(String code);
+
+//    @Query("SELECT va.idAccount FROM VoucherAccount va " +
+//            "WHERE va.idVoucher.id = :voucherId " +
+//            "AND va.status = :status")
+//    List<Account> getAccountsAddVoucherByStatus(@Param("voucherId") Integer voucherId,
+//                                                @Param("status") VoucherAccountStatus status);
+@Query("SELECT va.idAccount FROM VoucherAccount va " +
+        "WHERE va.idVoucher.id = :voucherId AND (va.status IS NULL OR va.status <> :excludedStatus)")
+List<Account> getAccountsAddVoucherByStatus(@Param("voucherId") Integer voucherId,
+                                            @Param("excludedStatus") VoucherAccountStatus excludedStatus);
 
 }

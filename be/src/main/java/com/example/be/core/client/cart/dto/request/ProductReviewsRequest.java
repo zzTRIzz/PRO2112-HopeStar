@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class ProductReviewsRequest {
-    private Integer productId;
+    private Integer productDetailId;
     private Integer generalRating;
     private String comment;
     private List<String> imageUrls;

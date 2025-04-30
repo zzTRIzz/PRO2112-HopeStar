@@ -8,12 +8,12 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-@Entity
 @Table(name = "account")
 public class Account extends AuditEntity {
     @Id

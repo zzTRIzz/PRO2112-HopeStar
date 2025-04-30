@@ -10,5 +10,7 @@ public class ProductReviewsListResponse {
     private List<ProductReviewsResponse> reviews;
     private RatingSummaryResponse ratingSummaryResponse;
     private boolean hasPurchased;
+    private Integer numberSold;
+    private Integer evaluate;
 
 }

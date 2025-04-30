@@ -23,23 +23,25 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
             "WHERE va.idAccount.id = :idAccount " +
             "AND v.quantity > 0 " +
             "AND v.startTime <= :dateTime " +
-            "AND v.endTime >= :dateTime " )
+            "AND v.endTime >= :dateTime ")
     List<Voucher> findByIdAccount(@Param("idAccount") Integer idAccount,
-                                  @Param("dateTime") LocalDateTime  dateTime);
+                                  @Param("dateTime") LocalDateTime dateTime);
 
 
+    @Query("SELECT v FROM Voucher v " +
+            "JOIN VoucherAccount va ON v = va.idVoucher " +
+            "WHERE va.idAccount.id = :idAccount " +
+            "AND v.conditionPriceMin <= (SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b WHERE b.idAccount.id = :idAccount) " +
+            "AND v.conditionPriceMax >= (SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b WHERE b.idAccount.id = :idAccount) " +
+            "ORDER BY v.discountValue DESC")
+    List<Voucher> findByCodeContainingIgnoreCase(String code);
 
-  @Query("SELECT v FROM Voucher v " +
-          "JOIN VoucherAccount va ON v = va.idVoucher " +
-          "WHERE va.idAccount.id = :idAccount " +
-          "AND v.conditionPriceMin <= (SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b WHERE b.idAccount.id = :idAccount) " +
-          "AND v.conditionPriceMax >= (SELECT COALESCE(SUM(b.totalPrice), 0) FROM Bill b WHERE b.idAccount.id = :idAccount) " +
-          "ORDER BY v.discountValue DESC")
-  List<Voucher> findByCodeContainingIgnoreCase(String code);
-  @Query("SELECT v FROM Voucher v WHERE v.startTime BETWEEN :startTime AND :endTime")
-  List<Voucher> findByStartTimeBetween(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
-  @Query("SELECT v FROM Voucher v ORDER BY v.id DESC")
-  List<Voucher> findAllOrderByIdDesc();
+    @Query("SELECT v FROM Voucher v WHERE v.startTime BETWEEN :startTime AND :endTime")
+    List<Voucher> findByStartTimeBetween(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    @Query("SELECT v FROM Voucher v ORDER BY v.id DESC")
+    List<Voucher> findAllOrderByIdDesc();
+
     @Query("SELECT v FROM Voucher v WHERE LOWER(v.code) LIKE LOWER(CONCAT('%', :code, '%')) AND v.startTime >= :startTime AND v.endTime <= :endTime")
     List<Voucher> findByCodeAndDateRange(
             @Param("code") String code,
@@ -48,18 +50,20 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     );
 
     boolean existsByCode(String code);
+
     boolean existsByCodeAndIdNot(String code, Integer id);
+
     @Query("""
-    SELECT v FROM Voucher v 
-    WHERE (:keyword IS NULL OR 
-           LOWER(v.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-           LOWER(v.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    AND (:startTime IS NULL OR v.startTime >= :startTime)
-    AND (:endTime IS NULL OR v.endTime <= :endTime)
-    AND (:isPrivate IS NULL OR v.isPrivate = :isPrivate)
-    AND (:status IS NULL OR v.status = :status)
-    ORDER BY v.id DESC
-""")
+                SELECT v FROM Voucher v 
+                WHERE (:keyword IS NULL OR 
+                       LOWER(v.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                       LOWER(v.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                AND (:startTime IS NULL OR v.startTime >= :startTime)
+                AND (:endTime IS NULL OR v.endTime <= :endTime)
+                AND (:isPrivate IS NULL OR v.isPrivate = :isPrivate)
+                AND (:status IS NULL OR v.status = :status)
+                ORDER BY v.id DESC
+            """)
     List<Voucher> findByDynamicFilters(
             @Param("keyword") String keyword,
             @Param("startTime") LocalDateTime startTime,
@@ -71,7 +75,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     // ... ap dung voucher
 
     @Query("SELECT va.idVoucher FROM VoucherAccount va WHERE va.idAccount = :account " +
-            "AND va.status = 'NOT_USED'" )
+            "AND va.status = 'NOT_USED'")
     List<Voucher> findValidNotUsedVouchers(@Param("account") Account account);
 
     List<Voucher> findByIsPrivateAndQuantityGreaterThanAndStatus(Boolean isPrivate, Integer quantity, StatusVoucher statusVoucher);

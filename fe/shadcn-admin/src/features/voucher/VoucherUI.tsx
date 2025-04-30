@@ -3,13 +3,11 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import {
     getVouchers,
-
-    checkVoucherCode,  // Make sure this is imported
-    assignVoucherToCustomers,
     VoucherSearchParams,
     searchVouchers,
-    getVoucherUsageStatuses,
-    VoucherStatus
+    VoucherStatus,
+    getAccountDaAddVoucher,
+
 } from "./data/apiVoucher";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -91,21 +89,21 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
-    voucherStatus?: VoucherAccountStatus; // Add voucherStatus field
+    voucherStatus?: VoucherAccountStatus;
 }
 
-interface ResponseData<T> {
-    status: number;
-    message: string;
-    data: T;
-}
+// interface ResponseData<T> {
+//     status: number;
+//     message: string;
+//     data: T;
+// }
 
-enum HttpStatus {
-    OK = 'OK',
-    BAD_REQUEST = 'BAD_REQUEST',
-    CREATED = 'CREATED',
-    ACCEPTED = 'ACCEPTED'
-}
+// enum HttpStatus {
+//     OK = 'OK',
+//     BAD_REQUEST = 'BAD_REQUEST',
+//     CREATED = 'CREATED',
+//     ACCEPTED = 'ACCEPTED'
+// }
 
 enum VoucherAccountStatus {
     NOT_USED = "NOT_USED",
@@ -153,14 +151,14 @@ const NoData = () => (
     </tr>
 );
 
-interface AssignVoucherResponse {
-    success: boolean;
-    message: string;
-    details?: {
-        alreadyHasVoucher: string[];
-        assigned: string[];
-    };
-}
+// interface AssignVoucherResponse {
+//     success: boolean;
+//     message: string;
+//     details?: {
+//         alreadyHasVoucher: string[];
+//         assigned: string[];
+//     };
+// }
 
 // Update VoucherStatusBadge component
 const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus | null }) => {
@@ -236,11 +234,11 @@ export default function VoucherUI() {
     const itemsPerPage = 10;
 
     // Xóa state không cần thiết
-    const [searchCode, setSearchCode] = useState('');
+    // const [searchCode, setSearchCode] = useState('');
 
-    // Thêm state
-    const [searchStartTime, setSearchStartTime] = useState('');
-    const [searchEndTime, setSearchEndTime] = useState('');
+    // // Thêm state
+    // const [searchStartTime, setSearchStartTime] = useState('');
+    // const [searchEndTime, setSearchEndTime] = useState('');
 
     // Thêm state để track việc kiểm tra mã
     const [isCheckingCode, setIsCheckingCode] = useState(false);
@@ -267,28 +265,27 @@ export default function VoucherUI() {
 
     // Thêm useEffect để load danh sách accounts khi cần
     useEffect(() => {
-        const fetchCustomers = async () => {
-            if (!showModal || !formData.isPrivate) return;
-
-            try {
-                const jwt = Cookies.get('jwt');
-                setLoading(true);
-                const response = await authAxios.get(`/account/list`);
-                const customers = response.data.data.filter((account: AccountResponse) =>
-                    account.idRole?.id === 4 && account.status === 'ACTIVE'
-                );
-                setAccounts(customers);
-            } catch (error) {
-                console.error('Error fetching customers:', error);
-                toast.error('Không thể tải danh sách khách hàng');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchCustomers();
     }, [showModal, formData.isPrivate]);
 
+    const fetchCustomers = async () => {
+        if (!showModal || !formData.isPrivate) return;
+
+        try {
+            // const jwt = Cookies.get('jwt');
+            setLoading(true);
+            const response = await authAxios.get(`/account/list`);
+            const customers = response.data.data.filter((account: AccountResponse) =>
+                account.idRole?.id === 4 && account.status === 'ACTIVE'
+            );
+            setAccounts(customers);
+        } catch (error) {
+            console.error('Error fetching customers:', error);
+            toast.error('Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
     // Thêm useEffect để tự động cập nhật trạng thái
     useEffect(() => {
         const updateVoucherStatuses = async () => {
@@ -354,22 +351,22 @@ export default function VoucherUI() {
     };
 
     // Add validation function
-    const validateForm = async (): Promise<boolean> => {
-        // Basic validations
-        if (!formData.code.trim()) {
-            setError(new Error('Mã voucher không được để trống'));
-            return false;
-        }
+    // const validateForm = async (): Promise<boolean> => {
+    //     // Basic validations
+    //     if (!formData.code.trim()) {
+    //         setError(new Error('Mã voucher không được để trống'));
+    //         return false;
+    //     }
 
-        // Check for duplicate code
-        const isValidCode = await checkCode(formData.code);
-        if (!isValidCode) {
-            return false;
-        }
+    //     // Check for duplicate code
+    //     const isValidCode = await checkCode(formData.code);
+    //     if (!isValidCode) {
+    //         return false;
+    //     }
 
-        // ...rest of your validations...
-        return true;
-    };
+    //     // ...rest of your validations...
+    //     return true;
+    // };
 
     // Thêm hàm kiểm tra mã
     const checkCode = async (code: string): Promise<boolean> => {
@@ -379,7 +376,7 @@ export default function VoucherUI() {
         }
 
         try {
-            const jwt = Cookies.get('jwt');
+            // const jwt = Cookies.get('jwt');
             setIsCheckingCode(true);
             const response = await authAxios.get(`/admin/voucher/check-code`, {
                 params: {
@@ -640,7 +637,48 @@ export default function VoucherUI() {
 
         fetchVouchers();
     }, [])
+    const handleUpdateVoucher = async (voucher: Voucher) => {
+        try {
+            // Lấy danh sách tài khoản đã thêm vào voucher
+            const data = await getAccountDaAddVoucher(voucher.id);
+            if (!Array.isArray(data)) {
+                console.error('Dữ liệu trả về không phải là một mảng:', data);
+                return;
+            }
 
+            // Cập nhật danh sách tài khoản đã thêm
+            const ids: number[] = data.map((account) => account.id);
+            setSelectedAccounts(ids);
+            setSelectedVoucher(voucher);
+            setShowAssignModal(true);
+            const response = await authAxios.get(`/account/list`);
+            const customers = response.data.data.filter((account: AccountResponse) =>
+                account.idRole?.id === 4 && account.status === 'ACTIVE'
+            );
+            setAccounts(customers);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách account đã thêm:', error);
+            toast.error('Không thể tải danh sách đã thêm');
+        }
+
+    };
+
+    useEffect(() => {
+        console.log("Accounts:", accounts);
+    }, [accounts]);
+
+    useEffect(() => {
+        console.log("Account da add voucher" + selectedAccounts);
+    }, [selectedAccounts, setSelectedAccounts]);
+
+    // useEffect(() => {
+    //     if (accounts.length > 0 && selectedAccounts.length > 0) {
+    //       const updatedSelectedAccounts = accounts
+    //         .filter((account) => selectedAccounts.includes(account.id))
+    //         .map((account) => account.id);
+    //       setSelectedAccounts(updatedSelectedAccounts);
+    //     }
+    //   }, [accounts, selectedAccounts]);
     return (
         <>
             <div className="p-6 bg-gray-100 min-h-screen">
@@ -830,8 +868,8 @@ export default function VoucherUI() {
                                             </td>
                                             <td className="p-3">
                                                 <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${voucher.isPrivate
-                                                        ? 'bg-purple-100 text-purple-800'
-                                                        : 'bg-green-100 text-green-800'
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-green-100 text-green-800'
                                                     }`}>
                                                     {voucher.isPrivate ? 'Riêng tư' : 'Công khai'}
                                                 </span>
@@ -843,13 +881,10 @@ export default function VoucherUI() {
                                                 >
                                                     <SaveAsIcon />
                                                 </button>
-                                                {voucher.isPrivate && (
+                                                {voucher.isPrivate && voucher.status !== VoucherStatus.EXPIRED && (
                                                     <button
                                                         className=""
-                                                        onClick={() => {
-                                                            setSelectedVoucher(voucher);
-                                                            setShowAssignModal(true);
-                                                        }}
+                                                        onClick={() => handleUpdateVoucher(voucher)}
                                                     >
                                                         <PersonAddIcon />
                                                     </button>
@@ -1170,7 +1205,7 @@ export default function VoucherUI() {
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
-                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody className="divide-y">
@@ -1181,11 +1216,18 @@ export default function VoucherUI() {
                                                                                     type="checkbox"
                                                                                     id={`customer-${account.id}`}
                                                                                     checked={selectedAccounts.includes(account.id)}
+                                                                                    // onChange={(e) => {
+                                                                                    //     if (e.target.checked) {
+                                                                                    //         setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                                    //     } else {
+                                                                                    //         setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                                    //     }
+                                                                                    // }}
                                                                                     onChange={(e) => {
                                                                                         if (e.target.checked) {
-                                                                                            setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                                            setSelectedAccounts([...selectedAccounts, account.id]); // Thêm tài khoản vào danh sách
                                                                                         } else {
-                                                                                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                                            setSelectedAccounts(selectedAccounts.filter((id) => id !== account.id)); // Bỏ tài khoản khỏi danh sách
                                                                                         }
                                                                                     }}
                                                                                     className="rounded"
@@ -1250,8 +1292,11 @@ export default function VoucherUI() {
                     voucher={selectedVoucher}
                     onClose={closeAssignModal}
                     onRefresh={refreshVouchers}
+                    selectedAccounts={selectedAccounts}
+                    setSelectedAccounts={setSelectedAccounts}
                 />
             )}
+
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
@@ -1271,21 +1316,23 @@ export default function VoucherUI() {
 interface AssignVoucherModalProps {
     voucher: Voucher;
     onClose: () => void;
-    onRefresh: () => void; // Add new prop for refreshing
+    onRefresh: () => void;
+    selectedAccounts: number[];
+    setSelectedAccounts: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 // Update the AssignVoucherModal component
-const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalProps) => {
+const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, setSelectedAccounts }: AssignVoucherModalProps) => {
     const [accounts, setAccounts] = useState<AccountResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+    // const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
     const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
 
     // Fetch customers when component mounts
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
-            const jwt = Cookies.get('jwt');
+            // const jwt = Cookies.get('jwt');
             try {
                 setLoading(true);
 
@@ -1310,7 +1357,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                 );
 
                 // Log để debug
-                console.log('Voucher accounts response:', voucherAccountsResponse.data);
+                // console.log('Voucher accounts response:', voucherAccountsResponse.data);
 
                 // Xử lý trạng thái cho từng voucher account
                 if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
@@ -1336,7 +1383,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
 
                 setUsageStatuses(statusMap);
                 setAccounts(customers);
-
+                // console.log('Accounts:', customers);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setError('Không thể tải danh sách khách hàng');
@@ -1361,8 +1408,8 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
             if (currentStatus === VoucherStatus.ACTIVE) {
                 initialStatus = VoucherAccountStatus.NOT_USED;
             }
-            // Nếu UPCOMING hoặc EXPIRED thì giữ null
 
+            // Nếu UPCOMING hoặc EXPIRED thì giữ null
             const response = await authAxios.post(`/admin/voucher/assign`, {
                 voucherId: voucher.id,
                 customerIds: selectedAccounts,
@@ -1371,7 +1418,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
 
             if (response.data.success) {
                 toast.success('Đã thêm voucher thành công');
-                await onRefresh();
+                onRefresh();
                 onClose();
             }
         } catch (error) {
@@ -1382,46 +1429,6 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
         }
     };
 
-    // Update status display in table
-    const getStatusDisplay = (accountId: number) => {
-        const status = usageStatuses[accountId];
-
-        if (!status) {
-            const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
-            return (
-                <span className="text-sm text-gray-500">
-                    {voucherStatus === VoucherStatus.ACTIVE ? "Chưa sử dụng" : "Chưa kích hoạt"}
-                </span>
-            );
-        }
-
-        switch (status) {
-            case VoucherAccountStatus.USED:
-                return (
-                    <span className="px-2 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                        Đã sử dụng
-                    </span>
-                );
-            case VoucherAccountStatus.NOT_USED:
-                return (
-                    <span className="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                        Chưa sử dụng
-                    </span>
-                );
-            case VoucherAccountStatus.EXPIRED:
-                return (
-                    <span className="px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
-                        Hết hạn
-                    </span>
-                );
-            default:
-                return (
-                    <span className="text-sm text-gray-500">
-                        Chưa kích hoạt
-                    </span>
-                );
-        }
-    };
 
     return (
         <div className="fixed inset-0 overflow-hidden z-50"> {/* Thêm z-index và overflow-hidden */}
@@ -1430,7 +1437,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                     <div className="flex min-h-full items-center justify-center p-4">
                         <div className="relative bg-white rounded-2xl w-[90%] max-w-[800px] max-h-[90vh] overflow-y-auto"> {/* Thay đổi rounded-lg thành rounded-2xl */}
                             <div className="flex justify-between items-center p-6 border-b rounded-t-2xl"> {/* Thêm padding và rounded-t-2xl */}
-                                <h2 className="text-xl font-semibold">Thêm Voucher cho Khách Hàng</h2>
+                                <h2 className="text-xl font-semibold">Cập nhật voucher cho khách hàng</h2>
                                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1492,7 +1499,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
-                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y">
@@ -1501,24 +1508,20 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                                         <td className="px-4 py-3">
                                                             <input
                                                                 type="checkbox"
-                                                                id={`customer-${account.id}`}
-                                                                checked={selectedAccounts.includes(account.id)}
-                                                                onChange={(e) => {
+                                                                checked={selectedAccounts.includes(Number(account.id))} onChange={(e) => {
                                                                     if (e.target.checked) {
-                                                                        setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                        setSelectedAccounts([...selectedAccounts, account.id]); // Thêm tài khoản vào danh sách
                                                                     } else {
-                                                                        setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                        setSelectedAccounts(selectedAccounts.filter((id) => id !== account.id)); // Bỏ tài khoản khỏi danh sách
                                                                     }
                                                                 }}
+                                                                disabled={account.voucherStatus === VoucherAccountStatus.USED}
                                                                 className="rounded"
                                                             />
                                                         </td>
                                                         <td className="px-4 py-3">{account.fullName}</td>
                                                         <td className="px-4 py-3">{account.email}</td>
                                                         <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                        <td className="px-4 py-3">
-                                                            {getStatusDisplay(account.id)}
-                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -1548,7 +1551,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
                                     disabled={loading || selectedAccounts.length === 0}
                                 >
-                                    {loading ? 'Đang xử lý...' : 'Thêm voucher'}
+                                    {loading ? 'Đang xử lý...' : 'Cập nhật voucher'}
                                 </button>
                             </div>
                         </div>

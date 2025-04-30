@@ -7,8 +7,13 @@ const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
 // Lấy dữ liệu data top 5 của bill
 export const getData = async () => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}`);
+        const response = await axios.get(`${API_BASE_URL}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -18,8 +23,13 @@ export const getData = async () => {
 
 // Lấy dữ liệu data cho thanh toan của bill
 export const getDataChoThanhToan = async () => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/listBill`);
+        const response = await axios.get(`${API_BASE_URL}/listBill`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -28,8 +38,13 @@ export const getDataChoThanhToan = async () => {
 }
 // Tìm kiếm bill
 export const findBill = async (idBill: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/getByBill/${idBill}`);
+        const response = await axios.get(`${API_BASE_URL}/getByBill/${idBill}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -38,8 +53,13 @@ export const findBill = async (idBill: number) => {
 }
 // Lấy dữ liệu data của product
 export const getByIdBillDetail = async (id: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     }
     catch (error) {
@@ -50,12 +70,12 @@ export const getByIdBillDetail = async (id: number) => {
 
 // Thêm hóa đơn vào cơ sở dữ liệu
 export const addHoaDon = async () => {
+    const jwt = Cookies.get('jwt')
     try {
-        const jwt = Cookies.get('jwt')
         if (!jwt) throw new Error('Nhân viên chưa đăng nhập');
         const response = await axios.post(
             `${API_BASE_URL}/addHoaDon`,
-            {}, // body nếu cần, để trống cũng được
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${jwt}`,
@@ -72,8 +92,13 @@ export const addHoaDon = async () => {
 
 //  Thêm sản phẩm vào hóa đơn
 export const addHDCT = async (billDetail: BillDetailSchema) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.post(`${API_BASE_URL}/addHDCT`, billDetail);
+        const response = await axios.post(`${API_BASE_URL}/addHDCT`, billDetail, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error add san pham data:', error);
@@ -83,11 +108,15 @@ export const addHDCT = async (billDetail: BillDetailSchema) => {
 
 // Cập nhật khách hàng vào hóa đơn
 export const addKhachHang = async (idBill: number, idAccount: number) => {
+    const jwt = Cookies.get('jwt')
     try {
         const response = await axios.put(`${API_BASE_URL}/addKhachHang`, null, {
             params: {
                 idBill: idBill,
                 idAccount: idAccount
+            },
+            headers: {
+                Authorization: `Bearer ${jwt}`,
             }
         });
         return response.data;
@@ -97,12 +126,16 @@ export const addKhachHang = async (idBill: number, idAccount: number) => {
     }
 }
 export const updateVoucher = async (idBill: number, idVoucher: number | null) => {
+    const jwt = Cookies.get('jwt')
     try {
         const response = await axios.post(`${API_BASE_URL}/updateVoucher`, null, {
             params: {
                 idBill,
                 idVoucher
-            }
+            },
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
         });
         return response.data;
     } catch (error) {
@@ -113,8 +146,13 @@ export const updateVoucher = async (idBill: number, idVoucher: number | null) =>
 
 // Tìm kiếm khách hàng theo  bill
 export const findKhachHang = async (idBill: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/findByAccount/${idBill}`);
+        const response = await axios.get(`${API_BASE_URL}/findByAccount/${idBill}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -136,10 +174,15 @@ interface SearchProductRequest {
 export const getProductDetail = async (
     searchProductRequest?: SearchProductRequest
 ) => {
+    const jwt = Cookies.get('jwt')
     try {
         const response = await axios.get(`${API_BASE_URL}/product_detail`, {
             params: searchProductRequest,
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
         });
+
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -149,8 +192,14 @@ export const getProductDetail = async (
 
 // Lấy dữ liệu data của getAccountKhachHang
 export const getAccountKhachHang = async () => {
+    const jwt = Cookies.get('jwt')
+
     try {
-        const response = await axios.get(`${API_BASE_URL}/account`);
+        const response = await axios.get(`${API_BASE_URL}/account`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -159,8 +208,14 @@ export const getAccountKhachHang = async () => {
 }
 // Xoa san pham chi tiet trong hoa don
 export const deleteProduct = async (idBillDetail: number, idBill: number) => {
+    const jwt = Cookies.get('jwt')
+
     try {
-        const response = await axios.delete(`${API_BASE_URL}/deleteBillDetail/${idBillDetail}/${idBill}`);
+        const response = await axios.delete(`${API_BASE_URL}/deleteBillDetail/${idBillDetail}/${idBill}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -169,8 +224,14 @@ export const deleteProduct = async (idBillDetail: number, idBill: number) => {
 }
 // Lấy dữ liệu data của imei chua ban
 export const getImei = async (idProductDetail: number) => {
+    const jwt = Cookies.get('jwt')
+
     try {
-        const response = await axios.get(`${API_BASE_URL}/imei/${idProductDetail}`);
+        const response = await axios.get(`${API_BASE_URL}/imei/${idProductDetail}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -179,8 +240,13 @@ export const getImei = async (idProductDetail: number) => {
 }
 // Tìm kiếm Imei theo idProductDetail
 export const findImeiById = async (idProductDetail: number, idBillDetail: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/findImeiById/${idProductDetail}/${idBillDetail}`);
+        const response = await axios.get(`${API_BASE_URL}/findImeiById/${idProductDetail}/${idBillDetail}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -189,8 +255,13 @@ export const findImeiById = async (idProductDetail: number, idBillDetail: number
 }
 // Tìm kiếm Imei theo idProductDetail
 export const findImeiByIdProductDaBan = async (idProductDetail: number, idBillDetail: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/findImeiByIdProductDetailDaBan/${idProductDetail}/${idBillDetail}`);
+        const response = await axios.get(`${API_BASE_URL}/findImeiByIdProductDetailDaBan/${idProductDetail}/${idBillDetail}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -204,8 +275,13 @@ export const createImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
     idProduct: number
 ) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.post(`${API_BASE_URL}/create_imei_sold/${idBill}/${idProduct}`, imeiSold);
+        const response = await axios.post(`${API_BASE_URL}/create_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error add imei sold data:', error);
@@ -218,8 +294,17 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
     idProduct: number
 ) => {
+    const jwt = Cookies.get('jwt')
+    if (!imeiSold || !idBill || !idProduct) {
+        console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
+        throw new Error('Dữ liệu không hợp lệ');
+      }
     try {
-        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold);
+        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error add imei sold data:', error);
@@ -229,8 +314,13 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
 
 // Thêm hóa đơn vào cơ sở dữ liệu
 export const thanhToan = async (bill: BillSchema) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.put(`${API_BASE_URL}/thanh_toan`, bill);
+        const response = await axios.put(`${API_BASE_URL}/thanh_toan`, bill, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error them hoa don data:', error);
@@ -241,8 +331,13 @@ export const thanhToan = async (bill: BillSchema) => {
 
 // Lấy mã voucher đang sử dụng 
 export const getVoucherDangSuDung = async (idBillHienTai: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/findByVoucher/${idBillHienTai}`);
+        const response = await axios.get(`${API_BASE_URL}/findByVoucher/${idBillHienTai}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -252,12 +347,17 @@ export const getVoucherDangSuDung = async (idBillHienTai: number) => {
 
 // Lấy dữ liệu data của vocher theo account
 export const findVoucherByAccount = async (idAccount?: number) => {
+    const jwt = Cookies.get('jwt')
     try {
         const url = idAccount
             ? `${API_BASE_URL}/voucher?idAccount=${idAccount}`
             : `${API_BASE_URL}/voucher`;
 
-        const response = await axios.get(url);
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching vouchers:", error);
@@ -267,8 +367,13 @@ export const findVoucherByAccount = async (idAccount?: number) => {
 
 
 export const huyHoaDon = async (idBillCanHuy: number) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`);
+        const response = await axios.post(`${API_BASE_URL}/huyHoaDon/${idBillCanHuy}`,{idBillCanHuy}, {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -278,8 +383,13 @@ export const huyHoaDon = async (idBillCanHuy: number) => {
 
 // Quét barcode để lấy sản phẩm chi tiết 
 export const quetBarCode = async (barCode: String) => {
+    const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.get(`${API_BASE_URL}/product-detail/barcode/${barCode}`);
+        const response = await axios.get(`${API_BASE_URL}/product-detail/barcode/${barCode}`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching data:', error);
