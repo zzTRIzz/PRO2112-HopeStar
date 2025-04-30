@@ -10,6 +10,7 @@ export const brandSchema = z.object({
     .refine((value) => value.length > 0, {
       message: 'Không được nhập chỉ khoảng trắng',
     }),
+    imageUrl: z.string().url('URL không hợp lệ').optional(),
   status: z.string().min(1, 'Status is required'),
 })
 

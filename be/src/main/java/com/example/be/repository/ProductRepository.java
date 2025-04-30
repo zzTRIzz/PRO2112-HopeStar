@@ -51,8 +51,8 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "WHERE p.status = :status " +
             "GROUP BY p " +
             "ORDER BY SUM(bd.quantity) DESC " +
-            "LIMIT 10")
-    List<Product> findTop10SellingProducts(@Param("status") StatusCommon status);
+            "LIMIT 20")
+    List<Product> findTop20SellingProducts(@Param("status") StatusCommon status);
 
     Product findByProductDetails(ProductDetail productDetail);
 
@@ -68,6 +68,8 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
             "LEFT JOIN pc.category cat " +
             "WHERE (:#{#filter.priceStart} IS NULL OR pd.priceSell >= :#{#filter.priceStart}) " +
             "AND (:#{#filter.priceEnd} IS NULL OR pd.priceSell <= :#{#filter.priceEnd}) " +
+            "AND (:#{#filter.key} IS NULL OR " +
+            "REPLACE(LOWER(TRIM(p.name)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:#{#filter.key}), '%')), ' ', '')) " +
             "AND (:#{#filter.nfc} IS NULL OR p.nfc = :#{#filter.nfc}) " +
             "AND (:#{#filter.category} IS NULL OR cat.id = :#{#filter.category}) " +
             "AND (:#{#filter.os} IS NULL OR o.id = :#{#filter.os}) " +

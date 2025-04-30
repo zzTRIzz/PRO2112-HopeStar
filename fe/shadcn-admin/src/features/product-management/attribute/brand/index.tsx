@@ -11,6 +11,7 @@ import { DataTable } from './components/data-table'
 import { StatusSwitch } from './components/status-switch'
 import TasksProvider from './context/brands-context'
 import type { Brand } from './data/schema'
+import { IconQuestionMark } from '@tabler/icons-react'
 
 const columns: ColumnDef<Brand>[] = [
   {
@@ -21,6 +22,25 @@ const columns: ColumnDef<Brand>[] = [
       return <div>{row.index + 1}</div>
     },
   },
+  {
+      accessorKey: 'imageUrl',
+      header: 'Hình ảnh',
+      cell: ({ row }) => (
+        <div className='h-20 w-16'>
+          {row.original.imageUrl ? (
+            <img
+              src={row.original.imageUrl}
+              alt={`${row.original.name}`}
+              className='h-full w-full rounded-sm object-contain'
+            />
+          ) : (
+            <div className='flex h-full w-full items-center justify-center rounded-lg bg-muted'>
+              <IconQuestionMark className='h-6 w-6' />
+            </div>
+          )}
+        </div>
+      ),
+    },
   {
     accessorKey: 'name',
     header: 'Tên thương hiệu', // Chuyển sang tiếng Việt

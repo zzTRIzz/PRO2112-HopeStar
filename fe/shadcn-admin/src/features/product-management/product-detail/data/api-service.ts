@@ -8,7 +8,8 @@ const API_BASE_URL = 'http://localhost:8080/api/admin/product-detail'
 export const updateStatus = async (productDetail: ProductDetailResponse) => {
   const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.patch(`${API_BASE_URL}/${productDetail.id}`,{
+    console.log("jwt", jwt)
+    const response = await axios.patch(`${API_BASE_URL}/${productDetail.id}`,productDetail,{
       headers: {
         Authorization: `Bearer ${jwt}`,
       },

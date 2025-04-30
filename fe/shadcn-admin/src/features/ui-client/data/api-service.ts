@@ -48,3 +48,16 @@ export const searchPhones = async (filter: PhoneFilterRequest) => {
     throw error;
   }
 };
+
+export const getProductRelated = async (id:number) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/related`, {
+      params: {id}
+    });
+    return response.data;
+    console.log('Product related:', response.data)
+  } catch (error) {
+    console.error('Error phones related:', error);
+    throw error;
+  }
+};

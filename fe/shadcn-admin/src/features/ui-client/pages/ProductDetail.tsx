@@ -22,6 +22,8 @@ import { getProductDetail } from '../data/api-service'
 import { productDetailViewResponse } from '../data/schema'
 import ProductReviews, { RatingData } from '../components/product-reviews'
 import Cookies from 'js-cookie'
+import ProductReviews from '../components/product-reviews'
+import Footer from '@/components/layout/footer'
 
 export default function ProductDetail() {
   const { id } = Route.useParams()
@@ -748,11 +750,11 @@ export default function ProductDetail() {
         </div>
 
         {/* Related Products */}
-        <div className='mt-12'>
-          <h2 className='mb-6 text-2xl font-bold'>Sản phẩm tương tự</h2>
+        <div className='mt-6'>
           <RelatedProducts />
         </div>
       </div>
+      <Footer />
     </>
   )
 }
