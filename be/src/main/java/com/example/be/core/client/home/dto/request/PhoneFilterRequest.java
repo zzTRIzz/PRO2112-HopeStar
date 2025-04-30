@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Data
 public class PhoneFilterRequest {
 
+    private String key;
     private BigDecimal priceStart;
     private BigDecimal priceEnd;
     private Boolean nfc;

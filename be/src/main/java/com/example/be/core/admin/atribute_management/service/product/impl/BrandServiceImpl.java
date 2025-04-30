@@ -34,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
             throw new Exception("Tên thương hiệu đã tồn tại");
         }
         newBrand.setName(brand.getName());
-//        newBrand.setImageUrl(brand.getImageUrl());
+        newBrand.setImageUrl(brand.getImageUrl());
         newBrand.setStatus(brand.getStatus());
         return brandRepository.save(newBrand);
     }
@@ -45,6 +45,7 @@ public class BrandServiceImpl implements BrandService {
         if (brand != null){
             if (!brandRepository.existsByNameTrimmedIgnoreCaseAndNotId(entity.getName(),brand.getId())){
                 brand.setName(entity.getName());
+                brand.setImageUrl(entity.getImageUrl());
                 brand.setStatus(entity.getStatus());
                 brandRepository.save(brand);
             }else {

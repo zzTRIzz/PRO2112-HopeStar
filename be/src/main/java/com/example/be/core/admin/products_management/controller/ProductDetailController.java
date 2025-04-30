@@ -30,7 +30,7 @@ public class ProductDetailController {
     public ResponseData<?> updateStatus(@PathVariable Integer id) throws Exception {
 
             productDetailService.updateStatus(id);
-            return new ResponseData<>(HttpStatus.ACCEPTED,"Cập nhật trạng thái thành công");
+            return new ResponseData<>(HttpStatus.OK,"Cập nhật trạng thái thành công");
     }
     @PutMapping("/{id}")
     public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest) throws Exception {

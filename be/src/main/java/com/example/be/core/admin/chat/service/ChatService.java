@@ -87,7 +87,7 @@ public class ChatService {
         for (ChatMessage chatMessage:listChatMessage) {
             ChatUserResponse chatUserResponse = new ChatUserResponse();
             Account account;
-            if (chatMessage.getSenderId() !=9){
+            if (chatMessage.getSenderId() !=2){
                 account = accountRepository.findById(chatMessage.getSenderId()).orElseThrow(()->
                         new Exception("user not found"));
                 chatUserResponse.setRole(false);

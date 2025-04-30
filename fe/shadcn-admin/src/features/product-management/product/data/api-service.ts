@@ -84,7 +84,7 @@ export const updateProduct = async (
 export const updateStatus = async (product: ProductResponse) => {
   const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.patch(`${API_BASE_URL}/product/${product.id}`,{
+    const response = await axios.patch(`${API_BASE_URL}/product/${product.id}`,product,{
       headers: {
         Authorization: `Bearer ${jwt}`,
       },

@@ -1,9 +1,9 @@
-import { toast } from '@/hooks/use-toast'
-import { IconLoader2 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { IconLoader2 } from '@tabler/icons-react'
 import { Heart, Star } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { toast } from '@/hooks/use-toast'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -23,7 +23,7 @@ export default function FeaturedProducts() {
   >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const [displayLimit] = useState(10)
+  const [displayLimit, setDisplayLimit] = useState(10)
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -81,7 +81,7 @@ export default function FeaturedProducts() {
       if (!addedProduct) {
         throw new Error('Giỏ hàng đã tồn tại sản phẩm này')
       }
-  
+
       // Navigate to checkout with only this product
       navigate({
         to: '/dat-hang',
@@ -89,12 +89,12 @@ export default function FeaturedProducts() {
           selectedProducts: JSON.stringify([addedProduct]),
         },
       })
-
     } catch (error) {
       console.error('Buy now error:', error)
       toast({
         title: 'Lỗi',
-        description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
+        description:
+          error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
         variant: 'destructive',
       })
     }
@@ -137,7 +137,7 @@ export default function FeaturedProducts() {
     )
 
   return (
-    <section className='container py-10 bg-slate-50'>
+    <section className='container bg-slate-50 py-10'>
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
@@ -145,7 +145,7 @@ export default function FeaturedProducts() {
         </Button>
       </div>
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-        {newestProducts.slice(0, displayLimit).map((product) => (
+        {newestProducts.map((product) => (
           <Card
             key={product.idProduct}
             className='group flex flex-col overflow-hidden'
@@ -281,7 +281,7 @@ export default function FeaturedProducts() {
           </div>
 
           <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-            {bestSellingProducts.map((product) => (
+            {bestSellingProducts.slice(0, displayLimit).map((product) => (
               <Card
                 key={product.idProduct}
                 className='group flex flex-col overflow-hidden transition-shadow hover:shadow-lg'
@@ -423,6 +423,17 @@ export default function FeaturedProducts() {
               </Card>
             ))}
           </div>
+          {bestSellingProducts.length > displayLimit && (
+            <div className='mt-6 flex justify-center'>
+              <Button
+                variant='outline'
+                onClick={() => setDisplayLimit((prev) => prev + 5)}
+                className='px-8'
+              >
+                Xem thêm
+              </Button>
+            </div>
+          )}
         </>
       )}
     </section>

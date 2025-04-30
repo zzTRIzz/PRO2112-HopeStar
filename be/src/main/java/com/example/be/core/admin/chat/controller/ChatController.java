@@ -106,11 +106,11 @@ public class ChatController {
     //test
     @GetMapping("/latest-messages")
     public List<ChatMessage> getLatestMessagesForAdmin() {
-        return chatService.getLatestMessagesForAdmin(9); // Admin ID = 9
+        return chatService.getLatestMessagesForAdmin(2);
     }
     @GetMapping("/user-chat")
     public List<ChatUserResponse> getUserChat(@RequestHeader("Authorization") String jwt) throws Exception {
         authService.findAccountByJwt(jwt);
-        return chatService.getListChatUser(9); // Admin ID = 9
+        return chatService.getListChatUser(2);
     }
 }
