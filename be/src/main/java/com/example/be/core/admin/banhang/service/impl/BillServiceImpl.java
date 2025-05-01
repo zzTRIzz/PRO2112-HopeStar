@@ -284,7 +284,7 @@ public class BillServiceImpl implements BillService {
                 } else {
 
                     VoucherAccount va = voucherAccountRepository
-                            .findByIdVoucherAndIdAccount(oldVoucher.getId(), bill.getIdAccount().getId())
+                            .findByIdVoucher(oldVoucher.getId(), bill.getIdAccount().getId())
                             .orElse(null);
                     if (va != null && va.getStatus() == VoucherAccountStatus.USED) {
                         va.setStatus(VoucherAccountStatus.NOT_USED);
@@ -345,7 +345,7 @@ public class BillServiceImpl implements BillService {
             } else {
 
                 VoucherAccount va = voucherAccountRepository
-                        .findByIdVoucherAndIdAccount(newVoucher.getId(), bill.getIdAccount().getId())
+                        .findByIdVoucher(newVoucher.getId(), bill.getIdAccount().getId())
                         .orElse(null);
                 if (va != null && va.getStatus() == VoucherAccountStatus.NOT_USED) {
                     va.setStatus(VoucherAccountStatus.USED);
