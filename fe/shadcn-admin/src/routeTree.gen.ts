@@ -72,9 +72,6 @@ const AuthenticatedSettingsIndexLazyImport = createFileRoute(
 const AuthenticatedSaleIndexLazyImport = createFileRoute(
   '/_authenticated/sale/',
 )()
-const AuthenticatedQuanLyLienHeIndexLazyImport = createFileRoute(
-  '/_authenticated/quan-ly-lien-he/',
-)()
 const AuthenticatedProductIndexLazyImport = createFileRoute(
   '/_authenticated/product/',
 )()
@@ -254,17 +251,6 @@ const AuthenticatedSaleIndexLazyRoute = AuthenticatedSaleIndexLazyImport.update(
 ).lazy(() =>
   import('./routes/_authenticated/sale/index.lazy').then((d) => d.Route),
 )
-
-const AuthenticatedQuanLyLienHeIndexLazyRoute =
-  AuthenticatedQuanLyLienHeIndexLazyImport.update({
-    id: '/quan-ly-lien-he/',
-    path: '/quan-ly-lien-he/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/quan-ly-lien-he/index.lazy').then(
-      (d) => d.Route,
-    ),
-  )
 
 const AuthenticatedProductIndexLazyRoute =
   AuthenticatedProductIndexLazyImport.update({
@@ -1013,13 +999,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/quan-ly-lien-he/': {
-      id: '/_authenticated/quan-ly-lien-he/'
-      path: '/quan-ly-lien-he'
-      fullPath: '/quan-ly-lien-he'
-      preLoaderRoute: typeof AuthenticatedQuanLyLienHeIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/_authenticated/sale/': {
       id: '/_authenticated/sale/'
       path: '/sale'
@@ -1142,7 +1121,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedHoadonIndexLazyRoute: typeof AuthenticatedHoadonIndexLazyRoute
   AuthenticatedProductIndexLazyRoute: typeof AuthenticatedProductIndexLazyRoute
-  AuthenticatedQuanLyLienHeIndexLazyRoute: typeof AuthenticatedQuanLyLienHeIndexLazyRoute
   AuthenticatedSaleIndexLazyRoute: typeof AuthenticatedSaleIndexLazyRoute
   AuthenticatedVoucherIndexLazyRoute: typeof AuthenticatedVoucherIndexLazyRoute
   AuthenticatedProductIdProductDetailRoute: typeof AuthenticatedProductIdProductDetailRoute
@@ -1180,8 +1158,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedHoadonIndexLazyRoute: AuthenticatedHoadonIndexLazyRoute,
   AuthenticatedProductIndexLazyRoute: AuthenticatedProductIndexLazyRoute,
-  AuthenticatedQuanLyLienHeIndexLazyRoute:
-    AuthenticatedQuanLyLienHeIndexLazyRoute,
   AuthenticatedSaleIndexLazyRoute: AuthenticatedSaleIndexLazyRoute,
   AuthenticatedVoucherIndexLazyRoute: AuthenticatedVoucherIndexLazyRoute,
   AuthenticatedProductIdProductDetailRoute:
@@ -1249,7 +1225,6 @@ export interface FileRoutesByFullPath {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
-  '/quan-ly-lien-he': typeof AuthenticatedQuanLyLienHeIndexLazyRoute
   '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
@@ -1314,7 +1289,6 @@ export interface FileRoutesByTo {
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/hoadon': typeof AuthenticatedHoadonIndexLazyRoute
   '/product': typeof AuthenticatedProductIndexLazyRoute
-  '/quan-ly-lien-he': typeof AuthenticatedQuanLyLienHeIndexLazyRoute
   '/sale': typeof AuthenticatedSaleIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/voucher': typeof AuthenticatedVoucherIndexLazyRoute
@@ -1382,7 +1356,6 @@ export interface FileRoutesById {
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/hoadon/': typeof AuthenticatedHoadonIndexLazyRoute
   '/_authenticated/product/': typeof AuthenticatedProductIndexLazyRoute
-  '/_authenticated/quan-ly-lien-he/': typeof AuthenticatedQuanLyLienHeIndexLazyRoute
   '/_authenticated/sale/': typeof AuthenticatedSaleIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/voucher/': typeof AuthenticatedVoucherIndexLazyRoute
@@ -1450,7 +1423,6 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/hoadon'
     | '/product'
-    | '/quan-ly-lien-he'
     | '/sale'
     | '/settings/'
     | '/voucher'
@@ -1514,7 +1486,6 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/hoadon'
     | '/product'
-    | '/quan-ly-lien-he'
     | '/sale'
     | '/settings'
     | '/voucher'
@@ -1580,7 +1551,6 @@ export interface FileRouteTypes {
     | '/_authenticated/help-center/'
     | '/_authenticated/hoadon/'
     | '/_authenticated/product/'
-    | '/_authenticated/quan-ly-lien-he/'
     | '/_authenticated/sale/'
     | '/_authenticated/settings/'
     | '/_authenticated/voucher/'
@@ -1720,7 +1690,6 @@ export const routeTree = rootRoute
         "/_authenticated/help-center/",
         "/_authenticated/hoadon/",
         "/_authenticated/product/",
-        "/_authenticated/quan-ly-lien-he/",
         "/_authenticated/sale/",
         "/_authenticated/voucher/",
         "/_authenticated/product/$id/product-detail",
@@ -1923,10 +1892,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/product/": {
       "filePath": "_authenticated/product/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/quan-ly-lien-he/": {
-      "filePath": "_authenticated/quan-ly-lien-he/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/sale/": {

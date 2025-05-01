@@ -89,19 +89,8 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
-<<<<<<< HEAD
     voucherStatus?: VoucherAccountStatus;
     voucherAccountId?: number;
-=======
-}
-
-interface CustomersResponse {
-    id: number;
-    name: string;
-    email: string;
-    phone?: string;
-    status: number;
->>>>>>> develop
 }
 
 // interface ResponseData<T> {
@@ -1259,13 +1248,13 @@ export default function VoucherUI() {
                                                                             <td className="px-4 py-3">{account.fullName}</td>
                                                                             <td className="px-4 py-3">{account.email}</td>
                                                                             <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                                            {/* <td className="px-4 py-3">
+                                                                            <td className="px-4 py-3">
                                                                                 {account.voucherStatus ? (
                                                                                     <VoucherStatusBadge status={account.voucherStatus} />
                                                                                 ) : (
                                                                                     <span className="text-sm text-gray-500">-</span>
                                                                                 )}
-                                                                            </td> */}
+                                                                            </td>
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>
@@ -1346,21 +1335,12 @@ interface AssignVoucherModalProps {
 
 // Update the AssignVoucherModal component
 const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, setSelectedAccounts }: AssignVoucherModalProps) => {
-    const [customers, setCustomers] = useState<CustomersResponse[]>([]);
+    const [accounts, setAccounts] = useState<AccountResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     // const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
-    // const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
-    const getOrderStatusText = (status: number | null) => {
-        switch (status) {
-            case 1: return "Đã sử dụng";
-            case 2: return "Chưa dùng";
-            case 3: return "Hết hạn";
-            case 4: return "Chưa áp dụng";
-            default: return "";
+    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
 
-        }
-    };
     // Fetch customers when component mounts
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
@@ -1369,53 +1349,52 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                 setLoading(true);
 
                 // Lấy danh sách khách hàng
-                const response = await authAxios.get(`/admin/voucher/customers/${voucher.id}`);
-                setCustomers(response.data.data);
-                console.log("customers", customers);
-                console.log("re", response.data);
+                const response = await authAxios.get(`/account/list`);
+
                 // Lấy danh sách tài khoản đã có voucher
-                // const voucherAccountsResponse = await authAxios.get(
-                //     `/admin/voucher/${voucher.id}/accounts`
-                // );
+                const voucherAccountsResponse = await authAxios.get(
+                    `/admin/voucher/${voucher.id}/accounts`
+                );
 
                 // Khởi tạo statusMap là một object rỗng với kiểu chính xác
-                // const statusMap: Record<number, VoucherAccountStatus | null> = {};
+                const statusMap: Record<number, VoucherAccountStatus | null> = {};
 
                 // Lấy trạng thái hiện tại của voucher
-                // const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+                const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
 
                 // Lọc ra những account là khách hàng
-                // const customers = response.data.data.filter((account: AccountResponse) =>
-                //     account.idRole?.id === 4 &&
-                //     account.status === 'ACTIVE'
-                // );
+                const customers = response.data.data.filter((account: AccountResponse) =>
+                    account.idRole?.id === 4 &&
+                    account.status === 'ACTIVE'
+                );
 
                 // Log để debug
                 // console.log('Voucher accounts response:', voucherAccountsResponse.data);
 
                 // Xử lý trạng thái cho từng voucher account
-                // if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
-                //     voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
-                //         // Kiểm tra cấu trúc dữ liệu
-                //         if (voucherAccount && voucherAccount.idAccount) {
-                //             const accountId = voucherAccount.idAccount.id;
+                if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+                    voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+                        // Kiểm tra cấu trúc dữ liệu
+                        if (voucherAccount && voucherAccount.idAccount) {
+                            const accountId = voucherAccount.idAccount.id;
 
-                //             if (voucherAccount.status === VoucherAccountStatus.USED) {
-                //                 statusMap[accountId] = VoucherAccountStatus.USED;
-                //             } else {
-                //                 if (currentVoucherStatus === VoucherStatus.EXPIRED) {
-                //                     statusMap[accountId] = VoucherAccountStatus.EXPIRED;
-                //                 } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
-                //                     statusMap[accountId] = VoucherAccountStatus.NOT_USED;
-                //                 } else {
-                //                     statusMap[accountId] = null; 
-                //                 }
-                //             }
-                //         }
-                //     });
-                // }
+                            if (voucherAccount.status === VoucherAccountStatus.USED) {
+                                statusMap[accountId] = VoucherAccountStatus.USED;
+                            } else {
+                                if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+                                    statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+                                } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+                                    statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+                                } else {
+                                    statusMap[accountId] = null; // For UPCOMING vouchers
+                                }
+                            }
+                        }
+                    });
+                }
 
-                // setUsageStatuses(statusMap);
+                setUsageStatuses(statusMap);
+                setAccounts(customers);
                 // console.log('Accounts:', customers);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -1516,29 +1495,13 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                             <thead className="bg-gray-50">
                                                 <tr>
                                                     <th className="w-16 px-4 py-3 text-left">
-                                                        {/* <input
-                                                            type="checkbox"
-                                                            className="rounded"
-                                                            checked={selectedAccounts.length === customers.length && customers}
-                                                            onChange={(e) => {
-                                                                if (e.target.checked) {
-                                                                    setSelectedAccounts(customers.map(acc => acc.id));
-                                                                } else {
-                                                                    setSelectedAccounts([]);
-                                                                }
-                                                            }}
-                                                        /> */}
                                                         <input
                                                             type="checkbox"
                                                             className="rounded"
-                                                            checked={
-                                                                selectedAccounts.length === customers.filter((acc) => acc.status !== 1).length &&
-                                                                customers.filter((acc) => acc.status !== 1).length > 0
-                                                            }
+                                                            checked={selectedAccounts.length === accounts.length}
                                                             onChange={(e) => {
                                                                 if (e.target.checked) {
-                                                                    // Chỉ thêm các tài khoản có trạng thái khác 1
-                                                                    setSelectedAccounts(customers.filter((acc) => acc.status !== 1).map((acc) => acc.id));
+                                                                    setSelectedAccounts(accounts.map(acc => acc.id));
                                                                 } else {
                                                                     setSelectedAccounts([]);
                                                                 }
@@ -1552,7 +1515,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y">
-                                                {customers.map((account) => (
+                                                {accounts.map((account) => (
                                                     <tr key={account.id} className="hover:bg-gray-50">
                                                         <td className="px-4 py-3">
                                                             <input
@@ -1564,14 +1527,13 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                                                         setSelectedAccounts(selectedAccounts.filter((id) => id !== account.id)); // Bỏ tài khoản khỏi danh sách
                                                                     }
                                                                 }}
-                                                                disabled={account.status === 1}
+                                                                disabled={account.voucherStatus === VoucherAccountStatus.USED}
                                                                 className="rounded"
                                                             />
                                                         </td>
-                                                        <td className="px-4 py-3">{account.name}</td>
+                                                        <td className="px-4 py-3">{account.fullName}</td>
                                                         <td className="px-4 py-3">{account.email}</td>
                                                         <td className="px-4 py-3">{account.phone || '-'}</td>
-<<<<<<< HEAD
                                                         <td className="px-4 py-3">
       {usageStatuses[account.id] ? (
         <span className={`px-2 py-1 rounded-full text-xs ${
@@ -1593,15 +1555,12 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
         </span>
       )}
     </td>
-=======
-                                                        <td className="px-4 py-3">{getOrderStatusText(account.status)}</td>
->>>>>>> develop
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                    {customers.length === 0 && (
+                                    {accounts.length === 0 && (
                                         <div className="text-center py-8 text-gray-500">
                                             Không có khách hàng nào
                                         </div>
