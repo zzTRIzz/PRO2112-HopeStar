@@ -25,4 +25,6 @@ public interface StatisticService {
     List<OrderCountByDateResponse> getOrderCountLast3Days();
     List<OrderCountByDateResponse> getOrderCountLast7Days();
     StatisticByDateRangeResponse getStatisticByDateRange(LocalDate startDate, LocalDate endDate);
+    List<ListCustomerCancelOrderResponse> getCustomersWithCanceledOrders();
+    List<RevenueTop10CustomerResponse> getTop10RevenueCustomers();
 }

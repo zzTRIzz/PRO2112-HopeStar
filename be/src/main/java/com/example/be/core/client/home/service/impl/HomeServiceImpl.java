@@ -31,7 +31,7 @@ public class HomeServiceImpl implements HomeService {
     public ProductViewResponseAll getProductView() {
 
         List<Product> products = productRepository.findByStatusOrderByCreatedAtDesc(StatusCommon.ACTIVE);
-        List<Product> products2 = productRepository.findTop10SellingProducts(StatusCommon.ACTIVE);
+        List<Product> products2 = productRepository.findTop20SellingProducts(StatusCommon.ACTIVE);
 
         List<ProductViewResponse> newestProducts = handlerProductView(products,false,false,false);
         List<ProductViewResponse> bestSellingProducts = handlerProductView(products2,false,false,false);
@@ -329,6 +329,32 @@ public class HomeServiceImpl implements HomeService {
                     test = handlerProductView(productList,false,false,true);
                 }
         return test;
+    }
+
+    @Override
+    public List<ProductViewResponse> getProductRelated(Integer id) throws Exception {
+        Product product = productRepository.findById(id).orElseThrow(()->
+                new Exception("Sản phẩm không tồn tại"));
+        PhoneFilterRequest phoneFilterRequest = new PhoneFilterRequest();
+        phoneFilterRequest.setChip(product.getChip().getId());
+        phoneFilterRequest.setNfc(product.getNfc());
+        phoneFilterRequest.setOs(product.getOs().getId());
+        phoneFilterRequest.setTypeScreen(product.getScreen().getType());
+        List<Product> productList = productRepository.filterProducts(phoneFilterRequest);
+        int count =0;
+        List<Product> productRelated = new ArrayList<>();
+        for (Product product1: productList) {
+            count++;
+            if (count ==5){
+                break;
+            }
+            if (product1.getId() == id){
+                continue;
+            }
+            productRelated.add(product1);
+        }
+        List<ProductViewResponse> productViewResponseList = handlerProductView(productRelated,false,false,false);
+        return productViewResponseList;
     }
 
 }

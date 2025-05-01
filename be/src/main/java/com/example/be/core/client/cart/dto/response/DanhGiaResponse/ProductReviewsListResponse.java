@@ -12,5 +12,6 @@ public class ProductReviewsListResponse {
     private boolean hasPurchased;
     private Integer numberSold;
     private Integer evaluate;
+    private String product;
 
 }

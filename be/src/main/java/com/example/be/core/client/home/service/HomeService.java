@@ -16,4 +16,6 @@ public interface HomeService {
 
     List<ProductViewResponse> phoneFilter(PhoneFilterRequest phoneFilterRequest);
 
+    List<ProductViewResponse> getProductRelated(Integer id) throws Exception;
+
 }

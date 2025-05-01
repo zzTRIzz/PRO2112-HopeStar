@@ -99,3 +99,21 @@ export interface DateRangeResponse {
   totalOrders: number;
   dailyStatistics: DateRangeStatistic[];
 }
+
+export interface CanceledOrder {
+  customerId: number;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  billCode: string;
+  billStatus: string;
+}
+
+export interface TopRevenueCustomer {
+  customerId: number;
+  customerName: string;
+  email: string;
+  phone: string;
+  totalDueSum: number;
+}

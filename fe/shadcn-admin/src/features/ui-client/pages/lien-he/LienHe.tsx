@@ -217,7 +217,7 @@ export function ContactInfo() {
 
 export function GoogleMap() {
   return (
-    <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d783.0690069252823!2d105.74443546952945!3d21.03987039878826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134548d53109a5f%3A0x659c15d527f2ecf!2zTmcuIDEyNCBQaOG7kSBIb8OoIFRo4buLLCBIw7JlIFRo4buLLCBQaMawxqFuZyBDYW5oLCBOYW0gVOG7qyBMacOqbSwgSMOgIE7hu5lpLCBWaeG7h3QgTmFt!5e1!3m2!1svi!2s!4v1745061578294!5m2!1svi!2s"
         width="100%"
@@ -246,12 +246,13 @@ export function LienHe() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <GoogleMap />
         <div className="grid grid-cols-1 gap-8">
-          <ContactInfo />
+          {/* <ContactInfo /> */}
+          <ContactFormSection />
         </div>
       </div>
       
       <div className="mt-10">
-        <ContactFormSection />
+        {/* <ContactFormSection /> */}
       </div>
     </div>
   )

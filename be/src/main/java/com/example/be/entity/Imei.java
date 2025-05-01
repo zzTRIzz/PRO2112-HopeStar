@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-//@ToString
+@ToString
 @Entity
 @Table(name = "imei")
 public class Imei extends AuditEntity {

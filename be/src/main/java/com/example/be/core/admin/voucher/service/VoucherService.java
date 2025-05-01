@@ -3,6 +3,7 @@ package com.example.be.core.admin.voucher.service;
 
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.CustomersResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
@@ -46,4 +47,6 @@ public interface VoucherService {
     );
     void updateAllVoucherStatuses();
     List<VoucherApplyResponse> getVoucherApply(Account account);
+
+    List<CustomersResponse> getCustomers(Integer voucherId) throws Exception;
 }

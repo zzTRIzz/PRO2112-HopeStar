@@ -237,4 +237,37 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     """, nativeQuery = true)
     List<Object[]> getDailyStatisticByDateRange(@Param("startDate") LocalDate startDate,
                                                 @Param("endDate") LocalDate endDate);
+
+    @Query(nativeQuery = true, value = """
+    SELECT DISTINCT 
+        a.id AS customer_id,
+        a.full_name AS customer_name,
+        a.email,
+        a.phone,
+        a.address,
+        b.name_bill AS bill_code,
+        b.status AS bill_status
+    FROM account a
+    JOIN bill b ON a.id = b.id_account
+    WHERE b.status = 'DA_HUY'
+    ORDER BY a.id
+    """)
+    List<Object[]> findCustomersWithCanceledOrders();
+
+
+    @Query(nativeQuery = true, value = """
+    SELECT 
+        a.id AS customer_id,
+        a.full_name AS customer_name,
+        a.email,
+        a.phone,
+        SUM(b.total_due) AS total_due_sum
+    FROM account a
+    JOIN bill b ON a.id = b.id_account
+    WHERE b.status = 'HOAN_THANH'  
+    GROUP BY a.id
+    ORDER BY total_due_sum DESC
+    LIMIT 10
+    """)
+    List<Object[]> findTop10RevenueCustomers();
 }
