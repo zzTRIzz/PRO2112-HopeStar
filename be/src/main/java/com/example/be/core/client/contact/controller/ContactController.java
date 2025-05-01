@@ -1,6 +1,7 @@
 package com.example.be.core.client.contact.controller;
 
 import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.core.client.contact.dto.request.ContactReplyRequest;
 import com.example.be.core.client.contact.dto.response.BaseResponse;
 import com.example.be.core.client.contact.service.ContactService;
@@ -20,9 +21,13 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/lien-he")
+@RequestMapping("api/lien-he")
 public class ContactController {
+
     private final ChatClient chatClient;
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private ContactRepository contactRepository;
@@ -40,7 +45,8 @@ public class ContactController {
 
 
     @PostMapping
-    public ResponseEntity<?> handleContactRequest(@RequestBody @Valid Contact contact) {
+    public ResponseEntity<?> handleContactRequest(@RequestHeader(value = "Authorization") String jwt,@RequestBody @Valid Contact contact) throws Exception {
+        authService.findAccountByJwt(jwt);
         System.out.println(Arrays.toString(ContactType.values()));
         try {
             Contact aiXuLy = chatClient.prompt(contact.getContent().toString())
@@ -58,7 +64,8 @@ public class ContactController {
     }
 
     @GetMapping
-    public BaseResponse<?> getAllContact() {
+    public BaseResponse<?> getAllContact(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
         List<?> contacts = contactRepository.findAll();
         if (contacts.isEmpty()) {
             return BaseResponse.success(null);
@@ -68,13 +75,15 @@ public class ContactController {
     }
 
     @DeleteMapping
-    public BaseResponse<?> deleteAllContact() {
+    public BaseResponse<?> deleteAllContact(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
         contactRepository.deleteAll();
         return BaseResponse.success("Xóa thành công tất cả liên hệ");
     }
 
     @PostMapping("/reply")
-    public BaseResponse<?> reply(@RequestBody ContactReplyRequest request) {
+    public BaseResponse<?> reply(@RequestBody ContactReplyRequest request,@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
         contactService.replyToContacts(request);
         return BaseResponse.success("Phản hồi đã được gửi thành công", contactRepository.findAll());
     }
