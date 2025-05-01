@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface VoucherAccountRepository extends JpaRepository<VoucherAccount, Integer> {
 
     @Query("SELECT va FROM VoucherAccount va WHERE va.idVoucher.id = :voucherId AND va.idAccount.id = :accountId")
-    Optional<VoucherAccount> findByIdVoucherAndIdAccount(@Param("voucherId") Integer voucherId,
+    Optional<VoucherAccount> findByIdVoucher(@Param("voucherId") Integer voucherId,
                                                          @Param("accountId") Integer accountId);
 
     // Find by voucher ID
@@ -42,4 +42,9 @@ public interface VoucherAccountRepository extends JpaRepository<VoucherAccount, 
     @Query("DELETE FROM VoucherAccount va WHERE va.idVoucher.id = :voucherId AND va.idAccount.id = :accountId")
     void deleteByVoucherIdAndAccountId(@Param("voucherId") Integer voucherId,
                                        @Param("accountId") Integer accountId);
+
+    @Query("SELECT va FROM VoucherAccount va WHERE va.idVoucher.id = :voucherId AND va.idAccount.id = :accountId")
+    VoucherAccount findByIdVoucherAndIdAccount(@Param("voucherId") Integer voucherId,
+                                                       @Param("accountId") Integer accountId);
+
 }
