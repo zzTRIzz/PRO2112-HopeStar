@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
             if (account != null) {
                 boolean checkVoucherAccount = voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucher.getId(), account.getId());
                 if (checkVoucherAccount) {
-                    VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucherAndIdAccount(voucher.getId(), account.getId()).get();
+                    VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucher(voucher.getId(), account.getId()).get();
                     voucherAccount.setStatus(VoucherAccountStatus.USED);
                     voucherAccountRepository.save(voucherAccount);
                 }

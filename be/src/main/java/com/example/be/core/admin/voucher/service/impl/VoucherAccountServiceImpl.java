@@ -59,7 +59,7 @@ public class VoucherAccountServiceImpl implements VoucherAccountService {
     @Override
     public VoucherAccountDTO getVoucherAccountStatus(Integer voucherId, Integer accountId) {
         VoucherAccount voucherAccount = voucherAccountRepository
-                .findByIdVoucherAndIdAccount(voucherId, accountId)
+                .findByIdVoucher(voucherId, accountId)
                 .orElse(null);
         return voucherAccountMapper.toDTO(voucherAccount);
     }
