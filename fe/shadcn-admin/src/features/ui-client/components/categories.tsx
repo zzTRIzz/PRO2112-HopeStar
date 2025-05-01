@@ -75,8 +75,8 @@ export default function Categories() {
                   className={`bg-blue-50 text-blue-600 flex items-center justify-center rounded-full p-4`}
                 >
                   <img
-                    src={brand.imageUrl}
-                    alt={`${brand.name} logo`}
+                    src={brand?.imageUrl}
+                    alt={`${brand?.name} logo`}
                     className='h-8 w-8 object-contain'
                   />
                 </div>

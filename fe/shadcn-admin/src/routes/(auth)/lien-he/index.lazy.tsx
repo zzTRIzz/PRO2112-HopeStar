@@ -1,3 +1,4 @@
+import Footer from '@/components/layout/footer'
 import Navbar from '@/features/ui-client/components/navbar'
 import { LienHe } from '@/features/ui-client/pages/lien-he/LienHe'
 import { createLazyFileRoute } from '@tanstack/react-router'
@@ -17,5 +18,6 @@ function RouteComponent() {
   return <>
     <Navbar />
     <LienHe />
+    <Footer />
   </>
 }
