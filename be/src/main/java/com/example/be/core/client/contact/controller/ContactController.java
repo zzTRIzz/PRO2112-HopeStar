@@ -87,4 +87,14 @@ public class ContactController {
         contactService.replyToContacts(request);
         return BaseResponse.success("Phản hồi đã được gửi thành công", contactRepository.findAll());
     }
+
+    @GetMapping("/{id}")
+    public BaseResponse<?> getContactById(@PathVariable Integer id,@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
+        Contact contact = contactRepository.findById(id).orElse(null);
+        if (contact == null) {
+            return BaseResponse.error("Không tìm thấy liên hệ với ID: " + id);
+        }
+        return BaseResponse.success(contact);
+    }
 }

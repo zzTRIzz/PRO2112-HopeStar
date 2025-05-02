@@ -33,6 +33,13 @@ export interface Contact {
 
 export type FilterType = ContactType | 'ALL' | null;
 
+export interface PaginationInfo {
+  currentPage: number
+  totalPages: number
+  pageSize: number
+  totalItems: number
+}
+
 export interface ContactResponse {
   status: number
   message: string

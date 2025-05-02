@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Contact, ContactResponse, ReplyRequest } from '../types'
+import { Contact, ContactResponse, ContactType, ReplyRequest } from '../types'
 import Cookies from 'js-cookie'
 
 const API_URL = 'http://localhost:8080/api/lien-he'
@@ -20,7 +20,7 @@ export const getContacts = async (): Promise<Contact[]> => {
   }
 }
 
-export const replyToContacts = async (data: ReplyRequest): Promise<Contact[]> => {
+export const replyToContacts = async (data: ReplyRequest): Promise<ContactResponse['data']> => {
   try {
     const jwt = Cookies.get('jwt')
     const response = await axios.post<ContactResponse>(`${API_URL}/reply`, data, {

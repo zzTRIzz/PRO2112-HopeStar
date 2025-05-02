@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
-import { Contact, ContactType, FilterType } from './types'
+import { Contact, ContactType, FilterType, PaginationInfo } from './types'
 import { getContacts, replyToContacts } from './services/contact-service'
 import ContactTable from './components/ContactTable'
 import FilterBar from './components/FilterBar'
 import ReplyModal from './components/ReplyModal'
+import PaginationControls from './components/PaginationControls'
 import { Icon } from '@iconify/react'
 
 export default function ContactManagement() {
@@ -15,15 +16,18 @@ export default function ContactManagement() {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
   const [selectedContacts, setSelectedContacts] = useState<Contact[]>([])
+  const [currentPage, setCurrentPage] = useState(0)
+  const [pageSize] = useState(10)
 
   const queryClient = useQueryClient()
 
-  const { data: contacts = [], isLoading } = useQuery({
+  const { data: allContacts = [], isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: getContacts
   })
 
-  const filteredContacts = contacts.filter((contact) => {
+  // Filter contacts based on search term and type
+  const filteredContacts = allContacts.filter((contact) => {
     const matchesSearch =
       searchTerm === '' ||
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,6 +38,20 @@ export default function ContactManagement() {
 
     return matchesSearch && matchesType
   })
+
+  // Calculate pagination
+  const totalItems = filteredContacts.length
+  const totalPages = Math.ceil(totalItems / pageSize)
+  const startIndex = currentPage * pageSize
+  const endIndex = startIndex + pageSize
+  const currentPageData = filteredContacts.slice(startIndex, endIndex)
+
+  const pagination: PaginationInfo = {
+    currentPage,
+    totalPages,
+    pageSize,
+    totalItems
+  }
 
   const handleReply = (contacts: Contact[]) => {
     setSelectedContacts(contacts)
@@ -63,9 +81,13 @@ export default function ContactManagement() {
     }
   }
 
-  // Reset selected ids when filter changes
+  // Reset selected ids when filter or page changes
   useEffect(() => {
     setSelectedIds([])
+    // Reset to first page when filters change
+    if (currentPage !== 0) {
+      setCurrentPage(0)
+    }
   }, [searchTerm, selectedType])
 
   if (isLoading) {
@@ -81,7 +103,7 @@ export default function ContactManagement() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Quản lý liên hệ</h1>
         {selectedIds.length > 0 && (
-          <Button onClick={() => handleReply(contacts.filter(c => selectedIds.includes(c.id)))}>
+          <Button onClick={() => handleReply(filteredContacts.filter(c => selectedIds.includes(c.id)))}>
             <Icon icon="lucide:mail" className="mr-2 h-4 w-4" />
             Gửi phản hồi ({selectedIds.length})
           </Button>
@@ -96,12 +118,22 @@ export default function ContactManagement() {
         selectedCount={selectedIds.length}
       />
 
-      <ContactTable
-        contacts={filteredContacts}
-        selectedIds={selectedIds}
-        onSelectIds={setSelectedIds}
-        onReply={handleReply}
-      />
+      <div className="space-y-4">
+        <ContactTable
+          contacts={currentPageData}
+          selectedIds={selectedIds}
+          onSelectIds={setSelectedIds}
+          onReply={handleReply}
+        />
+
+        {totalPages > 1 && (
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
+      </div>
 
       <ReplyModal
         isOpen={isReplyModalOpen}
