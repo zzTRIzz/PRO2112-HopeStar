@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { Mail, MapPin, Phone, Send } from "lucide-react"
+import axios from "axios"
+import { toast } from "@/hooks/use-toast"
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-type FormState = "idle" | "loading" | "success"
+type FormState = "idle" | "loading" | "success" | "error"
 
 export function ContactFormSection() {
   const [formState, setFormState] = useState<FormState>("idle")
@@ -14,20 +16,100 @@ export function ContactFormSection() {
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [message, setMessage] = useState("")
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: ""
+  })
 
-  function submit() {
+  // Validate form fields
+  const validateForm = () => {
+    let isValid = true
+    const newErrors = {
+      name: "",
+      email: "",
+      phone: "",
+      message: ""
+    }
+
+    // Name validation
+    if (!name.trim()) {
+      newErrors.name = "Tên không được để trống"
+      isValid = false
+    }
+
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "Email không được để trống"
+      isValid = false
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Email không hợp lệ"
+      isValid = false
+    }
+
+    // Phone validation
+    if (!phone.trim()) {
+      newErrors.phone = "Số điện thoại không được để trống"
+      isValid = false
+    } else if (!/^0\d{9}$/.test(phone)) {
+      newErrors.phone = "Số điện thoại phải có 10 số và bắt đầu bằng số 0"
+      isValid = false
+    }
+
+    // Message validation
+    if (!message.trim()) {
+      newErrors.message = "Nội dung tin nhắn không được để trống"
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  const submit = async () => {
+    if (!validateForm()) {
+      return
+    }
+
     setFormState("loading")
-    setTimeout(() => {
-      setFormState("success")
-    }, 1500)
 
-    setTimeout(() => {
-      setFormState("idle")
-      setName("")
-      setEmail("")
-      setPhone("")
-      setMessage("")
-    }, 3300)
+    try {
+      const response = await axios.post("http://localhost:8080/lien-he", {
+        name: name,
+        email: email,
+        phone: phone,
+        content: message
+      })
+
+      setFormState("success")
+      toast({
+        title: "Thành công!",
+        description: "Gửi phản hồi thành công! Cảm ơn bạn đã liên hệ với chúng tôi.",
+        variant: "default",
+      })
+
+      setTimeout(() => {
+        setFormState("idle")
+        setName("")
+        setEmail("")
+        setPhone("")
+        setMessage("")
+      }, 3000)
+
+    } catch (error) {
+      console.error("Lỗi khi gửi form:", error)
+      setFormState("error")
+      toast({
+        title: "Lỗi!",
+        description: "Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.",
+        variant: "destructive",
+      })
+      
+      setTimeout(() => {
+        setFormState("idle")
+      }, 3000)
+    }
   }
 
   return (
@@ -40,7 +122,6 @@ export function ContactFormSection() {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          if (!name || !email || !phone || !message) return
           submit()
         }}
         className="space-y-4"
@@ -59,14 +140,14 @@ export function ContactFormSection() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+                className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.name ? "border-red-500" : ""}`}
                 placeholder="Họ và tên"
-                required
               />
               <div className="absolute left-3 top-2.5 text-muted-foreground">
                 <Mail size={16} />
               </div>
             </div>
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
           </div>
 
           <div>
@@ -82,14 +163,14 @@ export function ContactFormSection() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+                className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.email ? "border-red-500" : ""}`}
                 placeholder="example@email.com"
-                required
               />
               <div className="absolute left-3 top-2.5 text-muted-foreground">
                 <Mail size={16} />
               </div>
             </div>
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
         </div>
 
@@ -103,14 +184,14 @@ export function ContactFormSection() {
               id="phone" 
               value={phone} 
               onChange={(e) => setPhone(e.target.value)} 
-              className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+              className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.phone ? "border-red-500" : ""}`}
               placeholder="0123456789"
-              required
             />
             <div className="absolute left-3 top-2.5 text-muted-foreground">
               <Phone size={16} />
             </div>
           </div>
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
 
         <div>
@@ -124,11 +205,11 @@ export function ContactFormSection() {
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.message ? "border-red-500" : ""}`}
             rows={4}
             placeholder="Nhập nội dung tin nhắn của bạn..."
-            required
           />
+          {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
         </div>
 
         <div className="pt-2">
@@ -136,7 +217,7 @@ export function ContactFormSection() {
             type="submit" 
             className="w-full flex items-center justify-center gap-2"
             disabled={formState === "loading"}
-          >
+          ></Button>
             {formState === "loading" ? (
               <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
             ) : (
@@ -151,6 +232,13 @@ export function ContactFormSection() {
         <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md text-center">
           <h4 className="font-bold">Gửi phản hồi thành công!</h4>
           <p>Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi sớm nhất có thể.</p>
+        </div>
+      )}
+
+      {formState === "error" && (
+        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md text-center">
+          <h4 className="font-bold">Có lỗi xảy ra!</h4>
+          <p>Không thể gửi phản hồi của bạn. Vui lòng thử lại sau.</p>
         </div>
       )}
     </Card>
@@ -238,7 +326,7 @@ export function LienHe() {
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold mb-2">Liên Hệ Với Chúng Tôi</h1>
-        <p className="text-muted-foreground max-w-6xl mx-auto">
+        <p className="text-muted-foreground max-w-6xl mx-auto"></p>
           Hãy để lại thông tin và chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất. Cảm ơn bạn đã quan tâm đến dịch vụ của HopeStar.
         </p>
       </div>
@@ -263,7 +351,7 @@ export function PopoverFormExamples() {
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold mb-2">Liên Hệ Với Chúng Tôi</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-muted-foreground max-w-2xl mx-auto"></p>
           Hãy để lại thông tin và chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất. 
           Cảm ơn bạn đã quan tâm đến dịch vụ của HopeStar.
         </p>
