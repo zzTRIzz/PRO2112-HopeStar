@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.entity.Imei;
+import com.example.be.entity.ImeiSold;
 import com.example.be.entity.status.StatusImei;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,8 +29,8 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
             "where i.status = :status and i.productDetail.id = :idProduct " +
             "and iSold.idBillDetail.id = :idBillDetail")
     List<Imei> getAllImeiDaBan(@Param("status") StatusImei statusImei,
-                                 @Param("idProduct") Integer idProduct,
-                                 @Param("idBillDetail") Integer idBillDetail
+                               @Param("idProduct") Integer idProduct,
+                               @Param("idBillDetail") Integer idBillDetail
     );
 
     @Query("SELECT i FROM Imei i " +
@@ -37,8 +38,8 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
             "WHERE  i.productDetail.id = :idProduct " +
             "AND (iSold.idBillDetail.id = :idBillDetail OR iSold.idBillDetail.id IS NULL)")
     List<Imei> findImeiByIdProductDetail(
-                          @Param("idProduct") Integer idProduct,
-                          @Param("idBillDetail") Integer idBillDetail);
+            @Param("idProduct") Integer idProduct,
+            @Param("idBillDetail") Integer idBillDetail);
 
 
     @Query("SELECT i FROM Imei i " +
@@ -46,4 +47,13 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
             "AND i.status = :status")
     Imei findImeiByImeiCode(@Param("imei") String imei,
                             @Param("status") StatusImei statusImei);
+
+    @Query("SELECT i.id_Imei FROM ImeiSold i " +
+            "WHERE i.id_Imei.id IN :imeiIds " +
+            "AND i.idBillDetail.id <> :currentBillDetailId")
+    List<Imei> findImeiSoldInOtherBillDetails(
+            @Param("imeiIds") List<Integer> imeiIds,
+            @Param("currentBillDetailId") Integer currentBillDetailId
+    );
+
 }
