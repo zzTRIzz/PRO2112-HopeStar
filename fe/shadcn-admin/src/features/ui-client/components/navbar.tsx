@@ -28,6 +28,9 @@ import {
 } from './ui/navigation-menu'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
+// Custom event name - must match the one defined in AccountPage.tsx
+const PROFILE_UPDATED_EVENT = 'profile-updated';
+
 interface Brand {
   id: number
   name: string
@@ -44,8 +47,21 @@ export default function Navbar() {
     queryKey: ['brands'],
     queryFn: getBrandActive,
   })
+  
   useEffect(() => {
     loadProfile()
+    
+    // Add event listener for profile updates
+    const handleProfileUpdated = () => {
+      loadProfile()
+    }
+    
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated)
+    
+    // Clean up event listener when component unmounts
+    return () => {
+      window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated)
+    }
   }, [])
 
   const loadProfile = async () => {
@@ -194,26 +210,6 @@ export default function Navbar() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-              {/* <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/'
-                    className='group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
-                  >
-                    Cửa hàng (Shop)
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem> */}
-              {/* <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link 
-                    to="/promotions"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
-                  >
-                    Chương trình khuyến mãi (promotions)
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem> */}
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link

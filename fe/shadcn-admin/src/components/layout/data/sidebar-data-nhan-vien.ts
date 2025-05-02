@@ -53,6 +53,11 @@ export const sidebarDataNhanVien: Omit<SidebarData, 'user'> = {
               url: '/taikhoan/khachhang',
             }
           ],
+        },
+        {
+          title: 'Quản lý liên hệ',
+          url: '/quan-ly-lien-he',
+          icon: IconMessages,
         }
       ],
     },
