@@ -207,6 +207,9 @@ public class BanHangTaiQuay {
     public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {
         ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm chi tiết"));
+        if (productDetail.getInventoryQuantity() <= 0 ){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sản phẩm chi tiết đã hết hàng !");
+        }
         billDetailDto.setQuantity(0);
         BigDecimal price = productDetail.getPriceSell();
         billDetailDto.setPrice(price);
@@ -239,6 +242,7 @@ public class BanHangTaiQuay {
                                             @PathVariable("idBill") Integer idBill,
                                             @PathVariable("idProduct") Integer idProduct
     ) {
+
         imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
 
@@ -259,10 +263,10 @@ public class BanHangTaiQuay {
                                             @PathVariable("idBill") Integer idBill,
                                             @PathVariable("idProduct") Integer idProduct
     ) {
-        System.out.println("imeiSoldDto"+imeiSoldDto.getId_Imei());
-        System.out.println("imeiSoldDto"+imeiSoldDto.getIdBillDetail());
-        System.out.println("idBill"+idBill);
-        System.out.println("idProduct"+idProduct);
+//        System.out.println("imeiSoldDto"+imeiSoldDto.getId_Imei());
+//        System.out.println("imeiSoldDto"+imeiSoldDto.getIdBillDetail());
+//        System.out.println("idBill"+idBill);
+//        System.out.println("idProduct"+idProduct);
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),

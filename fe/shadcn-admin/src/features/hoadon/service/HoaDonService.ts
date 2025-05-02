@@ -2,6 +2,7 @@ import { BillDetailSchema, ImeiSoldSchema } from "@/features/banhang/service/Sch
 import axios from "axios";
 import { BillHistoryRequest, UpdateCustomerRequest } from "./Schema";
 import Cookies from "js-cookie";
+import { showErrorToast } from "../Chitiethoadon/components/components_con/ThongBao";
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -191,11 +192,20 @@ export const createImeiSold = async (imeiSold: ImeiSoldSchema,
             },
         });
         return response.data;
-    } catch (error) {
-        console.error('Error add imei sold data:', error);
+    } catch (error: any) {
+        console.error('Lỗi khi thêm IMEI đã bán:', error);
+
+        if (error.response && error.response.data) {
+            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
+            // const message = error.response.data.message || 'Imei đã bán !';
+            showErrorToast(message);
+        } else {
+            showErrorToast('Không thể kết nối đến server');
+        }
+        // Ném lại lỗi nếu cần
         throw error;
     }
-}
+};
 
 // //  Cap nhat imei vào hóa đơn
 // export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
@@ -225,21 +235,30 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
         throw new Error('Dữ liệu không hợp lệ');
     }
-    console.log('imeiSold:', imeiSold);
-    console.log('idBill:', idBill);
-    console.log('idProduct:', idProduct);
+    // console.log('imeiSold:', imeiSold);
+    // console.log('idBill:', idBill);
+    // console.log('idProduct:', idProduct);
     try {
-        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`,  imeiSold, {
+        const response = await axios.post(`${API_BASE_URL}/update-xac-nhan-imei/${idBill}/${idProduct}`,  imeiSold, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
         });
         return response.data;
-    } catch (error) {
-        console.error('Error add imei sold data:', error);
+    } catch (error: any) {
+        console.error('Lỗi khi thêm IMEI đã bán:', error);
+
+        if (error.response && error.response.data) {
+            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
+            // const message = error.response.data.message || 'Imei đã bán !';
+            showErrorToast(message);
+        } else {
+            showErrorToast('Không thể kết nối đến server');
+        }
+        // Ném lại lỗi nếu cần
         throw error;
     }
-}
+};
 
 export const updateTotalDue = async (id: number, totalDue: number) => {
     const jwt = Cookies.get('jwt')

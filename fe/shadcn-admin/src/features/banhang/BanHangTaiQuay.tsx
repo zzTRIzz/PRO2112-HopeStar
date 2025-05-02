@@ -298,9 +298,8 @@ function BanHangTaiQuay() {
       setSelectedImei([])
       loadImei(product.id)
       getById(idHoaDon)
-      // console.log("id product detail: " + idProductDetail)
-      setDialogContent('imei') // Chuyển nội dung dialog sang IMEI
-      fromThanhCong('Thêm sản phẩm vào hóa đơn thành công')
+      setDialogContent('imei')
+      fromThanhCong('Thêm sản phẩm chi tiết vào hóa đơn thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }
@@ -335,7 +334,7 @@ function BanHangTaiQuay() {
       await loadProductDet()
       await loadImei(idProductDetail)
       await getById(idHoaDon)
-      fromThanhCong('Thêm IMEI thành công')
+      fromThanhCong('Cập nhật số lượng hóa đơn chi tiết thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }
@@ -355,13 +354,11 @@ function BanHangTaiQuay() {
         idHoaDon,
         idProductDetail
       )
-      // console.log('Imei mới:', newImei)
       setSelectedImei([])
-      // setIsCapNhatImei(false)
       await loadProductDet()
       await loadImei(idProductDetail)
       await getById(idHoaDon)
-      fromThanhCong('Cập nhật IMEI thành công')
+      fromThanhCong('Cập nhật số lượng hóa đơn chi tiết thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }

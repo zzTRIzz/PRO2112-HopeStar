@@ -248,7 +248,7 @@ const ChiTietHoaDon: React.FC = () => {
             await loadProductDet();
             await loadImei(idProductDetail);
             loadTongBill();
-            showSuccessToast("Thêm IMEI thành công");
+            showSuccessToast('Cập nhật số lượng hóa đơn chi tiết thành công');
         } catch (error) {
             console.error("Lỗi API:", error);
         }
@@ -272,8 +272,7 @@ const ChiTietHoaDon: React.FC = () => {
             showSuccessToast("Cập nhật số lượng sản phẩm thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
-            showErrorToast("Lỗi cập nhật số lượng sản phẩm");
-
+            // showErrorToast("Lỗi cập nhật số lượng sản phẩm");
         }
     };
 
