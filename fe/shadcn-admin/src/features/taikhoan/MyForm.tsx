@@ -135,9 +135,9 @@ const formSchema = z.object({
         ) {
           age--;
         }
-        return age >= 15 && age < 61;
+        return age >= 0 && age < 100;
       },
-      'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'
+      'Người dùng phải từ 0 tuổi đến dưới 100 tuổi'
     ),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
   googleId: z.string().default('string'),

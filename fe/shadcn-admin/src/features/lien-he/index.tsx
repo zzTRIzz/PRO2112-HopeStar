@@ -14,6 +14,7 @@ import { Icon } from '@iconify/react'
 export default function ContactManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedType, setSelectedType] = useState<FilterType>(null)
+  const [replyStatus, setReplyStatus] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
   const [selectedContacts, setSelectedContacts] = useState<Contact[]>([])
@@ -29,17 +30,26 @@ export default function ContactManagement() {
     queryFn: getContacts
   })
 
-  // Filter contacts based on search term and type
+  // Filter contacts based on search term, type, and reply status with improved search
   const filteredContacts = allContacts.filter((contact) => {
+    // Trim searchTerm only for comparison, not in the UI display
+    const trimmedSearchTerm = searchTerm.trim();
+    
     const matchesSearch =
-      searchTerm === '' ||
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.phone.toLowerCase().includes(searchTerm.toLowerCase())
+      trimmedSearchTerm === '' ||
+      contact.name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) ||
+      contact.email.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) ||
+      contact.phone.toLowerCase().includes(trimmedSearchTerm.toLowerCase())
 
     const matchesType = selectedType === null || contact.type === selectedType
+    
+    // New filter for reply status
+    const matchesReplyStatus = 
+      replyStatus === null || 
+      (replyStatus === 'REPLIED' && contact.reply) || 
+      (replyStatus === 'NOT_REPLIED' && !contact.reply)
 
-    return matchesSearch && matchesType
+    return matchesSearch && matchesType && matchesReplyStatus
   })
 
   // Calculate pagination
@@ -70,35 +80,26 @@ export default function ContactManagement() {
       
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
       toast({
-        title: 'Thành công',
-        description: 'Đã gửi phản hồi thành công'
+        title: 'Thành công!',
+        description: `Đã gửi phản hồi cho ${selectedContacts.length} liên hệ.`
       })
-      setSelectedIds([])
     } catch (error) {
-      console.error('Error sending reply:', error) 
+      console.error('Error submitting reply:', error)
       toast({
-        title: 'Lỗi',
-        description: 'Không thể gửi phản hồi. Vui lòng thử lại',
+        title: 'Lỗi!',
+        description: 'Không thể gửi phản hồi. Vui lòng thử lại.',
         variant: 'destructive'
       })
     }
   }
 
-  // Reset selected ids when filter or page changes
+  // Reset to first page when filters change
   useEffect(() => {
-    setSelectedIds([])
-    // Reset to first page when filters change
-    if (currentPage !== 0) {
-      setCurrentPage(0)
-    }
-  }, [searchTerm, selectedType])
+    setCurrentPage(0)
+  }, [searchTerm, selectedType, replyStatus])
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Icon icon="lucide:loader-2" className="h-10 w-10 animate-spin" />
-      </div>
-    )
+    return <div className="flex justify-center p-6">Đang tải dữ liệu...</div>
   }
 
   return (
@@ -119,6 +120,8 @@ export default function ContactManagement() {
         selectedType={selectedType}
         onTypeChange={setSelectedType}
         selectedCount={selectedIds.length}
+        replyStatus={replyStatus}
+        onReplyStatusChange={setReplyStatus}
       />
 
       <div className="space-y-4">
