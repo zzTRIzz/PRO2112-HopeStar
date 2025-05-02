@@ -385,7 +385,7 @@ public class VoucherServiceImpl implements VoucherService {
 
                 Account removedAccount = accountRepository.findById(removedId).orElse(null);
                 if (removedAccount != null) {
-                    sendVoucherExpiredEmail(removedAccount, voucher); // gửi email xin lỗi
+                    sendVoucherUnavailableEmail(removedAccount, voucher); // gửi email xin lỗi
                     removedAssigned.add(removedAccount.getFullName());
                     log.info("Đã xóa voucher của {} và gửi email", removedAccount.getEmail());
                 }
@@ -734,9 +734,9 @@ public class VoucherServiceImpl implements VoucherService {
             throw new RuntimeException("Không thể gửi email thông báo voucher: " + e.getMessage());
         }
     }
-    public void sendVoucherExpiredEmail(Account account, Voucher voucher) {
+    public void sendVoucherUnavailableEmail(Account account, Voucher voucher) {
         try {
-            log.info("Bắt đầu gửi email voucher hết hạn cho: {}", account.getEmail());
+            log.info("Bắt đầu gửi email voucher không còn sử dụng được cho: {}", account.getEmail());
 
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String endDate = voucher.getEndTime() != null ?
@@ -744,16 +744,16 @@ public class VoucherServiceImpl implements VoucherService {
 
             String emailContent = String.format("""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
-            <h2 style="color: #dc2626;">Thông báo về voucher đã hết hạn</h2>
+            <h2 style="color: #dc2626;">Thông báo về voucher không còn hiệu lực</h2>
 
             <p>Chào %s,</p>
 
-            <p>Chúng tôi xin thông báo rằng voucher <strong>"%s"</strong> của bạn đã hết hạn vào ngày <strong>%s</strong>.</p>
+            <p>Chúng tôi xin thông báo rằng voucher <strong>"%s"</strong> của bạn hiện không thể sử dụng được nữa.</p>
 
             <div style="background-color: #fff3f3; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <p style="margin: 10px 0;">🔹 <strong>Mã voucher</strong>: %s</p>
                 <p style="margin: 10px 0;">🔹 <strong>Tên voucher</strong>: %s</p>
-                <p style="margin: 10px 0;">🔹 <strong>Ngày hết hạn</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Ngày kết thúc hiệu lực</strong>: %s</p>
             </div>
 
             <p>Chúng tôi rất tiếc vì sự bất tiện này. Tuy nhiên, bạn đừng lo! HopeStar luôn có nhiều chương trình khuyến mãi hấp dẫn dành cho bạn trong thời gian tới.</p>
@@ -773,7 +773,6 @@ public class VoucherServiceImpl implements VoucherService {
         """,
                     account.getFullName(),
                     voucher.getName(),
-                    endDate,
                     voucher.getCode(),
                     voucher.getName(),
                     endDate
@@ -781,17 +780,18 @@ public class VoucherServiceImpl implements VoucherService {
 
             emailService.sendEmail(
                     account.getEmail(),
-                    "Voucher của bạn đã hết hạn",
+                    "Thông báo: Voucher không còn hiệu lực",
                     emailContent
             );
 
-            log.info("✓ Đã gửi email hết hạn voucher đến {}", account.getEmail());
+            log.info("✓ Đã gửi email thông báo voucher không còn sử dụng được đến {}", account.getEmail());
 
         } catch (Exception e) {
-            log.error("❌ Lỗi gửi email hết hạn voucher đến {}: {}", account.getEmail(), e.getMessage());
-            throw new RuntimeException("Không thể gửi email thông báo hết hạn voucher: " + e.getMessage());
+            log.error("❌ Lỗi gửi email voucher không còn hiệu lực đến {}: {}", account.getEmail(), e.getMessage());
+            throw new RuntimeException("Không thể gửi email thông báo voucher không còn hiệu lực: " + e.getMessage());
         }
     }
+
 
     @Override
     public VoucherResponse findById(Integer id) {
