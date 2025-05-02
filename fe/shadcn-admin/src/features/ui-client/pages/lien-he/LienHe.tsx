@@ -217,7 +217,7 @@ export function ContactFormSection() {
             type="submit" 
             className="w-full flex items-center justify-center gap-2"
             disabled={formState === "loading"}
-          ></Button>
+          >
             {formState === "loading" ? (
               <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
             ) : (
@@ -228,19 +228,6 @@ export function ContactFormSection() {
         </div>
       </form>
 
-      {formState === "success" && (
-        <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md text-center">
-          <h4 className="font-bold">Gửi phản hồi thành công!</h4>
-          <p>Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi sớm nhất có thể.</p>
-        </div>
-      )}
-
-      {formState === "error" && (
-        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md text-center">
-          <h4 className="font-bold">Có lỗi xảy ra!</h4>
-          <p>Không thể gửi phản hồi của bạn. Vui lòng thử lại sau.</p>
-        </div>
-      )}
     </Card>
   )
 }
@@ -326,7 +313,7 @@ export function LienHe() {
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold mb-2">Liên Hệ Với Chúng Tôi</h1>
-        <p className="text-muted-foreground max-w-6xl mx-auto"></p>
+        <p className="text-muted-foreground max-w-6xl mx-auto">
           Hãy để lại thông tin và chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất. Cảm ơn bạn đã quan tâm đến dịch vụ của HopeStar.
         </p>
       </div>
@@ -351,7 +338,7 @@ export function PopoverFormExamples() {
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold mb-2">Liên Hệ Với Chúng Tôi</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto"></p>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
           Hãy để lại thông tin và chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất. 
           Cảm ơn bạn đã quan tâm đến dịch vụ của HopeStar.
         </p>
