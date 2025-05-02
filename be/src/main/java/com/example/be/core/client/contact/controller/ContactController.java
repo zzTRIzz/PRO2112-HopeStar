@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequestMapping("api/lien-he")
 public class ContactController {
 
-    private final ChatClient chatClient;
+//    private final ChatClient chatClient;
 
     @Autowired
     private AuthService authService;
@@ -33,36 +33,36 @@ public class ContactController {
     @Autowired
     private ContactRepository contactRepository;
 
-    private final String SYSTEM_PROMPT = "Xin chào! Tôi là trợ lý ảo của HopeStar. Bạn cần hỗ trợ gì?";
+//    private final String SYSTEM_PROMPT = "Xin chào! Tôi là trợ lý ảo của HopeStar. Bạn cần hỗ trợ gì?";
     @Autowired
     private ContactService contactService;
+//
+//    public ContactController(ChatClient.Builder chatClient) {
+//        System.out.println("ChatClient bên contact đang chạy....✅");
+//        this.chatClient = chatClient
+//                .defaultSystem(SYSTEM_PROMPT)
+//                .build();
+//    }
 
-    public ContactController(ChatClient.Builder chatClient) {
-        System.out.println("ChatClient bên contact đang chạy....✅");
-        this.chatClient = chatClient
-                .defaultSystem(SYSTEM_PROMPT)
-                .build();
-    }
 
-
-    @PostMapping
-    public ResponseEntity<?> handleContactRequest(@RequestHeader(value = "Authorization") String jwt,@RequestBody @Valid Contact contact) throws Exception {
-        authService.findAccountByJwt(jwt);
-        System.out.println(Arrays.toString(ContactType.values()));
-        try {
-            Contact aiXuLy = chatClient.prompt(contact.getContent().toString())
-                    .user("Phân tích phản hồi để lựa chọn trả về type hợp lý này là gì về thêm type định dạng enum nếu thấy bất kì ký tự nào không có ý nghĩa tiếng việt mặc định trả về SPAM " +
-                            Arrays.toString(ContactType.values())
-                    )
-                    .call()
-                    .entity(Contact.class);
-            contact.setType(aiXuLy.getType());
-        }catch (Exception e) {
-            contact.setType(ContactType.HO_TRO);
-            System.out.println("Lỗi bên contact: " + e.getMessage());
-        }
-        return ResponseEntity.ok(contactRepository.save(contact));
-    }
+//    @PostMapping
+//    public ResponseEntity<?> handleContactRequest(@RequestHeader(value = "Authorization") String jwt,@RequestBody @Valid Contact contact) throws Exception {
+//        authService.findAccountByJwt(jwt);
+//        System.out.println(Arrays.toString(ContactType.values()));
+//        try {
+//            Contact aiXuLy = chatClient.prompt(contact.getContent().toString())
+//                    .user("Phân tích phản hồi để lựa chọn trả về type hợp lý này là gì về thêm type định dạng enum nếu thấy bất kì ký tự nào không có ý nghĩa tiếng việt mặc định trả về SPAM " +
+//                            Arrays.toString(ContactType.values())
+//                    )
+//                    .call()
+//                    .entity(Contact.class);
+//            contact.setType(aiXuLy.getType());
+//        }catch (Exception e) {
+//            contact.setType(ContactType.HO_TRO);
+//            System.out.println("Lỗi bên contact: " + e.getMessage());
+//        }
+//        return ResponseEntity.ok(contactRepository.save(contact));
+//    }
 
     @GetMapping
     public BaseResponse<?> getAllContact(@RequestHeader(value = "Authorization") String jwt) throws Exception {

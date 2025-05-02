@@ -28,15 +28,15 @@ function RouteComponent() {
     <CardBody>
       <div className="space-y-4">
         <div>
-          <h3 className="font-medium mb-2">Đối với sản phẩm chính hãng:</h3>
+          {/* <h3 className="font-medium mb-2">Đối với sản phẩm chính hãng:</h3> */}
           <ul className="list-disc ml-6 space-y-2">
             <li>Khách hàng tự liên hệ trực tiếp với hãng/trung tâm bảo hành được chỉ định trên phiếu BH.</li>
-            <li>Cửa hàng không hỗ trợ trung gian trong quá trình bảo hành.</li>
+            <li>Cửa hàng hỗ trợ trung gian trong quá trình mang sản phẩm đi bảo hành.</li>
           </ul>
         </div>
         <Divider/>
         <div>
-          <h3 className="font-medium mb-2">Điện thoại xách tay (Hàng không chính hãng):</h3>
+          <h3 className="font-medium mb-2">Những sản phẩm không thuộc cửa hàng, không còn hóa đơn</h3>
           <ul className="list-disc ml-6 space-y-2">
             <li>Không áp dụng bảo hành dưới mọi hình thức.</li>
             <li>Cửa hàng chỉ hỗ trợ kiểm tra máy trước khi giao hàng.</li>
@@ -63,11 +63,11 @@ function RouteComponent() {
           <p>Cửa hàng phối hợp với đơn vị vận chuyển để xác định nguyên nhân (mất 1–3 ngày làm việc).</p>
         </div>
         <div>
-          <h3 className="font-medium mb-2">Giải quyết:</h3>
+          {/* <h3 className="font-medium mb-2">Giải quyết:</h3>
           <ul className="list-disc ml-6 space-y-2">
             <li>Nếu lỗi do vận chuyển: Hoàn tiền/đổi hàng tương đương.</li>
             <li>Nếu lỗi do khách hàng: Không áp dụng bồi thường.</li>
-          </ul>
+          </ul> */}
         </div>
       </div>
     </CardBody>
@@ -77,7 +77,7 @@ function RouteComponent() {
   <Card>
     <CardHeader className="flex gap-3">
       <Icon icon="lucide:truck" className="text-xl" />
-      <h2 className="text-xl font-semibold">Chính sách vận chuyển & Bồi thường</h2>
+      <h2 className="text-xl font-semibold">Chính sách vận chuyển & Bồi thường bên đơn vị vận chuyển Giao Hàng Tiết Kiệm</h2>
     </CardHeader>
     <CardBody>
       <div className="space-y-4">
@@ -142,29 +142,7 @@ function RouteComponent() {
     </CardBody>
   </Card>
 
-  {/* Working Hours */}
-  <Card>
-    <CardHeader className="flex gap-3">
-      <Icon icon="lucide:clock" className="text-xl" />
-      <h2 className="text-xl font-semibold">Giờ làm việc</h2>
-    </CardHeader>
-    <CardBody>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <span>Thứ Hai - Thứ Sáu:</span>
-          <span>8:00 - 17:00</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Thứ Bảy:</span>
-          <span>8:00 - 12:00</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Chủ Nhật:</span>
-          <span>Đóng cửa</span>
-        </div>
-      </div>
-    </CardBody>
-  </Card>
+  
 </div>
   <Footer/>
   </>

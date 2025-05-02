@@ -72,7 +72,7 @@ export function Footer() {
             <ul className="space-y-3.5">
               {[
                 { label: "Trang chủ", href: "/" },
-                { label: "Chính sách của cửa hàng", href: "/chinh-sach-cua-hang" },
+                { label: "Chính sách của cửa hàng", href: "/chinh-sach-cua-cua-hang" },
                 { label: "Giới thiệu về cửa hàng", href: "/gioi-thieu-cua-hang" },
                 { label: "Điện thoại", href: "/dienthoai" },
                 { label: "Liên hệ", href: "/lien-he" },

@@ -70,7 +70,7 @@ const TraCuu: React.FC = () => {
             />
             <button
               onClick={traCuuDonHang} // Gọi hàm tra cứu khi nhấn nút
-              className="w-full max-w-md py-3 bg-[#c8102e] text-white font-semibold rounded-lg hover:bg-[#a00d26] transition"
+              className="w-full max-w-md py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
             >
               Tra cứu đơn hàng
             </button>

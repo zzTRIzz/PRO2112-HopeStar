@@ -245,11 +245,11 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         a.email,
         a.phone,
         a.address,
-        b.name_bill AS bill_code,
+        b.code AS bill_code,
         b.status AS bill_status
     FROM account a
     JOIN bill b ON a.id = b.id_account
-    WHERE b.status = 'DA_HUY'
+    WHERE b.status = 'DA_HUY' AND a.id != 1
     ORDER BY a.id
     """)
     List<Object[]> findCustomersWithCanceledOrders();
@@ -264,7 +264,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         SUM(b.total_due) AS total_due_sum
     FROM account a
     JOIN bill b ON a.id = b.id_account
-    WHERE b.status = 'HOAN_THANH'  
+    WHERE b.status = 'HOAN_THANH' AND a.id != 1
     GROUP BY a.id
     ORDER BY total_due_sum DESC
     LIMIT 10
