@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/lien-he")
@@ -66,7 +67,9 @@ public class ContactController {
     @GetMapping
     public BaseResponse<?> getAllContact(@RequestHeader(value = "Authorization") String jwt) throws Exception {
         authService.findAccountByJwt(jwt);
-        List<?> contacts = contactRepository.findAll();
+        List<?> contacts = contactRepository.findAll().stream()
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
+                .collect(Collectors.toList());
         if (contacts.isEmpty()) {
             return BaseResponse.success(null);
         }else {
@@ -85,7 +88,9 @@ public class ContactController {
     public BaseResponse<?> reply(@RequestBody ContactReplyRequest request,@RequestHeader(value = "Authorization") String jwt) throws Exception {
         authService.findAccountByJwt(jwt);
         contactService.replyToContacts(request);
-        return BaseResponse.success("Phản hồi đã được gửi thành công", contactRepository.findAll());
+        return BaseResponse.success("Phản hồi đã được gửi thành công", contactRepository.findAll().stream()
+                .sorted((p1, p2) -> Long.compare(p2.getId(), p1.getId())) // Sắp xếp giảm dần
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")

@@ -4,8 +4,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import { Textarea } from '@/components/ui/textarea'
-import { Contact, ContactType, contactTypeLabels, contactTypeColors } from '../types'
-import { Badge } from '@heroui/react'
+import { Contact, ContactType } from '../types'
+import { getContactTypeStyle } from '../utils/contact-styles'
+import { cn } from '@/lib/utils'
 import { Icon } from '@iconify/react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -65,14 +66,13 @@ export default function ReplyModal({ isOpen, onClose, selectedContacts, onSubmit
                   ).map(([type, contacts]) => (
                     <div key={type} className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Badge className="flex items-center gap-2">
-                          <div 
-                            className="h-2 w-2 rounded-full mr-1"
-                            style={{ backgroundColor: contactTypeColors[type as ContactType] }} 
-                          />
-                          <span>{contactTypeLabels[type as ContactType]}</span>
-                          <span className="ml-1">({contacts.length})</span>
-                        </Badge>
+                        <div className={cn(
+                          "inline-flex px-2 py-1 rounded text-sm font-medium",
+                          getContactTypeStyle(type as ContactType).className
+                        )}>
+                          <span>{getContactTypeStyle(type as ContactType).text}</span>
+                          <span className="ml-2">({contacts.length})</span>
+                        </div>
                       </div>
                       {contacts.map((contact) => (
                         <div

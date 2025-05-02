@@ -3,10 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
 import { Contact, ContactType, FilterType, PaginationInfo } from './types'
-import { getContacts, replyToContacts } from './services/contact-service'
+import { getContacts, getContactDetail, replyToContacts } from './services/contact-service'
 import ContactTable from './components/ContactTable'
 import FilterBar from './components/FilterBar'
 import ReplyModal from './components/ReplyModal'
+import ContactDetailModal from './components/ContactDetailModal'
 import PaginationControls from './components/PaginationControls'
 import { Icon } from '@iconify/react'
 
@@ -16,6 +17,8 @@ export default function ContactManagement() {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
   const [selectedContacts, setSelectedContacts] = useState<Contact[]>([])
+  const [selectedContact, setSelectedContact] = useState<Contact>()
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize] = useState(10)
 
@@ -124,6 +127,16 @@ export default function ContactManagement() {
           selectedIds={selectedIds}
           onSelectIds={setSelectedIds}
           onReply={handleReply}
+          onViewDetail={(contact) => {
+            setSelectedContact(contact)
+            setIsDetailModalOpen(true)
+          }}
+        />
+
+        <ContactDetailModal
+          contact={selectedContact}
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
         />
 
         {totalPages > 1 && (

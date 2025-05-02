@@ -1,6 +1,8 @@
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ContactType, contactTypeLabels, FilterType } from '../types'
+import { ContactType, FilterType } from '../types'
+import { getContactTypeStyle } from '../utils/contact-styles'
+import { cn } from '@/lib/utils'
 import { Badge } from '@heroui/react'
 
 interface FilterBarProps {
@@ -35,10 +37,17 @@ export default function FilterBar({
             <SelectValue placeholder="Tất cả loại" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">Tất cả loại</SelectItem>
+            <SelectItem value="ALL">
+              <span className="font-medium">Tất cả loại</span>
+            </SelectItem>
             {Object.values(ContactType).map((type) => (
               <SelectItem key={type} value={type}>
-                {contactTypeLabels[type]}
+                <div className={cn(
+                  "inline-flex px-2 py-0.5 rounded-full text-sm font-medium",
+                  getContactTypeStyle(type).className
+                )}>
+                  {getContactTypeStyle(type).text}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

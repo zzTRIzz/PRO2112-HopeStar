@@ -7,18 +7,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Contact, ContactType, contactTypeLabels } from '../types'
-import { Badge } from '@heroui/react'
+import { Contact, ContactType } from '../types'
+import { getContactTypeStyle, getContactStatusStyle } from '../utils/contact-styles'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { format } from 'date-fns'
 import { Icon } from '@iconify/react'
+import { cn } from '@/lib/utils'
+import { IconEye } from '@tabler/icons-react'
 
 interface ContactTableProps {
   contacts: Contact[]
   selectedIds: number[]
   onSelectIds: (ids: number[]) => void
   onReply: (contacts: Contact[]) => void
+  onViewDetail: (contact: Contact) => void
 }
 
 export default function ContactTable({
@@ -26,6 +29,7 @@ export default function ContactTable({
   selectedIds,
   onSelectIds,
   onReply,
+  onViewDetail,
 }: ContactTableProps) {
   const [sortConfig, setSortConfig] = useState({
     key: 'createdAt',
@@ -81,22 +85,7 @@ export default function ContactTable({
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead
-              className="w-[100px] cursor-pointer"
-              onClick={() => toggleSort('id')}
-            >
-              ID
-              {sortConfig.key === 'id' && (
-                <Icon
-                  icon={
-                    sortConfig.direction === 'asc'
-                      ? 'lucide:chevron-up'
-                      : 'lucide:chevron-down'
-                  }
-                  className="ml-1 inline h-4 w-4"
-                />
-              )}
-            </TableHead>
+            <TableHead className="w-[80px] text-center">STT</TableHead>
             <TableHead>Tên</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>SĐT</TableHead>
@@ -107,7 +96,7 @@ export default function ContactTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedContacts.map((contact) => (
+          {sortedContacts.map((contact, index) => (
             <TableRow key={contact.id}>
               <TableCell>
                 <Checkbox
@@ -115,7 +104,7 @@ export default function ContactTable({
                   onCheckedChange={() => handleSelectOne(contact.id)}
                 />
               </TableCell>
-              <TableCell>{contact.id}</TableCell>
+              <TableCell className="text-center">{index + 1}</TableCell>
               <TableCell>{contact.name}</TableCell>
               <TableCell>{contact.email}</TableCell>
               <TableCell>{contact.phone}</TableCell>
@@ -123,24 +112,40 @@ export default function ContactTable({
                 {contact.content}
               </TableCell>
               <TableCell>
-                <Badge color="primary">
-                  {contactTypeLabels[contact.type as ContactType]}
-                </Badge>
+                <div className={cn(
+                  "inline-flex px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis",
+                  getContactTypeStyle(contact.type).className
+                )}>
+                  {getContactTypeStyle(contact.type).text}
+                </div>
               </TableCell>
               <TableCell>
-                <Badge color={getStatusColor(contact)}>
-                  {contact.reply ? 'Đã phản hồi' : 'Chưa phản hồi'}
-                </Badge>
+                <div className={cn(
+                  "inline-flex px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis",
+                  getContactStatusStyle(!!contact.reply).className
+                )}>
+                  {getContactStatusStyle(!!contact.reply).text}
+                </div>
               </TableCell>
               <TableCell className="text-right">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onReply([contact])}
-                >
-                  <Icon icon="lucide:mail" className="mr-2 h-4 w-4" />
-                  Phản hồi
-                </Button>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onViewDetail(contact)}
+                    className='h-8 w-8 bg-blue-600 p-0 hover:bg-gray-500'
+                  >
+                    <IconEye color='white' />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onReply([contact])}
+                  >
+                    <Icon icon="lucide:mail" className="mr-2 h-4 w-4" />
+                    Phản hồi
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
