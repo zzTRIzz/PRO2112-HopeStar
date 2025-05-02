@@ -21,14 +21,13 @@ export default function ContactDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px]">
+      <DialogContent className="max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Chi tiết liên hệ</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="max-h-[600px] pr-4">
-          <div className="space-y-6">
+        <ScrollArea className="flex-1 overflow-auto pr-4">
+          <div className="space-y-6 py-2">
             <div className="space-y-2">
-              <h3 className="font-semibold">Thông tin người gửi</h3>
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
@@ -52,7 +51,7 @@ export default function ContactDetailModal({
             <div className="space-y-2">
               <h3 className="font-semibold">Nội dung</h3>
               <div className="rounded-lg border p-4">
-                <p className="whitespace-pre-wrap">{contact.content}</p>
+                <p className="whitespace-pre-wrap break-words">{contact.content}</p>
               </div>
             </div>
 
@@ -73,13 +72,13 @@ export default function ContactDetailModal({
                   <div className="text-sm text-gray-500 mb-2">
                     Phản hồi lúc: {format(new Date(contact.updatedAt), 'HH:mm dd/MM/yyyy')}
                   </div>
-                  <p className="whitespace-pre-wrap">{contact.reply}</p>
+                  <p className="text-justify whitespace-pre-wrap break-words">{contact.reply}</p>
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>
             Đóng
           </Button>
