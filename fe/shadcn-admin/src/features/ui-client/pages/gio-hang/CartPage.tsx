@@ -1,10 +1,10 @@
-import { toast } from '@/hooks/use-toast'
+import Cookies from 'js-cookie'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Button, Card, Checkbox, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useNavigate } from '@tanstack/react-router'
+import { toast } from '@/hooks/use-toast'
 import { CartItemCard } from '../../components/gio-hang/cart-item'
 import { checkCartDetail } from '../../data/api-cart-service'
-import { Link } from '@tanstack/react-router'
 import { useCart } from '../../hooks/use-cart'
 
 export function CartPage() {
@@ -50,9 +50,20 @@ export function CartPage() {
       console.error('Error checking cart items:', error)
       toast({
         title: 'Lỗi',
-        description: error?.response?.data?.message || 'Không thể tiến hành đặt hàng. Vui lòng thử lại',
-        variant: 'destructive'
+        description:
+          error?.response?.data?.message ||
+          'Không thể tiến hành đặt hàng. Vui lòng thử lại',
+        variant: 'destructive',
       })
+
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        window.location.href = '/sign-in'
+      }
     }
   }
 
@@ -134,7 +145,9 @@ export function CartPage() {
                   className='h-12 w-12 text-default-300'
                 />
                 <p className='text-lg'>Chưa có sản phẩm nào trong giỏ hàng</p>
-                <p className='text-sm text-default-500'>Cùng mua sắm hàng ngàn sản phẩm tại HopeStar nhé!</p>
+                <p className='text-sm text-default-500'>
+                  Cùng mua sắm hàng ngàn sản phẩm tại HopeStar nhé!
+                </p>
                 <Link to='/'>
                   <Button
                     color='primary'
@@ -172,6 +185,11 @@ export function CartPage() {
                   className='w-full bg-[#338cf1] text-white'
                   size='lg'
                   onPress={handleProceedToCheckout}
+                  onMouseEnter={() => {
+                    if (selectedProducts.length > 0) {
+                      refreshCart(); 
+                    }
+                  }}
                   isDisabled={selectedProducts.length === 0}
                 >
                   Tiến hành đặt hàng

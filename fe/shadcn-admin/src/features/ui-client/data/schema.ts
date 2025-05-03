@@ -106,6 +106,7 @@ export type ProductAttribute = z.infer<typeof productAttributeSchema>
 // Schema cho CartDetail
 export const cartDetailResponseSchema = z.object({
   id: z.number(),
+  idProduct: z.number(),
   productName: z.string(),
   quantity: z.number(),
   ram: z.string(),
