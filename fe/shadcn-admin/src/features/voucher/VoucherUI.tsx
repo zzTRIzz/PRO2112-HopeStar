@@ -89,6 +89,7 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
+    vocherStatus?: VoucherAccountStatus;
 }
 
 interface CustomersResponse {
@@ -1334,7 +1335,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     // const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
-    // const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
+    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
     const getOrderStatusText = (status: number | null) => {
         switch (status) {
             case 1: return "Đã sử dụng";
@@ -1355,51 +1356,51 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                 // Lấy danh sách khách hàng
                 const response = await authAxios.get(`/admin/voucher/customers/${voucher.id}`);
                 setCustomers(response.data.data);
-                console.log("customers", customers);
-                console.log("re", response.data);
+                // console.log("customers", customers);
+                // console.log("re", response.data);
                 // Lấy danh sách tài khoản đã có voucher
-                // const voucherAccountsResponse = await authAxios.get(
-                //     `/admin/voucher/${voucher.id}/accounts`
-                // );
+                const voucherAccountsResponse = await authAxios.get(
+                    `/admin/voucher/${voucher.id}/accounts`
+                );
 
                 // Khởi tạo statusMap là một object rỗng với kiểu chính xác
-                // const statusMap: Record<number, VoucherAccountStatus | null> = {};
+                const statusMap: Record<number, VoucherAccountStatus | null> = {};
 
                 // Lấy trạng thái hiện tại của voucher
-                // const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+                const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
 
                 // Lọc ra những account là khách hàng
-                // const customers = response.data.data.filter((account: AccountResponse) =>
-                //     account.idRole?.id === 4 &&
-                //     account.status === 'ACTIVE'
-                // );
+                const customers = response.data.data.filter((account: AccountResponse) =>
+                    account.idRole?.id === 4 &&
+                    account.status === 'ACTIVE'
+                );
 
                 // Log để debug
                 // console.log('Voucher accounts response:', voucherAccountsResponse.data);
 
                 // Xử lý trạng thái cho từng voucher account
-                // if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
-                //     voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
-                //         // Kiểm tra cấu trúc dữ liệu
-                //         if (voucherAccount && voucherAccount.idAccount) {
-                //             const accountId = voucherAccount.idAccount.id;
+                if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+                    voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+                        // Kiểm tra cấu trúc dữ liệu
+                        if (voucherAccount && voucherAccount.idAccount) {
+                            const accountId = voucherAccount.idAccount.id;
 
-                //             if (voucherAccount.status === VoucherAccountStatus.USED) {
-                //                 statusMap[accountId] = VoucherAccountStatus.USED;
-                //             } else {
-                //                 if (currentVoucherStatus === VoucherStatus.EXPIRED) {
-                //                     statusMap[accountId] = VoucherAccountStatus.EXPIRED;
-                //                 } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
-                //                     statusMap[accountId] = VoucherAccountStatus.NOT_USED;
-                //                 } else {
-                //                     statusMap[accountId] = null; 
-                //                 }
-                //             }
-                //         }
-                //     });
-                // }
+                            if (voucherAccount.status === VoucherAccountStatus.USED) {
+                                statusMap[accountId] = VoucherAccountStatus.USED;
+                            } else {
+                                if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+                                    statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+                                } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+                                    statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+                                } else {
+                                    statusMap[accountId] = null; 
+                                }
+                            }
+                        }
+                    });
+                }
 
-                // setUsageStatuses(statusMap);
+                setUsageStatuses(statusMap);
                 // console.log('Accounts:', customers);
             } catch (error) {
                 console.error('Error fetching data:', error);
