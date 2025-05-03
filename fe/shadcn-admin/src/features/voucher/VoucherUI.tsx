@@ -1160,10 +1160,14 @@ export default function VoucherUI() {
                                                                     <input
                                                                         type="radio"
                                                                         checked={formData.isPrivate}
-                                                                        onChange={() => setFormData({ ...formData, isPrivate: true })}
+                                                                        onChange={() => {
+                                                                            setSelectedAccounts([]);
+                                                                            setFormData({ ...formData, isPrivate: true });
+                                                                        }}
                                                                         className="rounded"
-                                                                        disabled={isEditing} // Disable when editing
+                                                                        disabled={isEditing}
                                                                     />
+
                                                                     <span>
                                                                         Riêng tư
                                                                         <span className="text-sm text-gray-500 ml-1">
@@ -1393,7 +1397,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                 } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
                                     statusMap[accountId] = VoucherAccountStatus.NOT_USED;
                                 } else {
-                                    statusMap[accountId] = null; 
+                                    statusMap[accountId] = null;
                                 }
                             }
                         }
@@ -1506,7 +1510,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                                             className="rounded"
                                                             checked={
                                                                 selectedAccounts.length === customers.filter((acc) => acc.status !== 1).length &&
-                                                                customers.filter((acc) => acc.status !== 1).length > 0 
+                                                                customers.filter((acc) => acc.status !== 1).length > 0
                                                             }
                                                             onChange={(e) => {
                                                                 if (e.target.checked) {
