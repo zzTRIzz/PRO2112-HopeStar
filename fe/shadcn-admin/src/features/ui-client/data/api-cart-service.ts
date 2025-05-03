@@ -162,9 +162,22 @@ export const order = async (orderData: OrderData) => {
 }
 
 export const checkCartDetail = async (idCartDetailList: number[]) => {
+  const jwt = Cookies.get('jwt')
+  if (jwt) {
+    const response = await axios.post(
+      `${API_BASE_URL}/cart-detail/check-product`,
+      idCartDetailList,{
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    )
+    return response.data
+  }else{
   const response = await axios.post(
     `${API_BASE_URL_GUEST}/cart-detail/check-product`,
     idCartDetailList,
   )
   return response.data
+}
 }

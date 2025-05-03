@@ -143,7 +143,7 @@ export function OrderSummary({
   }
 
   const voucherDiscount = calculateVoucherDiscount(selectedVoucher, subtotal)
-  const total = subtotal - voucherDiscount + shippingFee + insuranceFee
+  const total = Math.max(0, subtotal - voucherDiscount) + shippingFee + insuranceFee
 
   const handleShippingFeeChange = (shipping: number, insurance: number) => {
     setShippingFee(shipping)
