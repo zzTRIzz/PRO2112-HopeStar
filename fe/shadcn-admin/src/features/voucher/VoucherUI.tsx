@@ -1501,24 +1501,12 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                             <thead className="bg-gray-50">
                                                 <tr>
                                                     <th className="w-16 px-4 py-3 text-left">
-                                                        {/* <input
-                                                            type="checkbox"
-                                                            className="rounded"
-                                                            checked={selectedAccounts.length === customers.length && customers}
-                                                            onChange={(e) => {
-                                                                if (e.target.checked) {
-                                                                    setSelectedAccounts(customers.map(acc => acc.id));
-                                                                } else {
-                                                                    setSelectedAccounts([]);
-                                                                }
-                                                            }}
-                                                        /> */}
                                                         <input
                                                             type="checkbox"
                                                             className="rounded"
                                                             checked={
                                                                 selectedAccounts.length === customers.filter((acc) => acc.status !== 1).length &&
-                                                                customers.filter((acc) => acc.status !== 1).length > 0
+                                                                customers.filter((acc) => acc.status !== 1).length > 0 
                                                             }
                                                             onChange={(e) => {
                                                                 if (e.target.checked) {
