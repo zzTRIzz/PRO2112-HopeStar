@@ -185,7 +185,7 @@ export function DataTableRowActions({
     },
   })
 
-  const jwt = Cookies.get('jwt')
+
   // Fetch account data when dialog opens
   const fetchAccountData = async () => {
     if (!isDialogOpen) return
@@ -195,7 +195,7 @@ export function DataTableRowActions({
         `http://localhost:8080/api/account/get/${account.id}`,
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -336,7 +336,7 @@ export function DataTableRowActions({
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )

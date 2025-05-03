@@ -293,7 +293,7 @@ export default function MyForm() {
       const response = await axios.get(
         'http://localhost:8080/api/account/list-nhan-vien',{
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -336,7 +336,7 @@ export default function MyForm() {
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -445,7 +445,7 @@ export default function MyForm() {
 
       const config = {
         headers: {
-          Authorization: `Bearer ${jwt}`,
+          Authorization: `Bearer ${Cookies.get('jwt')}`,
           'Content-Type': 'application/json',
         },
       };

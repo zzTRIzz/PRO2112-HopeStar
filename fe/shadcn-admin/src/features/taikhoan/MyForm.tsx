@@ -96,7 +96,9 @@ import Cookies from 'js-cookie'
 //   ward: z.union([z.string(), z.number()]).transform(val => String(val)),
 //   street: z.string().min(3, "Vui lòng nhập địa chỉ cụ thể")
 // })
-const jwt = Cookies.get('jwt')
+
+
+// const jwt = Cookies.get('jwt')
 const formSchema = z.object({
   fullName: z
     .string({ required_error: 'Họ và tên không được bỏ trống' })
@@ -276,7 +278,7 @@ export default function MyForm() {
       const response = await axios.get(
         'http://localhost:8080/api/account/list-khach-hang',{
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -318,7 +320,7 @@ export default function MyForm() {
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -421,7 +423,7 @@ export default function MyForm() {
 
       const config = {
         headers: {
-          Authorization: `Bearer ${jwt}`,
+          Authorization: `Bearer ${Cookies.get('jwt')}`,
           'Content-Type': 'application/json',
         },
       };
