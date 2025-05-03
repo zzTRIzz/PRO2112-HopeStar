@@ -323,7 +323,7 @@ public class AccountService {
 
     public List<AccountResponse> getAllKhachHang() {
 
-        return accountRepository.getAllAccountKhachHang().stream()
+        return accountRepository.getAllAccountKhachHang(StatusCommon.ACTIVE).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }

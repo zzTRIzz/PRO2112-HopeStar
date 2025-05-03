@@ -171,19 +171,19 @@ export const sidebarData: Omit<SidebarData, 'user'> = {
           icon: IconMessages,
         },
         {
-          title: 'Voucher',
+          title: 'Quản lý Voucher',
           url: '/voucher',
           icon: IconDiscount,
         },
         {
-          title: 'Sale',
+          title: 'Quản lý Sale',
           url: '/sale',
           icon: IconPercentage,
         },
         {
-          title: 'Chats',
+          title: 'Nhắn tin',
           url: '/chats',
-          badge: '3',
+          // badge: '3',
           icon: IconMessages,
         },
       ],

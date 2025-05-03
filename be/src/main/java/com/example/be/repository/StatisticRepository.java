@@ -19,26 +19,26 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Bill> findByStatus(StatusBill status);
 
     @Query(value = """
-        SELECT DATE(payment_date) AS paymentDate, 
+        SELECT DATE(receipt_date) AS receiptDate, 
                SUM(total_due) AS totalRevenue
         FROM bill
         WHERE status = 'HOAN_THANH'
-        GROUP BY DATE(payment_date)
-        ORDER BY paymentDate DESC
+        GROUP BY DATE(receipt_date)
+        ORDER BY receiptDate DESC
         """, nativeQuery = true)
     List<Object[]> getRevenueByDate();
 
-    @Query(value = "SELECT YEAR(payment_date) AS year, SUM(total_due) AS totalRevenue " +
+    @Query(value = "SELECT YEAR(receipt_date) AS year, SUM(total_due) AS totalRevenue " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
-            "GROUP BY YEAR(payment_date) " +
+            "GROUP BY YEAR(receipt_date) " +
             "ORDER BY year DESC", nativeQuery = true)
     List<Object[]> getRevenueByYear();
 
-    @Query(value = "SELECT YEAR(payment_date) AS year, MONTH(payment_date) AS month, SUM(total_due) AS totalRevenue " +
+    @Query(value = "SELECT YEAR(receipt_date) AS year, MONTH(receipt_date) AS month, SUM(total_due) AS totalRevenue " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
-            "GROUP BY YEAR(payment_date), MONTH(payment_date) " +
+            "GROUP BY YEAR(receipt_date), MONTH(receipt_date) " +
             "ORDER BY year DESC, month DESC", nativeQuery = true)
     List<Object[]> getRevenueByMonth();
 
@@ -69,7 +69,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getRevenueByProduct();
 
     // Số lượng hóa đơn theo ngày
-    @Query(value = "SELECT DATE(payment_date) AS order_date, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT DATE(receipt_date) AS order_date, COUNT(*) AS total_orders " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_date " +
@@ -77,7 +77,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getOrderCountByDate();
 
     // Số lượng hóa đơn theo tháng
-    @Query(value = "SELECT YEAR(payment_date) AS order_year, MONTH(payment_date) AS order_month, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT YEAR(receipt_date) AS order_year, MONTH(receipt_date) AS order_month, COUNT(*) AS total_orders " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_year, order_month " +
@@ -85,7 +85,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getOrderCountByMonth();
 
     // Số lượng hóa đơn theo năm
-    @Query(value = "SELECT YEAR(payment_date) AS order_year, COUNT(*) AS total_orders " +
+    @Query(value = "SELECT YEAR(receipt_date) AS order_year, COUNT(*) AS total_orders " +
             "FROM bill " +
             "WHERE status = 'HOAN_THANH' " +
             "GROUP BY order_year " +
@@ -126,20 +126,20 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
     //Doanh thu hôm nay
     @Query("SELECT COALESCE(SUM(b.totalDue), 0) FROM Bill b " +
             "WHERE b.status = 'HOAN_THANH' " +
-            "AND DATE(b.paymentDate) = CURRENT_DATE")
+            "AND DATE(b.receiptDate) = CURRENT_DATE")
     BigDecimal calculateTodayRevenue();
 
     //Doanh thu tháng
     @Query("SELECT COALESCE(SUM(b.totalDue), 0) FROM Bill b " +
             "WHERE b.status = 'HOAN_THANH' " +
-            "AND MONTH(b.paymentDate) = MONTH(CURRENT_DATE) " +
-            "AND YEAR(b.paymentDate) = YEAR(CURRENT_DATE)")
+            "AND MONTH(b.receiptDate) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(b.receiptDate) = YEAR(CURRENT_DATE)")
     BigDecimal calculateMonthlyRevenue();
 
     //số lượng hóa đơn
     @Query("SELECT SUM(b.totalDue) as revenue, COUNT(b) as count " +
             "FROM Bill b " +
-            "WHERE b.paymentDate BETWEEN :start AND :end " +
+            "WHERE b.receiptDate BETWEEN :start AND :end " +
             "AND b.status = 'HOAN_THANH'")
     Tuple getRevenueAndCount(
             @Param("start") LocalDateTime start,
@@ -148,7 +148,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
 
     @Query(value = """
     SELECT 
-        DATE(b.created_at) AS sale_date,  -- Sử dụng created_at từ bill
+        DATE(b.receipt_date) AS sale_date,  -- Sử dụng created_at từ bill
         SUM(bd.quantity) AS daily_quantity_sold
     FROM 
         bill_detail bd
@@ -156,10 +156,10 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         bill b ON bd.id_bill = b.id  -- Join với bảng bill
     WHERE 
         b.status = 'HOAN_THANH'  -- Lọc trạng thái
-        AND MONTH(b.created_at) = MONTH(CURRENT_DATE)
-        AND YEAR(b.created_at) = YEAR(CURRENT_DATE)
+        AND MONTH(b.receipt_date) = MONTH(CURRENT_DATE)
+        AND YEAR(b.receipt_date) = YEAR(CURRENT_DATE)
     GROUP BY 
-        DATE(b.created_at)
+        DATE(b.receipt_date)
     """, nativeQuery = true)
     List<Object[]> getMonthlyProductSales();
 
@@ -180,60 +180,60 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
 
     // Doanh thu 3 ngày gần nhất
     @Query(value = """
-    SELECT DATE(payment_date) AS paymentDate, 
+    SELECT DATE(receipt_date) AS receiptDate, 
            SUM(total_due) AS totalRevenue
     FROM bill
     WHERE status = 'HOAN_THANH'
-    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
-    GROUP BY DATE(payment_date)
-    ORDER BY paymentDate DESC
+    AND DATE(receipt_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
+    GROUP BY DATE(receipt_date)
+    ORDER BY receiptDate DESC
     """, nativeQuery = true)
     List<Object[]> getRevenueLast3Days();
 
     // Doanh thu 7 ngày gần nhất
     @Query(value = """
-    SELECT DATE(payment_date) AS paymentDate, 
+    SELECT DATE(receipt_date) AS receiptDate, 
            SUM(total_due) AS totalRevenue
     FROM bill
     WHERE status = 'HOAN_THANH'
-    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
-    GROUP BY DATE(payment_date)
-    ORDER BY paymentDate DESC
+    AND DATE(receipt_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+    GROUP BY DATE(receipt_date)
+    ORDER BY receiptDate DESC
     """, nativeQuery = true)
     List<Object[]> getRevenueLast7Days();
 
     @Query(value = """
-    SELECT DATE(payment_date) AS order_date, 
+    SELECT DATE(receipt_date) AS order_date, 
            COUNT(*) AS total_orders
     FROM bill
     WHERE status = 'HOAN_THANH'
-    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
-    GROUP BY DATE(payment_date)
+    AND DATE(receipt_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)
+    GROUP BY DATE(receipt_date)
     ORDER BY order_date DESC
     """, nativeQuery = true)
     List<Object[]> getOrderCountLast3Days();
 
     @Query(value = """
-    SELECT DATE(payment_date) AS order_date, 
+    SELECT DATE(receipt_date) AS order_date, 
            COUNT(*) AS total_orders
     FROM bill
     WHERE status = 'HOAN_THANH'
-    AND DATE(payment_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
-    GROUP BY DATE(payment_date)
+    AND DATE(receipt_date) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+    GROUP BY DATE(receipt_date)
     ORDER BY order_date DESC
     """, nativeQuery = true)
     List<Object[]> getOrderCountLast7Days();
 
     @Query(value = """
     SELECT 
-        DATE(b.payment_date) as payment_date,
+        DATE(b.receipt_date) as receipt_date,
         SUM(b.total_due) as daily_revenue,
         COUNT(b.id) as daily_order_count
     FROM bill b
     WHERE b.status = 'HOAN_THANH'
-    AND DATE(b.payment_date) BETWEEN :startDate AND :endDate
-    GROUP BY DATE(b.payment_date)
-    ORDER BY payment_date
+    AND DATE(b.receipt_date) BETWEEN :startDate AND :endDate
+    GROUP BY DATE(b.receipt_date)
+    ORDER BY receipt_date
     """, nativeQuery = true)
     List<Object[]> getDailyStatisticByDateRange(@Param("startDate") LocalDate startDate,
                                                 @Param("endDate") LocalDate endDate);
@@ -245,15 +245,14 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         a.email,
         a.phone,
         a.address,
-        b.name_bill AS bill_code,
+        b.code AS bill_code,
         b.status AS bill_status
     FROM account a
     JOIN bill b ON a.id = b.id_account
-    WHERE b.status = 'DA_HUY'
+    WHERE b.status = 'DA_HUY' AND a.id != 1
     ORDER BY a.id
     """)
     List<Object[]> findCustomersWithCanceledOrders();
-
 
     @Query(nativeQuery = true, value = """
     SELECT 
@@ -264,7 +263,7 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
         SUM(b.total_due) AS total_due_sum
     FROM account a
     JOIN bill b ON a.id = b.id_account
-    WHERE b.status = 'HOAN_THANH'  
+    WHERE b.status = 'HOAN_THANH' AND a.id != 1
     GROUP BY a.id
     ORDER BY total_due_sum DESC
     LIMIT 10

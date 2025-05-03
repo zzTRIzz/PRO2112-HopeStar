@@ -85,7 +85,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
 
         const handlePaymentMethodChange = (method: number) => {
             if (!searchBill) return fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán!");
-            if (tongTien <= 0) return fromThatBai("Giá tiền hiện tại là 0đ !");
+            if (tongTien < 0) return fromThatBai("Giá tiền hiện tại nhỏ hơn 0đ !");
             setPaymentMethod(method);
             if (method === 2) {
                 setDateTime(new Date());

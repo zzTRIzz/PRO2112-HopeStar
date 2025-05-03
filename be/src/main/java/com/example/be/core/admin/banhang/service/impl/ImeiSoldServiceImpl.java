@@ -14,7 +14,9 @@ import com.example.be.repository.BillRepository;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ImeiSoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,22 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         List<Imei> imeis = imeiRepository.findByIdIn(idImei);
+
+        List<String> imeiBiBan = new ArrayList<>();
+
+        for (Imei imei : imeis) {
+            if (imei.getStatus() != StatusImei.NOT_SOLD) {
+                imeiBiBan.add(imei.getImeiCode());
+            }
+        }
+
+        if (!imeiBiBan.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Imei " + String.join(", ", imeiBiBan) + " đã bán !");
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "IMEI đã bán hoặc bị khoá: " + String.join(", ", imeiBiBan));
+        }
+
+
         List<ImeiSold> imeiSoldList = new ArrayList<>();
 
         for (Imei imei : imeis) {
@@ -70,7 +88,20 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
     public BillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
+        List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
+
+        List<String> imeiBiBan = imeisDaBan.stream()
+                .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
+                .map(Imei::getImeiCode)
+                .toList();
+
+        if (!imeiBiBan.isEmpty()) {
+            String message = "IMEI đã bị bán hoặc bị khóa: " + String.join(", ", imeiBiBan);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+        }
+
         List<Imei> listImeis = imeiSoldRepository.searchImeiSold(idBillDetail);
+
         List<ImeiSold> searchimeiSold = imeiSoldRepository.searchImeiSoldByIdImei(idImei);
         if (searchimeiSold != null) {
             for (Imei imei : listImeis) {
@@ -79,8 +110,9 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
             imeiRepository.saveAll(listImeis);
             imeiSoldRepository.deleteImeiSold(idBillDetail);
         }
-        List<Imei> imeis = imeiRepository.findByIdIn(idImei);
+
         List<ImeiSold> imeiSoldList = new ArrayList<>();
+        List<Imei> imeis = imeiRepository.findByIdIn(idImei);
 
         for (Imei imei : imeis) {
             ImeiSold imeiSold = new ImeiSold();

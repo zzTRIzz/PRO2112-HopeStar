@@ -50,7 +50,7 @@ export const OrdersPage = () => {
       // Lọc theo từ khóa tìm kiếm
       if (searchKeyword.trim() !== '') {
         const keyword = searchKeyword.toLowerCase();
-        const matchesCode = bill?.maBill?.toLowerCase().includes(keyword);
+        const matchesCode = bill?.maBill?.toLowerCase().includes(keyword.trim());
         const matchesProduct = bill?.billDetailResponesList?.some((detail) =>
           detail.productDetail?.productName?.toLowerCase().includes(keyword)
         )
@@ -92,7 +92,6 @@ export const OrdersPage = () => {
           <Tab key='DANG_GIAO_HANG' title='Đang giao hàng' />
           <Tab key='HOAN_THANH' title='Hoàn thành' />
           <Tab key='DA_HUY' title='Đã hủy' />
-          {/* <Tab key='returned' title='Trả hàng' /> */}
         </Tabs>
 
         {filteredOrders.length === 0 ? (

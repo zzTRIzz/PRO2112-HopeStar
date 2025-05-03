@@ -21,7 +21,7 @@ export default function SignIn() {
           </p>
         </div>
         <UserAuthForm />
-        <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
+        {/* <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
           Bằng việc đăng nhập, bạn đồng ý với{' '}
           <a
             href='/terms'
@@ -37,7 +37,7 @@ export default function SignIn() {
             Chính sách bảo mật
           </a>{' '}
           của chúng tôi.
-        </p>
+        </p> */}
       </Card>
     </AuthLayout>
   )
