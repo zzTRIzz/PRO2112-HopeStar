@@ -590,7 +590,7 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public List<CustomersResponse> getCustomers(Integer voucherId) throws Exception {
-        Voucher voucher = voucherRepository.findById(voucherId).orElseThrow(()->
+         voucherRepository.findById(voucherId).orElseThrow(()->
             new Exception("Voucher không tồn tại ")
         );
 
@@ -606,15 +606,21 @@ public class VoucherServiceImpl implements VoucherService {
             customersResponse.setName(account.getFullName());
             customersResponse.setEmail(account.getEmail());
             customersResponse.setPhone(account.getPhone());
-            if (voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.USED)){
-            customersResponse.setStatus(1);
-            }else if(voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.NOT_USED)){
+
+            if (voucherAccount == null) {
+                customersResponse.setStatus(4);
+            } else if (voucherAccount.getStatus() == null) {
+                customersResponse.setStatus(5);
+            } else if (VoucherAccountStatus.USED.equals(voucherAccount.getStatus())) {
+                customersResponse.setStatus(1);
+            } else if (VoucherAccountStatus.NOT_USED.equals(voucherAccount.getStatus())) {
                 customersResponse.setStatus(2);
-            }else if(voucherAccount != null && voucherAccount.getStatus().equals(VoucherAccountStatus.EXPIRED)){
+            } else if (VoucherAccountStatus.EXPIRED.equals(voucherAccount.getStatus())) {
                 customersResponse.setStatus(3);
-            }else {
+            } else {
                 customersResponse.setStatus(4);
             }
+
             customersResponses.add(customersResponse);
         }
         return customersResponses;
