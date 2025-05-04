@@ -77,7 +77,7 @@ function RouteComponent() {
   <Card>
     <CardHeader className="flex gap-3">
       <Icon icon="lucide:truck" className="text-xl" />
-      <h2 className="text-xl font-semibold">Chính sách vận chuyển & Bồi thường bên đơn vị vận chuyển Giao Hàng Tiết Kiệm</h2>
+      <h2 className="text-xl font-semibold">Chính sách vận chuyển bên đơn vị vận chuyển Giao Hàng Tiết Kiệm</h2>
     </CardHeader>
     <CardBody>
       <div className="space-y-4">
