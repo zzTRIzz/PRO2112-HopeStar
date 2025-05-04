@@ -47,7 +47,7 @@ function RouteComponent() {
   </Card>
 
   {/* Defective Orders Process */}
-  <Card>
+  {/* <Card>
     <CardHeader className="flex gap-3">
       <Icon icon="lucide:alert-triangle" className="text-xl" />
       <h2 className="text-xl font-semibold">Quy trình xử lý đơn hàng lỗi</h2>
@@ -63,15 +63,15 @@ function RouteComponent() {
           <p>Cửa hàng phối hợp với đơn vị vận chuyển để xác định nguyên nhân (mất 1–3 ngày làm việc).</p>
         </div>
         <div>
-          {/* <h3 className="font-medium mb-2">Giải quyết:</h3>
+          <h3 className="font-medium mb-2">Giải quyết:</h3>
           <ul className="list-disc ml-6 space-y-2">
             <li>Nếu lỗi do vận chuyển: Hoàn tiền/đổi hàng tương đương.</li>
             <li>Nếu lỗi do khách hàng: Không áp dụng bồi thường.</li>
-          </ul> */}
+          </ul>
         </div>
       </div>
     </CardBody>
-  </Card>
+  </Card> */}
 
   {/* Shipping & Compensation */}
   <Card>
