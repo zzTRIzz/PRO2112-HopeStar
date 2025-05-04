@@ -89,7 +89,6 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
-    vocherStatus?: VoucherAccountStatus;
 }
 
 interface CustomersResponse {
@@ -479,18 +478,36 @@ export default function VoucherUI() {
                     return;
                 }
 
-                // Gọi API thêm mới
-                const response = await authAxios.post(`/admin/voucher`, formData);
-
-                if (formData.isPrivate && selectedAccounts.length > 0) {
-                    await authAxios.post(`/admin/voucher/assign`, {
-                        voucherId: response.data.id,
-                        customerIds: selectedAccounts
-                    });
-                    toast.success('Tạo voucher và thêm khách hàng thành công!');
-                } else {
-                    toast.success('Tạo voucher mới thành công!');
+                if (formData.isPrivate && selectedAccounts.length > formData.quantity) {
+                    toast.error(`Số lượng khách hàng đã chọn (${selectedAccounts.length}) vượt quá số lượng voucher có sẵn (${formData.quantity})`);
+                    return;
                 }
+
+                const currentStatus = getVoucherStatus(formData.startTime, formData.endTime);
+        let initialStatus = null;
+        
+        if (currentStatus === VoucherStatus.ACTIVE) {
+            initialStatus = VoucherAccountStatus.NOT_USED;
+        } else if (currentStatus === VoucherStatus.UPCOMING) {
+            initialStatus = null; // Để null cho voucher sắp diễn ra
+        } else if (currentStatus === VoucherStatus.EXPIRED) {
+            initialStatus = VoucherAccountStatus.EXPIRED;
+        }
+
+        // Gọi API thêm mới voucher
+        const response = await authAxios.post(`/admin/voucher`, formData);
+
+        if (formData.isPrivate && selectedAccounts.length > 0) {
+            // Thêm initialStatus vào request assign
+            await authAxios.post(`/admin/voucher/assign`, {
+                voucherId: response.data.id,
+                customerIds: selectedAccounts,
+                initialStatus: initialStatus // Thêm trạng thái ban đầu
+            });
+            toast.success('Tạo voucher và thêm khách hàng thành công!');
+        } else {
+            toast.success('Tạo voucher mới thành công!');
+        }
 
             } else {
                 // Khi cập nhật
@@ -645,30 +662,67 @@ export default function VoucherUI() {
 
         fetchVouchers();
     }, [])
+    // const handleUpdateVoucher = async (voucher: Voucher) => {
+    //     try {
+    //         // Lấy danh sách tài khoản đã thêm vào voucher
+    //         const data = await getAccountDaAddVoucher(voucher.id);
+    //         if (!Array.isArray(data)) {
+    //             console.error('Dữ liệu trả về không phải là một mảng:', data);
+    //             return;
+    //         }
+
+    //         // Cập nhật danh sách tài khoản đã thêm
+    //         const ids: number[] = data.map((account) => account.id);
+    //         setSelectedAccounts(ids);
+    //         setSelectedVoucher(voucher);
+    //         setShowAssignModal(true);
+    //         const response = await authAxios.get(`/account/list`);
+    //         const customers = response.data.data.filter((account: AccountResponse) =>
+    //             account.idRole?.id === 4 && account.status === 'ACTIVE'
+    //         );
+    //         setAccounts(customers);
+    //     } catch (error) {
+    //         console.error('Lỗi khi lấy danh sách account đã thêm:', error);
+    //         toast.error('Không thể tải danh sách đã thêm');
+    //     }
+
+    // };
     const handleUpdateVoucher = async (voucher: Voucher) => {
         try {
+            // Start loading
+            setLoading(true);
+
+            // Kiểm tra số lượng voucher còn lại
+            if (voucher.quantity <= 0) {
+                toast.warning('Voucher đã hết số lượng có thể thêm');
+                return;
+            }
+
             // Lấy danh sách tài khoản đã thêm vào voucher
             const data = await getAccountDaAddVoucher(voucher.id);
             if (!Array.isArray(data)) {
-                console.error('Dữ liệu trả về không phải là một mảng:', data);
-                return;
+                throw new Error('Dữ liệu trả về không hợp lệ');
             }
 
             // Cập nhật danh sách tài khoản đã thêm
             const ids: number[] = data.map((account) => account.id);
             setSelectedAccounts(ids);
-            setSelectedVoucher(voucher);
-            setShowAssignModal(true);
+
+            // Lấy danh sách khách hàng
             const response = await authAxios.get(`/account/list`);
             const customers = response.data.data.filter((account: AccountResponse) =>
                 account.idRole?.id === 4 && account.status === 'ACTIVE'
             );
+            setSelectedVoucher(voucher);
             setAccounts(customers);
-        } catch (error) {
-            console.error('Lỗi khi lấy danh sách account đã thêm:', error);
-            toast.error('Không thể tải danh sách đã thêm');
-        }
+            setShowAssignModal(true);
 
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách account:', error);
+            toast.error('Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -1186,9 +1240,17 @@ export default function VoucherUI() {
                                                 <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                                                     <div className="flex justify-between items-center mb-4">
                                                         <h3 className="text-lg font-medium">Chọn khách hàng</h3>
-                                                        <span className="text-sm text-gray-500">
-                                                            Đã chọn {selectedAccounts.length} khách hàng
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-sm ${selectedAccounts.length > formData.quantity ? 'text-red-600 font-medium' : 'text-gray-500'
+                                                                }`}>
+                                                                Đã chọn {selectedAccounts.length}/{formData.quantity} khách hàng
+                                                            </span>
+                                                            {selectedAccounts.length > formData.quantity && (
+                                                                <span className="text-xs text-red-600">
+                                                                    Vượt quá số lượng cho phép
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
 
                                                     {loading ? (
@@ -1207,7 +1269,12 @@ export default function VoucherUI() {
                                                                                 checked={selectedAccounts.length === accounts.length}
                                                                                 onChange={(e) => {
                                                                                     if (e.target.checked) {
-                                                                                        setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                                        if (accounts.length > formData.quantity) {
+                                                                                            toast.warning(`Chỉ có thể chọn tối đa ${formData.quantity} khách hàng`);
+                                                                                            setSelectedAccounts(accounts.slice(0, formData.quantity).map(acc => acc.id));
+                                                                                        } else {
+                                                                                            setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                                        }
                                                                                     } else {
                                                                                         setSelectedAccounts([]);
                                                                                     }
@@ -1237,9 +1304,13 @@ export default function VoucherUI() {
                                                                                     // }}
                                                                                     onChange={(e) => {
                                                                                         if (e.target.checked) {
-                                                                                            setSelectedAccounts([...selectedAccounts, account.id]); // Thêm tài khoản vào danh sách
+                                                                                            if (selectedAccounts.length >= formData.quantity) {
+                                                                                                toast.warning(`Đã đạt giới hạn số lượng voucher (${formData.quantity})`);
+                                                                                                return;
+                                                                                            }
+                                                                                            setSelectedAccounts([...selectedAccounts, account.id]);
                                                                                         } else {
-                                                                                            setSelectedAccounts(selectedAccounts.filter((id) => id !== account.id)); // Bỏ tài khoản khỏi danh sách
+                                                                                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
                                                                                         }
                                                                                     }}
                                                                                     className="rounded"
@@ -1350,7 +1421,106 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
 
         }
     };
-    // Fetch customers when component mounts
+    // // Fetch customers when component mounts
+    // useEffect(() => {
+    //     const fetchCustomersAndStatus = async () => {
+    //         // const jwt = Cookies.get('jwt');
+    //         try {
+    //             setLoading(true);
+
+    //             // Lấy danh sách khách hàng
+    //             const response = await authAxios.get(`/admin/voucher/customers/${voucher.id}`);
+    //             setCustomers(response.data.data);
+    //             // console.log("customers", customers);
+    //             console.log("re", response.data);
+    //             // Lấy danh sách tài khoản đã có voucher
+    //             const voucherAccountsResponse = await authAxios.get(
+    //                 `/admin/voucher/${voucher.id}/accounts`
+    //             );
+
+    //             // Khởi tạo statusMap là một object rỗng với kiểu chính xác
+    //             const statusMap: Record<number, VoucherAccountStatus | null> = {};
+
+    //             // Lấy trạng thái hiện tại của voucher
+    //             const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+
+    //             // Lọc ra những account là khách hàng
+    //             const customers = response.data.data.filter((account: AccountResponse) =>
+    //                 account.idRole?.id === 4 &&
+    //                 account.status === 'ACTIVE'
+    //             );
+
+    //             // Log để debug
+    //             console.log('Voucher accounts response:', voucherAccountsResponse.data);
+
+    //             // Xử lý trạng thái cho từng voucher account
+    //             if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+    //                 voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+    //                     // Kiểm tra cấu trúc dữ liệu
+    //                     if (voucherAccount && voucherAccount.idAccount) {
+    //                         const accountId = voucherAccount.idAccount.id;
+
+    //                         if (voucherAccount.status === VoucherAccountStatus.USED) {
+    //                             statusMap[accountId] = VoucherAccountStatus.USED;
+    //                         } else {
+    //                             if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+    //                                 statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+    //                             } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+    //                                 statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+    //                             } else {
+    //                                 statusMap[accountId] = null; 
+    //                             }
+    //                         }
+    //                     }
+    //                 });
+    //             }
+
+    //             setUsageStatuses(statusMap);
+    //             console.log('Accounts:', customers);
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //             setError('Không thể tải danh sách khách hàng');
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchCustomersAndStatus();
+    // }, [voucher.id, voucher.startTime, voucher.endTime]);
+
+    // // Handle assign button click
+    // const handleAssign = async () => {
+    //     try {
+    //         setLoading(true);
+
+    //         // Kiểm tra trạng thái hiện tại của voucher
+    //         const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+
+    //         // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
+    //         let initialStatus = null;
+    //         if (currentStatus === VoucherStatus.ACTIVE) {
+    //             initialStatus = VoucherAccountStatus.NOT_USED;
+    //         }
+
+    //         // Nếu UPCOMING hoặc EXPIRED thì giữ null
+    //         const response = await authAxios.post(`/admin/voucher/assign`, {
+    //             voucherId: voucher.id,
+    //             customerIds: selectedAccounts,
+    //             initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
+    //         });
+
+    //         if (response.data.success) {
+    //             toast.success('Đã thêm voucher thành công');
+    //             onRefresh();
+    //             onClose();
+    //         }
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         toast.error('Có lỗi xảy ra khi thêm voucher');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
             // const jwt = Cookies.get('jwt');
@@ -1396,7 +1566,8 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                     statusMap[accountId] = VoucherAccountStatus.EXPIRED;
                                 } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
                                     statusMap[accountId] = VoucherAccountStatus.NOT_USED;
-                                } else {
+                                } 
+                                else {
                                     statusMap[accountId] = null;
                                 }
                             }
@@ -1505,6 +1676,18 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
                                             <thead className="bg-gray-50">
                                                 <tr>
                                                     <th className="w-16 px-4 py-3 text-left">
+                                                        {/* <input
+                                                            type="checkbox"
+                                                            className="rounded"
+                                                            checked={selectedAccounts.length === customers.length && customers}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedAccounts(customers.map(acc => acc.id));
+                                                                } else {
+                                                                    setSelectedAccounts([]);
+                                                                }
+                                                            }}
+                                                        /> */}
                                                         <input
                                                             type="checkbox"
                                                             className="rounded"
