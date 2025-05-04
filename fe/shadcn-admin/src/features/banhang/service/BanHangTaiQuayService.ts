@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BillDetailSchema, BillSchema, ImeiSoldSchema } from './Schema';
 import Cookies from 'js-cookie';
 import { fromThatBai } from '../components/components_con/ThongBao';
+import { BillHistoryRequest } from '@/features/hoadon/service/Schema';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin/banhang';
 
@@ -360,7 +361,7 @@ export const createImeiSold = async (
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
+            const message = error.response.data.message|| 'Imei đã bán. Vui lòng chọn imei khác !';
             // const message = error.response.data.message || 'Imei đã bán !';
             fromThatBai(message);
         } else {
@@ -394,7 +395,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
+            const message ='Imei đã bán. Vui lòng chọn imei khác !';
             // const message = error.response.data.message || 'Imei đã bán !';
             fromThatBai(message);
         } else {
@@ -489,3 +490,25 @@ export const quetBarCode = async (barCode: String) => {
         throw error;
     }
 }
+
+
+
+export const addBillHistory = async (billHistory: BillHistoryRequest) => {
+    const jwt = Cookies.get('jwt')
+    try {
+        if (!jwt) throw new Error('Nhân viên chưa đăng nhập');
+        const response = await axios.post(
+            `http://localhost:8080/api/admin/bill/addBillHistory`,
+            billHistory,
+            {
+                headers: {
+                    Authorization: `Bearer ${jwt}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error them hoa don data:', error);
+        throw error;
+    } 
+};

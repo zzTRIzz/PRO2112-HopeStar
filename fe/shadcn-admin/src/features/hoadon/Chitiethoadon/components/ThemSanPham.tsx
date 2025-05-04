@@ -13,15 +13,16 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
-import { BillRespones, Imei, ProductDetail } from '@/features/banhang/service/Schema';
 import { IconQuestionMark } from '@tabler/icons-react';
+import { imei, ProductDetail } from '../ChiTietHoaDon';
+import { BillRespones } from '@/features/banhang/service/Schema';
 
 
 
 
 interface SanPhamChiTiet {
     listProduct: ProductDetail[];
-    listImei: Imei[];
+    listImei: imei[];
     handleAddProduct: (product: ProductDetail) => void;
     handleAddImei: () => void;
     handleCheckboxChange: (id: number) => void;

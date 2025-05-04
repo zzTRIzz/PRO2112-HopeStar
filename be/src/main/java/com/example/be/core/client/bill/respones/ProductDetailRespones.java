@@ -10,6 +10,7 @@ public class ProductDetailRespones {
     private String productName;
     private Integer ram;
     private Integer rom;
+    private String descriptionRom;
     private String color;
     private String image;
     private BigDecimal price;

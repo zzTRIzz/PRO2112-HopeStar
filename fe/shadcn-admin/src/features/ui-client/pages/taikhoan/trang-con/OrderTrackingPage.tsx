@@ -226,7 +226,7 @@ const OrderTrackingPage = () => {
                         <p className='font-medium'>
                           {bd?.productDetail?.productName
                             + ' ' + bd?.productDetail?.ram
-                            + '/' + bd?.productDetail?.rom + 'GB'
+                            + '/' + bd?.productDetail?.rom+bd?.productDetail?.descriptionRom
                             + ' - ' + bd?.productDetail?.color}
                         </p>
                         <p className='text-sm text-default-500'>Số lượng: {bd?.quantity}</p>

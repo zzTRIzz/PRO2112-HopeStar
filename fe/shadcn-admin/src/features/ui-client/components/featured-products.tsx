@@ -179,7 +179,7 @@ export default function FeaturedProducts() {
                   />
                 </div>
 
-                <div className='absolute right-2 top-2 flex gap-2'>
+                {/* <div className='absolute right-2 top-2 flex gap-2'>
                   <Button
                     variant='secondary'
                     size='icon'
@@ -187,7 +187,7 @@ export default function FeaturedProducts() {
                   >
                     <Heart className='h-4 w-4' />
                   </Button>
-                </div>
+                </div> */}
 
                 {product.price !== product.priceSeller && (
                   <Badge
@@ -209,10 +209,10 @@ export default function FeaturedProducts() {
                   <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
                     {product.name}
                   </h3>
-                  <div className='flex shrink-0 items-center gap-1'>
+                  {/* <div className='flex shrink-0 items-center gap-1'>
                     <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
                     <span className='text-sm font-medium'>4.8</span>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Hiển thị RAM và ROM trên cùng 1 hàng với dấu / */}

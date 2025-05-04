@@ -11,7 +11,7 @@ const statusConfig = {
   DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
-  HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
+  HOAN_THANH: { color: '#17c964', text: 'Hoàn thành' },
   DA_HUY: { color: 'red', text: 'Đã hủy' },
 }
 
@@ -110,16 +110,16 @@ export const OrdersPage = () => {
                       <span>
                         {order?.paymentDate
                           ? new Date(order?.paymentDate)?.toLocaleDateString(
-                              'vi-VN',
-                              {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                              }
-                            )
+                            'vi-VN',
+                            {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false,
+                            }
+                          )
                           : ''}
                       </span>
                       <span>Mã đơn hàng: {order?.maBill}</span>
@@ -170,7 +170,8 @@ export const OrdersPage = () => {
                             '/' +
                             order?.billDetailResponesList[0]?.productDetail
                               ?.rom +
-                            'GB' +
+                            order?.billDetailResponesList[0]?.productDetail
+                              ?.descriptionRom +
                             ' - ' +
                             order?.billDetailResponesList[0]?.productDetail
                               ?.color}{' '}

@@ -334,7 +334,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
 
       setCurrentStatus("DA_HUY");
       await updateStatus(searchBill.id, "DA_HUY");
-      // themBillHistory("DA_HUY", note);
+      themBillHistory("DA_HUY", note);
       setOpen(false);
       await huyHoaDon(searchBill?.id, note);
       showSuccessToast("Đã hủy đơn hàng thành công.");

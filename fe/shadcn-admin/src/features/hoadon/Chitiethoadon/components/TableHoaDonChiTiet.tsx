@@ -28,6 +28,7 @@ interface SearchBillDetail {
     nameProduct: string,
     ram: number,
     rom: number,
+    descriptionRom: string,
     mauSac: string,
     imageUrl: string,
     idBill: number
@@ -46,7 +47,7 @@ interface TableHoaDonChiTietProps {
     selectedImei: number[];
     openDialogId: number | null;
     setOpenDialogId: (open: number | null) => void;
-    handleUpdateProduct: (idProductDetail: number, idBillDetail: number) => void
+    handleUpdateProduct: (idProductDetail: number, idBillDetail: number,quantity:number) => void
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
     deleteBillDetail: (id: number) => void;
@@ -121,7 +122,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
+                                            {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom}{pr?.descriptionRom}({pr?.mauSac})
                                         </TableCell>
                                         <TableCell align="right" >{pr?.price?.toLocaleString('vi-VN')} VND
 
@@ -149,7 +150,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
                                                             onClick={() => {
-                                                                handleUpdateProduct(pr.idProductDetail, pr.id);
+                                                                handleUpdateProduct(pr.idProductDetail, pr.id, pr.quantity);
                                                                 setOpenDialogId(pr.id);
                                                             }}
                                                             // disabled={!(

@@ -4,6 +4,7 @@ interface ProductDetail {
     productName: string;
     ram: string;
     rom: string;
+    descriptionRom: string;
     color: string;
     image: string;
     price: number;

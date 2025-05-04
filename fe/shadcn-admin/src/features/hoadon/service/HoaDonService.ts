@@ -239,7 +239,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     // console.log('idBill:', idBill);
     // console.log('idProduct:', idProduct);
     try {
-        const response = await axios.post(`${API_BASE_URL}/update-xac-nhan-imei/${idBill}/${idProduct}`,  imeiSold, {
+        const response = await axios.post(`${API_BASE_URL}/update-xac-nhan-imei/${idBill}/${idProduct}`, imeiSold, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
@@ -249,7 +249,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
+            const message = error.response.data.message || 'Imei đã bán. Vui lòng chọn imei khác !';
             // const message = error.response.data.message || 'Imei đã bán !';
             showErrorToast(message);
         } else {
@@ -263,7 +263,7 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
 export const updateTotalDue = async (id: number, totalDue: number) => {
     const jwt = Cookies.get('jwt')
     try {
-        const response = await axios.put(`${API_BASE_URL}/update-totalDue/${id}/${totalDue}`,{id,totalDue}, {
+        const response = await axios.put(`${API_BASE_URL}/update-totalDue/${id}/${totalDue}`, { id, totalDue }, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
@@ -338,5 +338,5 @@ export const addBillHistory = async (billHistory: BillHistoryRequest) => {
     } catch (error) {
         console.error('Error them hoa don data:', error);
         throw error;
-    } 
+    }
 };

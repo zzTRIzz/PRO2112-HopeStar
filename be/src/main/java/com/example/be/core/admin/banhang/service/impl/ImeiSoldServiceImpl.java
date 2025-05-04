@@ -50,20 +50,31 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
 
         List<Imei> imeis = imeiRepository.findByIdIn(idImei);
 
-        List<String> imeiBiBan = new ArrayList<>();
+//        List<String> imeiBiBan = new ArrayList<>();
+//
+//        for (Imei imei : imeis) {
+//            if (imei.getStatus() != StatusImei.NOT_SOLD) {
+//                imeiBiBan.add(imei.getImeiCode());
+//            }
+//        }
+//
+//        if (!imeiBiBan.isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//                    "Imei " + String.join(", ", imeiBiBan) + " đã bán !");
+////            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "IMEI đã bán hoặc bị khoá: " + String.join(", ", imeiBiBan));
+//        }
 
-        for (Imei imei : imeis) {
-            if (imei.getStatus() != StatusImei.NOT_SOLD) {
-                imeiBiBan.add(imei.getImeiCode());
-            }
-        }
+        List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
+
+        List<String> imeiBiBan = imeisDaBan.stream()
+                .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
+                .map(Imei::getImeiCode)
+                .toList();
 
         if (!imeiBiBan.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Imei " + String.join(", ", imeiBiBan) + " đã bán !");
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "IMEI đã bán hoặc bị khoá: " + String.join(", ", imeiBiBan));
+            String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
+            throw  new RuntimeException(message);
         }
-
 
         List<ImeiSold> imeiSoldList = new ArrayList<>();
 
@@ -96,8 +107,8 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .toList();
 
         if (!imeiBiBan.isEmpty()) {
-            String message = "IMEI đã bị bán hoặc bị khóa: " + String.join(", ", imeiBiBan);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+            String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
+            throw  new RuntimeException(message);
         }
 
         List<Imei> listImeis = imeiSoldRepository.searchImeiSold(idBillDetail);
