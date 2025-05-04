@@ -1353,6 +1353,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, set
             case 2: return "Chưa dùng";
             case 3: return "Hết hạn";
             case 4: return "Chưa áp dụng";
+            case 5: return "Sắp diễn ra";
             default: return "";
 
         }

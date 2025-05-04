@@ -156,16 +156,16 @@ public class BanHangTaiQuay {
 
     //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
-    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization", required = true) String jwt) throws Exception {
-        try {
+    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+//        try {
             Account account = authService.findAccountByJwt(jwt);
             BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
             return ResponseEntity.ok(billDto1);
-        } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo hóa đơn");
-        }
+//        } catch (JwtException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo hóa đơn");
+//        }
 
     }
 
