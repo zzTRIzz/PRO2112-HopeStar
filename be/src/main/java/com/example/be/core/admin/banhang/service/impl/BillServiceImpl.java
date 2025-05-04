@@ -413,17 +413,17 @@ public class BillServiceImpl implements BillService {
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
-            System.out.println(bill);
-            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
-            billHistoryRequest.setIdBill(bill.getId());
-            if (note == null || note.trim().isEmpty()) {
-                billHistoryRequest.setNote("Đơn hàng đã hủy");
-            } else {
-                billHistoryRequest.setNote(note);
-            }
-            billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
-            billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
-            billHistoryService.addBillHistory(billHistoryRequest);
+//            System.out.println(bill);
+//            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+//            billHistoryRequest.setIdBill(bill.getId());
+//            if (note == null || note.trim().isEmpty()) {
+//                billHistoryRequest.setNote("Đơn hàng đã hủy");
+//            } else {
+//                billHistoryRequest.setNote(note);
+//            }
+//            billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
+//            billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
+//            billHistoryService.addBillHistory(billHistoryRequest);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -536,6 +536,7 @@ public class BillServiceImpl implements BillService {
                     productDetailRes.setProductName(billDetail.getIdProductDetail().getProduct().getName());
                     productDetailRes.setRam(billDetail.getIdProductDetail().getRam().getCapacity());
                     productDetailRes.setRom(billDetail.getIdProductDetail().getRom().getCapacity());
+                    productDetailRes.setDescriptionRom(billDetail.getIdProductDetail().getRom().getDescription());
                     productDetailRes.setColor(billDetail.getIdProductDetail().getColor().getName());
                     productDetailRes.setImage(billDetail.getIdProductDetail().getImageUrl());
                     productDetailRes.setPrice(billDetail.getIdProductDetail().getPrice());

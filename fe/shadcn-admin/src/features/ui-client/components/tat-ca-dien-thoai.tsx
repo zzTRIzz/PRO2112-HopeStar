@@ -16,7 +16,7 @@ export default function TatCaDienThoai() {
   const [products, setProducts] = useState<productViewResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const [displayLimit, setDisplayLimit] = useState(20)
+  const [displayLimit, setDisplayLimit] = useState(15)
 
   // Add state to track if filters are active
   const [isFiltered, setIsFiltered] = useState(false)

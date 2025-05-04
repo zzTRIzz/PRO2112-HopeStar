@@ -16,6 +16,7 @@ import ThanhToan from './components/ThanhToan'
 import ThemSanPham from './components/ThemSanPham'
 import './css/print_hoaDon.css'
 import {
+  addBillHistory,
   addHDCT,
   addHoaDon,
   addKhachHang,
@@ -129,6 +130,7 @@ function BanHangTaiQuay() {
     try {
       const data = await getProductDetail();
       setListProductDetail(data)
+      // console.log('Danh sách sản phẩm chi tiết:', data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -192,12 +194,23 @@ function BanHangTaiQuay() {
         return
       }
       await huyHoaDon(idBillHuy)
+      await addBillHistory({
+        actionType: "DA_HUY",
+        idBill: idBillHuy,
+        note: "Đơn hàng đã hủy",
+      })
       await loadBill()
       loadProductDet()
       setProduct([])
       loadBillChoThanhToan()
-      fromThanhCong('Hủy hóa đơn thành công');
+      setSearchBill(undefined);
+      hienThiKhachHang(undefined);
+      setCustomerPayment(0);
+      setPaymentMethod(null);
+      setIsBanGiaoHang(false);
       setIdBill(0);
+      fromThanhCong('Hủy hóa đơn thành công');
+
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -210,6 +223,7 @@ function BanHangTaiQuay() {
       setIdBill(id)
       const data = await getByIdBillDetail(id)
       setProduct(data)
+      console.log('Danh sách hóa đơn chi tiết:', data) 
       const khachHang = await findKhachHang(id)
       hienThiKhachHang(khachHang)
       const voucher = await getVoucherDangSuDung(id)
@@ -381,7 +395,7 @@ function BanHangTaiQuay() {
     findImeiByIdProductDetail(idPD, billDetaill)
   }
 
-  
+
   const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
 
@@ -605,6 +619,7 @@ function BanHangTaiQuay() {
         setCustomerPayment(0);
         setPaymentMethod(null);
         setIsBanGiaoHang(false);
+        setIdBill(0);
         fromThanhCong("Thanh toán thành công");
       } catch (error) {
         console.error("Lỗi khi thanh toán:", error);
@@ -865,7 +880,7 @@ function BanHangTaiQuay() {
             printRef={printRef}
             setIsThanhToanNhanHang={setIsThanhToanNhanHang}
             isThanhToanNhanHang={isThanhToanNhanHang}
-            tongTien={tongTien}
+            tongTien={searchBill?.totalPrice ?? 0}
             setShippingFee={setShippingFee}
             setInsuranceFee={setInsuranceFee}
             confirmedAddress={deliveryInfo?.fullAddress}

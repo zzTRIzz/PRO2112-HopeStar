@@ -81,6 +81,7 @@ public class BillServiceClientImpl implements BillServiceClient {
                     productDetailRespones.setProductName(billDetail.getIdProductDetail().getProduct().getName());
                     productDetailRespones.setRam(billDetail.getIdProductDetail().getRam().getCapacity());
                     productDetailRespones.setRom(billDetail.getIdProductDetail().getRom().getCapacity());
+                    productDetailRespones.setDescriptionRom(billDetail.getIdProductDetail().getRom().getDescription());
                     productDetailRespones.setColor(billDetail.getIdProductDetail().getColor().getName());
                     productDetailRespones.setImage(billDetail.getIdProductDetail().getImageUrl());
                     productDetailRespones.setPrice(billDetail.getIdProductDetail().getPrice());
@@ -159,6 +160,7 @@ public class BillServiceClientImpl implements BillServiceClient {
                     productDetailRespones.setProductName(billDetail.getIdProductDetail().getProduct().getName());
                     productDetailRespones.setRam(billDetail.getIdProductDetail().getRam().getCapacity());
                     productDetailRespones.setRom(billDetail.getIdProductDetail().getRom().getCapacity());
+                    productDetailRespones.setDescriptionRom(billDetail.getIdProductDetail().getRom().getDescription());
                     productDetailRespones.setColor(billDetail.getIdProductDetail().getColor().getName());
                     productDetailRespones.setImage(billDetail.getIdProductDetail().getImageUrl());
                     productDetailRespones.setPrice(billDetail.getIdProductDetail().getPrice());

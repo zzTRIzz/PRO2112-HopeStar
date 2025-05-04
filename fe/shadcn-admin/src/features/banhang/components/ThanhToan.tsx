@@ -121,13 +121,13 @@ const ThanhToan: React.FC<ThanhToanProps> =
             }
 
             // Kiểm tra giá trị đơn hàng tối thiểu
-            if (voucher.minOrderValue && tongTien < voucher.minOrderValue) {
+            if (tongTien < voucher.minOrderValue) {
                 fromThatBai(`Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} đ`);
                 return false;
             }
 
             // Kiểm tra giá trị đơn hàng tối đa
-            if (voucher.maxOrderValue && tongTien > voucher.maxOrderValue) {
+            if (tongTien > voucher.maxOrderValue) {
                 fromThatBai(`Đơn hàng không được vượt quá ${voucher.maxOrderValue.toLocaleString('vi-VN')} đ.`);
                 return false;
             }

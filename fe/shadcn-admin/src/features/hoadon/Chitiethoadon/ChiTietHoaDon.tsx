@@ -14,7 +14,7 @@ import {
 
 } from '@/features/hoadon/service/HoaDonService';
 import { showSuccessToast, showErrorToast } from "./components/components_con/ThongBao"
-interface SearchBillDetail {
+export interface SearchBillDetail {
     id: number
     price: number,
     quantity: number,
@@ -23,12 +23,13 @@ interface SearchBillDetail {
     nameProduct: string,
     ram: number,
     rom: number,
+    descriptionRom: string,
     mauSac: string,
     imageUrl: string,
     idBill: number
 }
 
-interface ProductDetail {
+export interface ProductDetail {
     id: number,
     code: string,
     priceSell: number,
@@ -37,10 +38,11 @@ interface ProductDetail {
     name: string,
     ram: number,
     rom: number,
+    descriptionRom: string,
     color: string,
     imageUrl: string,
 }
-interface imei {
+export interface imei {
     id: number,
     imeiCode: string,
     barCode: string,
@@ -69,6 +71,7 @@ import TableHoaDonChiTiet from './components/TableHoaDonChiTiet';
 import ThongTinDonHang from './components/ThongTinDonHang';
 import TrangThaiDonHangGiaoHang from './components/TrangThaiDonHangGiaoHang';
 import ThemSanPham from './components/ThemSanPham';
+import { showDialog } from '@/features/banhang/service/ConfirmDialog';
 
 
 const ChiTietHoaDon: React.FC = () => {
@@ -257,6 +260,26 @@ const ChiTietHoaDon: React.FC = () => {
 
     const updateHandleImeiSold = async (idBillDetail: number) => {
         try {
+            if (selectedImei.length <= 0) {
+                showErrorToast("Vui lòng chọn imei");
+                return;
+            }
+            let result = true;
+            if (quantity !== selectedImei.length) {
+                result = await showDialog({
+                    type: 'confirm',
+                    title: 'Xác nhận hủy hóa đơn',
+                    message: `Bạn chắc chắn muốn cập nhật số lượng từ <strong style="color: #007BFF;">${quantity}</strong> sang <strong style="color: #007BFF;">${selectedImei.length}</strong> sản phẩm chi tiết không?`,
+                    confirmText: 'Xác nhận',
+                    cancelText: 'Hủy bỏ',
+                })
+            }
+            if (!result) {
+                showErrorToast('Cập nhật sản phẩm chi tiết không thành công');
+                return;
+            }
+            
+
             await updateImeiSold({
                 id_Imei: selectedImei,
                 idBillDetail: idBillDetail
@@ -275,9 +298,9 @@ const ChiTietHoaDon: React.FC = () => {
             // showErrorToast("Lỗi cập nhật số lượng sản phẩm");
         }
     };
-
+    const [quantity, setQuantity] = useState<number>(0);
     // Cập nhật product 
-    const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
+    const handleUpdateProduct = async (idPD: number, billDetaill: number, quantity: number) => {
         setSelectedImei([]);  // Reset trước khi cập nhật
         try {
             const data = await findImeiByIdProductDaBan(idPD, billDetaill);
@@ -287,6 +310,7 @@ const ChiTietHoaDon: React.FC = () => {
             }
             const ids: number[] = data.map((imei) => imei.id);
             setSelectedImei(ids);
+            setQuantity(quantity);
         } catch (error) {
             console.error("Lỗi khi lấy danh sách IMEI đã bán:", error);
         }

@@ -63,6 +63,7 @@ export interface SearchBillDetail {
   nameProduct: string,
   ram: number,
   rom: number,
+  descriptionRom: string,
   mauSac: string,
   imageUrl: string,
   idBill: number
@@ -77,6 +78,7 @@ export interface ProductDetail {
   name: string,
   ram: number,
   rom: number,
+  descriptionRom : string
   color: string,
   imageUrl: string,
 }
@@ -90,6 +92,7 @@ export interface AccountKhachHang {
   address: string,
   googleId: string
 }
+
 export interface Imei {
   id: number,
   imeiCode: string,

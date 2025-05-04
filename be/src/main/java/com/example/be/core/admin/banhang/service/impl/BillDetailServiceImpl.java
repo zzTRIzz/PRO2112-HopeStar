@@ -147,6 +147,7 @@ public class BillDetailServiceImpl implements BillDetailService {
                 productDetail.getColor().getName(),
                 productDetail.getRam().getCapacity(),
                 productDetail.getRom().getCapacity(),
+                productDetail.getRom().getDescription(),
                 productDetail.getImageUrl(),
                 null
         );
