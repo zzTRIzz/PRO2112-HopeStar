@@ -1,15 +1,16 @@
-import { toast } from '@/hooks/use-toast'
-import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
-import { Icon } from '@iconify/react'
+import React, { useState } from 'react'
+import axios from 'axios'
+import Cookies from 'js-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import axios from 'axios'
-import React, { useState } from 'react'
+import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
+import { Icon } from '@iconify/react'
+import { toast } from '@/hooks/use-toast'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
 import { OrderSummary } from '../../components/gio-hang/order-summary'
 import { ProductList } from '../../components/gio-hang/product-list'
 import type { CartItem, Voucher } from '../../components/gio-hang/types/cart'
-import { order } from '../../data/api-cart-service'
+import { checkCartDetail, order } from '../../data/api-cart-service'
 
 interface CheckoutData {
   customerInfo: {
@@ -207,7 +208,8 @@ export function CheckoutPage() {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.customerInfo.email)
     ) {
       errors.customerInfo.email = 'Email không hợp lệ'
-    }if (!checkoutData.customerInfo.email.trim()) {
+    }
+    if (!checkoutData.customerInfo.email.trim()) {
       errors.customerInfo.email = 'Vui lòng nhập email'
     }
 
@@ -249,9 +251,9 @@ export function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (!validateForm()) return
-    
+
     setIsSubmitting(true) // Start loading
-    
+
     try {
       const profile = JSON.parse(localStorage.getItem('profile') || '{}')
       const hasSavedAddress = !!profile.address
@@ -282,8 +284,15 @@ export function CheckoutPage() {
         discountedTotal: canApplyVoucher ? orderValues.voucherDiscount : 0,
         idVoucher: canApplyVoucher ? orderValues.selectedVoucher?.id : null,
       }
-      console.log('eInvoice value:', checkoutData.eInvoice, typeof checkoutData.eInvoice);
-
+      console.log(
+        'eInvoice value:',
+        checkoutData.eInvoice,
+        typeof checkoutData.eInvoice
+      )
+      const selectedIds = selectedProducts.map((cartdetail) => cartdetail.id)
+      console.log('Selected IDs:', selectedIds)
+      // Check cart items availability
+      await checkCartDetail(selectedIds)
       if (orderData.paymentMethod === 3) {
         try {
           localStorage.setItem(
@@ -319,7 +328,7 @@ export function CheckoutPage() {
 
         toast({
           title: 'Đặt hàng thành công',
-          description: data.data||'Đơn hàng của bạn đã được tạo thành công',
+          description: data.data || 'Đơn hàng của bạn đã được tạo thành công',
         })
 
         await queryClient.invalidateQueries({ queryKey: ['cart'] })
@@ -332,6 +341,16 @@ export function CheckoutPage() {
         description: error?.response?.data?.message || 'Không thể tạo đơn hàng',
         variant: 'destructive',
       })
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        navigate({ to: '/sign-in' })
+      } else {
+        navigate({ to: '/gio-hang' })
+      }
     } finally {
       setIsSubmitting(false) // Stop loading
     }
@@ -471,7 +490,7 @@ export function CheckoutPage() {
                 <div className='mt-6 flex items-center justify-between'>
                   <div>
                     <p className='font-medium'>Xuất hóa đơn điện tử</p>
-                    <p className="text-sm text-gray-500">
+                    <p className='text-sm text-gray-500'>
                       Hóa đơn sẽ được gửi qua email của bạn
                     </p>
                   </div>

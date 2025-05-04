@@ -72,6 +72,16 @@ public class CartController {
 
     }
 
+    @PostMapping("/cart-detail/check-product")
+    public ResponseData<?> checkCartDetail(@RequestBody List<Integer> idCartDetailList,
+                                           @RequestHeader(value = "Authorization") String jwt) throws Exception {
+
+        authService.findAccountByJwt(jwt);
+        Object o = cartDetailService.checkCartDetail(idCartDetailList);
+        return new ResponseData<>(HttpStatus.OK,"ok",o);
+
+    }
+
     @PostMapping("/order")
     public ResponseData<?> order(@RequestHeader(value = "Authorization") String jwt,
                                  @RequestBody OrderRequest orderRequest) throws Exception {

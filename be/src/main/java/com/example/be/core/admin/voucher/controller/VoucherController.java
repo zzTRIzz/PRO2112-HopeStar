@@ -102,36 +102,38 @@ public class VoucherController {
 
     }
 
-    @Scheduled(fixedRate = 60000) // Chạy mỗi phút
-    public void updateVoucherStatuses() {
+//    @Scheduled(fixedRate = 60000) // Chạy mỗi phút
+//    public void updateVoucherStatuses() {
+//        try {
+//            voucherService.updateAllVoucherStatuses();
+//        } catch (Exception e) {
+//            log.error("Error updating voucher statuses: ", e);
+//        }
+//    }
+
+    @PutMapping("/update-status")
+    public ResponseEntity<?> updateVoucherStatus() {
         try {
+//            Voucher voucher = voucherRepository.findById(id)
+//                    .orElseThrow(() -> new RuntimeException("Voucher not found"));
+//
+//            LocalDateTime now = LocalDateTime.now();
+//            StatusVoucher newStatus;
+//
+//            if (now.isBefore(voucher.getStartTime())) {
+//                newStatus = StatusVoucher.UPCOMING;
+//            } else if (now.isAfter(voucher.getEndTime())) {
+//                newStatus = StatusVoucher.EXPIRED;
+//            } else {
+//                newStatus = StatusVoucher.ACTIVE;
+//            }
+//
+//            voucher.setStatus(newStatus);
+//            voucherRepository.save(voucher);
+
             voucherService.updateAllVoucherStatuses();
-        } catch (Exception e) {
-            log.error("Error updating voucher statuses: ", e);
-        }
-    }
 
-    @PutMapping("/update-status/{id}")
-    public ResponseEntity<?> updateVoucherStatus(@PathVariable Integer id) {
-        try {
-            Voucher voucher = voucherRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Voucher not found"));
-
-            LocalDateTime now = LocalDateTime.now();
-            StatusVoucher newStatus;
-
-            if (now.isBefore(voucher.getStartTime())) {
-                newStatus = StatusVoucher.UPCOMING;
-            } else if (now.isAfter(voucher.getEndTime())) {
-                newStatus = StatusVoucher.EXPIRED;
-            } else {
-                newStatus = StatusVoucher.ACTIVE;
-            }
-
-            voucher.setStatus(newStatus);
-            voucherRepository.save(voucher);
-
-            return ResponseEntity.ok(voucherMapper.toResponse(voucher));
+            return ResponseEntity.ok("Cập nhật thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
