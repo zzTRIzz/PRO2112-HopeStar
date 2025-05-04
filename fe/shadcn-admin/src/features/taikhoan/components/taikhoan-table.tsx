@@ -26,15 +26,18 @@ import {
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { TaiKhoan } from "../schema/schema"
+import { TaiKhoanUpdateButton } from "./taikhoan-columns"
 
 interface TaiKhoanTableProps {
   columns: ColumnDef<TaiKhoan>[]
   data: TaiKhoan[]
+  onUpdateSuccess?: () => void
 }
 
 export function TaiKhoanTable({
   columns,
   data,
+  onUpdateSuccess,
 }: TaiKhoanTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -83,6 +86,8 @@ export function TaiKhoanTable({
                     </TableHead>
                   )
                 })}
+                {/* Thêm cột thao tác */}
+                <TableHead>Thao tác</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -101,12 +106,19 @@ export function TaiKhoanTable({
                       )}
                     </TableCell>
                   ))}
+                  {/* Thêm cột với nút cập nhật */}
+                  <TableCell>
+                    <TaiKhoanUpdateButton 
+                      row={row} 
+                      onUpdateSuccess={onUpdateSuccess}
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1} // +1 cho cột thao tác
                   className="h-24 text-center"
                 >
                   Không có dữ liệu

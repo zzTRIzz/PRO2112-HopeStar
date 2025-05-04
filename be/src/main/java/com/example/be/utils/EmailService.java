@@ -86,7 +86,7 @@ public class EmailService {
                     "                    <!-- Footer -->\n" +
                     "                    <tr>\n" +
                     "                        <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
-                    "                            <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng quần áo HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
+                    "                            <p style=\"margin: 0;\">Cửa hàng bán điện thoại HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
                     "                        </td>\n" +
                     "                    </tr>\n" +
                     "                </table>\n" +
