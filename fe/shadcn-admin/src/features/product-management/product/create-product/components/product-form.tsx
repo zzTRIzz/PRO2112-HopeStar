@@ -197,7 +197,7 @@ export function ProductForm({
                     <FormControl>
                       <Button
                         variant='outline'
-                        className='w-full justify-between'
+                        className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'
                         disabled={!categories}
                       >
                         {field.value.length > 0 && categories
@@ -765,7 +765,7 @@ export function ProductForm({
                     <FormControl>
                       <Button
                         variant='outline'
-                        className='w-full justify-between'
+                        className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'
                         disabled={!sims}
                       >
                         {field.value.length > 0 && sims
@@ -843,7 +843,7 @@ export function ProductForm({
                     <FormControl>
                       <Button
                         variant='outline'
-                        className='w-full justify-between'
+                        className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'
                         disabled={!frontCameras}
                       >
                         {field.value.length > 0 && frontCameras
@@ -926,7 +926,7 @@ export function ProductForm({
                     <FormControl>
                       <Button
                         variant='outline'
-                        className='w-full justify-between'
+                        className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'
                         disabled={!rearCameras}
                       >
                         {field.value.length > 0 && rearCameras

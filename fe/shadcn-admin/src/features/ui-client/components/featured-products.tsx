@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
+import { toast } from '@/hooks/use-toast'
+import { IconLoader2 } from '@tabler/icons-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { IconLoader2 } from '@tabler/icons-react'
+import Cookies from 'js-cookie'
 import { Heart, Star } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
+import { useEffect, useState } from 'react'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -164,7 +164,7 @@ export default function FeaturedProducts() {
         </Button>
       </div>
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-        {newestProducts.map((product) => (
+        {newestProducts.slice(0, displayLimit).map((product) => (
           <Card
             key={product.idProduct}
             className='group flex flex-col overflow-hidden'
@@ -296,7 +296,7 @@ export default function FeaturedProducts() {
       {bestSellingProducts.length !== 0 && (
         <>
           <div className='mb-8 flex items-center justify-between'>
-            <h2 className='pt-8 text-3xl font-bold'>Điện thoại bán chạy</h2>
+            <h2 className='pt-8 text-3xl font-bold'>Điện thoại bán nhiều nhất</h2>
           </div>
 
           <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
