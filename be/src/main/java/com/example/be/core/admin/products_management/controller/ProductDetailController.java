@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -46,4 +47,13 @@ public class ProductDetailController {
             return new ResponseData<>(HttpStatus.ACCEPTED,"add quantity product-detail successfully");
 
     }
+
+    @PostMapping("/import-excel")
+    public ResponseData<?> importExcel(@RequestParam("idProduct") Integer idProduct, @RequestParam("file") MultipartFile file) throws Exception {
+
+        productDetailService.importFileExcelProductDetail(idProduct,file);
+        return new ResponseData<>(HttpStatus.ACCEPTED,"Tải sản phẩm thành công");
+
+    }
+
 }

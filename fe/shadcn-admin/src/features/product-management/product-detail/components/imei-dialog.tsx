@@ -104,6 +104,7 @@ export function ImeiDialog() {
           <DataTable
             columns={columns}
             data={productDetail.productImeiResponses}
+            hideActions={true}
           />
         </ScrollArea>
       </DialogContent>

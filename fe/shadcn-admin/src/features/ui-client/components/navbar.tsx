@@ -300,24 +300,9 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side='right'>
               <nav className='grid gap-6 text-lg font-medium'>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Brands
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Shop
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Promotions
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Support
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Cart (2)
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Account
-                </Link>
+              <Link href='/taikhoan/thong-tin-ca-nhan'>Thông tin cá nhân</Link>
+              <Link href='/taikhoan/don-hang-cua-toi'>Đơn hàng của tôi</Link>
+                
               </nav>
             </SheetContent>
           </Sheet>

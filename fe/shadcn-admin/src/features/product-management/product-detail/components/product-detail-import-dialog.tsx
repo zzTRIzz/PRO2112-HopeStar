@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Route } from '@/routes/_authenticated/product/$id.product-detail'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,16 +22,24 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { importExcelProductDetail } from '@/features/product-management/product-detail/data/api-service'
+import { useQueryClient } from '@tanstack/react-query'
 
 const formSchema = z.object({
   file: z
     .instanceof(FileList)
     .refine((files) => files.length > 0, {
-      message: 'Please upload a file',
+      message: 'Vui lòng chọn tệp để tải lên',
     })
     .refine(
-      (files) => ['text/csv'].includes(files?.[0]?.type),
-      'Please upload csv format.'
+      (files) =>
+        [
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-excel',
+        ].includes(files?.[0]?.type),
+      {
+        message: 'Vui lòng chọn tệp Excel',
+      }
     ),
 })
 
@@ -44,27 +53,34 @@ export function ProductDetailImportDialog({ open, onOpenChange }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: { file: undefined },
   })
-
+  const { id } = Route.useParams()
   const fileRef = form.register('file')
-
-  const onSubmit = () => {
+  const queryClient = useQueryClient()
+  const onSubmit = async () => {
     const file = form.getValues('file')
 
     if (file && file[0]) {
-      const fileDetails = {
-        name: file[0].name,
-        size: file[0].size,
-        type: file[0].type,
+      try {
+        const response = await importExcelProductDetail(Number(id), file[0])
+        toast({
+          title: 'Tải lên thành công',
+          description: response.message || 'Tệp đã được tải lên thành công.',
+        })
+        await queryClient.invalidateQueries({
+          queryKey: ['product-details',id],
+        })
+      } catch (error: any) {
+        toast({
+          title: 'Lỗi',
+          description:error.message||'Có lỗi xảy ra khi tải tệp.',
+          variant: 'destructive',
+        })
       }
+    } else {
       toast({
-        title: 'You have imported the following file:',
-        description: (
-          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-            <code className='text-white'>
-              {JSON.stringify(fileDetails, null, 2)}
-            </code>
-          </pre>
-        ),
+        title: 'Lỗi',
+        description: 'Vui lòng chọn tệp để tải lên.',
+        variant: 'destructive',
       })
     }
     onOpenChange(false)

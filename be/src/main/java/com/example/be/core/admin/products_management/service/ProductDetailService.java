@@ -5,7 +5,9 @@ import com.example.be.core.admin.products_management.dto.request.ProductImeiRequ
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductDetailService {
@@ -44,5 +46,7 @@ public interface ProductDetailService {
     void capNhatSoLuongVaTrangThaiProductDetail(Integer idProductDetail, Integer quantityDaBan);
 
     void updateSoLuongSanPham(Integer idProductDetail, Integer quantity);
+
+    void importFileExcelProductDetail(Integer idProduct, MultipartFile file) throws Exception;
 
 }

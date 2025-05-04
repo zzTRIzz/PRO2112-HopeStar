@@ -148,7 +148,7 @@ export function DataTable<TData, TValue>({
                     )}
                   </TableHead>
                 ))}
-                <TableHead>Hành động</TableHead>
+                <TableHead>Thao tác</TableHead>
               </TableRow>
             ))}
           </TableHeader>

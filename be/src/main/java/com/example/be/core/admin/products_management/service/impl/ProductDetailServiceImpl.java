@@ -1,5 +1,8 @@
 package com.example.be.core.admin.products_management.service.impl;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
+import com.example.be.core.admin.products_management.dto.model.ProductDetailExcelDTO;
 import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
 import com.example.be.core.admin.products_management.dto.request.ProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
@@ -7,13 +10,10 @@ import com.example.be.core.admin.products_management.mapper.ProductDetailMapper;
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
-import com.example.be.entity.Imei;
-import com.example.be.entity.ProductDetail;
-import com.example.be.entity.Voucher;
+import com.example.be.entity.*;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
-import com.example.be.repository.ImeiRepository;
-import com.example.be.repository.ProductDetailRepository;
+import com.example.be.repository.*;
 import com.example.be.utils.BarcodeGenerator;
 import com.google.zxing.BarcodeFormat;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     private final ProductDetailMapper productDetailMapper;
     private final ImeiRepository imeiRepository;
     private final BarcodeGenerator barcodeGenerator;
+    private final ProductRepository productRepository;
+    private final RamRepository ramRepository;
+    private final RomRepository romRepository;
+    private final ColorRepository colorRepository;
 
     @Override
     public void updateStatus(Integer id) throws Exception {
@@ -174,6 +180,39 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             productDetail.setStatus(ProductDetailStatus.ACTIVE);
         }
         productDetailRepository.save(productDetail);
+    }
+
+    @Override
+    public void importFileExcelProductDetail(Integer idProduct, MultipartFile file) throws Exception {
+        Product product = productRepository.findById(idProduct).orElseThrow(()->
+                new Exception("Sản phẩm không tồn tại")
+        );
+
+        EasyExcel.read(file.getInputStream(), ProductDetailExcelDTO.class,
+                new PageReadListener<ProductDetailExcelDTO>(dataList -> {
+                    dataList.forEach(dto -> {
+                        Ram ram = ramRepository.findById(dto.getRam()).get();
+                        Rom rom = romRepository.findById(dto.getRom()).get();
+                        Color color = colorRepository.findById(dto.getColor()).get();
+                        try {
+                            productDetailRepository.findOneByProductIdAndRamIdAndRomIdAndColorId(idProduct,dto.getRam(),dto.getRom(),dto.getColor()).orElse(null);
+                        }catch (Exception e){
+                            e.getMessage();
+                        }
+                        ProductDetail entity = new ProductDetail();
+                        entity.setCode(productDetailRepository.getNewCode());
+                        entity.setProduct(product);
+                        entity.setPrice(dto.getPrice());
+                        entity.setPriceSell(dto.getPrice());
+                        entity.setInventoryQuantity(0);
+                        entity.setColor(color);
+                        entity.setRam(ram);
+                        entity.setRom(rom);
+                        entity.setImageUrl(dto.getImageUrl());
+                        entity.setStatus(ProductDetailStatus.ACTIVE);
+                        productDetailRepository.save(entity);
+                    });
+                })).sheet().doRead();
     }
 
 }

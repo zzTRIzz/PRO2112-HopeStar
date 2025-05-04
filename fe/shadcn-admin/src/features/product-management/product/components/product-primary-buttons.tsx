@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { IconDownload, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { useProduct } from '../context/product-context'
 
@@ -14,13 +14,13 @@ export function ProductPrimaryButtons() {
   }
   return (
     <div className='flex gap-2'>
-      <Button
+      {/* <Button
         variant='outline'
         className='space-x-1'
         onClick={() => setOpen('import')}
       >
         <span>Tải tệp</span> <IconDownload size={18} />
-      </Button>
+      </Button> */}
       <Button className='space-x-1' onClick={addNewProduct}>
         <span>Tạo</span> <IconPlus size={18} />
       </Button>

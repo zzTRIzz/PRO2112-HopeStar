@@ -6,6 +6,8 @@ import { IconEdit } from "@tabler/icons-react" // Remove IconEye
 import { Checkbox } from "@/components/ui/checkbox"
 import { toServerDateTime, fromServerDateTime, toInputDateTime } from '@/utils/datetime'
 import Cookies from "js-cookie"
+import { Button } from "@/components/ui/button"
+import { Pen } from "lucide-react"
 
 interface Sale {
     id: number;
@@ -865,13 +867,23 @@ export default function SaleUI() {
                                         </span>
                                     </td>
                                     <td className="p-3 space-x-2 whitespace-nowrap">
-                                        <button
+                                        {/* <button
                                             className="inline-flex items-center justify-center size-8 rounded-full hover:bg-gray-100"
                                             onClick={() => handleEdit(sale)}
                                             title="Sửa"
                                         >
                                             <IconEdit size={18} className="text-blue-600" />
-                                        </button>
+                                        </button> */}
+
+                                        <Button
+                                                variant="outline"
+                                                onClick={() => handleEdit(sale)}
+                                                className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+                                                size="sm"
+                                              >
+                                                <Pen className="h-1 w-1" color='white' />
+                                                {/* Cập nhật */}
+                                              </Button>
                                         {/* Remove eye icon button */}
                                     </td>
                                 </tr>

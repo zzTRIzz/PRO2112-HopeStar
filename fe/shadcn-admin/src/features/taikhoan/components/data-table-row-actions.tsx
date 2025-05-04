@@ -416,11 +416,11 @@ export function DataTableRowActions({
       <Button
         variant="outline"
         onClick={() => setIsDialogOpen(true)}
-        className="flex items-center gap-2"
+        className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
         size="sm"
       >
-        <Pen className="h-4 w-4" />
-        Cập nhật
+        <Pen className="h-1 w-1" color='white' />
+        {/* Cập nhật */}
       </Button>
 
       <DialogContent className="max-h-[80vh] max-w-[60vw] overflow-y-auto">
