@@ -71,6 +71,9 @@ public class OrderServiceImpl implements OrderService {
                     VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucher(voucher.getId(), account.getId()).get();
                     voucherAccount.setStatus(VoucherAccountStatus.USED);
                     voucherAccountRepository.save(voucherAccount);
+                }else {
+                    voucher.setQuantity(voucher.getQuantity() - 1);
+                    voucherRepository.save(voucher);
                 }
             } else {
                 voucher.setQuantity(voucher.getQuantity() - 1);
