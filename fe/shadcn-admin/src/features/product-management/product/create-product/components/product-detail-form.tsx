@@ -97,7 +97,7 @@ const OptionSelector: React.FC<{
       <FormLabel>{label}</FormLabel>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant='outline' className='w-full justify-between'>
+          <Button variant='outline' className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'>
             {selected.length > 0
               ? selected
                   .map((id) => {
@@ -163,7 +163,7 @@ const ColorSelector: React.FC<{
       <FormLabel>{label}</FormLabel>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant='outline' className='w-full justify-between'>
+          <Button variant='outline' className='w-full justify-between overflow-hidden text-ellipsis whitespace-nowrap'>
             {selected.length > 0
               ? selected
                   .map((id) => options.find((o) => o.id === id)?.name)
