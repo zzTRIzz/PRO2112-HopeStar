@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
-                <TableHead>Hành động</TableHead>
+                {/* <TableHead>Hành động</TableHead> */}
               </TableRow>
             ))}
           </TableHeader>
@@ -106,9 +106,9 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
+                  {/* <TableCell>
                     <DataTableRowActions row={row} />
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))
             ) : (
