@@ -129,7 +129,7 @@ const Ship = ({
           />
           )
         </div>
-        <span>{new Intl.NumberFormat('vi-VN').format(shippingFeeOnly)}đ</span>
+        <span>+ {new Intl.NumberFormat('vi-VN').format(shippingFeeOnly)}đ</span>
       </div>
       <div className='flex items-center justify-between'>
         <Checkbox
@@ -140,7 +140,7 @@ const Ship = ({
           Thêm phí bảo hiểm
         </Checkbox>
         {isInsuranceChecked ? (
-          <span>{new Intl.NumberFormat('vi-VN').format(insuranceFee)}đ</span>
+          <span>+ {new Intl.NumberFormat('vi-VN').format(insuranceFee)}đ</span>
         ) : (
           ''
         )}

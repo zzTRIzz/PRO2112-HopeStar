@@ -41,6 +41,7 @@ public class CartServiceImpl implements CartService {
             CartDetailResponse cartDetailResponse = new CartDetailResponse();
             cartDetailResponse.setId(cartDetail.getId());
             cartDetailResponse.setQuantity(cartDetail.getQuantity());
+            cartDetailResponse.setIdProduct(cartDetail.getIdProductDetail().getProduct().getId());
             cartDetailResponse.setProductName(cartDetail.getIdProductDetail().getProduct().getName());
             cartDetailResponse.setColor(cartDetail.getIdProductDetail().getColor().getName());
             cartDetailResponse.setRam(cartDetail.getIdProductDetail().getRam().getCapacity()+cartDetail.getIdProductDetail().getRam().getDescription());
@@ -111,7 +112,10 @@ public class CartServiceImpl implements CartService {
             }
 
             existingDetail.setQuantity(existingDetail.getQuantity() + request.getQuantity());
-            cartDetailRepository.save(existingDetail);
+            CartDetail test = cartDetailRepository.save(existingDetail);
+            List<CartDetail> list = new ArrayList<>();
+            list.add(test);
+            cartResponse = cartMapCartResponse(list);
         } else {
             CartDetail cartDetail = new CartDetail();
             cartDetail.setIdShoppingCart(cart);

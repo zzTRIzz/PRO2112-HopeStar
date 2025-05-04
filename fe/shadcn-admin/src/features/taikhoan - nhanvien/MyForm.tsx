@@ -856,7 +856,7 @@ export default function MyForm() {
             )}
           />
 
-          <Toaster />
+          <Toaster position='top-right' />
           <Button type='submit' disabled={isSubmitting}>
             {isSubmitting ? 'Đang xử lý...' : 'Thêm mới tài khoản'}
           </Button>

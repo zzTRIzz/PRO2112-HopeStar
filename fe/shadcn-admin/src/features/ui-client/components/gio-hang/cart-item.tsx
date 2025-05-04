@@ -1,9 +1,11 @@
+import { Link } from '@tanstack/react-router'
 import { Button, Card, CardBody, Checkbox } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { toast } from '@/hooks/use-toast'
 
 interface CartItemType {
   id: number
+  idProduct: number
   productName: string
   quantity: number
   ram: string
@@ -91,12 +93,16 @@ export function CartItemCard({
           </div>
           <div className='flex-grow space-y-3'>
             <div>
-              <h3 className='text-lg font-semibold text-foreground'>
-                {item.productName}
-              </h3>
+              <Link href={`/product/${item.idProduct}`}>
+                <h3 className='text-lg font-semibold text-foreground'>
+                  {item.productName}
+                </h3>
+              
+
               <p className='text-sm text-default-500'>
                 {item.ram}/{item.rom} - {item.color}
               </p>
+              </Link>
             </div>
             <div className='flex flex-wrap items-center justify-between gap-4'>
               <div className='space-x-2 space-y-1'>

@@ -313,9 +313,16 @@ export default function VoucherUI() {
                     }
 
                     if (newStatus !== voucher.status) {
+                        // try {
+                        //     // Gọi API để cập nhật status
+                        //     await authAxios.put(`/admin/voucher/update-status/${voucher.id}`);
+                        // } catch (error) {
+                        //     console.error('Error updating voucher status:', error);
+                        // }
+
                         try {
                             // Gọi API để cập nhật status
-                            await authAxios.put(`/admin/voucher/update-status/${voucher.id}`);
+                            await authAxios.put(`/admin/voucher/update-status`);
                         } catch (error) {
                             console.error('Error updating voucher status:', error);
                         }
@@ -330,7 +337,7 @@ export default function VoucherUI() {
             }
         };
 
-        const intervalId = setInterval(updateVoucherStatuses, 60000);
+        const intervalId = setInterval(updateVoucherStatuses, 2000); // 2s 
         updateVoucherStatuses();
 
         return () => clearInterval(intervalId);

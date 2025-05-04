@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { IconLoader2 } from '@tabler/icons-react'
@@ -55,6 +56,15 @@ export default function FeaturedProducts() {
           'Không thể thêm sản phẩm vào giỏ hàng',
         variant: 'destructive',
       })
+
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        navigate({ to: '/sign-in' })
+      }
     }
   }
 
@@ -97,6 +107,15 @@ export default function FeaturedProducts() {
           error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
         variant: 'destructive',
       })
+
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        navigate({ to: '/sign-in' })
+      }
     }
   }
 

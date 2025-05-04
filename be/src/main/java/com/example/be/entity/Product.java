@@ -36,7 +36,8 @@ public class Product extends AuditEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Lob
+    //@Lob
+    @Size(max = 5000)
     @Column(name = "description")
     private String description;
 
