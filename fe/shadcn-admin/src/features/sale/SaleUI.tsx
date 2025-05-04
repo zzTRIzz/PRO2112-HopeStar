@@ -15,7 +15,7 @@ interface Sale {
     dateEnd: string;
     status: string;
     description: string;
-    discountValue: number;
+    discountValue: number | string;
     discountType: boolean;
 }
 
@@ -48,7 +48,7 @@ interface ProductDetailSale {
     productName: string;
     discountValue: number | null;
     discountType: boolean | null;
-}
+} 
 
 // Thêm interface để lưu trữ sản phẩm đã chọn cho mỗi chương trình
 interface SaleProducts {
@@ -85,7 +85,7 @@ export default function SaleUI() {
         dateEnd: '',
         status: 'ACTIVE',
         description: '',
-        discountValue: 0,
+        discountValue: '',
         discountType: false
     });
 
@@ -217,14 +217,14 @@ export default function SaleUI() {
     const handleDiscountValueChange = (value: number) => {
         if (!formData.discountType) { // Nếu là giảm theo VND
             const maxPrice = getMaxPriceFromSelectedDetails();
-            if (value > maxPrice) {
-                toast({
-                    variant: "destructive",
-                    title: "Thông báo",
-                    description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
-                });
-                return;
-            }
+            // if (value > maxPrice) {
+            //     toast({
+            //         variant: "destructive",
+            //         title: "Thông báo",
+            //         description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+            //     });
+            //     return;
+            // }
         }
         setFormData(prev => ({
             ...prev,
@@ -999,7 +999,7 @@ export default function SaleUI() {
                                                 onChange={(e) => handleDiscountValueChange(Number(e.target.value))}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
-                                                // required
+                                                placeholder="Nhập giá trị giảm "
                                             />
                                             <select
                                                 className="w-24 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
