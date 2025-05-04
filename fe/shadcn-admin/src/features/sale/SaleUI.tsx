@@ -48,7 +48,7 @@ interface ProductDetailSale {
     productName: string;
     discountValue: number | null;
     discountType: boolean | null;
-}
+} 
 
 // Thêm interface để lưu trữ sản phẩm đã chọn cho mỗi chương trình
 interface SaleProducts {
@@ -999,7 +999,7 @@ export default function SaleUI() {
                                                 onChange={(e) => handleDiscountValueChange(Number(e.target.value))}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
-                                                // required
+                                                placeholder="Nhập giá trị giảm "
                                             />
                                             <select
                                                 className="w-24 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
