@@ -23,14 +23,14 @@ function RouteComponent() {
   <Card>
     <CardHeader className="flex gap-3">
       <Icon icon="lucide:shield" className="text-xl" />
-      <h2 className="text-xl font-semibold">Chính sách bảo hành</h2>
+      <h2 className="text-xl font-semibold">Chính sách hỗ trợ</h2>
     </CardHeader>
     <CardBody>
       <div className="space-y-4">
         <div>
           {/* <h3 className="font-medium mb-2">Đối với sản phẩm chính hãng:</h3> */}
           <ul className="list-disc ml-6 space-y-2">
-            <li>Khách hàng tự liên hệ trực tiếp với hãng/trung tâm bảo hành được chỉ định trên phiếu BH.</li>
+            <li>Khách hàng tự liên hệ trực tiếp với hãng/trung tâm bảo hành được chỉ định</li>
             <li>Cửa hàng hỗ trợ trung gian trong quá trình mang sản phẩm đi bảo hành.</li>
           </ul>
         </div>
@@ -93,9 +93,9 @@ function RouteComponent() {
         <div>
           <h3 className="font-medium mb-2">Lưu ý quan trọng:</h3>
           <ul className="list-disc ml-6 space-y-2">
-            <li>Không đóng phí khai giá: bồi thường tối đa 30% giá trị đơn hàng.</li>
+            {/* <li>Không đóng phí khai giá: bồi thường tối đa 30% giá trị đơn hàng.</li> */}
             <li>Cửa hàng không chịu trách nhiệm nếu khách hàng từ chối đóng phí khai giá cho đơn hàng giá trị cao.</li>
-            <li>GHTK sẽ bồi hoàn 100% giá trị khai giá khi mất hàng (tối đa 20,000,000 VNĐ) nếu có giấy tờ chứng minh nguồn gốc 
+            <li>GHTK chịu trách nhiệm, bồi hoàn 100% giá trị khai giá khi mất hàng (tối đa 20,000,000 VNĐ) nếu có giấy tờ chứng minh nguồn gốc 
             và giá trị hàng hoá</li>
             {/* <li>Trong trường hợp shop không thể 
             chứng minh nguồn gốc và giá trị hàng hoá, bồi thường tối đa 04 lần cước phí vận chuyển.</li> */}

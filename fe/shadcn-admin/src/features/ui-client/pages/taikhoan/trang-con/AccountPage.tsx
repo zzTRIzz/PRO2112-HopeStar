@@ -20,7 +20,15 @@ import {
 // Zod Schema Validation (Updated)
 const formSchema = z.object({
   fullName: z.string().min(1, "Họ tên không được để trống"),
-  phone: z.string().regex(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  phone: z.string().refine(
+    (value) => {
+      // Accept standard Vietnamese phone format: 10 digits starting with 0
+      // Also allow some common formats with spaces or dashes
+      const cleanedValue = value.replace(/[\s-]/g, '');
+      return /^0\d{9}$/.test(cleanedValue);
+    }, 
+    { message: "Số điện thoại không hợp lệ (phải có 10 số và bắt đầu bằng số 0)" }
+  ),
   gender: z.union([z.boolean(), z.null()]).refine(val => val !== null, {
     message: "Vui lòng chọn giới tính"
   }),
@@ -319,7 +327,7 @@ export const AccountPage = () => {
         />
 
         <Input
-          readOnly
+          // readOnly
           label="Số điện thoại"
           value={formData.phone}
           onValueChange={handleStringChange('phone')}

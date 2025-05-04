@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Row } from '@tanstack/react-table'
-import { Pen } from 'lucide-react'
+import { MoreHorizontal, Pen } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,6 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Form,
   FormControl,
@@ -412,18 +418,30 @@ export function DataTableRowActions({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      {/* Thay thế dropdown menu bằng nút bấm */}
-      <Button
-        variant="outline"
-        onClick={() => setIsDialogOpen(true)}
-        className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+      {/* <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant='ghost'
+            className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'
+          >
+            <MoreHorizontal className='h-4 w-4' />
+            <span className='sr-only'>Mở menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end' className='w-[160px]'>
+          <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
+            <Pen className='mr-2 h-4 w-4' />
+            Cập nhật thông tin
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu> */}
+      <Button variant='outline' onClick={() => setIsDialogOpen(true)}className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white"
         size="sm"
       >
-        <Pen className="h-1 w-1" color='white' />
-        {/* Cập nhật */}
+        <Pen className="h-4 w-4" color='white'/>
       </Button>
 
-      <DialogContent className="max-h-[80vh] max-w-[60vw] overflow-y-auto">
+      <DialogContent className='max-h-[80vh] max-w-[60vw] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Cập nhật thông tin tài khoản</DialogTitle>
         </DialogHeader>

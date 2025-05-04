@@ -349,6 +349,7 @@ public class AccountService {
             throw new IllegalArgumentException("Không tìm thấy tài khoản với email: " + email);
         }
         account.setFullName(request.getFullName());
+        account.setPhone(request.getPhone());
         account.setGender(request.getGender());
         account.setBirthDate(request.getBirthDate());
         return convertToResponse(accountRepository.save(account));

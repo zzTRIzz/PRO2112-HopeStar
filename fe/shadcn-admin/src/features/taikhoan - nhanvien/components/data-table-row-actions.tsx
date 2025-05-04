@@ -443,14 +443,10 @@ export function DataTableRowActions({
         </DropdownMenuContent>
       </DropdownMenu> */}
       {/* Thay thế dropdown menu bằng nút bấm */}
-      <Button
-        variant="outline"
-        onClick={() => setIsDialogOpen(true)}
-        className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+      <Button variant='outline' onClick={() => setIsDialogOpen(true)}className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white"
         size="sm"
       >
-        <Pen className="h-1 w-1" color='white' />
-        {/* Cập nhật */}
+        <Pen className="h-4 w-4" color='white'/>
       </Button>
 
       <DialogContent className='max-h-[80vh] max-w-[60vw] overflow-y-auto'>

@@ -13,6 +13,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import Cookies from "js-cookie";
+import { Button } from "@/components/ui/button";
+import { Pen } from "lucide-react";
 // Add API base URL constant
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -946,12 +948,21 @@ export default function VoucherUI() {
                                                 </span>
                                             </td>
                                             <td className="p-3 space-x-2 whitespace-nowrap">
-                                                <button
+                                                {/* <button
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
                                                     <SaveAsIcon />
-                                                </button>
+                                                </button> */}
+                                                <Button
+                                                variant="outline"
+                                                onClick={() => handleEdit(voucher)}
+                                                className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+                                                size="sm"
+                                              >
+                                                <Pen className="h-1 w-1" color='white' />
+                                                {/* Cập nhật */}
+                                              </Button>
                                                 {voucher.isPrivate && voucher.status !== VoucherStatus.EXPIRED && (
                                                     <button
                                                         className=""

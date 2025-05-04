@@ -178,20 +178,32 @@ export const createColumns = (props: TaiKhoanColumnsProps): ColumnDef<TaiKhoan>[
       return value.includes(row.getValue(id))
     },
   },
+  {
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Thao tác" />
+    ),
+    cell: ({ row }) => (
+      <DataTableRowActions 
+        row={row} 
+        onUpdateSuccess={props.onUpdateSuccess} 
+      />
+    ),
+  },
 ]
 
-// Export a new component for the update button
-export function TaiKhoanUpdateButton({ 
-  row, 
-  onUpdateSuccess 
-}: { 
-  row: any, 
-  onUpdateSuccess?: () => void 
-}) {
-  return (
-    <DataTableRowActions 
-      row={row} 
-      onUpdateSuccess={onUpdateSuccess} 
-    />
-  )
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
