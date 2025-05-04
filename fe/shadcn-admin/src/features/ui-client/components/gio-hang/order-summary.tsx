@@ -450,11 +450,11 @@ export function OrderSummary({
 
           <p className='mt-4 text-center text-sm text-default-500'>
             Bằng việc tiến hành đặt mua hàng, bạn đồng ý với{' '}
-            <a href='#' className='text-primary-500'>
+            <a href='chinh-sach-cua-cua-hang' className='text-primary-500'>
               Điều khoản dịch vụ
             </a>{' '}
             và{' '}
-            <a href='#' className='text-primary-500'>
+            <a href='chinh-sach-cua-cua-hang' className='text-primary-500'>
               Chính sách xử lý dữ liệu cá nhân
             </a>{' '}
             của HopeStar

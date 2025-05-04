@@ -289,7 +289,6 @@ public class BillServiceImpl implements BillService {
                     oldVoucher.setQuantity(quantity + 1);
                     voucherRepository.save(oldVoucher);
                 } else {
-
                     VoucherAccount va = voucherAccountRepository
                             .findByIdVoucher(oldVoucher.getId(), bill.getIdAccount().getId())
                             .orElse(null);
@@ -413,18 +412,6 @@ public class BillServiceImpl implements BillService {
             }
             bill.setStatus(StatusBill.DA_HUY);
             billRepository.save(bill);
-//            System.out.println(bill);
-//            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
-//            billHistoryRequest.setIdBill(bill.getId());
-//            if (note == null || note.trim().isEmpty()) {
-//                billHistoryRequest.setNote("Đơn hàng đã hủy");
-//            } else {
-//                billHistoryRequest.setNote(note);
-//            }
-//            billHistoryRequest.setActionType(StartusBillHistory.DA_HUY);
-//            billHistoryRequest.setIdNhanVien(bill.getIdNhanVien().getId());
-//            billHistoryService.addBillHistory(billHistoryRequest);
-
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());
