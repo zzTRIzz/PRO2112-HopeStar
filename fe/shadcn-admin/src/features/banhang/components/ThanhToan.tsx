@@ -274,14 +274,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         value={customerPayment}
                                                         max={2000000000}
                                                         onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                                                        // onChange={(e) => {
-                                                        //     const value = Number(e.target.value);
-                                                        //     if (value > 1000000000) { // Giới hạn số tiền khách trả
-                                                        //       fromThatBai("Số tiền khách trả không được vượt quá 1 tỷ đồng.");
-                                                        //       return;
-                                                        //     }
-                                                        //     setCustomerPayment(value);
-                                                        //   }}
                                                         disabled={isThanhToanNhanHang} 
                                                     />
                                                 </p>

@@ -50,8 +50,6 @@ import {
   Voucher,
 } from './service/Schema'
 import { fromThatBai, fromThanhCong } from './components/components_con/ThongBao'
-import Cookies from 'js-cookie'
-import { useNavigate } from '@tanstack/react-router'
 
 function BanHangTaiQuay() {
   const [listBill, setListBill] = useState<BillSchema[]>([]);
@@ -91,7 +89,6 @@ function BanHangTaiQuay() {
     customerPhone: "",
     note: ""
   });
-  const navigate = useNavigate();
   useEffect(() => {
     currentBillRef.current = idHoaDon;
     if (isScanning) {
@@ -276,20 +273,10 @@ function BanHangTaiQuay() {
       loadBill();
       loadBillChoThanhToan()
       fromThanhCong('Thêm hóa đơn thành công')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Lỗi API:', error)
-      // fromThatBai('Thêm hóa đơn không thành công')
-      if (
-        error?.response?.data?.message ===
-        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
-      ){
-        Cookies.remove('jwt')
-        localStorage.removeItem('profile')
-        navigate({
-          to: '/sign-in'
-        })
-        fromThatBai('Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!')
-      }
+      fromThatBai('Nhân viên chưa đăng nhập!');
+
     }
   }
 
@@ -394,7 +381,7 @@ function BanHangTaiQuay() {
     findImeiByIdProductDetail(idPD, billDetaill)
   }
 
-
+  
   const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
 
