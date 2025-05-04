@@ -282,11 +282,11 @@ export default function VoucherUI() {
         try {
             // const jwt = Cookies.get('jwt');
             setLoading(true);
-            const response = await authAxios.get(`/account/list`);
-            const customers = response.data.data.filter((account: AccountResponse) =>
-                account.idRole?.id === 4 && account.status === 'ACTIVE'
-            );
-            setAccounts(customers);
+            const response = await authAxios.get(`/admin/banhang/account`);
+            // const customers = response.data.data.filter((account: AccountResponse) =>
+            //     account.idRole?.id === 4 && account.status === 'ACTIVE'
+            // );
+            setAccounts(response.data);
         } catch (error) {
             console.error('Error fetching customers:', error);
             toast.error('Không thể tải danh sách khách hàng');
@@ -666,11 +666,11 @@ export default function VoucherUI() {
             setSelectedAccounts(ids);
             setSelectedVoucher(voucher);
             setShowAssignModal(true);
-            const response = await authAxios.get(`/account/list`);
-            const customers = response.data.data.filter((account: AccountResponse) =>
-                account.idRole?.id === 4 && account.status === 'ACTIVE'
-            );
-            setAccounts(customers);
+            // const response = await authAxios.get(`/account/list`);
+            // const customers = response.data.data.filter((account: AccountResponse) =>
+            //     account.idRole?.id === 4 && account.status === 'ACTIVE'
+            // );
+            // setAccounts(customers);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách account đã thêm:', error);
             toast.error('Không thể tải danh sách đã thêm');
@@ -1224,7 +1224,7 @@ export default function VoucherUI() {
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                                                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
-                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th>
+                                                                        {/* <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th> */}
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody className="divide-y">
@@ -1235,13 +1235,6 @@ export default function VoucherUI() {
                                                                                     type="checkbox"
                                                                                     id={`customer-${account.id}`}
                                                                                     checked={selectedAccounts.includes(account.id)}
-                                                                                    // onChange={(e) => {
-                                                                                    //     if (e.target.checked) {
-                                                                                    //         setSelectedAccounts([...selectedAccounts, account.id]);
-                                                                                    //     } else {
-                                                                                    //         setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
-                                                                                    //     }
-                                                                                    // }}
                                                                                     onChange={(e) => {
                                                                                         if (e.target.checked) {
                                                                                             setSelectedAccounts([...selectedAccounts, account.id]); // Thêm tài khoản vào danh sách
@@ -1255,13 +1248,6 @@ export default function VoucherUI() {
                                                                             <td className="px-4 py-3">{account.fullName}</td>
                                                                             <td className="px-4 py-3">{account.email}</td>
                                                                             <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                                            {/* <td className="px-4 py-3">
-                                                                                {account.voucherStatus ? (
-                                                                                    <VoucherStatusBadge status={account.voucherStatus} />
-                                                                                ) : (
-                                                                                    <span className="text-sm text-gray-500">-</span>
-                                                                                )}
-                                                                            </td> */}
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>

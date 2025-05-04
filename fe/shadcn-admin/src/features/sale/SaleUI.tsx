@@ -216,15 +216,15 @@ export default function SaleUI() {
 
     const handleDiscountValueChange = (value: number) => {
         if (!formData.discountType) { // Nếu là giảm theo VND
-            const maxPrice = getMaxPriceFromSelectedDetails();
-            if (value > maxPrice) {
-                toast({
-                    variant: "destructive",
-                    title: "Thông báo",
-                    description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
-                });
-                return;
-            }
+            // const maxPrice = getMaxPriceFromSelectedDetails();
+            // if (value > maxPrice) {
+            //     toast({
+            //         variant: "destructive",
+            //         title: "Thông báo",
+            //         description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+            //     });
+            //     return;
+            // }
         }
         setFormData(prev => ({
             ...prev,

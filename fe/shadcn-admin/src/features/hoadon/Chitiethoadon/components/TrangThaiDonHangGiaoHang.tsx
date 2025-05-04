@@ -303,8 +303,8 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
             // Cộng thêm phần payment vào kết quả
             const finalAmount = result + customerPayment;
             await updateTotalDue(searchBill?.id ?? 0, finalAmount)
-            loadTongBill();
-            showSuccessToast("Cập nhật hóa đơn thành công!");
+            // loadTongBill();
+            // showSuccessToast("Cập nhật hóa đơn thành công!");
           } catch (error) {
             showErrorToast("Có lỗi xảy ra khi cập nhật hóa đơn.");
             console.error("Error updating bill:", error);

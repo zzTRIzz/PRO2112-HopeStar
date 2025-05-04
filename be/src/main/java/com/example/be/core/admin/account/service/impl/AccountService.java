@@ -321,12 +321,13 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id));
     }
 
-    public List<AccountResponse> getAllKhachHang() {
 
+    public List<AccountResponse> getAllKhachHang() {
         return accountRepository.getAllAccountKhachHang(StatusCommon.ACTIVE).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
 
     public AccountResponse getByAccount(Integer idBill) {
         try {

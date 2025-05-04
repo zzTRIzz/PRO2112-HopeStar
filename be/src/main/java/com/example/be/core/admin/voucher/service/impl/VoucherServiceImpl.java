@@ -11,6 +11,7 @@ import com.example.be.entity.Role;
 import com.example.be.entity.Voucher;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.entity.VoucherAccount;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.AccountRepository;
@@ -593,11 +594,10 @@ public class VoucherServiceImpl implements VoucherService {
          voucherRepository.findById(voucherId).orElseThrow(()->
             new Exception("Voucher không tồn tại ")
         );
-
-        Role role = roleRepository.findById(3).get();
-        Role role2 = roleRepository.findById(4).get();
-        List<Account> list = accountRepository.findAccountsByIdRole(role);
-        list.addAll(accountRepository.findAccountsByIdRole(role2));
+//        Role role = roleRepository.findById(3).get();
+//        Role role2 = roleRepository.findById(4).get();
+        List<Account> list = accountRepository.getAllAccountKhachHang(StatusCommon.ACTIVE);
+//        list.addAll(accountRepository.findAccountsByIdRole(role2));
         List<CustomersResponse> customersResponses = new ArrayList<>();
         for (Account account:list) {
             VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucher(voucherId,account.getId()).orElse(null);
