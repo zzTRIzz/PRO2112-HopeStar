@@ -125,15 +125,6 @@ export default function TatCaDienThoai() {
                       />
                     </div>
 
-                    <div className='absolute right-2 top-2 flex gap-2'>
-                      <Button
-                        variant='secondary'
-                        size='icon'
-                        className='rounded-full opacity-70 shadow-sm transition-opacity hover:opacity-100'
-                      >
-                        <Heart className='h-4 w-4' />
-                      </Button>
-                    </div>
 
                     {product.price !== product.priceSeller && (
                       <Badge
@@ -156,10 +147,6 @@ export default function TatCaDienThoai() {
                       <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
                         {product.name}
                       </h3>
-                      <div className='flex shrink-0 items-center gap-1'>
-                        <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                        <span className='text-sm font-medium'>4.8</span>
-                      </div>
                     </div>
 
                     <div className='flex items-center gap-2'>
