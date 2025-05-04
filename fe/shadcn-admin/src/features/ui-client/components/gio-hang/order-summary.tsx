@@ -35,17 +35,17 @@ interface OrderSummaryProps {
     total: number
     selectedVoucher: Voucher | null
   }) => void
-  isSubmitting?: boolean 
+  isSubmitting?: boolean
 }
 
 export function OrderSummary({
   onCheckout,
   products,
   isValid,
-  confirmedAddress, 
+  confirmedAddress,
   errors,
   onValuesChange,
-  isSubmitting = false, 
+  isSubmitting = false,
 }: OrderSummaryProps) {
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null)
   const [voucherCode, setVoucherCode] = useState('')
@@ -143,12 +143,21 @@ export function OrderSummary({
   }
 
   const voucherDiscount = calculateVoucherDiscount(selectedVoucher, subtotal)
-  const total = Math.max(0, subtotal - voucherDiscount) + shippingFee + insuranceFee
+  const priceAfterDiscount = Math.max(0, subtotal - voucherDiscount)
+  const total =
+    Math.max(0, subtotal - voucherDiscount) + shippingFee + insuranceFee
 
   const handleShippingFeeChange = (shipping: number, insurance: number) => {
     setShippingFee(shipping)
     setInsuranceFee(insurance)
   }
+
+  useEffect(() => {
+    if (selectedVoucher) {
+      setVoucherCode(selectedVoucher.code) // Đồng bộ voucherCode với selectedVoucher
+      setVoucherError('') // Xóa lỗi nếu có
+    }
+  }, [selectedVoucher])
 
   const renderErrors = () => {
     const errorMessages = []
@@ -261,8 +270,7 @@ export function OrderSummary({
                   (v) => v.id === parseInt(e.target.value)
                 )
                 setSelectedVoucher(selected || null)
-                // Set the voucher code when selecting from dropdown
-                setVoucherCode(selected?.code || '')
+                setVoucherCode(selected?.code || '') // Đồng bộ voucherCode
                 setVoucherError('')
               }}
             >
@@ -275,15 +283,18 @@ export function OrderSummary({
                   <div className='flex flex-col'>
                     <span className='font-medium'>
                       {voucher.type
-                        ? `Giảm ${voucher.value}% (Giảm tối đa ${formatCurrency(voucher.maxDiscountAmount)}đ)`
+                        ? `Giảm ${voucher.value}% (Giảm tối đa ${formatCurrency(
+                            voucher.maxDiscountAmount
+                          )}đ)`
                         : `Giảm ${formatCurrency(voucher.value)}đ`}
                     </span>
                     <span className='text-sm text-gray-500'>
-                      Tên: {voucher.name} ({voucher.code})
+                      Voucher: {voucher.code} - {voucher.name}
                       <br />
-                      {/* {voucher.description} */}
                       {voucher.minOrderValue &&
-                        ` Điều kiện: ${formatCurrency(voucher.minOrderValue)} - ${formatCurrency(voucher.maxOrderValue)}đ`}
+                        ` Điều kiện: ${formatCurrency(
+                          voucher.minOrderValue
+                        )} - ${formatCurrency(voucher.maxOrderValue)}đ`}
                     </span>
                   </div>
                 </SelectItem>
@@ -293,9 +304,10 @@ export function OrderSummary({
             <div className='flex gap-2'>
               <Input
                 placeholder='Nhập mã voucher'
+                value={voucherCode} // Hiển thị mã voucher đã chọn
                 onChange={(e) => {
                   setVoucherCode(e.target.value)
-                  // Clear selected voucher when manually typing
+                  // Clear selected voucher khi nhập mã thủ công
                   if (
                     selectedVoucher &&
                     e.target.value !== selectedVoucher.code
@@ -305,11 +317,9 @@ export function OrderSummary({
                 }}
                 color={voucherError ? 'danger' : 'default'}
                 errorMessage={voucherError}
-                // disabled={!!selectedVoucher}
               />
               <Button
                 color='primary'
-                // disabled={!voucherCode || !!selectedVoucher}
                 onPress={() => {
                   const found = MOCK_VOUCHERS.find(
                     (v) => v.code.toLowerCase() === voucherCode.toLowerCase()
@@ -319,7 +329,6 @@ export function OrderSummary({
                     return
                   }
 
-                  // Rest of your validation code...
                   setSelectedVoucher(found)
                   setVoucherError('')
                 }}
@@ -337,9 +346,9 @@ export function OrderSummary({
                 }
               >
                 {voucherDiscount > 0 ? (
-                  <>Đã áp dụng voucher: {selectedVoucher.name}</>
+                  <>Đã áp dụng mã voucher: {selectedVoucher.code}</>
                 ) : (
-                  `Không thể áp dụng voucher "${selectedVoucher.name}" do chưa đạt điều kiện`
+                  `Không thể áp dụng mã voucher "${selectedVoucher.code}" do chưa đạt điều kiện`
                 )}
               </div>
             </div>
@@ -350,16 +359,24 @@ export function OrderSummary({
 
           <div className='space-y-3 pb-2'>
             <div className='flex justify-between'>
-              <span>Tổng tiền</span>
+              <span>Tổng tiền hàng:</span>
               <span>{formatCurrency(subtotal)}đ</span>
             </div>
 
             {selectedVoucher && voucherDiscount > 0 && (
-              <div className='flex justify-between'>
-                <span>Giảm giá voucher</span>
-                <span className='text-[#FF3B30]'>
-                  -{formatCurrency(voucherDiscount)}đ
-                </span>
+              <div>
+                <div className='flex justify-between pb-3'>
+                  <span>Giảm giá voucher:</span>
+                  <span className='text-[#FF3B30]'>
+                    - {formatCurrency(voucherDiscount)}đ
+                  </span>
+                </div>
+                <div className='flex justify-between border-t pt-3'>
+                  <span>Tổng tiền:</span>
+                  <span className=''>
+                    {formatCurrency(priceAfterDiscount)}đ
+                  </span>
+                </div>
               </div>
             )}
             <Ship
@@ -369,7 +386,7 @@ export function OrderSummary({
               onShippingFeeChange={handleShippingFeeChange}
             />
             <div className='flex justify-between border-t pt-3'>
-              <span className='font-bold'>Cần thanh toán</span>
+              <span className='font-bold'>Cần thanh toán:</span>
               <span className='font-bold text-[#FF3B30]'>
                 {formatCurrency(total)}đ
               </span>
