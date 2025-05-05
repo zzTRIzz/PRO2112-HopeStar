@@ -58,9 +58,9 @@ public class OrderServiceImpl implements OrderService {
             }
 
         }
-
+        Voucher voucher = null;
         if (orderRequest.getIdVoucher() != null) {
-            Voucher voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
+             voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
             if (voucher == null) {
                 throw new Exception("Voucher hiện đã hết thời gian khuyến mãi");
             }
@@ -95,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
         bill.setAmountChange(BigDecimal.ZERO);
         bill.setPayInsurance(orderRequest.getInsuranceFee());
         bill.setStatus(StatusBill.CHO_XAC_NHAN);
-
+        bill.setIdVoucher(voucher);
         Bill creteBill = billRepository.save(bill);
 
         List<BillDetail> list = new ArrayList<>();
@@ -292,7 +292,7 @@ public class OrderServiceImpl implements OrderService {
                             "</tr>\n";
                     String footer = "<tr>\n" +
                             "    <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
-                            "        <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng quần áo HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
+                            "        <p style=\"margin: 0;\">Phần mềm quản lý cửa hàng điện thoại HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
                             "    </td>\n" +
                             "</tr>";
 
