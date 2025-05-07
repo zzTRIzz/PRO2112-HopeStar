@@ -108,7 +108,7 @@ public class HomeServiceImpl implements HomeService {
         }else if(priceSale){
             productViewResponseList = productViewResponseList
                     .stream()
-                    .filter(p -> p.getPriceSeller().subtract(p.getPrice()).compareTo(BigDecimal.ZERO) > 0)
+                    .filter(p -> p.getPriceSeller().subtract(p.getPrice()).compareTo(BigDecimal.ZERO) < 0)
                     .sorted(Comparator.comparing(
                             p -> p.getPriceSeller().subtract(p.getPrice()),
                             Comparator.reverseOrder()

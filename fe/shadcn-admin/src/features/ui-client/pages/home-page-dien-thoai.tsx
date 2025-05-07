@@ -6,8 +6,6 @@ export default function HomePageDienThoai() {
     <div className='min-h-screen bg-background'>
           <Navbar />
           <main>
-            {/* <Categories /> */}
-            {/* Bộ lọc ở trong component này TatCaDienThoai */}
             <TatCaDienThoai />
           </main>
         </div>

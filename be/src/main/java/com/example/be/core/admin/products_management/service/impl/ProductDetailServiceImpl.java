@@ -200,7 +200,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                             e.getMessage();
                         }
                         ProductDetail entity = new ProductDetail();
-                        entity.setCode(productDetailRepository.getNewCode());
+                        entity.setCode("PRDE_"+productDetailRepository.getNewCode());
                         entity.setProduct(product);
                         entity.setPrice(dto.getPrice());
                         entity.setPriceSell(dto.getPrice());
@@ -209,7 +209,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                         entity.setRam(ram);
                         entity.setRom(rom);
                         entity.setImageUrl(dto.getImageUrl());
-                        entity.setStatus(ProductDetailStatus.ACTIVE);
+                        entity.setStatus(ProductDetailStatus.IN_ACTIVE);
                         productDetailRepository.save(entity);
                     });
                 })).sheet().doRead();

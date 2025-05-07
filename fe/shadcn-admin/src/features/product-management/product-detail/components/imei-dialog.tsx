@@ -93,8 +93,8 @@ export function ImeiDialog() {
         <DialogHeader>
           <DialogTitle>
             Chi tiết IMEI - {productDetail.colorName} (
-            {productDetail.ramCapacity}GB/
-            {productDetail.romCapacity}GB)
+            {productDetail.ramCapacity}/
+            {productDetail.romCapacity})
           </DialogTitle>
           <DialogDescription>
             Thông tin chi tiết tất cả các IMEI

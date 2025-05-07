@@ -202,12 +202,16 @@ export default function BoLocDienThoai({
     items: any[] = [],
     id?: number,
     key = 'name',
-    suffix = ''
+    suffix?: string // Suffix là tùy chọn
   ) => {
-    if (!id) return undefined
-    const item = items.find((item) => item.id === id)
-    return item ? `${item[key]}${suffix}` : undefined
-  }
+    if (!id) return undefined;
+    const item = items.find((item) => item.id === id);
+    return item
+      ? suffix
+        ? `${item[key]}${item[suffix]}`
+        : `${item[key]}` // Chỉ trả về item[key] nếu không có suffix
+      : undefined;
+  };
 
   // Check if any filter is active
   const isAnyFilterActive =
@@ -331,14 +335,14 @@ export default function BoLocDienThoai({
           key: 'ram',
           dataKey: 'rams',
           nameKey: 'capacity',
-          suffix: 'GB',
+          suffix: 'description',
         },
         {
           label: 'ROM',
           key: 'rom',
           dataKey: 'roms',
           nameKey: 'capacity',
-          suffix: 'GB',
+          suffix: 'description',
         },
         {
           label: 'Màn hình',
@@ -396,7 +400,7 @@ export default function BoLocDienThoai({
                   {key === 'typeScreen'
                     ? item.type
                     : filter.suffix
-                      ? `${item[filter.nameKey]}${filter.suffix}`
+                      ? `${item[filter.nameKey]}${item[filter.suffix]}`
                       : item[filter.nameKey]}
                 </DropdownItem>
               ))}
@@ -472,14 +476,14 @@ export default function BoLocDienThoai({
             label: 'RAM: ',
             dataKey: 'rams',
             nameKey: 'capacity',
-            suffix: 'GB',
+            suffix: 'description',
           },
           {
             key: 'rom',
             label: 'ROM: ',
             dataKey: 'roms',
             nameKey: 'capacity',
-            suffix: 'GB',
+            suffix: 'description',
           },
           { key: 'typeScreen', label: 'Màn hình: ' },
         ].map((filter) => {
@@ -496,7 +500,7 @@ export default function BoLocDienThoai({
             const item = items.find((i: any) => i.id === value)
             if (!item) return null
 
-            displayText = `${filter.label}${item[filter.nameKey]}${filter.suffix || ''}`
+            displayText = `${filter.label}${item[filter.nameKey]}${item[filter.suffix] || ''}`
           }
 
           return (

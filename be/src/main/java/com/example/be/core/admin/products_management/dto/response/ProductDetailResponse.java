@@ -15,8 +15,8 @@ public class ProductDetailResponse {
     private Integer inventoryQuantity;
     private ProductDetailStatus status;
     private String colorName;
-    private Integer ramCapacity;
-    private Integer romCapacity;
+    private String ramCapacity;
+    private String romCapacity;
     private String imageUrl;
     private List<ProductImeiResponse> productImeiResponses;
 
