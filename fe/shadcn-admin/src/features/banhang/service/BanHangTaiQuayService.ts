@@ -92,54 +92,36 @@ export const addHoaDon = async () => {
     }
 };
 
-//  Thêm sản phẩm vào hóa đơn
 // export const addHDCT = async (billDetail: BillDetailSchema) => {
-//     const jwt = Cookies.get('jwt')
+//     const jwt = Cookies.get('jwt');
+
 //     try {
 //         const response = await axios.post(`${API_BASE_URL}/addHDCT`, billDetail, {
 //             headers: {
 //                 Authorization: `Bearer ${jwt}`,
 //             },
 //         });
-//         if(!response.data) {
+
+//         if (!response.data) {
 //             fromThatBai('Không có dữ liệu trả về từ server');
 //         }
+
 //         return response.data;
-//     } catch (error) {
-//         console.error('Error add san pham data:', error);
-//         throw error;
+
+//     } catch (error: any) {
+//         console.error('Lỗi khi thêm sản phẩm vào hoá đơn:', error);
+
+//         if (error.response && error.response.data) {
+//             const message = 'Sản phẩm chi tiết đã hết hàng !';
+//             fromThatBai(message);
+//         } else {
+//             fromThatBai('Không thể kết nối đến server');
+//         }
+
+//         // Nếu bạn muốn ngừng xử lý tiếp sau khi lỗi xảy ra, có thể throw tiếp hoặc return null
+//         throw error; // hoặc return null;
 //     }
-// }
-export const addHDCT = async (billDetail: BillDetailSchema) => {
-    const jwt = Cookies.get('jwt');
-
-    try {
-        const response = await axios.post(`${API_BASE_URL}/addHDCT`, billDetail, {
-            headers: {
-                Authorization: `Bearer ${jwt}`,
-            },
-        });
-
-        if (!response.data) {
-            fromThatBai('Không có dữ liệu trả về từ server');
-        }
-
-        return response.data;
-
-    } catch (error: any) {
-        console.error('Lỗi khi thêm sản phẩm vào hoá đơn:', error);
-
-        if (error.response && error.response.data) {
-            const message = 'Sản phẩm chi tiết đã hết hàng !';
-            fromThatBai(message);
-        } else {
-            fromThatBai('Không thể kết nối đến server');
-        }
-
-        // Nếu bạn muốn ngừng xử lý tiếp sau khi lỗi xảy ra, có thể throw tiếp hoặc return null
-        throw error; // hoặc return null;
-    }
-};
+// };
 
 // Cập nhật khách hàng vào hóa đơn
 export const addKhachHang = async (idBill: number, idAccount: number) => {
@@ -341,28 +323,22 @@ export const findImeiByIdProductDaBan = async (idProductDetail: number, idBillDe
 //         throw error;
 //     }
 // }
-export const createImeiSold = async (
-    imeiSold: ImeiSoldSchema,
-    idBill: number,
-    idProduct: number
-) => {
+export const addBillDetailAndCreateImeiSold = async (billDetail: BillDetailSchema) => {
     const jwt = Cookies.get('jwt');
     try {
-        const response = await axios.post(`${API_BASE_URL}/create_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+        const response = await axios.post(`${API_BASE_URL}/add-bill-detail-and-create-imei-sold`, billDetail, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
         });
 
-        // Nếu có dữ liệu trả về, return response
         return response.data;
 
     } catch (error: any) {
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message = error.response.data.message|| 'Imei đã bán. Vui lòng chọn imei khác !';
-            // const message = error.response.data.message || 'Imei đã bán !';
+            const message = error.response.data.message|| 'Thêm sản phẩm chi tiết thất bại  !';
             fromThatBai(message);
         } else {
             fromThatBai('Không thể kết nối đến server');
@@ -371,6 +347,10 @@ export const createImeiSold = async (
         throw error;
     }
 };
+
+
+
+
 //  Cap nhat imei vào hóa đơn
 export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
@@ -381,9 +361,6 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
         throw new Error('Dữ liệu không hợp lệ');
     }
-    // console.log('imeiSold:', imeiSold);
-    // console.log('idBill:', idBill);
-    // console.log('idProduct:', idProduct);
     try {
         const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold, {
             headers: {
@@ -395,13 +372,11 @@ export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message ='Imei đã bán. Vui lòng chọn imei khác !';
-            // const message = error.response.data.message || 'Imei đã bán !';
+            const message = error.response.data.message|| 'Imei đã bán. Vui lòng chọn imei khác !';
             fromThatBai(message);
         } else {
             fromThatBai('Không thể kết nối đến server');
         }
-        // Ném lại lỗi nếu cần
         throw error;
     }
 };

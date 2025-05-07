@@ -1,8 +1,7 @@
 package com.example.be.core.admin.banhang.service.impl;
 
-import com.example.be.core.admin.banhang.dto.BillDetailDto;
-import com.example.be.core.admin.banhang.dto.ImeiSoldDto;
-import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
+import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
+import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.entity.BillDetail;
@@ -14,9 +13,7 @@ import com.example.be.repository.BillRepository;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ImeiSoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +25,7 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
     BillDetailRepository billDetailRepository;
 
     @Autowired
-    BillDetailMapper billDetailMapper;
+    SearchBillDetailMapper searchBillDetailMapper;
 
     @Autowired
     BillDetailService billDetailService;
@@ -44,26 +41,11 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
 
 
     @Override
-    public BillDetailDto creatImeiSold(Integer idBillDetail, List<Integer> idImei) {
+    public SearchBillDetailDto creatImeiSold(Integer idBillDetail, List<Integer> idImei) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         List<Imei> imeis = imeiRepository.findByIdIn(idImei);
-
-//        List<String> imeiBiBan = new ArrayList<>();
-//
-//        for (Imei imei : imeis) {
-//            if (imei.getStatus() != StatusImei.NOT_SOLD) {
-//                imeiBiBan.add(imei.getImeiCode());
-//            }
-//        }
-//
-//        if (!imeiBiBan.isEmpty()) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//                    "Imei " + String.join(", ", imeiBiBan) + " đã bán !");
-////            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "IMEI đã bán hoặc bị khoá: " + String.join(", ", imeiBiBan));
-//        }
-
         List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
 
         List<String> imeiBiBan = imeisDaBan.stream()
@@ -91,12 +73,12 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         BillDetail saveBillDetail = billDetailRepository.save(savebillD);
-        return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        return searchBillDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
 
     //
     @Override
-    public BillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
+    public SearchBillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
         List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
@@ -138,7 +120,7 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         BillDetail saveBillDetail = billDetailRepository.save(savebillD);
-        return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        return searchBillDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
 
 

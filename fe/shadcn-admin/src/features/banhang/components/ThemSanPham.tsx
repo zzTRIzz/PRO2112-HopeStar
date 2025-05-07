@@ -39,7 +39,6 @@ interface SanPhamChiTiet {
   handleAddProduct: (product: ProductDetail) => void
   handleAddImei: () => void
   handleCheckboxChange: (id: number) => void
-  idBillDetail: number
   selectedImei: number[]
   dialogContent: 'product' | 'imei'
   setDialogContent: (content: 'product' | 'imei') => void
@@ -51,7 +50,6 @@ interface SanPhamChiTiet {
 const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   listProduct,
   listImei,
-  idBillDetail,
   selectedImei,
   handleAddImei,
   handleAddProduct,

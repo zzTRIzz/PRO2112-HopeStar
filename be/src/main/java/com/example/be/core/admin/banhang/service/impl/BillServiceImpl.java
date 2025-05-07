@@ -274,7 +274,7 @@ public class BillServiceImpl implements BillService {
 
 
             if (tongTien.compareTo(BigDecimal.ZERO) == 0) {
-                bill.setIdVoucher(null);
+//                bill.setIdVoucher(null);
                 bill.setDiscountedTotal(BigDecimal.ZERO);
                 bill.setTotalDue(BigDecimal.ZERO);
                 billRepository.save(bill);
