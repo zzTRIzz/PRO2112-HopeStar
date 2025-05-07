@@ -48,12 +48,20 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
     Imei findImeiByImeiCode(@Param("imei") String imei,
                             @Param("status") StatusImei statusImei);
 
+    //    @Query("SELECT i.id_Imei FROM ImeiSold i " +
+//            "WHERE i.id_Imei.id IN :imeiIds " +
+//            "AND i.idBillDetail.id <> :currentBillDetailId")
+//    List<Imei> findImeiSoldInOtherBillDetails(
+//            @Param("imeiIds") List<Integer> imeiIds,
+//            @Param("currentBillDetailId") Integer currentBillDetailId
+//    );
     @Query("SELECT i.id_Imei FROM ImeiSold i " +
             "WHERE i.id_Imei.id IN :imeiIds " +
-            "AND i.idBillDetail.id <> :currentBillDetailId")
+            "AND (:currentBillDetailId IS NULL OR i.idBillDetail.id <> :currentBillDetailId)")
     List<Imei> findImeiSoldInOtherBillDetails(
             @Param("imeiIds") List<Integer> imeiIds,
             @Param("currentBillDetailId") Integer currentBillDetailId
     );
+
 
 }

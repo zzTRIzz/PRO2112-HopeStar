@@ -47,7 +47,7 @@ interface TableHoaDonChiTietProps {
     selectedImei: number[];
     openDialogId: number | null;
     setOpenDialogId: (open: number | null) => void;
-    handleUpdateProduct: (idProductDetail: number, idBillDetail: number,quantity:number) => void
+    handleUpdateProduct: (idProductDetail: number, idBillDetail: number, quantity: number) => void
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
     deleteBillDetail: (id: number) => void;
@@ -63,7 +63,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         handleUpdateProduct,
         handleCheckboxChange,
         updateHandleImeiSold,
-        searchBill
+        searchBill,
+        deleteBillDetail
     }) => {
         const CartEmpty = () => {
             return (
@@ -128,13 +129,6 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
                                         </TableCell>
                                         <TableCell align="center" className='w-[95px]'>{pr?.quantity}
-                                            {/* {searchBill?.billDetailResponesList?.some(
-                                                (item) =>
-                                                    item.productDetail.id === pr.idProductDetail &&
-                                                    (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0) && item?.quantity > 0
-                                            ) && (
-                                                    <div className="text-red-500 text-xs font-medium mt-1">Thiếu imei</div>
-                                                )} */}
                                             {isMissingImei(pr.idProductDetail) && (
                                                 <div className="text-red-500 text-xs font-medium mt-1">
                                                     Thiếu imei
@@ -165,7 +159,6 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         >
                                                             Cập nhật
                                                         </Button>
-
                                                     </DialogTrigger>
                                                     <DialogContent className="sm:max-w-[730px] z-[1000]  flex flex-col">
                                                         <Input
@@ -225,6 +218,19 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                     </DialogContent>
                                                 </Dialog>
                                             </div>
+                                            
+                                            <Button
+                                               className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
+                                                onClick={() => {
+                                                    deleteBillDetail(pr.id);
+                                                }}
+                                                disabled={!(
+                                                    Number(searchBill?.billType) === 1 &&
+                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN')  
+                                                )}
+                                            >
+                                                Xóa
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

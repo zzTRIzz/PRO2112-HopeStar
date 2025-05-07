@@ -6,25 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class BillDetailDto {
-    private Integer id;
-
-    private BigDecimal price;
-
-    private Integer quantity;
-
-    private BigDecimal totalPrice;
-
-    private Integer idProductDetail;
 
     private Integer idBill;
 
-    private String createdBy;
+    private Integer idProductDetail;
 
-    private String updatedBy;
+    private List<Integer> id_Imei;
 }

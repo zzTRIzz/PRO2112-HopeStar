@@ -7,8 +7,8 @@ import { Main } from '@/components/layout/main';
 import {
     findImeiByIdProductDaBan, findBill,
     findImeiById,
-    createImeiSold, deleteProduct, getImei,
-    getProductDetail, addHDCT, getByIdBillDetail, getVoucherDangSuDung,
+    addBillDetailAndCreateImeiSold, deleteProduct, getImei,
+    getProductDetail, getByIdBillDetail, getVoucherDangSuDung,
     updateImeiSold,
     addBillHistory,
 
@@ -48,6 +48,7 @@ export interface imei {
     barCode: string,
     status: string
 }
+
 interface Voucher {
     id: number;
     code: string;
@@ -79,12 +80,11 @@ const ChiTietHoaDon: React.FC = () => {
 
     const [searchBill, setSearchBill] = useState<BillRespones | null>(null);
     const [listProduct, setListProductDetail] = useState<ProductDetail[]>([]);
-    // const [listKhachHang, hienThiKhachHang] = useState<AccountKhachHang>();
     const [listImei, setListImei] = useState<imei[]>([]);
     const [idBill, setIdBill] = useState<number>(0);
     const [idProductDetail, setIdProductDetail] = useState<number>(0);
     const [selectedImei, setSelectedImei] = useState<number[]>([]);
-    const [idBillDetail, setIdBillDetail] = useState<number>(0);
+    // const [idBillDetail, setIdBillDetail] = useState<number>(0);
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
@@ -135,7 +135,7 @@ const ChiTietHoaDon: React.FC = () => {
             const voucher = await getVoucherDangSuDung(id);
             setDuLieuVoucherDangDung(voucher);
         } catch (error) {
-            setProduct([]); // Xóa danh sách cũ
+            setProduct([]);
             setIdBill(0);
             console.error("Error fetching data:", error);
         }
@@ -155,13 +155,13 @@ const ChiTietHoaDon: React.FC = () => {
     // Lấy danh sách imei
     const loadImei = async (idProductDetail: number) => {
         try {
-            console.log("ID product detail tat ca:", idProductDetail);
-            const data = await getImei(idProductDetail);
-            setListImei(data);
+            const data = await getImei(idProductDetail)
+            setListImei(data)
+            console.log("IMEI", data);
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching data:', error)
         }
-    };
+    }
 
     // Tìm kiếm imei theo idProductDetail
     const findImeiByIdProductDetail = async (idProductDetail: number, idBillDetai: number) => {
@@ -177,50 +177,71 @@ const ChiTietHoaDon: React.FC = () => {
     // Xoa san pham trong hoa don chi tiet
     const deleteBillDetail = async (idBillDetail: number) => {
         try {
-            console.log(idBillDetail);
+            const result = await showDialog({
+                type: 'confirm',
+                title: 'Xác nhận xóa sản phẩm',
+                message: 'Bạn chắc chắn muốn xóa không?',
+                confirmText: 'Xác nhận',
+                cancelText: 'Hủy bỏ',
+            })
+            if (!result) {
+                showErrorToast('Xóa sản phẩm chi tiết không thành công');
+                return;
+            }
             await deleteProduct(idBillDetail, idBill);
             await loadProductDet();
             await loadImei(idProductDetail);
-            await getById(idBill);
+            loadTongBill();
             showSuccessToast("Xóa sản phẩm chi tiết thành công");
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
 
+
     // Thêm sản phẩm chi tiết vào hóa đơn chi tiết 
+    // const handleAddProduct = async (product: ProductDetail) => {
+    //     try {
+    //         // console.log("ID bill san pham " + idBill);
+    //         if (idBill == 0 || idBill == null) {
+    //             showErrorToast("Vui lòng chọn hóa đơn");
+    //             setIsDialogOpen(false);
+    //             return;
+    //         }
+    //         const isMissingImei = searchBill?.billDetailResponesList.some(
+    //             (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0) && detail.quantity > 0
+    //         );
+
+    //         if (isMissingImei) {
+    //             showErrorToast("Vui lòng cập nhập imei cho tất cả sản phẩm");
+    //             return;
+    //         }
+    //         const newProduct = await addHDCT({
+    //             idBill: idBill,
+    //             idProductDetail: product.id
+    //         });
+    //         themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm sản phẩm ${product?.name} ${product?.ram}/${product?.rom}GB (${product?.color})`);
+    //         setIdBillDetail(newProduct.id);
+    //         setIdProductDetail(product.id);
+    //         setSelectedImei([]);
+    //         loadImei(product.id);
+    //         loadTongBill();
+    //         setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
+    //         showSuccessToast("Thêm sản phẩm vào hóa đơn thành công");
+    //     } catch (error) {
+    //         console.error("Lỗi API:", error);
+    //     }
+    // };
     const handleAddProduct = async (product: ProductDetail) => {
         try {
-            // console.log("ID bill san pham " + idBill);
-            if (idBill == 0 || idBill == null) {
-                showErrorToast("Vui lòng chọn hóa đơn");
-                setIsDialogOpen(false);
-                return;
-            }
-            const isMissingImei = searchBill?.billDetailResponesList.some(
-                (detail) => (!detail.imeiSoldRespones || detail.imeiSoldRespones.length === 0) && detail.quantity > 0
-            );
-
-            if (isMissingImei) {
-                showErrorToast("Vui lòng cập nhập imei cho tất cả sản phẩm");
-                return;
-            }
-            const newProduct = await addHDCT({
-                idBill: idBill,
-                idProductDetail: product.id
-            });
-            themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm sản phẩm ${product?.name} ${product?.ram}/${product?.rom}GB (${product?.color})`);
-            setIdBillDetail(newProduct.id);
-            setIdProductDetail(product.id);
+            setIdProductDetail(product.id)
             setSelectedImei([]);
-            loadImei(product.id);
-            loadTongBill();
-            setDialogContent('imei'); // Chuyển nội dung dialog sang IMEI
-            showSuccessToast("Thêm sản phẩm vào hóa đơn thành công");
+            loadImei(product.id)
+            setDialogContent('imei')
         } catch (error) {
-            console.error("Lỗi API:", error);
+            console.error('Lỗi API:', error)
         }
-    };
+    }
 
 
     // Lấy danh sách imei 
@@ -234,28 +255,26 @@ const ChiTietHoaDon: React.FC = () => {
     // Them imei vao hoa don chi tiet
     const handleAddImei = async () => {
         try {
-            if (selectedImei.length <= 0) {
+            // console.log(listImei);
+            if (selectedImei.length == 0) {
                 showErrorToast("Vui lòng chọn imei");
                 return;
             }
-            await createImeiSold({
+            await addBillDetailAndCreateImeiSold({
+                idBill: idBill,
+                idProductDetail: idProductDetail,
                 id_Imei: selectedImei,
-                idBillDetail: idBillDetail
-            },
-                idBill,
-                idProductDetail
-            );
-            // console.log("Imei mới:", newImei);
-            setSelectedImei([]);
-            setIsDialogOpen(false); // Đóng dialog
-            await loadProductDet();
-            await loadImei(idProductDetail);
+            })
+            setSelectedImei([])
+            setIsDialogOpen(false)
+            await loadProductDet()
+            await loadImei(idProductDetail)
             loadTongBill();
-            showSuccessToast('Cập nhật số lượng hóa đơn chi tiết thành công');
+            showSuccessToast('Thêm sản phẩm chi tiết thành công')
         } catch (error) {
-            console.error("Lỗi API:", error);
+            console.error('Lỗi API:', error)
         }
-    };
+    }
 
 
     const updateHandleImeiSold = async (idBillDetail: number) => {
@@ -278,7 +297,7 @@ const ChiTietHoaDon: React.FC = () => {
                 showErrorToast('Cập nhật sản phẩm chi tiết không thành công');
                 return;
             }
-            
+
 
             await updateImeiSold({
                 id_Imei: selectedImei,
@@ -375,7 +394,6 @@ const ChiTietHoaDon: React.FC = () => {
                             <ThemSanPham
                                 listProduct={listProduct}
                                 listImei={listImei}
-                                idBillDetail={idBillDetail}
                                 selectedImei={selectedImei}
                                 handleAddImei={handleAddImei}
                                 handleAddProduct={handleAddProduct}

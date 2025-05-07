@@ -78,7 +78,7 @@ export interface ProductDetail {
   name: string,
   ram: number,
   rom: number,
-  descriptionRom : string
+  descriptionRom: string
   color: string,
   imageUrl: string,
 }
@@ -102,7 +102,7 @@ export interface Imei {
 
 
 export const ImeiSold = z.object({
-  id_Imei: z.array(z.number()), // Danh sách số nguyên
+  id_Imei: z.array(z.number()),
   idBillDetail: z.number(),
 });
 
@@ -114,7 +114,8 @@ export type ImeiSoldSchema = z.infer<typeof ImeiSold>;
 
 export const billDetailSchema = z.object({
   idBill: z.number().int().positive(),
-  idProductDetail: z.number().int().positive()
+  idProductDetail: z.number().int().positive(),
+  id_Imei: z.array(z.number()),
 });
 
 export type BillDetailSchema = z.infer<typeof billDetailSchema>;

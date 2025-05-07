@@ -179,25 +179,22 @@ export const findImeiByIdProductDaBan = async (idProductDetail: number, idBillDe
 }
 
 
-//  Thêm sản phẩm imei vào hóa đơn
-export const createImeiSold = async (imeiSold: ImeiSoldSchema,
-    idBill: number,
-    idProduct: number
-) => {
-    const jwt = Cookies.get('jwt')
+export const addBillDetailAndCreateImeiSold = async (billDetail: BillDetailSchema) => {
+    const jwt = Cookies.get('jwt');
     try {
-        const response = await axios.post(`${API_BASE_URL}/create_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+        const response = await axios.post(`${API_BASE_URL}/add-bill-detail-and-create-imei-sold`, billDetail, {
             headers: {
                 Authorization: `Bearer ${jwt}`,
             },
         });
+
         return response.data;
+
     } catch (error: any) {
         console.error('Lỗi khi thêm IMEI đã bán:', error);
 
         if (error.response && error.response.data) {
-            const message = 'Imei đã bán. Vui lòng chọn imei khác !';
-            // const message = error.response.data.message || 'Imei đã bán !';
+            const message = error.response.data.message|| 'Thêm sản phẩm chi tiết thất bại  !';
             showErrorToast(message);
         } else {
             showErrorToast('Không thể kết nối đến server');
@@ -206,25 +203,6 @@ export const createImeiSold = async (imeiSold: ImeiSoldSchema,
         throw error;
     }
 };
-
-// //  Cap nhat imei vào hóa đơn
-// export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
-//     idBill: number,
-//     idProduct: number
-// ) => {
-//     const jwt = Cookies.get('jwt')
-//     try {
-//         const response = await axios.post(`${API_BASE_URL}/update-xac-nhan-imei/${idBill}/${idProduct}`, imeiSold, {
-//             headers: {
-//                 Authorization: `Bearer ${jwt}`,
-//             },
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error add imei sold data:', error);
-//         throw error;
-//     }
-// }
 
 export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
