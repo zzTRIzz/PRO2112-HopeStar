@@ -24,6 +24,7 @@ import {
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableToolbar } from './data-table-toolbar'
+import { DataTableRowImeiActions } from './data-table-row-imei-actions'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -88,7 +89,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
-                {!hideActions && <TableHead>Thao tác</TableHead>}
+                 <TableHead>Thao tác</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -104,11 +105,13 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  {!hideActions && (
+                  {!hideActions ? (
                     <TableCell>
                       <DataTableRowActions row={row} />
                     </TableCell>
-                  )}
+                  ):(<TableCell>
+                    <DataTableRowImeiActions row={row} />
+                  </TableCell>)}
                 </TableRow>
               ))
             ) : (

@@ -84,22 +84,22 @@ export default function Navbar() {
     }
   }
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      // Chỉ navigate khi có giá trị search
-      if (searchValue.trim()) {
-        navigate({
-          to: '/dienthoai',
-          search: {
-            key: searchValue.trim(),
-          },
-        })
-        // Reset search state
-        setSearchValue('')
-        setIsSearchOpen(false)
-      }
-    }
-  }
+  // const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === 'Enter') {
+  //     // Chỉ navigate khi có giá trị search
+  //     if (searchValue.trim()) {
+  //       navigate({
+  //         to: '/dienthoai',
+  //         search: {
+  //           key: searchValue.trim(),
+  //         },
+  //       })
+  //       // Reset search state
+  //       setSearchValue('')
+  //       setIsSearchOpen(false)
+  //     }
+  //   }
+  // }
 
   const renderUserMenu = () => {
     if (isLoading) {
@@ -246,7 +246,7 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className='hidden items-center gap-4 md:flex'>
-          {isSearchOpen ? (
+          {/* {isSearchOpen ? (
             <div className='flex items-center'>
               <Input
                 type='search'
@@ -278,7 +278,7 @@ export default function Navbar() {
             >
               <Search className='h-5 w-5' />
             </Button>
-          )}
+          )} */}
           <Button variant='ghost' size='icon' asChild>
             <Link to='/gio-hang' className='relative'>
               <ShoppingCart className='h-5 w-5' />

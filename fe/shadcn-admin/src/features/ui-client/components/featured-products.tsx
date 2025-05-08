@@ -1,10 +1,9 @@
-import { toast } from '@/hooks/use-toast'
-import { IconLoader2 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import Cookies from 'js-cookie'
-import { Heart, Star } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { IconLoader2 } from '@tabler/icons-react'
+import { toast } from '@/hooks/use-toast'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -215,25 +214,30 @@ export default function FeaturedProducts() {
                   </div> */}
                 </div>
 
-                {/* Hiển thị RAM và ROM trên cùng 1 hàng với dấu / */}
-                <div className='flex items-center gap-2'>
-                  {product.ram.map((ram, i) => (
-                    <div
-                      key={`ram-${i}`}
-                      className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                    >
-                      {ram}
-                    </div>
-                  ))}
-                  {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
-                  {product.rom.map((rom, i) => (
-                    <div
-                      key={`rom-${i}`}
-                      className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                    >
-                      {rom}
-                    </div>
-                  ))}
+                {/* Hiển thị RAM và ROM */}
+                <div className='flex flex-col gap-2'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <span className='font-medium text-gray-500'>Ram:</span>
+                    {product.ram.map((ram, i) => (
+                      <div
+                        key={`ram-${i}`}
+                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
+                      >
+                        {ram}
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <span className='font-medium text-gray-500'>Rom:</span>
+                    {product.rom.map((rom, i) => (
+                      <div
+                        key={`rom-${i}`}
+                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
+                      >
+                        {rom}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Hiển thị màu sắc */}
@@ -296,7 +300,9 @@ export default function FeaturedProducts() {
       {bestSellingProducts.length !== 0 && (
         <>
           <div className='mb-8 flex items-center justify-between'>
-            <h2 className='pt-8 text-3xl font-bold'>Điện thoại bán nhiều nhất</h2>
+            <h2 className='pt-8 text-3xl font-bold'>
+              Điện thoại bán nhiều nhất
+            </h2>
           </div>
 
           <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
@@ -322,7 +328,7 @@ export default function FeaturedProducts() {
                     </div>
 
                     {/* Wishlist Button */}
-                    <div className='absolute right-2 top-2'>
+                    {/* <div className='absolute right-2 top-2'>
                       <Button
                         variant='secondary'
                         size='icon'
@@ -331,7 +337,7 @@ export default function FeaturedProducts() {
                       >
                         <Heart className='h-4 w-4' />
                       </Button>
-                    </div>
+                    </div> */}
 
                     {/* Discount Badge */}
                     {product.price !== product.priceSeller && (
@@ -356,26 +362,30 @@ export default function FeaturedProducts() {
                       <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
                         {product.name}
                       </h3>
-                      <div className='flex shrink-0 items-center gap-1'>
+                      {/* <div className='flex shrink-0 items-center gap-1'>
                         <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
                         <span className='text-sm font-medium'>4.8</span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* RAM and ROM */}
-                    <div className='flex flex-wrap gap-1'>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <span className='font-medium text-gray-500'>Ram:</span>
                       {product.ram.map((ram, i) => (
                         <div
                           key={`ram-${i}`}
-                          className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
+                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
                         >
                           {ram}
                         </div>
                       ))}
+                    </div>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <span className='font-medium text-gray-500'>Rom:</span>
                       {product.rom.map((rom, i) => (
                         <div
                           key={`rom-${i}`}
-                          className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
+                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
                         >
                           {rom}
                         </div>

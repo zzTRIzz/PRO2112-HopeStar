@@ -106,8 +106,8 @@ public class ProductDetailMapper {
         response.setStatus(dto.getStatus());
         response.setImageUrl(dto.getImageUrl());
         response.setColorName(dto.getIdColor() != null ? colorRepository.findById(dto.getIdColor()).map(c -> c.getName()).orElse(null) : null);
-        response.setRamCapacity(dto.getIdRam() != null ? ramRepository.findById(dto.getIdRam()).map(r -> r.getCapacity()).orElse(null) : null);
-        response.setRomCapacity(dto.getIdRom() != null ? romRepository.findById(dto.getIdRom()).map(r -> r.getCapacity()).orElse(null) : null);
+        response.setRamCapacity(dto.getIdRam() != null ? ramRepository.findById(dto.getIdRam()).map(r -> r.getCapacity()+r.getDescription()).orElse(null) : null);
+        response.setRomCapacity(dto.getIdRom() != null ? romRepository.findById(dto.getIdRom()).map(r -> r.getCapacity()+r.getDescription()).orElse(null) : null);
         response.setProductImeiResponses(imeiMapper.dtoListToResponseList(dto.getProductImeiResponses()));
         return response;
     }

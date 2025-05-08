@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { Heart, Star } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useNavigate} from '@tanstack/react-router'
 import { getHome, searchPhones } from '../data/api-service'
 import { productViewResponse } from '../data/schema'
 import { Breadcrumb } from '../pages/breadcrumb'
@@ -9,6 +8,7 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
 import { Route } from '@/routes/(auth)/dienthoai/index.lazy'
+import { useQuery } from '@tanstack/react-query'
 
 export default function TatCaDienThoai() {
   const search = Route.useSearch()
@@ -22,8 +22,31 @@ export default function TatCaDienThoai() {
   const [isFiltered, setIsFiltered] = useState(false)
 
   // Xử lý initial filters từ URL khi component mount
+  // Track if this is the initial load
+  const initialLoadRef = useRef(true)
+
+  // Fetch home data using React Query
+  const { data: homeData } = useQuery({
+    queryKey: ['home'],
+    queryFn: getHome,
+    enabled: !Object.keys(search).length || initialLoadRef.current,
+    onSuccess: (data) => {
+      if (initialLoadRef.current && !Object.keys(search).length) {
+        setProducts(data.newestProducts)
+        setLoading(false)
+        initialLoadRef.current = false
+      }
+    },
+    onError: (error) => {
+      setError(error as Error)
+      setLoading(false)
+    },
+    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+  })
+
+  // Process search parameters on initial load
   useEffect(() => {
-    if (Object.keys(search).length > 0) {
+    if (initialLoadRef.current && Object.keys(search).length > 0) {
       const initialFilters: PhoneFilterRequest = {
         key: search.key as string,
         brand: search.brand ? Number(search.brand) : undefined,
@@ -42,60 +65,92 @@ export default function TatCaDienThoai() {
           ? Boolean(search.productSale)
           : undefined,
       }
+      
       handleFilterChange(initialFilters)
-    } else {
-      // Load default data if no filters
-      const loadInitialData = async () => {
-        try {
-          const data = await getHome()
-          setProducts(data.newestProducts)
-        } finally {
-          setLoading(false)
-        }
+      initialLoadRef.current = false
+    }
+  }, [search]);
+
+  // Debounce handler to prevent excessive API calls
+  const debouncedFilterChange = useCallback((filters: PhoneFilterRequest) => {
+    // Update URL with filters
+    const searchParams = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.set(key, value.toString())
       }
-      loadInitialData()
+    })
+
+    // Update URL without reloading page
+    navigate({
+      search: searchParams.toString(),
+      replace: true,
+    })
+
+    // Check if any filter is active
+    const hasActiveFilters = Object.values(filters).some(
+      (value) => value !== undefined && value !== null
+    )
+
+    setIsFiltered(hasActiveFilters)
+    setLoading(true)
+
+    // Use different data sources based on filter state
+    if (!hasActiveFilters) {
+      // Use cached data if available, otherwise fetch
+      if (homeData) {
+        setProducts(homeData.newestProducts)
+        setLoading(false)
+      } else {
+        getHome()
+          .then((data) => {
+            setProducts(data.newestProducts)
+          })
+          .catch((error) => {
+            setError(error as Error)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      }
+    } else {
+      searchPhones(filters)
+        .then((data) => {
+          setProducts(data)
+        })
+        .catch((error) => {
+          setError(error as Error)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    }
+  }, [navigate, homeData])
+
+  // Debounce timer ref
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Handle filter changes with debouncing
+  const handleFilterChange = useCallback((filters: PhoneFilterRequest) => {
+    // Clear previous timer if it exists
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    // Set new timer (300ms delay)
+    timerRef.current = setTimeout(() => {
+      debouncedFilterChange(filters)
+    }, 300)
+  }, [debouncedFilterChange])
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
     }
   }, [])
-
-  const handleFilterChange = async (filters: PhoneFilterRequest) => {
-    try {
-      setLoading(true)
-
-      // Cập nhật URL với các filter
-      const searchParams = new URLSearchParams()
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.set(key, value.toString())
-        }
-      })
-
-      // Cập nhật URL mà không reload trang
-      navigate({
-        search: searchParams.toString(),
-        replace: true,
-      })
-
-      // Check if any filter is active
-      const hasActiveFilters = Object.values(filters).some(
-        (value) => value !== undefined && value !== null
-      )
-
-      setIsFiltered(hasActiveFilters)
-
-      if (!hasActiveFilters) {
-        const data = await getHome()
-        setProducts(data.newestProducts)
-      } else {
-        const data = await searchPhones(filters)
-        setProducts(data)
-      }
-    } catch (error) {
-      setError(error as Error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   if (error)
     return (
       <div className='mt-9 flex h-screen items-center justify-center text-2xl'>
@@ -155,7 +210,7 @@ export default function TatCaDienThoai() {
                           key={`ram-${i}`}
                           className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {ram}GB
+                          {ram}
                         </div>
                       ))}
                       {product.rom?.map((rom, i) => (
@@ -163,7 +218,7 @@ export default function TatCaDienThoai() {
                           key={`rom-${i}`}
                           className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
                         >
-                          {rom}GB
+                          {rom}
                         </div>
                       ))}
                     </div>
