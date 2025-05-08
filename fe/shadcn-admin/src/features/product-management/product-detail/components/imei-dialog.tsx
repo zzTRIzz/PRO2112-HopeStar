@@ -52,13 +52,7 @@ const columns: ColumnDef<ProductImeiResponse>[] = [
             status === 'NOT_SOLD'
               ? 'default'
               : status === 'IN_ACTIVE'
-                ? 'secondary'
-                : status === 'PENDING_DELIVERY'
-                  ? 'outline'
-                  : status === 'IN_THE_CART'
-                    ? 'warning'
-                    : status === 'CANCELLED'
-                      ? 'destructive'
+                ? 'destructive'
                       : 'success'
           }
         >
@@ -66,12 +60,6 @@ const columns: ColumnDef<ProductImeiResponse>[] = [
             ? 'Chưa bán'
             : status === 'IN_ACTIVE'
               ? 'Không hoạt động'
-              : status === 'PENDING_DELIVERY'
-                ? 'Chờ giao hàng'
-                : status === 'IN_THE_CART'
-                  ? 'Trong giỏ hàng'
-                  : status === 'CANCELLED'
-                    ? 'Đã hủy'
                     : 'Đã bán'}
         </Badge>
       )
@@ -93,8 +81,8 @@ export function ImeiDialog() {
         <DialogHeader>
           <DialogTitle>
             Chi tiết IMEI - {productDetail.colorName} (
-            {productDetail.ramCapacity}GB/
-            {productDetail.romCapacity}GB)
+            {productDetail.ramCapacity}/
+            {productDetail.romCapacity})
           </DialogTitle>
           <DialogDescription>
             Thông tin chi tiết tất cả các IMEI

@@ -13,7 +13,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +56,6 @@ public class SaleController {
         return ResponseEntity.ok(responses);
     }
 
-
-    // SaleController.java
     @DeleteMapping("/details")
     public ResponseEntity<?> deleteSaleDetails(
             @Valid @RequestBody SaleDetailDeleteRequest request,@RequestHeader(value = "Authorization") String jwt
@@ -103,13 +100,15 @@ public class SaleController {
     }
 
     // Lấy danh sách sản phẩm chi tiết có ở trong sale
-    @GetMapping("/{saleId}/product-details")
+    @GetMapping("/{saleId}/products")
     public ResponseEntity<List<SaleDetailResponse>> getProductsInSale(
-            @PathVariable Integer saleId,@RequestHeader(value = "Authorization") String jwt
+            @PathVariable Integer saleId,
+            @RequestHeader(value = "Authorization") String jwt
     ) throws Exception {
         List<SaleDetailResponse> responses = saleService.getProductsInSale(saleId);
         authService.findAccountByJwt(jwt);
         return ResponseEntity.ok(responses);
     }
+
 
 }

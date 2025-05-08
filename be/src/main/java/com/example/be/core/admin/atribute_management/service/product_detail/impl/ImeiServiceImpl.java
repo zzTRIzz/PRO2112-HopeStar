@@ -1,5 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product_detail.impl;
 
+import com.example.be.core.admin.atribute_management.dto.request.ImeiRequest;
 import com.example.be.core.admin.atribute_management.dto.response.ImeiResponse;
 import com.example.be.core.admin.banhang.dto.ImeiDto;
 import com.example.be.core.admin.products_management.dto.response.ProductDetailResponse;
@@ -13,6 +14,8 @@ import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ProductDetailRepository;
 import com.example.be.repository.ProductRepository;
+import com.example.be.utils.BarcodeGenerator;
+import com.google.zxing.BarcodeFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,7 @@ public class ImeiServiceImpl implements ImeiService {
     private final ImeiMapper imeiMapper;
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final BarcodeGenerator barcodeGenerator;
 
     @Override
     public List<Imei> getAll() {
@@ -41,6 +45,8 @@ public class ImeiServiceImpl implements ImeiService {
 
     @Override
     public void update(Integer integer, Imei entity) {
+
+
     }
 
     @Override
@@ -120,6 +126,23 @@ public class ImeiServiceImpl implements ImeiService {
         List<Imei> imeis= imeiRepository.findImeiByIdProductDetail( idProduct,idBillDetail ,statuses);
         return imeis.stream().map(this::imeiDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Object updateImei(Integer id, ImeiRequest imeiRequest) throws Exception {
+        Imei imei = imeiRepository.findById(id).orElseThrow(()->
+                new Exception("Imei không tồn tại"));
+        if (!imei.getImeiCode().equals(imeiRequest.getImeiCode())){
+           Imei imeiExit = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
+           if (imeiExit !=null){
+               throw new Exception("Imei đã tồn tại");
+           }
+        }
+        imei.setImeiCode(imeiRequest.getImeiCode());
+        imei.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
+        imei.setStatus(imeiRequest.getStatus());
+        imeiRepository.save(imei);
+        return "Cập nhật thành công!";
     }
 
 }

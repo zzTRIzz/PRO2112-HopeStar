@@ -1,5 +1,6 @@
 package com.example.be.core.admin.atribute_management.service.product_detail;
 
+import com.example.be.core.admin.atribute_management.dto.request.ImeiRequest;
 import com.example.be.core.admin.atribute_management.dto.response.ImeiResponse;
 import com.example.be.core.admin.banhang.dto.ImeiDto;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
@@ -21,4 +22,6 @@ public interface ImeiService extends GenericService<Imei,Integer> {
 
 
     List<ImeiDto> findImeiByIdProductDetail(Integer idProduct, Integer idBillDetail);
+
+    Object updateImei(Integer id, ImeiRequest imeiRequest) throws Exception;
 }

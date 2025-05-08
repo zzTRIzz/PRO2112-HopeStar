@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useSearch } from '@tanstack/react-router'
+import { Route } from '@/routes/(auth)/dienthoai/index.lazy'
 import {
   Button,
   Chip,
@@ -14,6 +14,7 @@ import {
   Slider,
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { Search } from 'lucide-react'
 import {
   getBrandActive,
   getCategoryActive,
@@ -23,7 +24,6 @@ import {
   getRomActive,
   getScreenActive,
 } from '../../../features/product-management/product/data/api-service'
-import { Route } from '@/routes/(auth)/dienthoai/index.lazy'
 
 export interface PhoneFilterRequest {
   key?: string
@@ -69,7 +69,7 @@ export default function BoLocDienThoai({
     priceStart: search.priceStart ? Number(search.priceStart) : undefined,
     priceEnd: search.priceEnd ? Number(search.priceEnd) : undefined,
   }))
-
+  const [searchKey, setSearchKey] = useState(filters.key || '') // State để lưu giá trị input
   const [sortType, setSortType] = useState<{
     priceMax?: boolean
     priceMin?: boolean
@@ -125,7 +125,9 @@ export default function BoLocDienThoai({
             ? undefined
             : value === 'null'
               ? null
-              : typeof value === 'string' && key !== 'typeScreen'
+              : typeof value === 'string' &&
+                  key !== 'typeScreen' &&
+                  key !== 'key'
                 ? Number(value)
                 : value
 
@@ -168,6 +170,7 @@ export default function BoLocDienThoai({
     setFilters({})
     setTempPriceRange(DEFAULT_PRICE_RANGE)
     setIsPriceFilterActive(false)
+    setSearchKey('')
     setSortType({})
   }, [])
 
@@ -202,11 +205,15 @@ export default function BoLocDienThoai({
     items: any[] = [],
     id?: number,
     key = 'name',
-    suffix = ''
+    suffix?: string // Suffix là tùy chọn
   ) => {
     if (!id) return undefined
     const item = items.find((item) => item.id === id)
-    return item ? `${item[key]}${suffix}` : undefined
+    return item
+      ? suffix
+        ? `${item[key]}${item[suffix]}`
+        : `${item[key]}` // Chỉ trả về item[key] nếu không có suffix
+      : undefined
   }
 
   // Check if any filter is active
@@ -331,14 +338,14 @@ export default function BoLocDienThoai({
           key: 'ram',
           dataKey: 'rams',
           nameKey: 'capacity',
-          suffix: 'GB',
+          suffix: 'description',
         },
         {
           label: 'ROM',
           key: 'rom',
           dataKey: 'roms',
           nameKey: 'capacity',
-          suffix: 'GB',
+          suffix: 'description',
         },
         {
           label: 'Màn hình',
@@ -396,7 +403,7 @@ export default function BoLocDienThoai({
                   {key === 'typeScreen'
                     ? item.type
                     : filter.suffix
-                      ? `${item[filter.nameKey]}${filter.suffix}`
+                      ? `${item[filter.nameKey]}${item[filter.suffix]}`
                       : item[filter.nameKey]}
                 </DropdownItem>
               ))}
@@ -424,15 +431,15 @@ export default function BoLocDienThoai({
       <div className='flex flex-wrap gap-2'>
         {/* Price filter chip */}
         {filters.key && (
-        <Chip
-          key='search-keyword'
-          onClose={() => handleFilterChange('key', undefined)}
-          variant='flat'
-          color='primary'
-        >
-          {`Từ khóa: ${filters.key}`}
-        </Chip>
-      )}
+          <Chip
+            key='search-keyword'
+            onClose={() => handleFilterChange('key', undefined)}
+            variant='flat'
+            color='primary'
+          >
+            {`Từ khóa: ${filters.key}`}
+          </Chip>
+        )}
         {isPriceFilterActive && (
           <Chip
             key='price-range'
@@ -472,14 +479,14 @@ export default function BoLocDienThoai({
             label: 'RAM: ',
             dataKey: 'rams',
             nameKey: 'capacity',
-            suffix: 'GB',
+            suffix: 'description',
           },
           {
             key: 'rom',
             label: 'ROM: ',
             dataKey: 'roms',
             nameKey: 'capacity',
-            suffix: 'GB',
+            suffix: 'description',
           },
           { key: 'typeScreen', label: 'Màn hình: ' },
         ].map((filter) => {
@@ -496,7 +503,7 @@ export default function BoLocDienThoai({
             const item = items.find((i: any) => i.id === value)
             if (!item) return null
 
-            displayText = `${filter.label}${item[filter.nameKey]}${filter.suffix || ''}`
+            displayText = `${filter.label}${item[filter.nameKey]}${item[filter.suffix] || ''}`
           }
 
           return (
@@ -576,6 +583,29 @@ export default function BoLocDienThoai({
       {isAnyFilterActive && renderActiveFilters()}
 
       {renderSortControls()}
+
+      {/* tim kiem  */}
+      <div className='mb-8 flex w-full justify-center'>
+        <div className='flex w-5/6 max-w-3xl items-center gap-4'>
+          <input
+            type='text'
+            value={searchKey}
+            onChange={(e) => setSearchKey(e.target.value)}
+            placeholder='Tìm kiếm điện thoại...'
+            className='flex-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring focus:ring-blue-500'
+          />
+          <Button
+            variant='bordered'
+            color='primary'
+            isDisabled={!searchKey.trim()}
+            onPress={() => handleFilterChange('key', searchKey.trim())}
+            className='flex items-center gap-2'
+          >
+            <Search className='h-5 w-5' />
+            Tìm kiếm
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
