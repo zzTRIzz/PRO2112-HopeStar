@@ -43,8 +43,6 @@ public class StatisticServiceImpl implements StatisticService {
                         .collect(Collectors.toList());
     }
 
-
-
     @Override
     public List<RevenueByYearResponse> getRevenueByYear() {
         List<Object[]> results = statisticRepository.getRevenueByYear();
@@ -212,8 +210,6 @@ public class StatisticServiceImpl implements StatisticService {
         );
     }
 
-    // Trong StatisticService.java
-
     public List<StatisticByDateResponse> getRevenueLast3Days() {
         List<Object[]> results = statisticRepository.getRevenueLast3Days();
         return results.stream()
@@ -317,11 +313,11 @@ public class StatisticServiceImpl implements StatisticService {
 
     private RevenueTop10CustomerResponse mapToRevenueResponse(Object[] row) {
         return new RevenueTop10CustomerResponse(
-                ((Number) row[0]).longValue(),    // customerId
-                (String) row[1],                   // customerName
-                (String) row[2],                   // email
-                (String) row[3],                   // phone
-                new BigDecimal(row[4].toString())  // totalDueSum
+                ((Number) row[0]).longValue(),
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                new BigDecimal(row[4].toString())
         );
     }
 }

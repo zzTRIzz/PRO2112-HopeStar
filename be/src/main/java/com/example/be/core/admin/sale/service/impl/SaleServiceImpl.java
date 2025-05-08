@@ -229,6 +229,7 @@ public class SaleServiceImpl implements SaleService {
             SaleDetailResponse response = new SaleDetailResponse();
             response.setId(sd.getId());
             response.setProductDetailId(sd.getProductDetail().getId());
+            response.setProductId(sd.getProductDetail().getProduct().getId()); // Thêm dòng này
             response.setProductName(sd.getProductDetail().getProduct().getName());
             response.setProductCode(sd.getProductDetail().getCode());
             response.setPrice(sd.getProductDetail().getPrice());
@@ -306,6 +307,8 @@ public class SaleServiceImpl implements SaleService {
             productDetailRepository.save(pd);
         }
     }
+
+
 
     private LocalDateTime roundToMinute(LocalDateTime dateTime) {
         return dateTime.truncatedTo(ChronoUnit.MINUTES);

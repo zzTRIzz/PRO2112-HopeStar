@@ -39,4 +39,6 @@ public class ProductDetailsController {
         authService.findAccountByJwt(jwt);
         return ResponseEntity.ok(responses);
     }
+
+
 }
