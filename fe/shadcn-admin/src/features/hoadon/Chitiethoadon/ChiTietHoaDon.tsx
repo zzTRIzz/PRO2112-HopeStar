@@ -27,6 +27,7 @@ export interface SearchBillDetail {
     mauSac: string,
     imageUrl: string,
     idBill: number
+    imeiList: imei[]
 }
 
 export interface ProductDetail {
@@ -84,12 +85,10 @@ const ChiTietHoaDon: React.FC = () => {
     const [idBill, setIdBill] = useState<number>(0);
     const [idProductDetail, setIdProductDetail] = useState<number>(0);
     const [selectedImei, setSelectedImei] = useState<number[]>([]);
-    // const [idBillDetail, setIdBillDetail] = useState<number>(0);
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
     const [openDialogId, setOpenDialogId] = useState<number | null>(null);
-    const [voucherDangDung, setDuLieuVoucherDangDung] = useState<Voucher>();
 
     // Lấy danh sách hóa đơn, sản phẩm chi tiết, khách hàng, imei
     useEffect(() => {
@@ -121,7 +120,7 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             const data = await findBill(id);
             setSearchBill(data);
-            console.log(data)
+            // console.log(data)
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -132,8 +131,6 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             const data = await getByIdBillDetail(id);
             setProduct(data);
-            const voucher = await getVoucherDangSuDung(id);
-            setDuLieuVoucherDangDung(voucher);
         } catch (error) {
             setProduct([]);
             setIdBill(0);
@@ -433,9 +430,14 @@ const ChiTietHoaDon: React.FC = () => {
                                     {[
                                         { label: "Tổng tiền hàng:", value: searchBill?.totalPrice },
                                         {
-                                            label: `Giảm giá: ${searchBill?.idVoucher ? voucherDangDung?.code : ''}`,
+                                            label: (
+                                                <span>
+                                                    Giảm giá:<span style={{ color: 'blue' }}>{searchBill?.idVoucher ?  searchBill?.codeVoucher  : ''}</span>
+                                                </span>
+                                            ),
                                             value: searchBill?.discountedTotal
-                                        },
+                                        }
+                                        ,
                                         { label: "Phí vận chuyển:", value: searchBill?.deliveryFee },
                                         ...(searchBill?.payInsurance ?? 0 > 0
                                             ? [{

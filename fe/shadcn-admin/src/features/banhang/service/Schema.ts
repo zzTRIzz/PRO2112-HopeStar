@@ -66,7 +66,8 @@ export interface SearchBillDetail {
   descriptionRom: string,
   mauSac: string,
   imageUrl: string,
-  idBill: number
+  idBill: number,
+  imeiList: Imei[]
 }
 
 export interface ProductDetail {

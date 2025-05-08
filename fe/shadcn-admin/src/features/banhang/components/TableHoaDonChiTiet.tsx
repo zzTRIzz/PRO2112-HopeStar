@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
     Dialog,
     DialogContent,
+    DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
@@ -113,7 +115,58 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                             {pr.nameProduct} {pr.ram + '/'}{pr.rom}{pr.descriptionRom} ({pr.mauSac})
                                         </TableCell>
                                         <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
-                                        <TableCell align="right">{pr.quantity}</TableCell>
+                                        {/* --------------- */}
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <TableCell
+                                                    align="right"
+                                                    className="text-blue-600 cursor-pointer underline hover:text-blue-500 hover:underline"
+                                                >
+                                                    {pr.quantity}
+                                                </TableCell>
+
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-2xl">
+                                                <DialogHeader>
+                                                    <DialogTitle>Danh sách IMEI của sản phẩm:  {pr.nameProduct} {pr.ram + '/'}{pr.rom} {pr.descriptionRom} ({pr.mauSac})</DialogTitle>
+                                                </DialogHeader>
+                                                <TableContainer className="overflow-auto max-h-[520px] mt-4">
+                                                    <Table>
+                                                        <TableHead>
+                                                            <TableRow>
+                                                                <TableCell>Stt</TableCell>
+                                                                <TableCell>Mã imei</TableCell>
+                                                                <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
+                                                                {/* <TableCell>Trạng thái</TableCell> */}
+                                                            </TableRow>
+                                                        </TableHead>
+                                                        <TableBody>
+                                                            {pr.imeiList.map((im, index) => (
+                                                                <TableRow key={im.id}>
+                                                                    <TableCell>{index + 1}</TableCell>
+                                                                    <TableCell>{im.imeiCode}</TableCell>
+                                                                    <TableCell>
+                                                                        <img
+                                                                            src={im.barCode}
+                                                                            className='h-8 w-64 rounded-lg object-cover'
+                                                                        />
+                                                                    </TableCell>
+                                                                    {/* <TableCell>{im.status}</TableCell> */}
+                                                                </TableRow>
+                                                            ))}
+                                                            {pr.imeiList.length === 0 && (
+                                                                <TableRow>
+                                                                    <TableCell colSpan={4} align="center">
+                                                                        Không có IMEI nào
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </TableBody>
+                                                    </Table>
+                                                </TableContainer>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* --------------- */}
                                         <TableCell align="right">{pr.totalPrice.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="center" style={{}}>
                                             <div className="right space-x-2">
@@ -133,7 +186,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             placeholder="Tìm mã imei"
                                                             className="max-w-sm"
                                                             value={searchImeiKey}
-                                                            onChange={(e) => setSearchImeiKey(e.target.value)} // Cập nhật từ khóa tìm kiếm
+                                                            onChange={(e) => setSearchImeiKey(e.target.value)}
                                                         />
                                                         <TableContainer className="h-full max-h-[450px] overflow-auto">
                                                             <ScrollArea>

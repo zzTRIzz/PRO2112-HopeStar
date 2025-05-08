@@ -20,8 +20,8 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
     List<BillDetail> findByIdBill(@Param("idBill") Integer idBill);
 
 
-    @Query("SELECT bd FROM BillDetail bd WHERE bd.idProductDetail.id = :idProductDetail")
-    BillDetail searchBillDetail(@Param("idProductDetail") Integer idProductDetail);
+//    @Query("SELECT bd FROM BillDetail bd WHERE bd.idProductDetail.id = :idProductDetail")
+//    BillDetail searchBillDetail(@Param("idProductDetail") Integer idProductDetail);
 
 
     @Query("SELECT COALESCE(SUM(bd.price * bd.quantity), 0) FROM BillDetail bd WHERE bd.idBill.id = :idBill")

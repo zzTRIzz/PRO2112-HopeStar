@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
     Dialog,
     DialogContent,
+    DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Paper from '@mui/material/Paper';
@@ -17,29 +19,8 @@ import { BillRespones } from '@/features/banhang/service/Schema';
 import { DataTablePagination } from '../../components/PhanTrang/data-table-pagination';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { imei, SearchBillDetail } from '../ChiTietHoaDon';
 
-
-interface SearchBillDetail {
-    id: number
-    price: number,
-    quantity: number,
-    totalPrice: number,
-    idProductDetail: number,
-    nameProduct: string,
-    ram: number,
-    rom: number,
-    descriptionRom: string,
-    mauSac: string,
-    imageUrl: string,
-    idBill: number
-}
-
-interface imei {
-    id: number,
-    imeiCode: string,
-    barCode: string,
-    status: string
-}
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
     listImei: imei[];
@@ -128,13 +109,61 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         <TableCell align="right" >{pr?.price?.toLocaleString('vi-VN')} VND
 
                                         </TableCell>
-                                        <TableCell align="center" className='w-[95px]'>{pr?.quantity}
-                                            {isMissingImei(pr.idProductDetail) && (
-                                                <div className="text-red-500 text-xs font-medium mt-1">
-                                                    Thiếu imei
-                                                </div>
-                                            )}
-                                        </TableCell>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <TableCell
+                                                    align="right"
+                                                    className="text-blue-600 cursor-pointer underline hover:text-blue-500 hover:underline"
+                                                >
+                                                    {pr?.quantity}
+                                                    {isMissingImei(pr.idProductDetail) && (
+                                                        <div className="text-red-500 text-xs font-medium mt-1">
+                                                            Thiếu imei
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-2xl">
+                                                <DialogHeader>
+                                                    <DialogTitle>Danh sách IMEI của sản phẩm:  {pr.nameProduct} {pr.ram + '/'}{pr.rom}{pr.descriptionRom} ({pr.mauSac})</DialogTitle>
+                                                </DialogHeader>
+                                                <TableContainer className="overflow-auto max-h-[520px] mt-4">
+                                                    <Table>
+                                                        <TableHead>
+                                                            <TableRow>
+                                                                <TableCell>Stt</TableCell>
+                                                                <TableCell>Mã imei</TableCell>
+                                                                <TableCell align='center' className='w-[320px]'>Mã vạch</TableCell>
+                                                                {/* <TableCell>Trạng thái</TableCell> */}
+                                                            </TableRow>
+                                                        </TableHead>
+                                                        <TableBody>
+                                                            {pr.imeiList.map((im, index) => (
+                                                                <TableRow key={im.id}>
+                                                                    <TableCell>{index + 1}</TableCell>
+                                                                    <TableCell>{im.imeiCode}</TableCell>
+                                                                    <TableCell>
+                                                                        <img
+                                                                            src={im.barCode}
+                                                                            className='h-8 w-64 rounded-lg object-cover'
+                                                                        />
+                                                                    </TableCell>
+                                                                    {/* <TableCell>{im.status}</TableCell> */}
+                                                                </TableRow>
+                                                            ))}
+                                                            {pr.imeiList.length === 0 && (
+                                                                <TableRow>
+                                                                    <TableCell colSpan={4} align="center">
+                                                                        Không có IMEI nào
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </TableBody>
+                                                    </Table>
+                                                </TableContainer>
+                                            </DialogContent>
+                                        </Dialog>
                                         <TableCell align="right">{pr?.totalPrice?.toLocaleString('vi-VN')} VND
                                         </TableCell>
                                         <TableCell align="center" style={{}}>
@@ -218,15 +247,15 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                     </DialogContent>
                                                 </Dialog>
                                             </div>
-                                            
+
                                             <Button
-                                               className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
+                                                className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
                                                 onClick={() => {
                                                     deleteBillDetail(pr.id);
                                                 }}
                                                 disabled={!(
                                                     Number(searchBill?.billType) === 1 &&
-                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN')  
+                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN')
                                                 )}
                                             >
                                                 Xóa

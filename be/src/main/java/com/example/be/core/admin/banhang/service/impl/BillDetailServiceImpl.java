@@ -2,6 +2,7 @@ package com.example.be.core.admin.banhang.service.impl;
 
 
 import com.example.be.core.admin.banhang.dto.BillDetailDto;
+import com.example.be.core.admin.banhang.dto.ImeiDto;
 import com.example.be.core.admin.banhang.dto.ProductDetailDto;
 import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
@@ -28,9 +29,6 @@ public class BillDetailServiceImpl implements BillDetailService {
     @Autowired
     BillDetailRepository billDetailRepository;
 
-//    @Autowired
-//    BillDetailMapper billDetailMapper;
-
     @Autowired
     SearchBillDetailMapper searchBillDetailMapper;
 
@@ -50,142 +48,48 @@ public class BillDetailServiceImpl implements BillDetailService {
     ImeiSoldRepository imeiSoldRepository;
 
 
-//    @Override
-//    public List<BillDetailDto> getAllBillDetail() {
-//        List<BillDetail> billDetails = billDetailRepository.findAll();
-//        return billDetails.stream().map(billDetailMapper::dtoBillDetailMapper)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<BillDetail> getALlThuong() {
-//        return billDetailRepository.findAll();
-//    }
+    @Override
+    public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
+        List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
+
+        return billDetails.stream().map(billDetail -> {
+            List<ImeiSold> imeiSolds = imeiSoldRepository.timkiem(billDetail.getId());
+
+            List<ImeiDto> imeiSoldResList = imeiSolds.stream().map(imeiSold -> {
+                Imei imei = imeiSold.getId_Imei();
+                if (imei != null) {
+                    ImeiDto imeiDto = new ImeiDto();
+                    imeiDto.setId(imei.getId());
+                    imeiDto.setImeiCode(imei.getImeiCode());
+                    imeiDto.setBarCode(imei.getBarCode());
+                    imeiDto.setStatus(imei.getStatus());
+                    return imeiDto;
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            SearchBillDetailDto dto = searchBillDetailMapper.dtoBillDetailMapper(billDetail);
+            dto.setImeiList(imeiSoldResList);
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
 
-//    @Override
-//    public SearchBillDetailDto createBillDetail(BillDetailDto billDetailDto) {
-//        try {
-//            ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
-//                    .orElseThrow(() -> new RuntimeException("Khong tim thay chi tiết sản phẩm " + billDetailDto.getIdProductDetail()));
-//            if (productDetail.getInventoryQuantity() <= 0) {
-//                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sản phẩm chi tiết đã hết hàng !");
-//            }
-//            int quantity = billDetailDto.getId_Imei().size();
-//
-//            int soLuongConLai = productDetail.getInventoryQuantity() - quantity;
-//
-//            if (soLuongConLai < 0) {
-//                throw new RuntimeException("Số lượng tồn kho không đủ để bán");
-//            }
-//            Bill bill = billRepository.findById(billDetailDto.getIdBill())
-//                    .orElseThrow(() -> new RuntimeException("Khong tim thay hóa đơn " + billDetailDto.getIdBill()));
-//
-//            Optional<BillDetail> existingBillDetail = billDetailRepository.findFirstByIdBillAndIdProductDetail(
-//                    billDetailDto.getIdBill(), billDetailDto.getIdProductDetail());
-//            BillDetail billDetail = new BillDetail();
-//            SearchBillDetailDto savebillDetailDto;
-////        cộng số lượng nếu có sp và hóa đon giống nhau
-//            if (existingBillDetail.isPresent()) {
-//                savebillDetailDto = thayDoiSoLuongKhiCungSPVaHD(
-//                        billDetailDto.getIdBill(), billDetailDto.getIdProductDetail(), billDetailDto.getId_Imei().size());
-//                List<Imei> imeis = imeiRepository.findByIdIn(billDetailDto.getId_Imei());
-//                List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(billDetailDto.getId_Imei(), billDetail.getId());
-//
-//                List<String> imeiBiBan = imeisDaBan.stream()
-//                        .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
-//                        .map(Imei::getImeiCode)
-//                        .toList();
-//
-//                if (!imeiBiBan.isEmpty()) {
-//                    String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
-//                    throw new RuntimeException(message);
-//                }
-//
-//                List<ImeiSold> imeiSoldList = new ArrayList<>();
-//
-//                for (Imei imei : imeis) {
-//                    ImeiSold imeiSold = new ImeiSold();
-//                    imeiSold.setId_Imei(imei);
-//                    imeiSold.setIdBillDetail(existingBillDetail.get().getId());
-//                    imeiSoldList.add(imeiSold);
-//                    imei.setStatus(StatusImei.SOLD);
-//                }
-//                imeiSoldRepository.saveAll(imeiSoldList);
-//                imeiRepository.saveAll(imeis);
-//
-//
-//                productDetail.setInventoryQuantity(soLuongConLai);
-//
-//            } else {
-//                billDetail.setIdBill(bill);
-//                billDetail.setIdProductDetail(productDetail);
-//                billDetail.setPrice(productDetail.getPriceSell());
-//                billDetail.setQuantity(quantity);
-//
-//                BigDecimal tongTien = productDetail.getPriceSell().multiply(BigDecimal.valueOf(quantity));
-//                billDetail.setTotalPrice(tongTien);
-//
-//                BillDetail saveBillDetail = billDetailRepository.save(billDetail);
-//                savebillDetailDto = searchBillDetailMapper.dtoBillDetailMapper(saveBillDetail);
-//                List<Imei> imeis = imeiRepository.findByIdIn(billDetailDto.getId_Imei());
-//                List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(billDetailDto.getId_Imei(), billDetail.getId());
-//
-//                List<String> imeiBiBan = imeisDaBan.stream()
-//                        .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
-//                        .map(Imei::getImeiCode)
-//                        .toList();
-//
-//                if (!imeiBiBan.isEmpty()) {
-//                    String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
-//                    throw new RuntimeException(message);
-//                }
-//
-//                List<ImeiSold> imeiSoldList = new ArrayList<>();
-//
-//                for (Imei imei : imeis) {
-//                    ImeiSold imeiSold = new ImeiSold();
-//                    imeiSold.setId_Imei(imei);
-//                    imeiSold.setIdBillDetail(billDetail);
-//                    imeiSoldList.add(imeiSold);
-//                    imei.setStatus(StatusImei.SOLD);
-//                }
-//                imeiSoldRepository.saveAll(imeiSoldList);
-//                imeiRepository.saveAll(imeis);
-//
-//
-//                productDetail.setInventoryQuantity(soLuongConLai);
-//
-//            }
-//            if (soLuongConLai <= 0) {
-//                productDetail.setStatus(ProductDetailStatus.DESIST);
-//            } else {
-//                productDetail.setStatus(ProductDetailStatus.ACTIVE);
-//            }
-//            return savebillDetailDto;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi tạo chi tiết hóa đơn");
-//        }
-//    }
+
 
     @Override
     public SearchBillDetailDto createBillDetail(BillDetailDto billDetailDto) {
         try {
-            // Lấy thông tin chi tiết sản phẩm
             ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết sản phẩm " + billDetailDto.getIdProductDetail()));
 
-            // Lấy số lượng cần bán
             int quantity = billDetailDto.getId_Imei().size();
 
-            // Kiểm tra số lượng tồn kho
             int soLuongConLai = productDetail.getInventoryQuantity() - quantity;
-            if (productDetail.getInventoryQuantity() <= 0 || soLuongConLai < 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số lượng tồn kho không đủ để bán");
+            if (productDetail.getInventoryQuantity() <= 0 || soLuongConLai < 0 || productDetail.getStatus() != ProductDetailStatus.ACTIVE) {
+                throw new RuntimeException("Số lượng tồn kho không đủ để bán hoặc sản phẩm đã ngừng hoạt động");
             }
 
-            // Lấy thông tin hóa đơn
             Bill bill = billRepository.findById(billDetailDto.getIdBill())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn " + billDetailDto.getIdBill()));
 
@@ -209,8 +113,6 @@ public class BillDetailServiceImpl implements BillDetailService {
                     throw new RuntimeException("IMEI đã bán: " + String.join(", ", imeiBiBan));
                 }
 
-                // Nếu đã tồn tại BillDetail -> cập nhật số lượng và tổng tiền
-
                 billDetail.setQuantity(billDetail.getQuantity() + quantity);
                 billDetail.setTotalPrice(billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())));
             } else {
@@ -223,7 +125,6 @@ public class BillDetailServiceImpl implements BillDetailService {
                 if (!imeiBiBan.isEmpty()) {
                     throw new RuntimeException("IMEI đã bán: " + String.join(", ", imeiBiBan));
                 }
-                // Tạo mới BillDetail
                 billDetail = new BillDetail();
                 billDetail.setIdBill(bill);
                 billDetail.setIdProductDetail(productDetail);
@@ -232,10 +133,8 @@ public class BillDetailServiceImpl implements BillDetailService {
                 billDetail.setTotalPrice(productDetail.getPriceSell().multiply(BigDecimal.valueOf(quantity)));
             }
 
-            // Lưu BillDetail
             BillDetail savedBillDetail = billDetailRepository.save(billDetail);
 
-            // Lưu IMEI Sold
             List<ImeiSold> imeiSoldList = new ArrayList<>();
             for (Imei imei : imeis) {
                 ImeiSold imeiSold = new ImeiSold();
@@ -247,12 +146,10 @@ public class BillDetailServiceImpl implements BillDetailService {
             imeiSoldRepository.saveAll(imeiSoldList);
             imeiRepository.saveAll(imeis);
 
-            // Cập nhật số lượng tồn và trạng thái sản phẩm
             productDetail.setInventoryQuantity(soLuongConLai);
             productDetail.setStatus(soLuongConLai <= 0 ? ProductDetailStatus.DESIST : ProductDetailStatus.ACTIVE);
             productDetailRepository.save(productDetail);
 
-            // Trả về kết quả
             return searchBillDetailMapper.dtoBillDetailMapper(savedBillDetail);
         } catch (Exception e) {
             e.printStackTrace();
@@ -296,14 +193,6 @@ public class BillDetailServiceImpl implements BillDetailService {
         return new SearchBillDetailDto();
     }
 
-    @Override
-    public List<SearchBillDetailDto> getByIdBill(Integer idBill) {
-        List<BillDetail> billDetails = billDetailRepository.findByIdBill(idBill);
-
-        return billDetails.stream()
-                .map(searchBillDetailMapper::dtoBillDetailMapper)
-                .collect(Collectors.toList());
-    }
 
 
     @Override
@@ -353,24 +242,20 @@ public class BillDetailServiceImpl implements BillDetailService {
 
     @Override
     public ProductDetailDto quetBarCodeCHoProductTheoImei(String barCode) {
-        // Tìm IMEI chưa bán
         Imei imei = imeiRepository.findImeiByImeiCode(barCode, StatusImei.NOT_SOLD);
 
-        // Xử lý trường hợp không tìm thấy
         if (imei == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Không tìm thấy sản phẩm hoặc IMEI đã được sử dụng"
             );
         }
-        // Kiểm tra ràng buộc dữ liệu
         if (imei.getProductDetail() == null) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Thông tin sản phẩm không tồn tại cho IMEI: " + barCode
             );
         }
-        // Map sang DTO và trả về
         ProductDetailDto dto = productDetailDto(imei.getProductDetail());
         dto.setIdImei(imei.getId());
 

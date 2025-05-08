@@ -28,7 +28,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod"
 import useVietnamAddress from '../../service/ApiTichHopDiaChi';
 import { Textarea } from '@/components/ui/textarea';
-import { fromThatBai } from './ThongBao';
 
 const formSchema = z.object({
     id: z.number().optional(),
@@ -99,7 +98,6 @@ const DiaChiGiaoHang: React.FC<Province> =
             }
         }, [isBanGiaoHang, provinces]);
 
-        // Khi danh sách huyện có dữ liệu, tìm mã huyện và tải xã
         useEffect(() => {
             const districtName = parseAddress(address || "").districtName;
             if (districts.length > 0 && districtName) {
@@ -113,21 +111,17 @@ const DiaChiGiaoHang: React.FC<Province> =
             }
         }, [districts]);
 
-        // Khi danh sách xã có dữ liệu, cập nhật vào form
         useEffect(() => {
             const wardName = parseAddress(address || "").wardName;
             if (wards.length > 0 && wardName) {
                 const wardCode = wards.find(w => w.name === wardName)?.code || "";
                 if (!wardCode) return;
-                // diaChi.setValue("fullName", fullName || "");
-                // diaChi.setValue("phone", phone || "");
                 diaChi.setValue("ward", wardCode);
                 diaChi.setValue("address", parseAddress(address || "").detailAddress);
             }
         }, [wards]);
 
 
-        // Lấy danh sách dữ liệu để thanh toán 
         useEffect(() => {
             const getFullAddress = () => {
                 const provinceName = provinces.find((p) => p.code === diaChi.getValues("province"))?.name || "";
@@ -136,8 +130,6 @@ const DiaChiGiaoHang: React.FC<Province> =
                 const detailAddress = diaChi.getValues("address") || "";
                 return `${detailAddress}, ${wardName}, ${districtName}, ${provinceName}`;
             };
-
-
             onAddressChange(getFullAddress());
             onDetailChange({
                 name: diaChi.getValues("fullName") || "",
@@ -145,13 +137,13 @@ const DiaChiGiaoHang: React.FC<Province> =
                 note: diaChi.getValues("note") || ""
             });
         }, [
+            diaChi.getValues("fullName"),
+            diaChi.getValues("phone"),
             diaChi.watch("province"),
             diaChi.watch("district"),
             diaChi.watch("ward"),
             diaChi.watch("address"),
             diaChi.watch("note"),
-            diaChi.getValues("phone"),
-            diaChi.getValues("fullName"),
             provinces,
             districts,
             wards,

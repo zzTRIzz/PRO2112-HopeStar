@@ -62,7 +62,6 @@ function BanHangTaiQuay() {
   const [idHoaDon, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
   const [selectedImei, setSelectedImei] = useState<number[]>([]);
-  // const [idBillDetail, setIdBillDetail] = useState<number>(0);
   const [product, setProduct] = useState<SearchBillDetail[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
@@ -72,7 +71,7 @@ function BanHangTaiQuay() {
   const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
   const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
-  const [customerPayment, setCustomerPayment] = useState<number>(0);
+  const [customerPayment, setCustomerPayment] = useState<number|null>(null);
   const [shippingFee, setShippingFee] = useState(0);
   const [insuranceFee, setInsuranceFee] = useState(0);
   const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
@@ -102,7 +101,7 @@ function BanHangTaiQuay() {
     loadAccountKH()
     loadBillChoThanhToan()
     loadVoucherByAcount(khachHang?.id);
-  }, [isBanGiaoHang, tongTien])
+  }, [isBanGiaoHang, tongTien, khachHang, idHoaDon]);
   const printRef = useRef<HTMLDivElement>(null)
   const [printData, setPrintData] = useState<any>(null)
 
@@ -171,7 +170,6 @@ function BanHangTaiQuay() {
     try {
       const data = await findBill(id)
       setSearchBill(data)
-
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -335,7 +333,7 @@ function BanHangTaiQuay() {
         id_Imei: selectedImei,
       })
       setSelectedImei([])
-      setIsDialogOpen(false) 
+      setIsDialogOpen(false)
       await loadProductDet()
       await loadImei(idProductDetail)
       await getById(idHoaDon)
@@ -404,17 +402,16 @@ function BanHangTaiQuay() {
   const handleAddKhachHang = async (idAccount: number) => {
     if (idHoaDon == 0 || idHoaDon == null) {
       fromThatBai('Vui lòng chọn hóa đơn')
-      setIsKhachHang(false)
       return
     }
     try {
       await addKhachHang(idHoaDon, idAccount)
-      await loadAccountKH()
+      // await loadAccountKH()
       setIsKhachHang(false)
       const khachHang = await findKhachHang(idHoaDon)
       hienThiKhachHang(khachHang)
       await findBillById(idHoaDon)
-      setIsBanGiaoHang(false)
+      // setIsBanGiaoHang(false)
       const voucher = await getVoucherDangSuDung(idHoaDon)
       setDuLieuVoucherDangDung(voucher)
       loadVoucherByAcount(idAccount);
@@ -489,16 +486,13 @@ function BanHangTaiQuay() {
         <strong style="color:rgb(8, 122, 237)">${searchBill?.code ?? ''}</strong> <br />
         với số tiền đã nhận được là 
         <span style="color: red; font-weight: 700; background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px">
-        ${customerPayment.toLocaleString()}đ
+        ${customerPayment?.toLocaleString()}đ
         </span>?`,
         confirmText: 'Xác nhận',
         cancelText: 'Hủy bỏ'
       });
     }
-    // console.log("Họ và tên:", deliveryInfo?.customerName);
-    // console.log("Số điện thoại:", deliveryInfo?.customerPhone);
-    // console.log("Dia chi :", deliveryInfo?.fullAddress);
-    // console.log("Note :", deliveryInfo?.note);
+  
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -519,7 +513,6 @@ function BanHangTaiQuay() {
           { condition: !deliveryInfo, message: "Thiếu thông tin giao hàng" },
           { condition: !deliveryInfo?.customerName?.trim(), message: "Vui lòng nhập: Tên khách hàng" },
           { condition: !deliveryInfo?.customerPhone?.trim(), message: "Vui lòng nhập: Số điện thoại" },
-
           {
             condition:
               deliveryInfo?.customerPhone &&
@@ -556,7 +549,7 @@ function BanHangTaiQuay() {
           idNhanVien: searchBill?.idNhanVien ?? null,
           idVoucher: searchBill?.idVoucher ?? null,
           totalPrice: searchBill?.totalPrice ?? 0,
-          customerPayment: customerPayment,
+          customerPayment: customerPayment || 0,
           amountChange: tienKhachThieu,
           totalDue: tongTien ?? 0,
           deliveryFee: (isBanGiaoHang == true ? shippingFee : 0),
@@ -614,7 +607,7 @@ function BanHangTaiQuay() {
         fromThanhCong("Thanh toán thành công");
       } catch (error) {
         console.error("Lỗi khi thanh toán:", error);
-        fromThatBai("Đã xảy ra lỗi khi thanh toán");
+        // fromThatBai("Đã xảy ra lỗi khi thanh toán");
       }
     }
   };

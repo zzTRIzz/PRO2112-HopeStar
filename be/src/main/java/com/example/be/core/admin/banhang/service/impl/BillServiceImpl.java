@@ -379,12 +379,63 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto saveBillDto(BillDto billDto) {
         try {
+            List<BillDetail> billDetails = billDetailRepository.findByIdBill(billDto.getId());
+
+            for (BillDetail billDetail : billDetails) {
+                ProductDetail productDetail = productDetailRepository.findById(billDetail.getIdProductDetail().getId())
+                        .orElseThrow(() -> new RuntimeException(
+                                "Không tìm thấy chi tiết sản phẩm với ID: " + billDetail.getIdProductDetail().getId()));
+
+                if (productDetail.getStatus() != ProductDetailStatus.ACTIVE) {
+                    throw new RuntimeException("Sản phẩm " + productDetail.getProduct().getName() + " đã ngừng kinh doanh");
+                }
+
+                List<ImeiSold> imeiSolds = imeiSoldRepository.timkiem(billDetail.getId());
+                List<Integer> imeiCodes = imeiSolds.stream()
+                        .map(imeiSold -> imeiSold.getId_Imei().getId())
+                        .collect(Collectors.toList());
+
+                List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(imeiCodes, billDetail.getId());
+                List<String> imeiBiBan = imeisDaBan.stream()
+                        .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
+                        .map(Imei::getImeiCode)
+                        .toList();
+
+                if (!imeiBiBan.isEmpty()) {
+                    throw new RuntimeException("IMEI đã bị bán trùng: " + String.join(", ", imeiBiBan));
+                }
+            }
+
+
+            Account accountKhachHang = accountRepository.findById(billDto.getIdAccount())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + billDto.getIdAccount()));
+
+            if (accountKhachHang.getStatus() == StatusCommon.IN_ACTIVE) {
+                throw new RuntimeException("Tài khoản khách hàng " + accountKhachHang.getFullName() + " đã bị khóa");
+            }
+
             Bill bill = billMapper.entityBillMapper(billDto);
+
+            if (bill.getIdVoucher() != null) {
+                if (Boolean.FALSE.equals(bill.getIdVoucher().getIsPrivate())) {
+                    int currentQuantity = bill.getIdVoucher().getQuantity() != null ? bill.getIdVoucher().getQuantity() : 0;
+                    if (currentQuantity <= 0 || bill.getIdVoucher().getStatus() != StatusVoucher.ACTIVE) {
+                        throw new RuntimeException("Voucher đã hết lượt sử dụng hoặc hết hạn sử dụng !");
+                    }
+                } else {
+                    VoucherAccount va = voucherAccountRepository
+                            .findByIdVoucher(bill.getIdVoucher().getId(), bill.getIdAccount().getId())
+                            .orElse(null);
+                    if (va == null || va.getStatus() != VoucherAccountStatus.NOT_USED) {
+                        throw new RuntimeException("Voucher này đã được sử dụng hoặc hết hạn sử dụng !");
+                    }
+                }
+            }
             Bill saveBill = billRepository.save(bill);
             return billMapper.dtoBillMapper(saveBill);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Lỗi khi cập nhật luu hóa đơn: " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -403,7 +454,7 @@ public class BillServiceImpl implements BillService {
             Bill bill = billRepository.findById(idBill).orElseThrow(
                     () -> new RuntimeException("Bill not found with id:" + idBill)
             );
-            System.out.println(bill);
+//            System.out.println(bill);
             List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
             for (BillDetail bd : billDetail) {
                 imeiSoldService.deleteImeiSold(bd.getId());

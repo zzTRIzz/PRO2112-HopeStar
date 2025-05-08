@@ -26,7 +26,8 @@ public class SearchBillDetailMapper {
                 billDetail.getIdProductDetail().getRom().getDescription(),
                 billDetail.getIdProductDetail().getColor().getName(),
                 billDetail.getIdProductDetail().getImageUrl(),
-                billDetail.getIdBill().getId()
+                billDetail.getIdBill().getId(),
+                null
         );
     }
 

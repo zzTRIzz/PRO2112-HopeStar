@@ -391,8 +391,15 @@ export const thanhToan = async (bill: BillSchema) => {
             },
         });
         return response.data;
-    } catch (error) {
-        console.error('Error them hoa don data:', error);
+    }  catch (error: any) {
+        console.error('Lỗi khi thanh toán:', error);
+
+        if (error.response && error.response.data) {
+            const message = error.response.data.message|| 'Thanh toán thất bại !';
+            fromThatBai(message);
+        } else {
+            fromThatBai('Không thể kết nối đến server');
+        }
         throw error;
     }
 };

@@ -36,10 +36,12 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
     @Query("SELECT i FROM Imei i " +
             "LEFT JOIN ImeiSold iSold ON i.id = iSold.id_Imei.id " +
             "WHERE  i.productDetail.id = :idProduct " +
-            "AND (iSold.idBillDetail.id = :idBillDetail OR iSold.idBillDetail.id IS NULL)")
+            "AND (iSold.idBillDetail.id = :idBillDetail OR iSold.idBillDetail.id IS NULL) " +
+            "AND i.status IN :status")
     List<Imei> findImeiByIdProductDetail(
             @Param("idProduct") Integer idProduct,
-            @Param("idBillDetail") Integer idBillDetail);
+            @Param("idBillDetail") Integer idBillDetail,
+            @Param("status") List<StatusImei> statusImei);
 
 
     @Query("SELECT i FROM Imei i " +
@@ -55,6 +57,7 @@ public interface ImeiRepository extends JpaRepository<Imei, Integer> {
 //            @Param("imeiIds") List<Integer> imeiIds,
 //            @Param("currentBillDetailId") Integer currentBillDetailId
 //    );
+
     @Query("SELECT i.id_Imei FROM ImeiSold i " +
             "WHERE i.id_Imei.id IN :imeiIds " +
             "AND (:currentBillDetailId IS NULL OR i.idBillDetail.id <> :currentBillDetailId)")

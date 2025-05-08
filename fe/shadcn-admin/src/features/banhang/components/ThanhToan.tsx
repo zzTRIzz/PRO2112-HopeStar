@@ -25,7 +25,7 @@ interface ThanhToanProps {
     searchBill: BillRespones | undefined;
     setPaymentMethod: any;
     paymentMethod: number | null;
-    customerPayment: number;
+    customerPayment: number | null;
     setCustomerPayment: any;
     handleThanhToan: (status: string) => void;
     ListVoucherTheoAccount: Voucher[];
@@ -120,19 +120,16 @@ const ThanhToan: React.FC<ThanhToanProps> =
                 return false;
             }
 
-            // Kiểm tra giá trị đơn hàng tối thiểu
             if (tongTien < voucher.minOrderValue) {
                 fromThatBai(`Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} đ`);
                 return false;
             }
 
-            // Kiểm tra giá trị đơn hàng tối đa
             if (tongTien > voucher.maxOrderValue) {
                 fromThatBai(`Đơn hàng không được vượt quá ${voucher.maxOrderValue.toLocaleString('vi-VN')} đ.`);
                 return false;
             }
 
-            // Kiểm tra số lượng voucher còn lại
             if (voucher.quantity && voucher.quantity <= 0 && voucher.isPrivate == true) {
                 fromThatBai("Voucher này đã hết số lượng sử dụng.");
                 return false;
@@ -271,10 +268,10 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         type="number"
                                                         className="customer-payment w-[150px]"
                                                         placeholder="Nhập số tiền"
-                                                        value={customerPayment}
+                                                        value={customerPayment || ''}
                                                         max={2000000000}
                                                         onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                                                        disabled={isThanhToanNhanHang} 
+                                                        disabled={isThanhToanNhanHang}
                                                     />
                                                 </p>
                                             </div>
@@ -328,8 +325,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                     Xác nhận thanh toán
                                 </Button>
                             )}
-
-
                             <div style={{ position: 'fixed', left: '-9999px' }}>
                                 {printData && (
                                     <div ref={printRef} className="invoice-container">

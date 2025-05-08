@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,4 +36,6 @@ public class SearchBillDetailDto {
     private String imageUrl;
 
     private Integer idBill;
+
+    private List<ImeiDto> imeiList;
 }

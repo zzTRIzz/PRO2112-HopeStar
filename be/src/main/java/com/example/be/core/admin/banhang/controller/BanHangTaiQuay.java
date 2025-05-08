@@ -157,7 +157,6 @@ public class BanHangTaiQuay {
     //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
     public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization") String jwt) throws Exception {
-
         Account account = authService.findAccountByJwt(jwt);
         BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
         return ResponseEntity.ok(billDto1);
@@ -286,22 +285,22 @@ public class BanHangTaiQuay {
 
     @GetMapping("/imei/{idProductDetail}")
     public ResponseEntity<List<?>> getAllImei(@PathVariable("idProductDetail") Integer idProductDetail) {
-        List<ImeiDto> accountResponses = imeiService.getAllImeiChuaBan(idProductDetail);
-        return ResponseEntity.ok(accountResponses);
+        List<ImeiDto> imeiDtos = imeiService.getAllImeiChuaBan(idProductDetail);
+        return ResponseEntity.ok(imeiDtos);
     }
 
     @GetMapping("/findImeiById/{idProductDetail}/{idBillDetail}")
     public ResponseEntity<List<?>> findImeiByIdProductDetail(@PathVariable("idProductDetail") Integer idProductDetail,
                                                              @PathVariable("idBillDetail") Integer idBillDetail) {
-        List<ImeiDto> accountResponses = imeiService.findImeiByIdProductDetail(idProductDetail, idBillDetail);
-        return ResponseEntity.ok(accountResponses);
+        List<ImeiDto> imeiDtoList = imeiService.findImeiByIdProductDetail(idProductDetail, idBillDetail);
+        return ResponseEntity.ok(imeiDtoList);
     }
 
     @GetMapping("/findImeiByIdProductDetailDaBan/{idProductDetail}/{idBillDetail}")
     public ResponseEntity<List<?>> findImeiByIdProductDetailDaBan(@PathVariable("idProductDetail") Integer idProductDetail,
                                                                   @PathVariable("idBillDetail") Integer idBillDetail) {
-        List<ImeiDto> accountResponses = imeiService.findImeiByIdProDaBan(idProductDetail, idBillDetail);
-        return ResponseEntity.ok(accountResponses);
+        List<ImeiDto> imeiDtoList = imeiService.findImeiByIdProDaBan(idProductDetail, idBillDetail);
+        return ResponseEntity.ok(imeiDtoList);
     }
 
     @GetMapping("/findByAccount/{idBill}")

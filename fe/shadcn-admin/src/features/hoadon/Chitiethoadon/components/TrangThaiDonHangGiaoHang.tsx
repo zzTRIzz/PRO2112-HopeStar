@@ -256,9 +256,9 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
     useEffect(() => {
       if (trangThai != null) {
         setCurrentStatus(trangThai as OrderStatus);
-        console.log("Trạng thái hiện tại:", trangThai);
+        // console.log("Trạng thái hiện tại:", trangThai);
       }
-    }, [searchBill]);    // Mảng các trạng thái theo thứ tự
+    }, [searchBill]);   
     const statusOrder: OrderStatus[] = [
       "CHO_XAC_NHAN",
       "DA_XAC_NHAN",
