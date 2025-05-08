@@ -21,17 +21,16 @@ export const getImei = async () => {
 
 
 
-export const updateImei = async (imei: ImeiRequest) => {
+export const updateImei = async (id: number, imei: ImeiRequest) => {
   const jwt = Cookies.get('jwt')
   try {
-    const response = await axios.put(`${API_BASE_URL}/imei/${imei.id}`, imei,{
+    const response = await axios.post(`${API_BASE_URL}/imei?id=${id}`, imei, {
       headers: {
         Authorization: `Bearer ${jwt}`,
       },
     });
     return response.data;
   } catch (error: any) {
-    console.error('Error response:', error.response?.data);
-    throw error;
+    throw new Error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật IMEI');
   }
 };

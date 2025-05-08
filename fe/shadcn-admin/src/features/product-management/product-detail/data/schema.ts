@@ -5,9 +5,6 @@ export const StatusImeiEnum = z.enum([
   'IN_ACTIVE',
   'SOLD',
   'NOT_SOLD',
-  'PENDING_DELIVERY',
-  'CANCELLED',
-  'IN_THE_CART',
 ])
 
 // Define the ProductImeiResponse schema
