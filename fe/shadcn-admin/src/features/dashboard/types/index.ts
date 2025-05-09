@@ -70,6 +70,7 @@ export interface LowStockProduct {
   mauSac: string;
   soLuong: number;
   trangThai: string;
+  imageUrl: string; // Add imageUrl field
 }
 
 export interface TodayRevenue {
@@ -97,4 +98,22 @@ export interface DateRangeResponse {
   value: number;  // Changed from totalRevenue to value
   totalOrders: number;
   dailyStatistics: DateRangeStatistic[];
+}
+
+export interface CanceledOrder {
+  customerId: number;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  billCode: string;
+  billStatus: string;
+}
+
+export interface TopRevenueCustomer {
+  customerId: number;
+  customerName: string;
+  email: string;
+  phone: string;
+  totalDueSum: number;
 }

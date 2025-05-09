@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, Integer> {
@@ -53,6 +54,18 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
   List<ProductDetail> findByProductInAndStatus(
           @Param("products") List<Product> products,
           @Param("status") ProductDetailStatus status
+  );
+
+  @Query("SELECT pd FROM ProductDetail pd " +
+          "WHERE pd.product.id = :productId " +
+          "AND (:ramId IS NULL OR pd.ram.id = :ramId) " +
+          "AND (:romId IS NULL OR pd.rom.id = :romId) " +
+          "AND (:colorId IS NULL OR pd.color.id = :colorId)")
+  Optional<ProductDetail> findOneByProductIdAndRamIdAndRomIdAndColorId(
+          @Param("productId") Integer productId,
+          @Param("ramId") Integer ramId,
+          @Param("romId") Integer romId,
+          @Param("colorId") Integer colorId
   );
 
   }

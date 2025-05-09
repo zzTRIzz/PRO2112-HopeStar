@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
-import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   Dropdown,
   DropdownItem,
@@ -9,6 +10,7 @@ import {
   User,
 } from '@heroui/react'
 import { Menu, Search, ShoppingCart, X } from 'lucide-react'
+import { getBrandActive } from '@/features/product-management/product/data/api-service'
 import { cn } from '../../../lib/utils'
 import { getProfile } from '../data/api-service'
 import { Profile } from '../data/schema'
@@ -26,14 +28,40 @@ import {
 } from './ui/navigation-menu'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
+// Custom event name - must match the one defined in AccountPage.tsx
+const PROFILE_UPDATED_EVENT = 'profile-updated';
+
+interface Brand {
+  id: number
+  name: string
+  imageUrl: string
+}
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
+  const navigate = useNavigate()
   const [profile, setProfile] = useState<Profile | null>(null)
   const { cart } = useCart()
   const [isLoading, setIsLoading] = useState(true)
-
+  const { data: brands } = useQuery({
+    queryKey: ['brands'],
+    queryFn: getBrandActive,
+  })
+  
   useEffect(() => {
     loadProfile()
+    
+    // Add event listener for profile updates
+    const handleProfileUpdated = () => {
+      loadProfile()
+    }
+    
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated)
+    
+    // Clean up event listener when component unmounts
+    return () => {
+      window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated)
+    }
   }, [])
 
   const loadProfile = async () => {
@@ -56,6 +84,23 @@ export default function Navbar() {
     }
   }
 
+  // const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === 'Enter') {
+  //     // Chỉ navigate khi có giá trị search
+  //     if (searchValue.trim()) {
+  //       navigate({
+  //         to: '/dienthoai',
+  //         search: {
+  //           key: searchValue.trim(),
+  //         },
+  //       })
+  //       // Reset search state
+  //       setSearchValue('')
+  //       setIsSearchOpen(false)
+  //     }
+  //   }
+  // }
+
   const renderUserMenu = () => {
     if (isLoading) {
       return <div className='h-8 w-8 animate-pulse rounded-full bg-muted' />
@@ -76,7 +121,9 @@ export default function Navbar() {
             as='button'
             avatarProps={{
               isBordered: true,
-              src: profile.avatar || 'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
+              src:
+                profile.avatar ||
+                'https://thumbs.dreamstime.com/b/creative-illustration-default-avatar-profile-placeholder-isolated-background-art-design-grey-photo-blank-template-mockup-144857620.jpg',
             }}
             className='transition-transform'
             description={profile.email}
@@ -121,7 +168,11 @@ export default function Navbar() {
       <div className='container flex h-16 items-center justify-between'>
         <div className='flex items-center gap-4 md:gap-10'>
           <Link to='/' className='flex items-center space-x-2'>
-            <img src="/images/favicon.svg" alt="HopeStar Logo" className="h-6 w-6" />
+            <img
+              src='/images/favicon.svg'
+              alt='HopeStar Logo'
+              className='h-6 w-6'
+            />
             <span className='text-2xl font-bold'>HopeStar</span>
           </Link>
 
@@ -134,29 +185,23 @@ export default function Navbar() {
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]'>
-                    {[
-                      'Apple',
-                      'Samsung',
-                      'Xiaomi',
-                      'Google',
-                      'OnePlus',
-                      'Nothing',
-                      'OPPO',
-                      'Vivo',
-                    ].map((brand) => (
-                      <li key={brand}>
+                    {brands?.map((brand: Brand) => (
+                      <li key={brand.id}>
                         <NavigationMenuLink asChild>
                           <Link
-                            to={`/`}
+                            to='/dienthoai'
+                            search={{
+                              brand: brand.id,
+                            }}
                             className={cn(
                               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground'
                             )}
                           >
                             <div className='text-sm font-medium leading-none'>
-                              {brand}
+                              {brand.name}
                             </div>
                             <p className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
-                              Cùng khám phá những các hãng {brand}
+                              Cùng khám phá những các hãng {brand.name}
                             </p>
                           </Link>
                         </NavigationMenuLink>
@@ -165,26 +210,6 @@ export default function Navbar() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-              {/* <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/'
-                    className='group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
-                  >
-                    Cửa hàng (Shop)
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem> */}
-              {/* <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link 
-                    to="/promotions"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
-                  >
-                    Chương trình khuyến mãi (promotions)
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem> */}
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -221,18 +246,24 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className='hidden items-center gap-4 md:flex'>
-          {isSearchOpen ? (
+          {/* {isSearchOpen ? (
             <div className='flex items-center'>
               <Input
                 type='search'
                 placeholder='Tìm kiếm điện thoại...'
                 className='w-[140px] lg:w-[150px]'
                 autoFocus
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleSearch}
               />
               <Button
                 variant='ghost'
                 size='icon'
-                onClick={() => setIsSearchOpen(false)}
+                onClick={() => {
+                  setIsSearchOpen(false)
+                  setSearchValue('')
+                }}
                 className='ml-2'
               >
                 <X className='h-5 w-5' />
@@ -247,12 +278,12 @@ export default function Navbar() {
             >
               <Search className='h-5 w-5' />
             </Button>
-          )}
+          )} */}
           <Button variant='ghost' size='icon' asChild>
             <Link to='/gio-hang' className='relative'>
               <ShoppingCart className='h-5 w-5' />
               <Badge className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center'>
-                {cart?.quantityCartDetail||0}
+                {cart?.quantityCartDetail || 0}
               </Badge>
             </Link>
           </Button>
@@ -269,24 +300,9 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side='right'>
               <nav className='grid gap-6 text-lg font-medium'>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Brands
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Shop
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Promotions
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Support
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Cart (2)
-                </Link>
-                <Link to='/' className='hover:text-foreground/80'>
-                  Account
-                </Link>
+              <Link href='/taikhoan/thong-tin-ca-nhan'>Thông tin cá nhân</Link>
+              <Link href='/taikhoan/don-hang-cua-toi'>Đơn hàng của tôi</Link>
+                
               </nav>
             </SheetContent>
           </Sheet>

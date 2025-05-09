@@ -34,30 +34,30 @@ public class AccountService {
 
     private void kiemTraEmail_SDT_biTrung(String email, String sdt) {
         // Kiểm tra trùng email
-        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
-            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
-        }
+//        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
+//            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+//        }
         if (accountRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại: " + email);
         }
-        // Kiểm tra trùng số điện thoại
-        if (accountRepository.existsByPhone(sdt)) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
-        }
+//        // Kiểm tra trùng số điện thoại
+//        if (accountRepository.existsByPhone(sdt)) {
+//            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+//        }
     }
 
     private void kiemTraEmail_SDT_biTrung(String email, String sdt, String code) {
         // Kiểm tra trùng email
-        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
-            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
-        }
+//        if (accountRepository.existsByEmailAndPhone(email,sdt)) {
+//            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+//        }
         if (accountRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại: " + email);
         }
         // Kiểm tra trùng số điện thoại
-        if (accountRepository.existsByPhone(sdt)) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
-        }
+//        if (accountRepository.existsByPhone(sdt)) {
+//            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+//        }
         if (code != null) {
             if (accountRepository.existsByCode(code)) {
                 throw new IllegalArgumentException("Mã tài khoản đã tồn tại: " + code);
@@ -208,11 +208,11 @@ public class AccountService {
         }
 
         // Kiểm tra trùng email và số điện thoại
-        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
-                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
-                accountRepository.existsByEmailAndPhone(email, sdt)) {
-            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
-        }
+//        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+//                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+//                accountRepository.existsByEmailAndPhone(email, sdt)) {
+//            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+//        }
 
         // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
         if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
@@ -221,10 +221,10 @@ public class AccountService {
         }
 
         // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
-        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
-                accountRepository.existsByPhone(sdt)) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
-        }
+//        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+//                accountRepository.existsByPhone(sdt)) {
+//            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+//        }
 
 
     }
@@ -236,11 +236,11 @@ public class AccountService {
         }
 
         // Kiểm tra trùng email và số điện thoại
-        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
-                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
-                accountRepository.existsByEmailAndPhone(email, sdt)) {
-            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
-        }
+//        if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
+//                (accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+//                accountRepository.existsByEmailAndPhone(email, sdt)) {
+//            throw new IllegalArgumentException("Email và số điện thoại đã tồn tại: " + email + ", " + sdt);
+//        }
 
         // Kiểm tra trùng email (bỏ qua nếu email không thay đổi)
         if ((accountHienTai.getEmail() == null || !accountHienTai.getEmail().equals(email)) &&
@@ -249,10 +249,10 @@ public class AccountService {
         }
 
         // Kiểm tra trùng số điện thoại (bỏ qua nếu số điện thoại không thay đổi)
-        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
-                accountRepository.existsByPhone(sdt)) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
-        }
+//        if ((accountHienTai.getPhone() == null || !accountHienTai.getPhone().equals(sdt)) &&
+//                accountRepository.existsByPhone(sdt)) {
+//            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + sdt);
+//        }
 
         if ((accountHienTai.getCode() != null && !accountHienTai.getCode().equals(code)) &&
                 accountRepository.existsByCode(code)) { // Sửa thành existsByCode
@@ -321,12 +321,13 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với id: " + id));
     }
 
-    public List<AccountResponse> getAllKhachHang() {
 
-        return accountRepository.getAllAccountKhachHang().stream()
+    public List<AccountResponse> getAllKhachHang() {
+        return accountRepository.getAllAccountKhachHang(StatusCommon.ACTIVE).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
 
     public AccountResponse getByAccount(Integer idBill) {
         try {
@@ -348,10 +349,9 @@ public class AccountService {
             throw new IllegalArgumentException("Không tìm thấy tài khoản với email: " + email);
         }
         account.setFullName(request.getFullName());
+        account.setPhone(request.getPhone());
         account.setGender(request.getGender());
         account.setBirthDate(request.getBirthDate());
         return convertToResponse(accountRepository.save(account));
     }
-
-
 }

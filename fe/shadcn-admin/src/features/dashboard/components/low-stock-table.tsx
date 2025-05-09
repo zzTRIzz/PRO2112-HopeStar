@@ -57,6 +57,7 @@ export const LowStockTable = () => {
                   <TableHead>Mã sản phẩm</TableHead>
                   <TableHead>Tên sản phẩm</TableHead>
                   <TableHead>Màu sắc</TableHead>
+                  <TableHead>Ảnh</TableHead>
                   <TableHead>Số lượng</TableHead>
                   <TableHead>Trạng thái</TableHead>
                 </TableRow>
@@ -68,6 +69,19 @@ export const LowStockTable = () => {
                     <TableCell>{product.maSP}</TableCell>
                     <TableCell>{product.tenSP}</TableCell>
                     <TableCell>{product.mauSac}</TableCell>
+                    <TableCell>
+                      {product.imageUrl ? (
+                        <img 
+                          src={product.imageUrl}
+                          alt={product.tenSP}
+                          className="w-16 h-16 object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                          <span className="text-gray-400">No image</span>
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={product.soLuong <= 3 ? "destructive" : "default"}>
                         {product.soLuong}

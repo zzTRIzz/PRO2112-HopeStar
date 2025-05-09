@@ -52,7 +52,7 @@ const ChiTiet: React.FC<ChiTietPros> =
                 color_boder: "border-blue-400",
             },
             DANG_GIAO_HANG: {
-                title: "Đang ggiao hàng",
+                title: "Đang giao hàng",
                 icon: <PackageSearch className="w-4 h-4" />,
                 color_bg: "bg-blue-100",
                 color_text: "text-blue-600",

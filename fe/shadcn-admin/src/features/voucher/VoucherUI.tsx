@@ -1,30 +1,46 @@
 import { useEffect, useState, useCallback } from "react";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import { 
-    getVouchers, 
-
-    checkVoucherCode,  // Make sure this is imported
-    assignVoucherToCustomers,
+import {
+    getVouchers,
     VoucherSearchParams,
     searchVouchers,
-    getVoucherUsageStatuses,
-    VoucherStatus
+    VoucherStatus,
+    getAccountDaAddVoucher,
+
 } from "./data/apiVoucher";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import Cookies from "js-cookie";
+import { Button } from "@/components/ui/button";
+import { Pen } from "lucide-react";
 // Add API base URL constant
 const API_BASE_URL = 'http://localhost:8080/api';
 
-const api = axios.create({
+// Create an authenticated axios instance
+const authAxios = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-api.interceptors.response.use(
+// Add request interceptor to automatically add JWT token
+authAxios.interceptors.request.use(
+    (config) => {
+        const jwt = Cookies.get('jwt');
+        if (jwt) {
+            config.headers.Authorization = `Bearer ${jwt}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+authAxios.interceptors.response.use(
     (response) => response,
     (error) => {
         console.error('API Error:', error);
@@ -75,21 +91,28 @@ interface AccountResponse {
     idRole: RoleResponse;
     gender: boolean;
     status: string;
-    voucherStatus?: VoucherAccountStatus; // Add voucherStatus field
 }
 
-interface ResponseData<T> {
+interface CustomersResponse {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
     status: number;
-    message: string;
-    data: T;
 }
 
-enum HttpStatus {
-    OK = 'OK',
-    BAD_REQUEST = 'BAD_REQUEST',
-    CREATED = 'CREATED',
-    ACCEPTED = 'ACCEPTED'
-}
+// interface ResponseData<T> {
+//     status: number;
+//     message: string;
+//     data: T;
+// }
+
+// enum HttpStatus {
+//     OK = 'OK',
+//     BAD_REQUEST = 'BAD_REQUEST',
+//     CREATED = 'CREATED',
+//     ACCEPTED = 'ACCEPTED'
+// }
 
 enum VoucherAccountStatus {
     NOT_USED = "NOT_USED",
@@ -137,14 +160,14 @@ const NoData = () => (
     </tr>
 );
 
-interface AssignVoucherResponse {
-    success: boolean;
-    message: string;
-    details?: {
-        alreadyHasVoucher: string[];
-        assigned: string[];
-    };
-}
+// interface AssignVoucherResponse {
+//     success: boolean;
+//     message: string;
+//     details?: {
+//         alreadyHasVoucher: string[];
+//         assigned: string[];
+//     };
+// }
 
 // Update VoucherStatusBadge component
 const VoucherStatusBadge = ({ status }: { status: VoucherAccountStatus | null }) => {
@@ -202,7 +225,7 @@ export default function VoucherUI() {
         const now = new Date();
         const startDate = new Date(startTime);
         const endDate = new Date(endTime);
-    
+
         if (now < startDate) {
             return VoucherStatus.UPCOMING;
         } else if (now > endDate) {
@@ -220,11 +243,11 @@ export default function VoucherUI() {
     const itemsPerPage = 10;
 
     // Xóa state không cần thiết
-    const [searchCode, setSearchCode] = useState('');
+    // const [searchCode, setSearchCode] = useState('');
 
-    // Thêm state
-    const [searchStartTime, setSearchStartTime] = useState('');
-    const [searchEndTime, setSearchEndTime] = useState('');
+    // // Thêm state
+    // const [searchStartTime, setSearchStartTime] = useState('');
+    // const [searchEndTime, setSearchEndTime] = useState('');
 
     // Thêm state để track việc kiểm tra mã
     const [isCheckingCode, setIsCheckingCode] = useState(false);
@@ -251,27 +274,27 @@ export default function VoucherUI() {
 
     // Thêm useEffect để load danh sách accounts khi cần
     useEffect(() => {
-        const fetchCustomers = async () => {
-            if (!showModal || !formData.isPrivate) return;
-
-            try {
-                setLoading(true);
-                const response = await axios.get(`${API_BASE_URL}/account/list`);
-                const customers = response.data.data.filter((account: AccountResponse) => 
-                    account.idRole?.id === 4 && account.status === 'ACTIVE'
-                );
-                setAccounts(customers);
-            } catch (error) {
-                console.error('Error fetching customers:', error);
-                toast.error('Không thể tải danh sách khách hàng');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchCustomers();
     }, [showModal, formData.isPrivate]);
 
+    const fetchCustomers = async () => {
+        if (!showModal || !formData.isPrivate) return;
+
+        try {
+            // const jwt = Cookies.get('jwt');
+            setLoading(true);
+            const response = await authAxios.get(`/admin/banhang/account`);
+            // const customers = response.data.data.filter((account: AccountResponse) =>
+            //     account.idRole?.id === 4 && account.status === 'ACTIVE'
+            // );
+            setAccounts(response.data);
+        } catch (error) {
+            console.error('Error fetching customers:', error);
+            toast.error('Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
     // Thêm useEffect để tự động cập nhật trạng thái
     useEffect(() => {
         const updateVoucherStatuses = async () => {
@@ -291,9 +314,16 @@ export default function VoucherUI() {
                     }
 
                     if (newStatus !== voucher.status) {
+                        // try {
+                        //     // Gọi API để cập nhật status
+                        //     await authAxios.put(`/admin/voucher/update-status/${voucher.id}`);
+                        // } catch (error) {
+                        //     console.error('Error updating voucher status:', error);
+                        // }
+
                         try {
                             // Gọi API để cập nhật status
-                            await axios.put(`${API_BASE_URL}/admin/voucher/update-status/${voucher.id}`);
+                            await authAxios.put(`/admin/voucher/update-status`);
                         } catch (error) {
                             console.error('Error updating voucher status:', error);
                         }
@@ -308,7 +338,7 @@ export default function VoucherUI() {
             }
         };
 
-        const intervalId = setInterval(updateVoucherStatuses, 60000);
+        const intervalId = setInterval(updateVoucherStatuses, 2000); // 2s 
         updateVoucherStatuses();
 
         return () => clearInterval(intervalId);
@@ -337,22 +367,22 @@ export default function VoucherUI() {
     };
 
     // Add validation function
-    const validateForm = async (): Promise<boolean> => {
-        // Basic validations
-        if (!formData.code.trim()) {
-            setError(new Error('Mã voucher không được để trống'));
-            return false;
-        }
+    // const validateForm = async (): Promise<boolean> => {
+    //     // Basic validations
+    //     if (!formData.code.trim()) {
+    //         setError(new Error('Mã voucher không được để trống'));
+    //         return false;
+    //     }
 
-        // Check for duplicate code
-        const isValidCode = await checkCode(formData.code);
-        if (!isValidCode) {
-            return false;
-        }
+    //     // Check for duplicate code
+    //     const isValidCode = await checkCode(formData.code);
+    //     if (!isValidCode) {
+    //         return false;
+    //     }
 
-        // ...rest of your validations...
-        return true;
-    };
+    //     // ...rest of your validations...
+    //     return true;
+    // };
 
     // Thêm hàm kiểm tra mã
     const checkCode = async (code: string): Promise<boolean> => {
@@ -360,10 +390,11 @@ export default function VoucherUI() {
             toast.error('Mã voucher không được để trống');
             return false;
         }
-        
+
         try {
+            // const jwt = Cookies.get('jwt');
             setIsCheckingCode(true);
-            const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+            const response = await authAxios.get(`/admin/voucher/check-code`, {
                 params: {
                     code: code.trim(),
                     excludeId: isEditing ? editId : undefined
@@ -383,11 +414,15 @@ export default function VoucherUI() {
         }
     };
 
-    // Modify handleSubmit function
+    // Thêm state loading cho form
+    const [formLoading, setFormLoading] = useState(false);
+
+    // Sửa lại hàm handleSubmit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
+            setFormLoading(true); // Bật loading khi bắt đầu xử lý
+
             // Validate required fields
             if (!formData.code.trim()) {
                 toast.error('Mã voucher không được để trống');
@@ -452,18 +487,36 @@ export default function VoucherUI() {
                     return;
                 }
 
-                // Gọi API thêm mới
-                const response = await axios.post(`${API_BASE_URL}/admin/voucher`, formData);
-                
-                if (formData.isPrivate && selectedAccounts.length > 0) {
-                    await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
-                        voucherId: response.data.id,
-                        customerIds: selectedAccounts
-                    });
-                    toast.success('Tạo voucher và thêm khách hàng thành công!');
-                } else {
-                    toast.success('Tạo voucher mới thành công!');
+                if (formData.isPrivate && selectedAccounts.length > formData.quantity) {
+                    toast.error(`Số lượng khách hàng đã chọn (${selectedAccounts.length}) vượt quá số lượng voucher có sẵn (${formData.quantity})`);
+                    return;
                 }
+
+                const currentStatus = getVoucherStatus(formData.startTime, formData.endTime);
+        let initialStatus = null;
+        
+        if (currentStatus === VoucherStatus.ACTIVE) {
+            initialStatus = VoucherAccountStatus.NOT_USED;
+        } else if (currentStatus === VoucherStatus.UPCOMING) {
+            initialStatus = null; // Để null cho voucher sắp diễn ra
+        } else if (currentStatus === VoucherStatus.EXPIRED) {
+            initialStatus = VoucherAccountStatus.EXPIRED;
+        }
+
+        // Gọi API thêm mới voucher
+        const response = await authAxios.post(`/admin/voucher`, formData);
+
+        if (formData.isPrivate && selectedAccounts.length > 0) {
+            // Thêm initialStatus vào request assign
+            await authAxios.post(`/admin/voucher/assign`, {
+                voucherId: response.data.id,
+                customerIds: selectedAccounts,
+                initialStatus: initialStatus // Thêm trạng thái ban đầu
+            });
+            toast.success('Tạo voucher và thêm khách hàng thành công!');
+        } else {
+            toast.success('Tạo voucher mới thành công!');
+        }
 
             } else {
                 // Khi cập nhật
@@ -475,7 +528,7 @@ export default function VoucherUI() {
 
                 // Kiểm tra trạng thái hiện tại
                 const currentStatus = getVoucherStatus(currentVoucher.startTime, currentVoucher.endTime);
-                
+
                 if (currentStatus !== VoucherStatus.UPCOMING) {
                     // Nếu không phải UPCOMING, không được thay đổi startTime
                     const oldStartDate = new Date(currentVoucher.startTime);
@@ -492,7 +545,7 @@ export default function VoucherUI() {
                 }
 
                 // Gọi API cập nhật
-                await axios.put(`${API_BASE_URL}/admin/voucher/${editId}`, formData);
+                await authAxios.put(`/admin/voucher/${editId}`, formData);
                 toast.success('Cập nhật voucher thành công!');
             }
 
@@ -507,6 +560,8 @@ export default function VoucherUI() {
             } else {
                 toast.error('Có lỗi xảy ra khi lưu voucher');
             }
+        } finally {
+            setFormLoading(false); // Tắt loading khi hoàn thành
         }
     };
 
@@ -564,7 +619,7 @@ export default function VoucherUI() {
             const results = await searchVouchers(searchParamsToSend);
             setVouchers(results);
             setCurrentPage(1);
-            
+
             if (results.length === 0) {
                 toast.info('Không tìm thấy voucher phù hợp');
             }
@@ -616,7 +671,87 @@ export default function VoucherUI() {
 
         fetchVouchers();
     }, [])
+    // const handleUpdateVoucher = async (voucher: Voucher) => {
+    //     try {
+    //         // Lấy danh sách tài khoản đã thêm vào voucher
+    //         const data = await getAccountDaAddVoucher(voucher.id);
+    //         if (!Array.isArray(data)) {
+    //             console.error('Dữ liệu trả về không phải là một mảng:', data);
+    //             return;
+    //         }
 
+    //         // Cập nhật danh sách tài khoản đã thêm
+    //         const ids: number[] = data.map((account) => account.id);
+    //         setSelectedAccounts(ids);
+    //         setSelectedVoucher(voucher);
+    //         setShowAssignModal(true);
+    //         const response = await authAxios.get(`/account/list`);
+    //         const customers = response.data.data.filter((account: AccountResponse) =>
+    //             account.idRole?.id === 4 && account.status === 'ACTIVE'
+    //         );
+    //         setAccounts(customers);
+    //     } catch (error) {
+    //         console.error('Lỗi khi lấy danh sách account đã thêm:', error);
+    //         toast.error('Không thể tải danh sách đã thêm');
+    //     }
+
+    // };
+    const handleUpdateVoucher = async (voucher: Voucher) => {
+        try {
+            // Start loading
+            setLoading(true);
+
+            // Kiểm tra số lượng voucher còn lại
+            // if (voucher.quantity <= 0) {
+            //     toast.warning('Voucher đã hết số lượng có thể thêm');
+            //     return;
+            // }
+
+            // Lấy danh sách tài khoản đã thêm vào voucher
+            const data = await getAccountDaAddVoucher(voucher.id);
+            if (!Array.isArray(data)) {
+                throw new Error('Dữ liệu trả về không hợp lệ');
+            }
+
+            // Cập nhật danh sách tài khoản đã thêm
+            const ids: number[] = data.map((account) => account.id);
+            setSelectedAccounts(ids);
+            setSelectedVoucher(voucher);
+            setShowAssignModal(true);
+            // const response = await authAxios.get(`/account/list`);
+            // const customers = response.data.data.filter((account: AccountResponse) =>
+            //     account.idRole?.id === 4 && account.status === 'ACTIVE'
+            // );
+            // setAccounts(customers);
+        // } catch (error) {
+        //     console.error('Lỗi khi lấy danh sách account đã thêm:', error);
+        //     toast.error('Không thể tải danh sách đã thêm');
+        // }
+
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách account:', error);
+            toast.error('Không thể tải danh sách khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        console.log("Accounts:", accounts);
+    }, [accounts]);
+
+    useEffect(() => {
+        console.log("Account da add voucher" + selectedAccounts);
+    }, [selectedAccounts, setSelectedAccounts]);
+
+    // useEffect(() => {
+    //     if (accounts.length > 0 && selectedAccounts.length > 0) {
+    //       const updatedSelectedAccounts = accounts
+    //         .filter((account) => selectedAccounts.includes(account.id))
+    //         .map((account) => account.id);
+    //       setSelectedAccounts(updatedSelectedAccounts);
+    //     }
+    //   }, [accounts, selectedAccounts]);
     return (
         <>
             <div className="p-6 bg-gray-100 min-h-screen">
@@ -748,12 +883,12 @@ export default function VoucherUI() {
                                     <th className="p-3 whitespace-nowrap">Mã</th>
                                     <th className="p-3 whitespace-nowrap">Tên</th>
                                     <th className="p-3 whitespace-nowrap">Giá trị</th>
-                                    <th className="p-3 whitespace-nowrap">Điều Kiện</th>
-                                    <th className="p-3 whitespace-nowrap">Số Lượng</th>
-                                    <th className="p-3 whitespace-nowrap">Thời Gian</th>
-                                    <th className="p-3 whitespace-nowrap">Trạng Thái</th>
+                                    <th className="p-3 whitespace-nowrap">Điều kiện</th>
+                                    <th className="p-3 whitespace-nowrap">Số lượng</th>
+                                    <th className="p-3 whitespace-nowrap">Thời gian</th>
+                                    <th className="p-3 whitespace-nowrap">Trạng thái</th>
                                     <th className="p-3 whitespace-nowrap">Loại</th>
-                                    <th className="p-3 whitespace-nowrap">Thao Tác</th>
+                                    <th className="p-3 whitespace-nowrap">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -780,7 +915,7 @@ export default function VoucherUI() {
                                                     day: '2-digit',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
-                                                })} 
+                                                })}
                                                 {' - '}
                                                 {new Date(voucher.endTime).toLocaleString('vi-VN', {
                                                     year: 'numeric',
@@ -795,7 +930,7 @@ export default function VoucherUI() {
                                                     const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
                                                     const statusDisplay = getStatusDisplay(currentStatus);
                                                     return (
-                                                        <span 
+                                                        <span
                                                             className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${statusDisplay.className}`}
                                                             title={`Cập nhật lần cuối: ${lastUpdate.toLocaleTimeString()}`}
                                                         >
@@ -805,30 +940,35 @@ export default function VoucherUI() {
                                                 })()}
                                             </td>
                                             <td className="p-3">
-                                                <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${
-                                                    voucher.isPrivate 
-                                                        ? 'bg-purple-100 text-purple-800' 
-                                                        : 'bg-green-100 text-green-800'
-                                                }`}>
+                                                <span className={`px-2 py-1 rounded-full text-sm whitespace-nowrap ${voucher.isPrivate
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-green-100 text-green-800'
+                                                    }`}>
                                                     {voucher.isPrivate ? 'Riêng tư' : 'Công khai'}
                                                 </span>
                                             </td>
                                             <td className="p-3 space-x-2 whitespace-nowrap">
-                                                <button
+                                                {/* <button
                                                     className="text-blue-600 hover:text-blue-800"
                                                     onClick={() => handleEdit(voucher)}
                                                 >
-                                                    <SaveAsIcon/>
-                                                </button>
-                                                {voucher.isPrivate && (
+                                                    <SaveAsIcon />
+                                                </button> */}
+                                                <Button
+                                                variant="outline"
+                                                onClick={() => handleEdit(voucher)}
+                                                className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+                                                size="sm"
+                                              >
+                                                <Pen className="h-1 w-1" color='white' />
+                                                {/* Cập nhật */}
+                                              </Button>
+                                                {voucher.isPrivate && voucher.status !== VoucherStatus.EXPIRED && (
                                                     <button
                                                         className=""
-                                                        onClick={() => {
-                                                            setSelectedVoucher(voucher);
-                                                            setShowAssignModal(true);
-                                                        }}
+                                                        onClick={() => handleUpdateVoucher(voucher)}
                                                     >
-                                                        <PersonAddIcon/>
+                                                        <PersonAddIcon />
                                                     </button>
                                                 )}
                                             </td>
@@ -850,8 +990,8 @@ export default function VoucherUI() {
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
                                 className={`px-3 py-1 rounded ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 Trước
@@ -862,8 +1002,8 @@ export default function VoucherUI() {
                                     key={index + 1}
                                     onClick={() => setCurrentPage(index + 1)}
                                     className={`px-3 py-1 rounded ${currentPage === index + 1
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 hover:bg-gray-200'
                                         }`}
                                 >
                                     {index + 1}
@@ -874,8 +1014,8 @@ export default function VoucherUI() {
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
                                 className={`px-3 py-1 rounded ${currentPage === totalPages
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 Sau
@@ -897,17 +1037,17 @@ export default function VoucherUI() {
                                 <div className="relative bg-white rounded-2xl w-[90%] max-w-[900px] max-h-[90vh] flex flex-col"> {/* Thay đổi rounded-lg thành rounded-2xl */}
                                     <div className="p-6 border-b flex-shrink-0 rounded-t-2xl"> {/* Thêm rounded-t-2xl */}
                                         <h2 className="text-2xl font-semibold"> {/* Tăng kích thước text */}
-                                            {isEditing ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
+                                            {isEditing ? 'Cập nhật voucher' : 'Tạo voucher mới'}
                                         </h2>
                                     </div>
-                                    
+
                                     <div className="px-6 py-4 overflow-y-auto flex-grow">
                                         {error && (
                                             <div className="mb-4 p-3 bg-red-100 text-red-600 rounded">
                                                 {error.message}
                                             </div>
                                         )}
-                                        
+
                                         <form onSubmit={handleSubmit}>
                                             <div className="grid grid-cols-2 gap-6"> {/* Chia layout thành 2 cột */}
                                                 <div className="space-y-4">
@@ -931,7 +1071,7 @@ export default function VoucherUI() {
                                                                 className="w-full p-2 border rounded"
                                                                 value={formData.name}
                                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                                
+
                                                             />
                                                         </div>
                                                         {/* Sửa lại phần input giá trị trong form */}
@@ -943,9 +1083,9 @@ export default function VoucherUI() {
                                                                         type="number"
                                                                         className="w-full p-2 border rounded"
                                                                         value={formData.discountValue === 0 ? '' : formData.discountValue}
-                                                                        onChange={(e) => setFormData({ 
-                                                                            ...formData, 
-                                                                            discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                        onChange={(e) => setFormData({
+                                                                            ...formData,
+                                                                            discountValue: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                         })}
                                                                         min="0"
                                                                         placeholder="Nhập giá trị giảm"
@@ -953,8 +1093,8 @@ export default function VoucherUI() {
                                                                     <select
                                                                         className="p-2 border rounded"
                                                                         value={formData.voucherType ? "true" : "false"}
-                                                                        onChange={(e) => setFormData({ 
-                                                                            ...formData, 
+                                                                        onChange={(e) => setFormData({
+                                                                            ...formData,
                                                                             voucherType: e.target.value === "true",
                                                                             // Reset maxDiscountAmount when switching to VND
                                                                             maxDiscountAmount: e.target.value === "false" ? 0 : formData.maxDiscountAmount
@@ -964,7 +1104,7 @@ export default function VoucherUI() {
                                                                         <option value="true">%</option>
                                                                     </select>
                                                                 </div>
-                                                                
+
                                                                 {/* Hiển thị input giá trị giảm tối đa khi chọn % */}
                                                                 {formData.voucherType && (
                                                                     <div>
@@ -1002,12 +1142,12 @@ export default function VoucherUI() {
                                                                     type="number"
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.conditionPriceMin === 0 ? '' : formData.conditionPriceMin}
-                                                                    onChange={(e) => setFormData({ 
-                                                                        ...formData, 
-                                                                        conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    onChange={(e) => setFormData({
+                                                                        ...formData,
+                                                                        conditionPriceMin: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                     })}
                                                                     min="0"
-                                                                    
+
                                                                 />
                                                             </div>
                                                             <div>
@@ -1016,12 +1156,12 @@ export default function VoucherUI() {
                                                                     type="number"
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.conditionPriceMax === 0 ? '' : formData.conditionPriceMax}
-                                                                    onChange={(e) => setFormData({ 
-                                                                        ...formData, 
-                                                                        conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                    onChange={(e) => setFormData({
+                                                                        ...formData,
+                                                                        conditionPriceMax: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                     })}
                                                                     min="0"
-                                                                    
+
                                                                 />
                                                             </div>
                                                         </div>
@@ -1038,12 +1178,12 @@ export default function VoucherUI() {
                                                                 type="number"
                                                                 className="w-full p-2 border rounded"
                                                                 value={formData.quantity === 0 ? '' : formData.quantity}
-                                                                onChange={(e) => setFormData({ 
-                                                                    ...formData, 
-                                                                    quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0 
+                                                                onChange={(e) => setFormData({
+                                                                    ...formData,
+                                                                    quantity: e.target.value ? Math.max(0, Number(e.target.value)) : 0
                                                                 })}
                                                                 min="0"
-                                                                
+
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-4">
@@ -1054,7 +1194,7 @@ export default function VoucherUI() {
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.startTime}
                                                                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                                                    
+
                                                                 />
                                                             </div>
                                                             <div>
@@ -1064,7 +1204,7 @@ export default function VoucherUI() {
                                                                     className="w-full p-2 border rounded"
                                                                     value={formData.endTime}
                                                                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                                                    
+
                                                                 />
                                                             </div>
                                                         </div>
@@ -1094,10 +1234,14 @@ export default function VoucherUI() {
                                                                     <input
                                                                         type="radio"
                                                                         checked={formData.isPrivate}
-                                                                        onChange={() => setFormData({ ...formData, isPrivate: true })}
+                                                                        onChange={() => {
+                                                                            setSelectedAccounts([]);
+                                                                            setFormData({ ...formData, isPrivate: true });
+                                                                        }}
                                                                         className="rounded"
-                                                                        disabled={isEditing} // Disable when editing
+                                                                        disabled={isEditing}
                                                                     />
+
                                                                     <span>
                                                                         Riêng tư
                                                                         <span className="text-sm text-gray-500 ml-1">
@@ -1116,11 +1260,19 @@ export default function VoucherUI() {
                                                 <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                                                     <div className="flex justify-between items-center mb-4">
                                                         <h3 className="text-lg font-medium">Chọn khách hàng</h3>
-                                                        <span className="text-sm text-gray-500">
-                                                            Đã chọn {selectedAccounts.length} khách hàng
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-sm ${selectedAccounts.length > formData.quantity ? 'text-red-600 font-medium' : 'text-gray-500'
+                                                                }`}>
+                                                                Đã chọn {selectedAccounts.length}/{formData.quantity} khách hàng
+                                                            </span>
+                                                            {selectedAccounts.length > formData.quantity && (
+                                                                <span className="text-xs text-red-600">
+                                                                    Vượt quá số lượng cho phép
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    
+
                                                     {loading ? (
                                                         <div className="flex items-center justify-center py-8">
                                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -1137,17 +1289,22 @@ export default function VoucherUI() {
                                                                                 checked={selectedAccounts.length === accounts.length}
                                                                                 onChange={(e) => {
                                                                                     if (e.target.checked) {
-                                                                                        setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                                        if (accounts.length > formData.quantity) {
+                                                                                            toast.warning(`Chỉ có thể chọn tối đa ${formData.quantity} khách hàng`);
+                                                                                            setSelectedAccounts(accounts.slice(0, formData.quantity).map(acc => acc.id));
+                                                                                        } else {
+                                                                                            setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                                        }
                                                                                     } else {
                                                                                         setSelectedAccounts([]);
                                                                                     }
                                                                                 }}
                                                                             />
                                                                         </th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Họ tên</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Email</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Số điện thoại</th>
-                                                                        <th className="px-4 py-3 text-left font-medium">Trạng thái sử dụng</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                                                                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
+                                                                        {/* <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th> */}
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody className="divide-y">
@@ -1160,6 +1317,10 @@ export default function VoucherUI() {
                                                                                     checked={selectedAccounts.includes(account.id)}
                                                                                     onChange={(e) => {
                                                                                         if (e.target.checked) {
+                                                                                            if (selectedAccounts.length >= formData.quantity) {
+                                                                                                toast.warning(`Đã đạt giới hạn số lượng voucher (${formData.quantity})`);
+                                                                                                return;
+                                                                                            }
                                                                                             setSelectedAccounts([...selectedAccounts, account.id]);
                                                                                         } else {
                                                                                             setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
@@ -1171,13 +1332,6 @@ export default function VoucherUI() {
                                                                             <td className="px-4 py-3">{account.fullName}</td>
                                                                             <td className="px-4 py-3">{account.email}</td>
                                                                             <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                                            <td className="px-4 py-3">
-                                                                                {account.voucherStatus ? (
-                                                                                    <VoucherStatusBadge status={account.voucherStatus} />
-                                                                                ) : (
-                                                                                    <span className="text-sm text-gray-500">-</span>
-                                                                                )}
-                                                                            </td>
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>
@@ -1195,16 +1349,24 @@ export default function VoucherUI() {
                                                 type="button"
                                                 className="px-6 py-2 border rounded-lg hover:bg-gray-100"
                                                 onClick={handleCloseModal}
+                                                disabled={formLoading}
                                             >
                                                 Hủy
                                             </button>
                                             <button
                                                 type="submit"
                                                 onClick={handleSubmit}
-                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                                disabled={loading}
+                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                                                disabled={formLoading}
                                             >
-                                                {isEditing ? 'Cập nhật' : 'Tạo'}
+                                                {formLoading ? (
+                                                    <>
+                                                        <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+                                                        <span>{isEditing ? 'Đang cập nhật...' : 'Đang tạo...'}</span>
+                                                    </>
+                                                ) : (
+                                                    <span>{isEditing ? 'Cập nhật' : 'Tạo'}</span>
+                                                )}
                                             </button>
                                         </div>
                                     </div>
@@ -1219,8 +1381,11 @@ export default function VoucherUI() {
                     voucher={selectedVoucher}
                     onClose={closeAssignModal}
                     onRefresh={refreshVouchers}
+                    selectedAccounts={selectedAccounts}
+                    setSelectedAccounts={setSelectedAccounts}
                 />
             )}
+
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
@@ -1240,51 +1405,187 @@ export default function VoucherUI() {
 interface AssignVoucherModalProps {
     voucher: Voucher;
     onClose: () => void;
-    onRefresh: () => void; // Add new prop for refreshing
+    onRefresh: () => void;
+    selectedAccounts: number[];
+    setSelectedAccounts: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 // Update the AssignVoucherModal component
-const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalProps) => {
-    const [accounts, setAccounts] = useState<AccountResponse[]>([]);
+const AssignVoucherModal = ({ voucher, onClose, onRefresh, selectedAccounts, setSelectedAccounts }: AssignVoucherModalProps) => {
+    const [customers, setCustomers] = useState<CustomersResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
-    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus>>({});
+    // const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+    const [usageStatuses, setUsageStatuses] = useState<Record<number, VoucherAccountStatus | null>>({});
+    const getOrderStatusText = (status: number | null) => {
+        switch (status) {
+            case 1: return "Đã sử dụng";
+            case 2: return "Chưa dùng";
+            case 3: return "Hết hạn";
+            case 4: return "Chưa áp dụng";
+            case 5: return "Sắp diễn ra";
+            default: return "";
 
-    // Fetch customers when component mounts
+        }
+    };
+    // // Fetch customers when component mounts
+    // useEffect(() => {
+    //     const fetchCustomersAndStatus = async () => {
+    //         // const jwt = Cookies.get('jwt');
+    //         try {
+    //             setLoading(true);
+
+    //             // Lấy danh sách khách hàng
+    //             const response = await authAxios.get(`/admin/voucher/customers/${voucher.id}`);
+    //             setCustomers(response.data.data);
+    //             // console.log("customers", customers);
+    //             console.log("re", response.data);
+    //             // Lấy danh sách tài khoản đã có voucher
+    //             const voucherAccountsResponse = await authAxios.get(
+    //                 `/admin/voucher/${voucher.id}/accounts`
+    //             );
+
+    //             // Khởi tạo statusMap là một object rỗng với kiểu chính xác
+    //             const statusMap: Record<number, VoucherAccountStatus | null> = {};
+
+    //             // Lấy trạng thái hiện tại của voucher
+    //             const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+
+    //             // Lọc ra những account là khách hàng
+    //             const customers = response.data.data.filter((account: AccountResponse) =>
+    //                 account.idRole?.id === 4 &&
+    //                 account.status === 'ACTIVE'
+    //             );
+
+    //             // Log để debug
+    //             console.log('Voucher accounts response:', voucherAccountsResponse.data);
+
+    //             // Xử lý trạng thái cho từng voucher account
+    //             if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+    //                 voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+    //                     // Kiểm tra cấu trúc dữ liệu
+    //                     if (voucherAccount && voucherAccount.idAccount) {
+    //                         const accountId = voucherAccount.idAccount.id;
+
+    //                         if (voucherAccount.status === VoucherAccountStatus.USED) {
+    //                             statusMap[accountId] = VoucherAccountStatus.USED;
+    //                         } else {
+    //                             if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+    //                                 statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+    //                             } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+    //                                 statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+    //                             } else {
+    //                                 statusMap[accountId] = null; 
+    //                             }
+    //                         }
+    //                     }
+    //                 });
+    //             }
+
+    //             setUsageStatuses(statusMap);
+    //             console.log('Accounts:', customers);
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //             setError('Không thể tải danh sách khách hàng');
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchCustomersAndStatus();
+    // }, [voucher.id, voucher.startTime, voucher.endTime]);
+
+    // // Handle assign button click
+    // const handleAssign = async () => {
+    //     try {
+    //         setLoading(true);
+
+    //         // Kiểm tra trạng thái hiện tại của voucher
+    //         const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+
+    //         // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
+    //         let initialStatus = null;
+    //         if (currentStatus === VoucherStatus.ACTIVE) {
+    //             initialStatus = VoucherAccountStatus.NOT_USED;
+    //         }
+
+    //         // Nếu UPCOMING hoặc EXPIRED thì giữ null
+    //         const response = await authAxios.post(`/admin/voucher/assign`, {
+    //             voucherId: voucher.id,
+    //             customerIds: selectedAccounts,
+    //             initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
+    //         });
+
+    //         if (response.data.success) {
+    //             toast.success('Đã thêm voucher thành công');
+    //             onRefresh();
+    //             onClose();
+    //         }
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         toast.error('Có lỗi xảy ra khi thêm voucher');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     useEffect(() => {
         const fetchCustomersAndStatus = async () => {
+            // const jwt = Cookies.get('jwt');
             try {
                 setLoading(true);
+
                 // Lấy danh sách khách hàng
-                const response = await axios.get(`${API_BASE_URL}/account/list`);
-                
-                // Lấy danh sách tài khoản đã có voucher này
-                const voucherAccountsResponse = await axios.get(
-                    `${API_BASE_URL}/admin/voucher/${voucher.id}/accounts`
-                );
-                
-                const existingAccountIds = voucherAccountsResponse.data.data.map(
-                    (account: AccountResponse) => account.id
+                const response = await authAxios.get(`/admin/voucher/customers/${voucher.id}`);
+                setCustomers(response.data.data);
+                // console.log("customers", customers);
+                // console.log("re", response.data);
+                // Lấy danh sách tài khoản đã có voucher
+                const voucherAccountsResponse = await authAxios.get(
+                    `/admin/voucher/${voucher.id}/accounts`
                 );
 
-                // Lấy trạng thái sử dụng của voucher
-                const usageStatusResponse = await getVoucherUsageStatuses(voucher.id);
-                const statusMap = usageStatusResponse.reduce((acc, status) => ({
-                    ...acc,
-                    [status.accountId]: status.status
-                }), {});
-                setUsageStatuses(statusMap);
+                // Khởi tạo statusMap là một object rỗng với kiểu chính xác
+                const statusMap: Record<number, VoucherAccountStatus | null> = {};
 
-                // Lọc khách hàng
-                const customers = response.data.data.filter((account: AccountResponse) => 
-                    account.idRole?.id === 4 && 
+                // Lấy trạng thái hiện tại của voucher
+                const currentVoucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
+
+                // Lọc ra những account là khách hàng
+                const customers = response.data.data.filter((account: AccountResponse) =>
+                    account.idRole?.id === 4 &&
                     account.status === 'ACTIVE'
                 );
 
-                setAccounts(customers);
+                // Log để debug
+                // console.log('Voucher accounts response:', voucherAccountsResponse.data);
+
+                // Xử lý trạng thái cho từng voucher account
+                if (voucherAccountsResponse.data && Array.isArray(voucherAccountsResponse.data.data)) {
+                    voucherAccountsResponse.data.data.forEach((voucherAccount: any) => {
+                        // Kiểm tra cấu trúc dữ liệu
+                        if (voucherAccount && voucherAccount.idAccount) {
+                            const accountId = voucherAccount.idAccount.id;
+
+                            if (voucherAccount.status === VoucherAccountStatus.USED) {
+                                statusMap[accountId] = VoucherAccountStatus.USED;
+                            } else {
+                                if (currentVoucherStatus === VoucherStatus.EXPIRED) {
+                                    statusMap[accountId] = VoucherAccountStatus.EXPIRED;
+                                } else if (currentVoucherStatus === VoucherStatus.ACTIVE) {
+                                    statusMap[accountId] = VoucherAccountStatus.NOT_USED;
+                                } 
+                                else {
+                                    statusMap[accountId] = null;
+                                }
+                            }
+                        }
+                    });
+                }
+
+                setUsageStatuses(statusMap);
+                // console.log('Accounts:', customers);
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error fetching data:', error);
                 setError('Không thể tải danh sách khách hàng');
             } finally {
                 setLoading(false);
@@ -1292,24 +1593,28 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
         };
 
         fetchCustomersAndStatus();
-    }, [voucher.id]);
+    }, [voucher.id, voucher.startTime, voucher.endTime]);
 
     // Handle assign button click
     const handleAssign = async () => {
         try {
             setLoading(true);
 
+            // if (selectedAccounts.length >= voucher.quantity) {
+            //     toast.warning(`Đã đạt giới hạn số lượng voucher (${voucher.quantity})`);
+            //     return;
+            // }   
             // Kiểm tra trạng thái hiện tại của voucher
             const currentStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
-            
+
             // Xác định trạng thái mới cho VoucherAccount dựa trên trạng thái Voucher
             let initialStatus = null;
             if (currentStatus === VoucherStatus.ACTIVE) {
                 initialStatus = VoucherAccountStatus.NOT_USED;
             }
-            // Nếu UPCOMING hoặc EXPIRED thì giữ null
 
-            const response = await axios.post(`${API_BASE_URL}/admin/voucher/assign`, {
+            // Nếu UPCOMING hoặc EXPIRED thì giữ null
+            const response = await authAxios.post(`/admin/voucher/assign`, {
                 voucherId: voucher.id,
                 customerIds: selectedAccounts,
                 initialStatus: initialStatus // Thêm trạng thái ban đầu vào request
@@ -1317,7 +1622,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
 
             if (response.data.success) {
                 toast.success('Đã thêm voucher thành công');
-                await onRefresh();
+                onRefresh();
                 onClose();
             }
         } catch (error) {
@@ -1328,6 +1633,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
         }
     };
 
+
     return (
         <div className="fixed inset-0 overflow-hidden z-50"> {/* Thêm z-index và overflow-hidden */}
             <div className="absolute inset-0 bg-black bg-opacity-50">
@@ -1335,7 +1641,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                     <div className="flex min-h-full items-center justify-center p-4">
                         <div className="relative bg-white rounded-2xl w-[90%] max-w-[800px] max-h-[90vh] overflow-y-auto"> {/* Thay đổi rounded-lg thành rounded-2xl */}
                             <div className="flex justify-between items-center p-6 border-b rounded-t-2xl"> {/* Thêm padding và rounded-t-2xl */}
-                                <h2 className="text-xl font-semibold">Thêm Voucher cho Khách Hàng</h2>
+                                <h2 className="text-xl font-semibold">Cập nhật voucher cho khách hàng</h2>
                                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1381,68 +1687,68 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                             <thead className="bg-gray-50">
                                                 <tr>
                                                     <th className="w-16 px-4 py-3 text-left">
+                                                        {/* <input
+                                                            type="checkbox"
+                                                            className="rounded"
+                                                            checked={selectedAccounts.length === customers.length && customers}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedAccounts(customers.map(acc => acc.id));
+                                                                } else {
+                                                                    setSelectedAccounts([]);
+                                                                }
+                                                            }}
+                                                        /> */}
                                                         <input
                                                             type="checkbox"
                                                             className="rounded"
-                                                            checked={selectedAccounts.length === accounts.length}
+                                                            checked={
+                                                                selectedAccounts.length === customers.filter((acc) => acc.status !== 1).length &&
+                                                                customers.filter((acc) => acc.status !== 1).length > 0
+                                                            }
                                                             onChange={(e) => {
                                                                 if (e.target.checked) {
-                                                                    setSelectedAccounts(accounts.map(acc => acc.id));
+                                                                    // Chỉ thêm các tài khoản có trạng thái khác 1
+                                                                    setSelectedAccounts(customers.filter((acc) => acc.status !== 1).map((acc) => acc.id));
                                                                 } else {
                                                                     setSelectedAccounts([]);
                                                                 }
                                                             }}
                                                         />
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ tên</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Họ và tên</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
                                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Số điện thoại</th>
-                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái sử dụng</th>
+                                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trạng thái</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y">
-                                                {accounts.map((account) => (
+                                                {customers.map((account) => (
                                                     <tr key={account.id} className="hover:bg-gray-50">
                                                         <td className="px-4 py-3">
                                                             <input
                                                                 type="checkbox"
-                                                                id={`customer-${account.id}`}
-                                                                checked={selectedAccounts.includes(account.id)}
-                                                                onChange={(e) => {
+                                                                checked={selectedAccounts.includes(Number(account.id))} onChange={(e) => {
                                                                     if (e.target.checked) {
-                                                                        setSelectedAccounts([...selectedAccounts, account.id]);
+                                                                        setSelectedAccounts([...selectedAccounts, account.id]); // Thêm tài khoản vào danh sách
                                                                     } else {
-                                                                        setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                                                        setSelectedAccounts(selectedAccounts.filter((id) => id !== account.id)); // Bỏ tài khoản khỏi danh sách
                                                                     }
                                                                 }}
+                                                                disabled={account.status === 1}
                                                                 className="rounded"
                                                             />
                                                         </td>
-                                                        <td className="px-4 py-3">{account.fullName}</td>
+                                                        <td className="px-4 py-3">{account.name}</td>
                                                         <td className="px-4 py-3">{account.email}</td>
                                                         <td className="px-4 py-3">{account.phone || '-'}</td>
-                                                        <td className="px-4 py-3">
-                                                            {usageStatuses[account.id] ? (
-                                                                <VoucherStatusBadge status={usageStatuses[account.id]} />
-                                                            ) : (
-                                                                <span className="text-sm text-gray-500">
-                                                                    {(() => {
-                                                                        const voucherStatus = getVoucherStatus(voucher.startTime, voucher.endTime);
-                                                                        if (voucherStatus === VoucherStatus.ACTIVE) {
-                                                                            return "Chưa sử dụng";
-                                                                        } else {
-                                                                            return "Chưa kích hoạt";
-                                                                        }
-                                                                    })()}
-                                                                </span>
-                                                            )}
-                                                        </td>
+                                                        <td className="px-4 py-3">{getOrderStatusText(account.status)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                    {accounts.length === 0 && (
+                                    {customers.length === 0 && (
                                         <div className="text-center py-8 text-gray-500">
                                             Không có khách hàng nào
                                         </div>
@@ -1466,7 +1772,7 @@ const AssignVoucherModal = ({ voucher, onClose, onRefresh }: AssignVoucherModalP
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
                                     disabled={loading || selectedAccounts.length === 0}
                                 >
-                                    {loading ? 'Đang xử lý...' : 'Thêm voucher'}
+                                    {loading ? 'Đang xử lý...' : 'Cập nhật voucher'}
                                 </button>
                             </div>
                         </div>

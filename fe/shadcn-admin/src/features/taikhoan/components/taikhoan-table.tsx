@@ -27,14 +27,17 @@ import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { TaiKhoan } from "../schema/schema"
 
+
 interface TaiKhoanTableProps {
   columns: ColumnDef<TaiKhoan>[]
   data: TaiKhoan[]
+
 }
 
 export function TaiKhoanTable({
   columns,
   data,
+
 }: TaiKhoanTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -83,6 +86,8 @@ export function TaiKhoanTable({
                     </TableHead>
                   )
                 })}
+
+
               </TableRow>
             ))}
           </TableHeader>
@@ -101,6 +106,13 @@ export function TaiKhoanTable({
                       )}
                     </TableCell>
                   ))}
+
+
+
+
+
+
+
                 </TableRow>
               ))
             ) : (

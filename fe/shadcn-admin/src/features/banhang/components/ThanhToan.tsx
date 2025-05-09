@@ -85,7 +85,7 @@ const ThanhToan: React.FC<ThanhToanProps> =
 
         const handlePaymentMethodChange = (method: number) => {
             if (!searchBill) return fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán!");
-            if (tongTien <= 0) return fromThatBai("Giá tiền hiện tại là 0đ !");
+            if (tongTien < 0) return fromThatBai("Giá tiền hiện tại nhỏ hơn 0đ !");
             setPaymentMethod(method);
             if (method === 2) {
                 setDateTime(new Date());
@@ -121,13 +121,13 @@ const ThanhToan: React.FC<ThanhToanProps> =
             }
 
             // Kiểm tra giá trị đơn hàng tối thiểu
-            if (voucher.minOrderValue && tongTien < voucher.minOrderValue) {
+            if (tongTien < voucher.minOrderValue) {
                 fromThatBai(`Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} đ`);
                 return false;
             }
 
             // Kiểm tra giá trị đơn hàng tối đa
-            if (voucher.maxOrderValue && tongTien > voucher.maxOrderValue) {
+            if (tongTien > voucher.maxOrderValue) {
                 fromThatBai(`Đơn hàng không được vượt quá ${voucher.maxOrderValue.toLocaleString('vi-VN')} đ.`);
                 return false;
             }
@@ -274,14 +274,6 @@ const ThanhToan: React.FC<ThanhToanProps> =
                                                         value={customerPayment}
                                                         max={2000000000}
                                                         onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                                                        // onChange={(e) => {
-                                                        //     const value = Number(e.target.value);
-                                                        //     if (value > 1000000000) { // Giới hạn số tiền khách trả
-                                                        //       fromThatBai("Số tiền khách trả không được vượt quá 1 tỷ đồng.");
-                                                        //       return;
-                                                        //     }
-                                                        //     setCustomerPayment(value);
-                                                        //   }}
                                                         disabled={isThanhToanNhanHang} 
                                                     />
                                                 </p>

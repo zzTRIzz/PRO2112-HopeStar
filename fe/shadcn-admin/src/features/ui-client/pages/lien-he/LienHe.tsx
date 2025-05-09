@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { Mail, MapPin, Phone, Send } from "lucide-react"
+import axios from "axios"
+import { toast } from "@/hooks/use-toast"
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-type FormState = "idle" | "loading" | "success"
+type FormState = "idle" | "loading" | "success" | "error"
 
 export function ContactFormSection() {
   const [formState, setFormState] = useState<FormState>("idle")
@@ -14,20 +16,100 @@ export function ContactFormSection() {
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [message, setMessage] = useState("")
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: ""
+  })
 
-  function submit() {
+  // Validate form fields
+  const validateForm = () => {
+    let isValid = true
+    const newErrors = {
+      name: "",
+      email: "",
+      phone: "",
+      message: ""
+    }
+
+    // Name validation
+    if (!name.trim()) {
+      newErrors.name = "Tên không được để trống"
+      isValid = false
+    }
+
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "Email không được để trống"
+      isValid = false
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Email không hợp lệ"
+      isValid = false
+    }
+
+    // Phone validation
+    if (!phone.trim()) {
+      newErrors.phone = "Số điện thoại không được để trống"
+      isValid = false
+    } else if (!/^0\d{9}$/.test(phone)) {
+      newErrors.phone = "Số điện thoại phải có 10 số và bắt đầu bằng số 0"
+      isValid = false
+    }
+
+    // Message validation
+    if (!message.trim()) {
+      newErrors.message = "Nội dung tin nhắn không được để trống"
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  const submit = async () => {
+    if (!validateForm()) {
+      return
+    }
+
     setFormState("loading")
-    setTimeout(() => {
-      setFormState("success")
-    }, 1500)
 
-    setTimeout(() => {
-      setFormState("idle")
-      setName("")
-      setEmail("")
-      setPhone("")
-      setMessage("")
-    }, 3300)
+    try {
+      const response = await axios.post("http://localhost:8080/lien-he", {
+        name: name,
+        email: email,
+        phone: phone,
+        content: message
+      })
+
+      setFormState("success")
+      toast({
+        title: "Thành công!",
+        description: "Gửi phản hồi thành công! Cảm ơn bạn đã liên hệ với chúng tôi.",
+        variant: "default",
+      })
+
+      setTimeout(() => {
+        setFormState("idle")
+        setName("")
+        setEmail("")
+        setPhone("")
+        setMessage("")
+      }, 3000)
+
+    } catch (error) {
+      console.error("Lỗi khi gửi form:", error)
+      setFormState("error")
+      toast({
+        title: "Lỗi!",
+        description: "Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.",
+        variant: "destructive",
+      })
+      
+      setTimeout(() => {
+        setFormState("idle")
+      }, 3000)
+    }
   }
 
   return (
@@ -40,7 +122,6 @@ export function ContactFormSection() {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          if (!name || !email || !phone || !message) return
           submit()
         }}
         className="space-y-4"
@@ -59,14 +140,14 @@ export function ContactFormSection() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+                className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.name ? "border-red-500" : ""}`}
                 placeholder="Họ và tên"
-                required
               />
               <div className="absolute left-3 top-2.5 text-muted-foreground">
                 <Mail size={16} />
               </div>
             </div>
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
           </div>
 
           <div>
@@ -82,14 +163,14 @@ export function ContactFormSection() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+                className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.email ? "border-red-500" : ""}`}
                 placeholder="example@email.com"
-                required
               />
               <div className="absolute left-3 top-2.5 text-muted-foreground">
                 <Mail size={16} />
               </div>
             </div>
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
         </div>
 
@@ -103,14 +184,14 @@ export function ContactFormSection() {
               id="phone" 
               value={phone} 
               onChange={(e) => setPhone(e.target.value)} 
-              className="w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+              className={`w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.phone ? "border-red-500" : ""}`}
               placeholder="0123456789"
-              required
             />
             <div className="absolute left-3 top-2.5 text-muted-foreground">
               <Phone size={16} />
             </div>
           </div>
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
 
         <div>
@@ -124,11 +205,11 @@ export function ContactFormSection() {
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background"
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background ${errors.message ? "border-red-500" : ""}`}
             rows={4}
             placeholder="Nhập nội dung tin nhắn của bạn..."
-            required
           />
+          {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
         </div>
 
         <div className="pt-2">
@@ -147,12 +228,6 @@ export function ContactFormSection() {
         </div>
       </form>
 
-      {formState === "success" && (
-        <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md text-center">
-          <h4 className="font-bold">Gửi phản hồi thành công!</h4>
-          <p>Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi sớm nhất có thể.</p>
-        </div>
-      )}
     </Card>
   )
 }
@@ -217,7 +292,7 @@ export function ContactInfo() {
 
 export function GoogleMap() {
   return (
-    <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d783.0690069252823!2d105.74443546952945!3d21.03987039878826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134548d53109a5f%3A0x659c15d527f2ecf!2zTmcuIDEyNCBQaOG7kSBIb8OoIFRo4buLLCBIw7JlIFRo4buLLCBQaMawxqFuZyBDYW5oLCBOYW0gVOG7qyBMacOqbSwgSMOgIE7hu5lpLCBWaeG7h3QgTmFt!5e1!3m2!1svi!2s!4v1745061578294!5m2!1svi!2s"
         width="100%"
@@ -246,12 +321,13 @@ export function LienHe() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <GoogleMap />
         <div className="grid grid-cols-1 gap-8">
-          <ContactInfo />
+          {/* <ContactInfo /> */}
+          <ContactFormSection />
         </div>
       </div>
       
       <div className="mt-10">
-        <ContactFormSection />
+        {/* <ContactFormSection /> */}
       </div>
     </div>
   )

@@ -14,6 +14,8 @@ public class ProductDetailRespones {
 
     private Integer rom;
 
+    private String descriptionRom;
+
     private String color;
 
     private String image;

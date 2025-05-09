@@ -16,7 +16,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
     // Lấy danh sách Bill với trạng thái đã thanh toán
     @Query("SELECT b FROM Bill b " +
             "where b.status = :status ")
-    List<Bill> findBillByStatus(@Param("status")StatusBill statusBill);
+    List<Bill> findBillByStatus(@Param("status") StatusBill statusBill);
 
     @Query(value = """
             SELECT COALESCE(MAX(CAST(SUBSTRING(code, 4) AS UNSIGNED)), 0) + 1
@@ -27,9 +27,9 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 
     @Query("SELECT b FROM Bill b " +
             "where b.status = :status " +
-            "order by b.paymentDate desc" )
+            "order by b.paymentDate desc")
     List<Bill> findTop6BillsPendingPayment(Pageable pageable,
-                                           @Param("status")StatusBill statusBill);
+                                           @Param("status") StatusBill statusBill);
 
 
     @Query("SELECT b FROM Bill b WHERE b.idAccount.id = :idAccount " +
@@ -47,13 +47,28 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
     Integer findBillByMaBill(@Param("maBill") String maBill);
 
 
-    @Query("SELECT CASE WHEN COUNT(bd) > 0 THEN true ELSE false END " +
+    //    @Query("SELECT CASE WHEN COUNT(bd) > 0 THEN true ELSE false END " +
+//            "FROM BillDetail bd JOIN bd.idBill b " +
+//            "WHERE b.idAccount.id = :customerId " +
+//            "AND bd.idProductDetail.id = :productDetailId " +
+//            "AND b.status = :status")
+//    boolean existsByCustomerIdAndProductId(@Param("customerId") Integer customerId,
+//                                           @Param("productDetailId") Integer productDetailId,
+//                                           @Param("status") StatusBill statusBill);
+
+    @Query("SELECT SUM(bd.quantity) " +
             "FROM BillDetail bd JOIN bd.idBill b " +
             "WHERE b.idAccount.id = :customerId " +
-            "AND bd.idProductDetail.product.id = :productId " +
+            "AND bd.idProductDetail.id = :productDetailId " +
             "AND b.status = :status")
-    boolean existsByCustomerIdAndProductId(@Param("customerId") Integer customerId,
-                                           @Param("productId") Integer productId,
-                                           @Param("status") StatusBill statusBill);
+    Integer getTotalQuantityByCustomerIdAndProductId(@Param("customerId") Integer customerId,
+                                                     @Param("productDetailId") Integer productDetailId,
+                                                     @Param("status") StatusBill statusBill);
 
+    @Query("SELECT SUM(bd.quantity) " +
+            "FROM BillDetail bd JOIN bd.idBill b " +
+            "WHERE bd.idProductDetail.id = :productDetailId " +
+            "AND b.status = :status")
+    Integer getTotalQuantity(@Param("productDetailId") Integer productDetailId,
+                             @Param("status") StatusBill statusBill);
 }

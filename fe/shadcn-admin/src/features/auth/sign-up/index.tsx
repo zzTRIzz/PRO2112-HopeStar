@@ -23,7 +23,7 @@ export default function SignUp() {
           </p>
         </div>
         <SignUpForm />
-        <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
+        {/* <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
           Bằng việc tạo tài khoản, bạn đồng ý với{' '}
           <a
             href='/terms'
@@ -39,7 +39,7 @@ export default function SignUp() {
             Chính sách bảo mật
           </a>
           của chúng tôi.
-        </p>
+        </p> */}
       </Card>
     </AuthLayout>
   )

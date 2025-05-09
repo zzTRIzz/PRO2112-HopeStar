@@ -28,6 +28,8 @@ public class SearchBillDetailDto {
 
     private Integer rom;
 
+    private String descriptionRom;
+
     private String mauSac;
 
     private String imageUrl;

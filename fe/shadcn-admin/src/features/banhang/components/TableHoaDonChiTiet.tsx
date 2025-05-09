@@ -17,30 +17,12 @@ import { DataTablePagination } from './PhanTrang/data-table-pagination';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { IconQuestionMark } from '@tabler/icons-react';
+import { Imei, SearchBillDetail } from '../service/Schema';
 
-interface SearchBillDetail {
-    id: number
-    price: number,
-    quantity: number,
-    totalPrice: number,
-    idProductDetail: number,
-    nameProduct: string,
-    ram: number,
-    rom: number,
-    mauSac: string,
-    imageUrl: string,
-    idBill: number
-}
 
-interface imei {
-    id: number,
-    imeiCode: string,
-    barCode: string,
-    status: string
-}
 interface TableHoaDonChiTietProps {
     product: SearchBillDetail[],
-    listImei: imei[];
+    listImei: Imei[];
     selectedImei: number[];
     openDialogId: number | null; // Nhận từ file tổng
     setOpenDialogId: (open: number | null) => void;
@@ -87,7 +69,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
 
 
         const filteredImeiList = listImei.filter((imei) =>
-            imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase())
+            imei.imeiCode.toLowerCase().includes(searchImeiKey.toLowerCase().trim())
         );
 
         return (
@@ -128,7 +110,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                             )}
                                         </div></TableCell>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom + 'GB '} ({pr.mauSac})
+                                            {pr.nameProduct} {pr.ram + '/'}{pr.rom}{pr.descriptionRom} ({pr.mauSac})
                                         </TableCell>
                                         <TableCell align="right">{pr.price.toLocaleString('vi-VN')} VND</TableCell>
                                         <TableCell align="right">{pr.quantity}</TableCell>

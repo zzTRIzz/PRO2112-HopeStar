@@ -96,7 +96,9 @@ import Cookies from 'js-cookie'
 //   ward: z.union([z.string(), z.number()]).transform(val => String(val)),
 //   street: z.string().min(3, "Vui lòng nhập địa chỉ cụ thể")
 // })
-const jwt = Cookies.get('jwt')
+
+
+// const jwt = Cookies.get('jwt')
 const formSchema = z.object({
   fullName: z
     .string({ required_error: 'Họ và tên không được bỏ trống' })
@@ -135,9 +137,9 @@ const formSchema = z.object({
         ) {
           age--;
         }
-        return age >= 15 && age < 61;
+        return age >= 0 && age < 100;
       },
-      'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'
+      'Người dùng phải từ 0 tuổi đến dưới 100 tuổi'
     ),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']).default('ACTIVE'),
   googleId: z.string().default('string'),
@@ -276,7 +278,7 @@ export default function MyForm() {
       const response = await axios.get(
         'http://localhost:8080/api/account/list-khach-hang',{
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -318,7 +320,7 @@ export default function MyForm() {
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -421,7 +423,7 @@ export default function MyForm() {
 
       const config = {
         headers: {
-          Authorization: `Bearer ${jwt}`,
+          Authorization: `Bearer ${Cookies.get('jwt')}`,
           'Content-Type': 'application/json',
         },
       };
@@ -786,7 +788,7 @@ export default function MyForm() {
             )}
           />
 
-          <Toaster />
+          <Toaster position='top-right'/>
           <Button type='submit' disabled={isSubmitting}>
             {isSubmitting ? 'Đang xử lý...' : 'Thêm mới tài khoản'}
           </Button>

@@ -29,7 +29,6 @@ public class AccountResponse {
     String email;
     @Size(max = 256)
     String password;
-    //@NotNull(message = "Số điện thoại không được bỏ trống")
     @Size(max = 255)
     String phone;
     @Size(max = 255)

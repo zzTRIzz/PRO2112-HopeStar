@@ -3,15 +3,19 @@ package com.example.be.core.admin.voucher.service.impl;
 import com.example.be.core.admin.account.dto.response.AccountResponse;
 import com.example.be.core.admin.account.dto.response.RoleResponse;
 import com.example.be.core.admin.voucher.dto.request.VoucherRequest;
+import com.example.be.core.admin.voucher.dto.response.CustomersResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.dto.response.VoucherResponse;
 import com.example.be.entity.Account;
+import com.example.be.entity.Role;
 import com.example.be.entity.Voucher;
 import com.example.be.core.admin.voucher.mapper.VoucherMapper;
 import com.example.be.entity.VoucherAccount;
+import com.example.be.entity.status.StatusCommon;
 import com.example.be.entity.status.StatusVoucher;
 import com.example.be.entity.status.VoucherAccountStatus;
 import com.example.be.repository.AccountRepository;
+import com.example.be.repository.RoleRepository;
 import com.example.be.repository.VoucherAccountRepository;
 import com.example.be.repository.VoucherRepository;
 import com.example.be.core.admin.voucher.service.VoucherService;
@@ -44,6 +48,8 @@ public class VoucherServiceImpl implements VoucherService {
 
 
     private final EmailService emailService;
+
+    private final RoleRepository roleRepository;
 
     @Override
     public List<VoucherResponse> getAll() {
@@ -208,107 +214,253 @@ public class VoucherServiceImpl implements VoucherService {
     public boolean isCodeExistsForUpdate(String code, Integer id) {
         return voucherRepository.existsByCodeAndIdNot(code, id);
     }
+
+
+//    @Override
+//    @Transactional
+//    public Map<String, Object> assignVoucherToCustomers(Integer voucherId, List<Integer> customerIds) {
+//        try {
+//            log.info("Bắt đầu cập nhật danh sách gán voucher {} cho {} khách hàng", voucherId, customerIds.size());
+//
+//            Voucher voucher = voucherRepository.findById(voucherId)
+//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher"));
+//
+//            List<Account> allAccounts = accountRepository.findAllById(customerIds);
+//
+//            // Lấy danh sách account hiện đang được gán voucher trong DB
+//            List<VoucherAccount> currentVoucherAccounts = voucherAccountRepository.findByIdVoucherId(voucherId);
+//            Set<Integer> currentAccountIds = currentVoucherAccounts.stream()
+//                    .map(va -> va.getIdAccount().getId())
+//                    .collect(Collectors.toSet());
+//
+//            // Danh sách ID được gửi lên từ frontend
+//            Set<Integer> newCustomerIds = new HashSet<>(customerIds);
+//
+//            // 1️⃣ Những account bị xóa (có trong DB nhưng không còn trong danh sách mới)
+//            Set<Integer> removedAccountIds = new HashSet<>(currentAccountIds);
+//            removedAccountIds.removeAll(newCustomerIds);
+//
+//            // 2️⃣ Những account mới (có trong danh sách mới nhưng chưa có trong DB)
+//            Set<Integer> addedAccountIds = new HashSet<>(newCustomerIds);
+//            addedAccountIds.removeAll(currentAccountIds);
+//
+//            // 3️⃣ Những account giữ nguyên (không thay đổi)
+//            Set<Integer> unchangedAccountIds = new HashSet<>(newCustomerIds);
+//            unchangedAccountIds.retainAll(currentAccountIds);
+//
+//            List<String> newlyAssigned = new ArrayList<>();
+//            List<String> alreadyAssigned = new ArrayList<>();
+//            List<String> removedAssigned = new ArrayList<>();
+//
+//            // 1. Xử lý xóa account khỏi voucher nếu không còn trong danh sách
+//            for (Integer removedId : removedAccountIds) {
+//                voucherAccountRepository.deleteByVoucherIdAndAccountId(voucherId, removedId);
+//                Account removedAccount = accountRepository.findById(removedId)
+//                        .orElse(null);
+//                if (removedAccount != null) {
+//                    //add vào chõ này
+//                    sendVoucherExpiredEmail(removedAccount, voucher); // Gửi email xin lỗi
+//                    removedAssigned.add(removedAccount.getFullName());
+//                    log.info("Đã xóa voucher của {} và gửi email xin lỗi", removedAccount.getEmail());
+//                }
+//            }
+//
+//            // 2. Xử lý thêm account mới vào voucher
+//            for (Integer addedId : addedAccountIds) {
+//                Account acc = accountRepository.findById(addedId)
+//                        .orElseThrow(() -> new RuntimeException("Không tìm thấy account ID: " + addedId));
+//
+//                if (voucher.getQuantity() <= 0) {
+//                    log.warn("Voucher đã hết số lượng khi gán cho {}", acc.getEmail());
+//                    continue;
+//                }
+//
+//                VoucherAccount va = new VoucherAccount();
+//                va.setIdVoucher(voucher);
+//                va.setIdAccount(acc);
+//
+//                // Xác định trạng thái voucher ban đầu
+//                if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+//                    va.setStatus(VoucherAccountStatus.NOT_USED);
+//                } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
+//                    va.setStatus(VoucherAccountStatus.EXPIRED);
+//                } else {
+//                    va.setStatus(null); // UPCOMING
+//                }
+//
+//                voucherAccountRepository.save(va);
+//
+//                newlyAssigned.add(acc.getFullName());
+//                log.info("Đã gán voucher cho {}", acc.getEmail());
+//
+//                // Gửi email thông báo cho account mới
+//                try {
+//                    if (voucher.getStatus() == StatusVoucher.ACTIVE || voucher.getStatus() == StatusVoucher.UPCOMING) {
+//                        sendVoucherEmail(acc, voucher);
+//                    }
+//                } catch (Exception e) {
+//                    log.error("Lỗi khi gửi email cho {}: {}", acc.getEmail(), e.getMessage());
+//                }
+//
+//                // Trừ số lượng
+//                int quantityChange = removedAccountIds.size() - addedAccountIds.size();
+//                voucher.setQuantity(voucher.getQuantity() + quantityChange);
+//            }
+//
+//            // 3. Danh sách giữ nguyên: không cần thao tác DB, không gửi mail
+//            for (Integer unchangedId : unchangedAccountIds) {
+//                Account acc = accountRepository.findById(unchangedId).orElse(null);
+//                if (acc != null) {
+//                    alreadyAssigned.add(acc.getFullName());
+//                }
+//            }
+//
+//            // Lưu voucher sau khi cập nhật số lượng
+//            voucherRepository.save(voucher);
+//
+//            // Kết quả trả về
+//            Map<String, Object> result = new HashMap<>();
+//            result.put("success", true);
+//            result.put("message", buildResultMessage(alreadyAssigned, newlyAssigned));
+//            result.put("details", Map.of(
+//                    "unchanged", alreadyAssigned,
+//                    "added", newlyAssigned,
+//                    "removed", removedAssigned
+//            ));
+//
+//            return result;
+//
+//        } catch (Exception e) {
+//            log.error("Lỗi trong quá trình gán voucher: {}", e.getMessage(), e);
+//            throw new RuntimeException("Lỗi gán voucher: " + e.getMessage());
+//        }
+//    }
+//
+
+
     @Override
     @Transactional
     public Map<String, Object> assignVoucherToCustomers(Integer voucherId, List<Integer> customerIds) {
         try {
-            log.info("Bắt đầu gán voucher {} cho {} khách hàng", voucherId, customerIds.size());
+            log.info("Bắt đầu cập nhật danh sách gán voucher {} cho {} khách hàng", voucherId, customerIds.size());
 
             Voucher voucher = voucherRepository.findById(voucherId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy voucher"));
 
-            // Kiểm tra số lượng voucher còn lại
-            if (voucher.getQuantity() < customerIds.size()) {
-                throw new RuntimeException("Số lượng voucher không đủ để phân phối");
-            }
+            List<Account> allAccounts = accountRepository.findAllById(customerIds);
 
-            List<Account> customers = accountRepository.findAllById(customerIds);
-            List<String> alreadyAssigned = new ArrayList<>();
+            // Danh sách account hiện tại đang được gán voucher
+            List<VoucherAccount> currentVoucherAccounts = voucherAccountRepository.findByIdVoucherId(voucherId);
+            Set<Integer> currentAccountIds = currentVoucherAccounts.stream()
+                    .map(va -> va.getIdAccount().getId())
+                    .collect(Collectors.toSet());
+
+            Set<Integer> newCustomerIds = new HashSet<>(customerIds);
+
+            Set<Integer> removedAccountIds = new HashSet<>(currentAccountIds);
+            removedAccountIds.removeAll(newCustomerIds);
+
+            Set<Integer> addedAccountIds = new HashSet<>(newCustomerIds);
+            addedAccountIds.removeAll(currentAccountIds);
+
+            Set<Integer> unchangedAccountIds = new HashSet<>(newCustomerIds);
+            unchangedAccountIds.retainAll(currentAccountIds);
+
             List<String> newlyAssigned = new ArrayList<>();
-            int successCount = 0;
+            List<String> alreadyAssigned = new ArrayList<>();
+            List<String> removedAssigned = new ArrayList<>();
 
-            // Xác định trạng thái ban đầu của VoucherAccount dựa trên trạng thái Voucher
-            VoucherAccountStatus initialStatus;
-            if (voucher.getStatus() == StatusVoucher.ACTIVE) {
-                initialStatus = VoucherAccountStatus.NOT_USED;
-            } else {
-                initialStatus = null; // For UPCOMING or EXPIRED vouchers
-            }
-
-            for (Account customer : customers) {
-                try {
-                    // Kiểm tra đã có voucher chưa
-                    if (voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(
-                            voucherId, customer.getId()
-                    )) {
-                        log.info("Bỏ qua - {} đã có voucher này", customer.getFullName());
-                        alreadyAssigned.add(customer.getFullName());
-                        continue;
+            // 1️⃣ Xử lý xóa account
+            for (Integer removedId : removedAccountIds) {
+                // Tìm voucher-account để kiểm tra trạng thái
+                VoucherAccount va = voucherAccountRepository.findByIdVoucherAndIdAccount(voucherId, removedId);
+                if (va != null) {
+                    // Nếu chưa sử dụng → cộng lại số lượng
+                    if (va.getStatus() == VoucherAccountStatus.NOT_USED) {
+                        voucher.setQuantity(voucher.getQuantity() + 1);
+                        log.info("Hoàn lại số lượng voucher do {} chưa sử dụng", va.getIdAccount().getEmail());
                     }
 
-                    // Tạo mới VoucherAccount với trạng thái tương ứng
-                    VoucherAccount voucherAccount = new VoucherAccount();
-                    voucherAccount.setIdVoucher(voucher);
-                    voucherAccount.setIdAccount(customer);
+                    voucherAccountRepository.delete(va);
+                }
 
-                    // Set initial status based on current voucher status
-                    if (voucher.getStatus() == StatusVoucher.ACTIVE) {
-                        voucherAccount.setStatus(VoucherAccountStatus.NOT_USED);
-                    } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
-                        voucherAccount.setStatus(VoucherAccountStatus.EXPIRED);
-                    } else {
-                        voucherAccount.setStatus(null); // For UPCOMING vouchers
-                    }
-
-                    voucherAccountRepository.save(voucherAccount);
-
-                    successCount++;
-                    newlyAssigned.add(customer.getFullName());
-                    log.info("Đã gán voucher cho {} với trạng thái {}",
-                            customer.getFullName(),
-                            voucherAccount.getStatus());
-
-                    // Chỉ gửi email nếu voucher đang ACTIVE
-                    try {
-                        if (voucher.getStatus() == StatusVoucher.ACTIVE || voucher.getStatus() == StatusVoucher.UPCOMING) {
-                            sendVoucherEmail(customer, voucher); // Gửi email thông báo
-                            log.info("Đã gửi email thông báo cho {}", customer.getEmail());
-                        } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
-                            sendVoucherExpiredEmail(customer, voucher); // Gửi email xin lỗi
-                            log.info("Đã gửi email xin lỗi cho {}", customer.getEmail());
-                        }
-                    } catch (Exception e) {
-                        log.error("Lỗi gửi email cho {}: {}", customer.getEmail(), e.getMessage());
-                    }
-
-
-                } catch (Exception e) {
-                    log.error("Lỗi xử lý cho {}: {}", customer.getFullName(), e.getMessage());
+                Account removedAccount = accountRepository.findById(removedId).orElse(null);
+                if (removedAccount != null) {
+                    sendVoucherUnavailableEmail(removedAccount, voucher); // gửi email xin lỗi
+                    removedAssigned.add(removedAccount.getFullName());
+                    log.info("Đã xóa voucher của {} và gửi email", removedAccount.getEmail());
                 }
             }
 
-            // Cập nhật số lượng voucher
-            if (successCount > 0) {
-                voucher.setQuantity(voucher.getQuantity() - successCount);
-                voucherRepository.save(voucher);
-                log.info("Đã cập nhật số lượng voucher còn lại: {}", voucher.getQuantity());
+            // 2️⃣ Xử lý thêm account mới
+            for (Integer addedId : addedAccountIds) {
+                Account acc = accountRepository.findById(addedId)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy account ID: " + addedId));
+
+                if (voucher.getQuantity() <= 0) {
+                    log.warn("Voucher đã hết số lượng khi gán cho {}", acc.getEmail());
+                    continue;
+                }
+
+                VoucherAccount va = new VoucherAccount();
+                va.setIdVoucher(voucher);
+                va.setIdAccount(acc);
+
+                if (voucher.getStatus() == StatusVoucher.ACTIVE) {
+                    va.setStatus(VoucherAccountStatus.NOT_USED);
+                } else if (voucher.getStatus() == StatusVoucher.EXPIRED) {
+                    va.setStatus(VoucherAccountStatus.EXPIRED);
+                } else {
+                    va.setStatus(null); // UPCOMING
+                }
+
+                voucherAccountRepository.save(va);
+                voucher.setQuantity(voucher.getQuantity() - 1); // Trừ số lượng chính xác
+
+                newlyAssigned.add(acc.getFullName());
+                log.info("Đã gán voucher cho {}", acc.getEmail());
+
+                try {
+                    if (voucher.getStatus() == StatusVoucher.ACTIVE || voucher.getStatus() == StatusVoucher.UPCOMING) {
+                        sendVoucherEmail(acc, voucher);
+                    }
+                } catch (Exception e) {
+                    log.error("Lỗi khi gửi email cho {}: {}", acc.getEmail(), e.getMessage());
+                }
             }
 
+            // 3️⃣ Không thay đổi → chỉ đưa vào danh sách trả về
+            for (Integer unchangedId : unchangedAccountIds) {
+                Account acc = accountRepository.findById(unchangedId).orElse(null);
+                if (acc != null) {
+                    alreadyAssigned.add(acc.getFullName());
+                }
+            }
+
+            // Lưu lại voucher
+            voucherRepository.save(voucher);
+
+            // Trả về kết quả
             Map<String, Object> result = new HashMap<>();
-            result.put("success", !newlyAssigned.isEmpty());
+            result.put("success", true);
             result.put("message", buildResultMessage(alreadyAssigned, newlyAssigned));
             result.put("details", Map.of(
-                    "alreadyHasVoucher", alreadyAssigned,
-                    "assigned", newlyAssigned
+                    "unchanged", alreadyAssigned,
+                    "added", newlyAssigned,
+                    "removed", removedAssigned
             ));
 
             return result;
 
         } catch (Exception e) {
-            log.error("Lỗi gán voucher: {}", e.getMessage());
+            log.error("Lỗi trong quá trình gán voucher: {}", e.getMessage(), e);
             throw new RuntimeException("Lỗi gán voucher: " + e.getMessage());
         }
     }
+
+
+
+
 
     @Override
     public List<AccountResponse> getAccountsWithVoucher(Integer voucherId) {
@@ -437,6 +589,43 @@ public class VoucherServiceImpl implements VoucherService {
         return listVoucher;
     }
 
+    @Override
+    public List<CustomersResponse> getCustomers(Integer voucherId) throws Exception {
+         voucherRepository.findById(voucherId).orElseThrow(()->
+            new Exception("Voucher không tồn tại ")
+        );
+//        Role role = roleRepository.findById(3).get();
+//        Role role2 = roleRepository.findById(4).get();
+        List<Account> list = accountRepository.getAllAccountKhachHang(StatusCommon.ACTIVE);
+//        list.addAll(accountRepository.findAccountsByIdRole(role2));
+        List<CustomersResponse> customersResponses = new ArrayList<>();
+        for (Account account:list) {
+            VoucherAccount voucherAccount = voucherAccountRepository.findByIdVoucher(voucherId,account.getId()).orElse(null);
+            CustomersResponse customersResponse = new CustomersResponse();
+            customersResponse.setId(account.getId());
+            customersResponse.setName(account.getFullName());
+            customersResponse.setEmail(account.getEmail());
+            customersResponse.setPhone(account.getPhone());
+
+            if (voucherAccount == null) {
+                customersResponse.setStatus(4);
+            } else if (voucherAccount.getStatus() == null) {
+                customersResponse.setStatus(5);
+            } else if (VoucherAccountStatus.USED.equals(voucherAccount.getStatus())) {
+                customersResponse.setStatus(1);
+            } else if (VoucherAccountStatus.NOT_USED.equals(voucherAccount.getStatus())) {
+                customersResponse.setStatus(2);
+            } else if (VoucherAccountStatus.EXPIRED.equals(voucherAccount.getStatus())) {
+                customersResponse.setStatus(3);
+            } else {
+                customersResponse.setStatus(4);
+            }
+
+            customersResponses.add(customersResponse);
+        }
+        return customersResponses;
+    }
+
     private List<VoucherApplyResponse> handlerVoucherApplyResponses(List<Voucher> voucherList){
 
         List<VoucherApplyResponse> list = new ArrayList<>();
@@ -551,9 +740,9 @@ public class VoucherServiceImpl implements VoucherService {
             throw new RuntimeException("Không thể gửi email thông báo voucher: " + e.getMessage());
         }
     }
-    public void sendVoucherExpiredEmail(Account account, Voucher voucher) {
+    public void sendVoucherUnavailableEmail(Account account, Voucher voucher) {
         try {
-            log.info("Bắt đầu gửi email voucher hết hạn cho: {}", account.getEmail());
+            log.info("Bắt đầu gửi email voucher không còn sử dụng được cho: {}", account.getEmail());
 
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String endDate = voucher.getEndTime() != null ?
@@ -561,16 +750,16 @@ public class VoucherServiceImpl implements VoucherService {
 
             String emailContent = String.format("""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
-            <h2 style="color: #dc2626;">Thông báo về voucher đã hết hạn</h2>
+            <h2 style="color: #dc2626;">Thông báo về voucher không còn hiệu lực</h2>
 
             <p>Chào %s,</p>
 
-            <p>Chúng tôi xin thông báo rằng voucher <strong>"%s"</strong> của bạn đã hết hạn vào ngày <strong>%s</strong>.</p>
+            <p>Chúng tôi xin thông báo rằng voucher <strong>"%s"</strong> của bạn hiện không thể sử dụng được nữa.</p>
 
             <div style="background-color: #fff3f3; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <p style="margin: 10px 0;">🔹 <strong>Mã voucher</strong>: %s</p>
                 <p style="margin: 10px 0;">🔹 <strong>Tên voucher</strong>: %s</p>
-                <p style="margin: 10px 0;">🔹 <strong>Ngày hết hạn</strong>: %s</p>
+                <p style="margin: 10px 0;">🔹 <strong>Ngày kết thúc hiệu lực</strong>: %s</p>
             </div>
 
             <p>Chúng tôi rất tiếc vì sự bất tiện này. Tuy nhiên, bạn đừng lo! HopeStar luôn có nhiều chương trình khuyến mãi hấp dẫn dành cho bạn trong thời gian tới.</p>
@@ -590,7 +779,6 @@ public class VoucherServiceImpl implements VoucherService {
         """,
                     account.getFullName(),
                     voucher.getName(),
-                    endDate,
                     voucher.getCode(),
                     voucher.getName(),
                     endDate
@@ -598,17 +786,19 @@ public class VoucherServiceImpl implements VoucherService {
 
             emailService.sendEmail(
                     account.getEmail(),
-                    "Voucher của bạn đã hết hạn",
+                    "Thông báo: Voucher không còn hiệu lực",
                     emailContent
             );
 
-            log.info("✓ Đã gửi email hết hạn voucher đến {}", account.getEmail());
+            log.info("✓ Đã gửi email thông báo voucher không còn sử dụng được đến {}", account.getEmail());
 
         } catch (Exception e) {
-            log.error("❌ Lỗi gửi email hết hạn voucher đến {}: {}", account.getEmail(), e.getMessage());
-            throw new RuntimeException("Không thể gửi email thông báo hết hạn voucher: " + e.getMessage());
+            log.error("❌ Lỗi gửi email voucher không còn hiệu lực đến {}: {}", account.getEmail(), e.getMessage());
+            throw new RuntimeException("Không thể gửi email thông báo voucher không còn hiệu lực: " + e.getMessage());
         }
     }
+
+
     @Override
     public VoucherResponse findById(Integer id) {
         Voucher voucher = voucherRepository.findById(id)

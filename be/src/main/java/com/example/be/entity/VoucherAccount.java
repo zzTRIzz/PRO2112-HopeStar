@@ -27,6 +27,7 @@ public class VoucherAccount extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_voucher")
     private Voucher idVoucher;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private VoucherAccountStatus status;

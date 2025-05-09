@@ -24,17 +24,16 @@ public class ProductReviewsController {
     ProductReviewsService productReviewsService;
     @Autowired AuthService authService;
 
-    @GetMapping("/{idProduct}")
+    @GetMapping("/{idProductDetail}")
     public ResponseEntity<ResponseData<?>> getAll(
-            @PathVariable("idProduct") Integer idProduct,
+                @PathVariable("idProductDetail") Integer idProductDetail,
             @RequestHeader(value = "Authorization", required = false) String jwt) throws Exception {
-
         Account account = null;
         if (jwt != null && !jwt.isEmpty()) {
             account = authService.findAccountByJwt(jwt);
         }
 
-        ProductReviewsListResponse productReviewsResponseList = productReviewsService.findByIdProduct(idProduct, account);
+        ProductReviewsListResponse productReviewsResponseList = productReviewsService.findByIdProduct(idProductDetail, account);
         return ResponseEntity.ok(new ResponseData<>(HttpStatus.OK, "ok", productReviewsResponseList));
     }
 

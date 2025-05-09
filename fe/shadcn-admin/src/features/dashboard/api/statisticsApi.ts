@@ -157,3 +157,13 @@ export const getStatisticsByDateRange = async (startDate: string, endDate: strin
   });
   return response.data;
 };
+
+export const getCanceledOrders = async () => {
+  const response = await axios.get(`${API_BASE_URL}/canceled-orders`, getAuthConfig());
+  return response.data;
+};
+
+export const getTop10RevenueCustomers = async () => {
+  const response = await axios.get(`${API_BASE_URL}/top10-revenue-customers`, getAuthConfig());
+  return response.data;
+};

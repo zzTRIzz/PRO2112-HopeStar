@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 
 const API_BASE_URL = 'http://localhost:8080/api/admin'; // Thay thế bằng URL của back-end Java của bạn
@@ -14,20 +15,40 @@ axios.interceptors.response.use(
     }
 );
 
+// First, create an authenticated axios instance
+const authAxios = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Add request interceptor to inject JWT token
+authAxios.interceptors.request.use(
+    (config) => {
+        const jwt = Cookies.get('jwt');
+        if (jwt) {
+            config.headers.Authorization = `Bearer ${jwt}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Update all API calls to use authAxios
 export const getVouchers = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/voucher/list`); // Thêm /list vào endpoint
-    if (response.data) {
-      return response.data;
+    try {
+        const response = await authAxios.get('/voucher/list');
+        return response.data || [];
+    } catch (error) {
+        console.error('Error fetching vouchers:', error);
+        if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || 'Không thể tải danh sách voucher');
+        }
+        return [];
     }
-    return [];
-  } catch (error) {
-    console.error('Error fetching vouchers:', error);
-    if (axios.isAxiosError(error)) {
-      toast.error(error.response?.data?.message || 'Không thể tải danh sách voucher');
-    }
-    return []; // Return empty array on error
-  }
 };
 
 // Add interface for search params
@@ -38,9 +59,6 @@ interface VoucherSearchParams {
     isPrivate?: boolean;
     status?: VoucherStatus; // Sửa từ StatusType thành VoucherStatus
 }
-
-
-
 
 // Update searchVouchers function
 export const searchVouchers = async (params: VoucherSearchParams) => {
@@ -65,7 +83,7 @@ export const searchVouchers = async (params: VoucherSearchParams) => {
 
         console.log("Search params:", queryParams);
 
-        const response = await axios.get(`${API_BASE_URL}/voucher/searchWithFilters`, {
+        const response = await authAxios.get('/voucher/searchWithFilters', {
             params: queryParams
         });
 
@@ -81,7 +99,7 @@ export const searchVouchers = async (params: VoucherSearchParams) => {
 
 export const checkVoucherCode = async (code: string, excludeId?: number): Promise<boolean> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/admin/voucher/check-code`, {
+    const response = await authAxios.get('/admin/voucher/check-code', {
       params: { 
         code,
         excludeId
@@ -98,16 +116,16 @@ export const checkVoucherCode = async (code: string, excludeId?: number): Promis
   }
 };
 
-interface EmailRequest {
-    to: string;
-    subject: string;
-    content: string;
-}
+// interface EmailRequest {
+//     to: string;
+//     subject: string;
+//     content: string;
+// }
 
-interface RoleResponse {
-    id: number;
-    name: string;
-}
+// interface RoleResponse {
+//     id: number;
+//     name: string;
+// }
 
 interface AccountResponse {
     id: number;
@@ -128,23 +146,23 @@ interface AccountResponse {
     // ...other fields
 }
 
-interface VoucherResponse {
-    id: number;
-    code: string;
-    name: string;
-    conditionPriceMin: BigDecimal;
-    conditionPriceMax: BigDecimal;
-    discountValue: BigDecimal;
-    maxDiscountAmount: BigDecimal;
-    voucherType: boolean;
-    quantity: number;
-    startTime: string;
-    endTime: string;
-    status: VoucherStatus; // Sửa kiểu từ string sang VoucherStatus
-    moTa: string;
-    isPrivate: boolean;
-    isApply: boolean;     // Thêm trường này
-}
+// interface VoucherResponse {
+//     id: number;
+//     code: string;
+//     name: string;
+//     conditionPriceMin: BigDecimal;
+//     conditionPriceMax: BigDecimal;
+//     discountValue: BigDecimal;
+//     maxDiscountAmount: BigDecimal;
+//     voucherType: boolean;
+//     quantity: number;
+//     startTime: string;
+//     endTime: string;
+//     status: VoucherStatus; // Sửa kiểu từ string sang VoucherStatus
+//     moTa: string;
+//     isPrivate: boolean;
+//     isApply: boolean;     // Thêm trường này
+// }
 
 // Thêm interface cho response gán voucher
 interface AssignVoucherResponse {
@@ -162,7 +180,7 @@ export const assignVoucherToCustomers = async (
     customers: AccountResponse[]
 ): Promise<AssignVoucherResponse> => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/voucher/assign`, {
+        const response = await authAxios.post('/voucher/assign', {
             voucherId,
             customerIds: customers.map(customer => customer.id)
         });
@@ -177,60 +195,60 @@ export const assignVoucherToCustomers = async (
     }
 };
 
-const generateEmailContent = (customer: AccountResponse, voucher: VoucherResponse): string => {
-    return `
-        <div style="font-family: Arial, sans-serif;">
-            <h2>Xin chào ${customer.fullName}!</h2>
-            <p>Bạn vừa được thêm một voucher mới vào tài khoản của mình.</p>
-            <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-                <p><strong>Chi tiết voucher:</strong></p>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li><strong>Mã voucher:</strong> ${voucher.code}</li>
-                    <li><strong>Tên voucher:</strong> ${voucher.name}</li>
-                    <li><strong>Giá trị:</strong> ${formatCurrency(voucher.discountValue)}${voucher.voucherType ? '%' : 'đ'}</li>
-                    <li><strong>Điều kiện áp dụng:</strong> Đơn hàng từ ${formatCurrency(voucher.conditionPriceMin)}đ</li>
-                    <li><strong>Thời hạn sử dụng:</strong> ${formatDateTime(voucher.startTime)} - ${formatDateTime(voucher.endTime)}</li>
-                </ul>
-            </div>
-            <p>Hãy sử dụng voucher này cho đơn hàng tiếp theo của bạn!</p>
-            <p style="margin-top: 20px;">Trân trọng,<br>HopeStar</p>
-        </div>
-    `;
-};
+// const generateEmailContent = (customer: AccountResponse, voucher: VoucherResponse): string => {
+//     return `
+//         <div style="font-family: Arial, sans-serif;">
+//             <h2>Xin chào ${customer.fullName}!</h2>
+//             <p>Bạn vừa được thêm một voucher mới vào tài khoản của mình.</p>
+//             <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+//                 <p><strong>Chi tiết voucher:</strong></p>
+//                 <ul style="list-style: none; padding-left: 0;">
+//                     <li><strong>Mã voucher:</strong> ${voucher.code}</li>
+//                     <li><strong>Tên voucher:</strong> ${voucher.name}</li>
+//                     <li><strong>Giá trị:</strong> ${formatCurrency(voucher.discountValue)}${voucher.voucherType ? '%' : 'đ'}</li>
+//                     <li><strong>Điều kiện áp dụng:</strong> Đơn hàng từ ${formatCurrency(voucher.conditionPriceMin)}đ</li>
+//                     <li><strong>Thời hạn sử dụng:</strong> ${formatDateTime(voucher.startTime)} - ${formatDateTime(voucher.endTime)}</li>
+//                 </ul>
+//             </div>
+//             <p>Hãy sử dụng voucher này cho đơn hàng tiếp theo của bạn!</p>
+//             <p style="margin-top: 20px;">Trân trọng,<br>HopeStar</p>
+//         </div>
+//     `;
+// };
 
 // Helper functions
-const formatCurrency = (value: number | string | BigDecimal): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
-    return new Intl.NumberFormat('vi-VN').format(numValue);
-};
+// const formatCurrency = (value: number | string | BigDecimal): string => {
+//     const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+//     return new Intl.NumberFormat('vi-VN').format(numValue);
+// };
 
-const formatDateTime = (dateStr: string): string => {
-    if (!dateStr) return 'Không xác định';
-    try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return 'Ngày không hợp lệ';
+// const formatDateTime = (dateStr: string): string => {
+//     if (!dateStr) return 'Không xác định';
+//     try {
+//         const date = new Date(dateStr);
+//         if (isNaN(date.getTime())) return 'Ngày không hợp lệ';
         
-        return new Intl.DateTimeFormat('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }).format(date);
-    } catch (error) {
-        console.error('Lỗi format ngày:', error);
-        return 'Ngày không hợp lệ';
-    }
-};
+//         return new Intl.DateTimeFormat('vi-VN', {
+//             day: '2-digit',
+//             month: '2-digit',
+//             year: 'numeric'
+//         }).format(date);
+//     } catch (error) {
+//         console.error('Lỗi format ngày:', error);
+//         return 'Ngày không hợp lệ';
+//     }
+// };
 
 // Type definition for BigDecimal from Java
-type BigDecimal = {
-    toString(): string;
-} | number | string;  // Thêm string vào union type
+// type BigDecimal = {
+//     toString(): string;
+// } | number | string;  // Thêm string vào union type
 
 // Add a new function to get only customers (role_4)
 export const getCustomers = async (): Promise<AccountResponse[]> => {
   try {
       // Update API endpoint to match your backend controller
-      const response = await axios.get(`http://localhost:8080/api/account/list`);
+      const response = await authAxios.get('/account/list');
       
       // Log the raw response for debugging
       console.log('Raw API response:', response.data);
@@ -289,7 +307,7 @@ interface VoucherAccountResponse {
 // Add new function to get voucher usage status
 export const getVoucherUsageStatus = async (voucherId: number, accountId: number): Promise<VoucherAccountResponse | null> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/voucher-account/status`, {
+        const response = await authAxios.get('/voucher-account/status', {
             params: {
                 voucherId,
                 accountId
@@ -308,8 +326,8 @@ export const updateVoucherAccountStatus = async (
     status: VoucherAccountStatus
 ): Promise<VoucherAccountResponse> => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/admin/voucher-account/${id}/status`,
+        const response = await authAxios.put(
+            `/admin/voucher-account/${id}/status`,
             null,
             { params: { status } }
         );
@@ -323,10 +341,10 @@ export const updateVoucherAccountStatus = async (
 // Thêm function để lấy trạng thái sử dụng voucher
 export const getVoucherUsageStatuses = async (voucherId: number): Promise<VoucherAccountResponse[]> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/voucher/${voucherId}/usage-status`);
+        const response = await authAxios.get(`/voucher/${voucherId}/usage-status`);
         
         // Get voucher details to check status
-        const voucherResponse = await axios.get(`${API_BASE_URL}/voucher/detail/${voucherId}`);
+        const voucherResponse = await authAxios.get(`/voucher/detail/${voucherId}`);
         const voucher = voucherResponse.data;
         
         // Map response and update statuses based on voucher status
@@ -348,17 +366,34 @@ export const getVoucherUsageStatuses = async (voucherId: number): Promise<Vouche
 // Add function to auto-update expired voucher statuses
 export const updateExpiredVoucherStatuses = async (voucherId: number): Promise<void> => {
     try {
-        await axios.put(`${API_BASE_URL}/voucher/${voucherId}/update-expired-statuses`);
+        await authAxios.put(`/voucher/${voucherId}/update-expired-statuses`);
     } catch (error) {
         console.error('Error updating expired voucher statuses:', error);
     }
 };
+
+export const getAccountsVoucher = async (voucherId: number): Promise<void> => {
+    try {
+        await authAxios.get(`getAccountsAddVoucherByStatus/${voucherId}`);
+    } catch (error) {
+        console.error('Error updating expired voucher statuses:', error);
+    }
+};
+
+
+export const getAccountDaAddVoucher = async (voucherId: number): Promise<void> => {
+    try {
+      const response = await authAxios.get(`/voucher/get-account-da-add-voucher/${voucherId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching accounts added to voucher:', error);
+      toast.error('Không thể tải danh sách tài khoản đã thêm vào voucher');
+    }
+  };
+
 
 export enum VoucherStatus {
     UPCOMING = "UPCOMING",
     ACTIVE = "ACTIVE",
     EXPIRED = "EXPIRED"
 }
-
-// Xóa type cũ
-// type StatusType = "IN_ACTIVE" | "ACTIVE" | "EXPIRE";

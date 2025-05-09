@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class ProductDetailDto {
     private String Color;
     private Integer Ram;
     private Integer Rom;
+    private String descriptionRom;
     private String imageUrl;
     private Integer idImei;
-
 }

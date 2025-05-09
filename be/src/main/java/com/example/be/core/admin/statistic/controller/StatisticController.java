@@ -158,4 +158,17 @@ public class StatisticController {
         authService.findAccountByJwt(jwt);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/canceled-orders")
+    public List<ListCustomerCancelOrderResponse> getCustomersWithCanceledOrders(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
+        return statisticService.getCustomersWithCanceledOrders();
+    }
+
+    // Top 10 doanh thu
+    @GetMapping("/top10-revenue-customers")
+    public List<RevenueTop10CustomerResponse> getTop10RevenueCustomers(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
+        return statisticService.getTop10RevenueCustomers();
+    }
 }

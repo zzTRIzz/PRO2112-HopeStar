@@ -1,9 +1,9 @@
-import { toast } from '@/hooks/use-toast'
-import { IconLoader2 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Heart, Star } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { IconLoader2 } from '@tabler/icons-react'
+import { toast } from '@/hooks/use-toast'
 import { addProductToCart } from '../data/api-cart-service'
 import { getHome } from '../data/api-service'
 import {
@@ -23,7 +23,7 @@ export default function FeaturedProducts() {
   >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const [displayLimit] = useState(10)
+  const [displayLimit, setDisplayLimit] = useState(10)
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -55,6 +55,15 @@ export default function FeaturedProducts() {
           'Không thể thêm sản phẩm vào giỏ hàng',
         variant: 'destructive',
       })
+
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        navigate({ to: '/sign-in' })
+      }
     }
   }
 
@@ -81,7 +90,7 @@ export default function FeaturedProducts() {
       if (!addedProduct) {
         throw new Error('Giỏ hàng đã tồn tại sản phẩm này')
       }
-  
+
       // Navigate to checkout with only this product
       navigate({
         to: '/dat-hang',
@@ -89,14 +98,23 @@ export default function FeaturedProducts() {
           selectedProducts: JSON.stringify([addedProduct]),
         },
       })
-
     } catch (error) {
       console.error('Buy now error:', error)
       toast({
         title: 'Lỗi',
-        description: error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
+        description:
+          error?.response?.data?.message || 'Không thể mua ngay sản phẩm này',
         variant: 'destructive',
       })
+
+      if (
+        error?.response?.data?.message ===
+        'Tài khoản của bạn đã bị khóa. Hãy liên hệ với chúng tôi!'
+      ) {
+        Cookies.remove('jwt')
+        localStorage.removeItem('profile')
+        navigate({ to: '/sign-in' })
+      }
     }
   }
 
@@ -137,7 +155,7 @@ export default function FeaturedProducts() {
     )
 
   return (
-    <section className='container py-10 bg-slate-50'>
+    <section className='container bg-slate-50 py-10'>
       <div className='mb-8 flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>Điện thoại mới nhất</h2>
         <Button variant='outline' asChild>
@@ -160,7 +178,7 @@ export default function FeaturedProducts() {
                   />
                 </div>
 
-                <div className='absolute right-2 top-2 flex gap-2'>
+                {/* <div className='absolute right-2 top-2 flex gap-2'>
                   <Button
                     variant='secondary'
                     size='icon'
@@ -168,7 +186,7 @@ export default function FeaturedProducts() {
                   >
                     <Heart className='h-4 w-4' />
                   </Button>
-                </div>
+                </div> */}
 
                 {product.price !== product.priceSeller && (
                   <Badge
@@ -190,31 +208,36 @@ export default function FeaturedProducts() {
                   <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
                     {product.name}
                   </h3>
-                  <div className='flex shrink-0 items-center gap-1'>
+                  {/* <div className='flex shrink-0 items-center gap-1'>
                     <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
                     <span className='text-sm font-medium'>4.8</span>
-                  </div>
+                  </div> */}
                 </div>
 
-                {/* Hiển thị RAM và ROM trên cùng 1 hàng với dấu / */}
-                <div className='flex items-center gap-2'>
-                  {product.ram.map((ram, i) => (
-                    <div
-                      key={`ram-${i}`}
-                      className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                    >
-                      {ram}
-                    </div>
-                  ))}
-                  {/* <span className='text-sm font-medium text-gray-600'>/</span> */}
-                  {product.rom.map((rom, i) => (
-                    <div
-                      key={`rom-${i}`}
-                      className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                    >
-                      {rom}
-                    </div>
-                  ))}
+                {/* Hiển thị RAM và ROM */}
+                <div className='flex flex-col gap-2'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <span className='font-medium text-gray-500'>Ram:</span>
+                    {product.ram.map((ram, i) => (
+                      <div
+                        key={`ram-${i}`}
+                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
+                      >
+                        {ram}
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <span className='font-medium text-gray-500'>Rom:</span>
+                    {product.rom.map((rom, i) => (
+                      <div
+                        key={`rom-${i}`}
+                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
+                      >
+                        {rom}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Hiển thị màu sắc */}
@@ -277,11 +300,13 @@ export default function FeaturedProducts() {
       {bestSellingProducts.length !== 0 && (
         <>
           <div className='mb-8 flex items-center justify-between'>
-            <h2 className='pt-8 text-3xl font-bold'>Điện thoại bán chạy</h2>
+            <h2 className='pt-8 text-3xl font-bold'>
+              Điện thoại bán nhiều nhất
+            </h2>
           </div>
 
           <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-            {bestSellingProducts.map((product) => (
+            {bestSellingProducts.slice(0, displayLimit).map((product) => (
               <Card
                 key={product.idProduct}
                 className='group flex flex-col overflow-hidden transition-shadow hover:shadow-lg'
@@ -303,7 +328,7 @@ export default function FeaturedProducts() {
                     </div>
 
                     {/* Wishlist Button */}
-                    <div className='absolute right-2 top-2'>
+                    {/* <div className='absolute right-2 top-2'>
                       <Button
                         variant='secondary'
                         size='icon'
@@ -312,7 +337,7 @@ export default function FeaturedProducts() {
                       >
                         <Heart className='h-4 w-4' />
                       </Button>
-                    </div>
+                    </div> */}
 
                     {/* Discount Badge */}
                     {product.price !== product.priceSeller && (
@@ -337,26 +362,30 @@ export default function FeaturedProducts() {
                       <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
                         {product.name}
                       </h3>
-                      <div className='flex shrink-0 items-center gap-1'>
+                      {/* <div className='flex shrink-0 items-center gap-1'>
                         <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
                         <span className='text-sm font-medium'>4.8</span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* RAM and ROM */}
-                    <div className='flex flex-wrap gap-1'>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <span className='font-medium text-gray-500'>Ram:</span>
                       {product.ram.map((ram, i) => (
                         <div
                           key={`ram-${i}`}
-                          className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
+                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
                         >
                           {ram}
                         </div>
                       ))}
+                    </div>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <span className='font-medium text-gray-500'>Rom:</span>
                       {product.rom.map((rom, i) => (
                         <div
                           key={`rom-${i}`}
-                          className='flex h-6 min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
+                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
                         >
                           {rom}
                         </div>
@@ -423,6 +452,17 @@ export default function FeaturedProducts() {
               </Card>
             ))}
           </div>
+          {bestSellingProducts.length > displayLimit && (
+            <div className='mt-6 flex justify-center'>
+              <Button
+                variant='outline'
+                onClick={() => setDisplayLimit((prev) => prev + 5)}
+                className='px-8'
+              >
+                Xem thêm
+              </Button>
+            </div>
+          )}
         </>
       )}
     </section>

@@ -1,30 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Cookies from 'js-cookie';
-import { Route } from '@/routes/(auth)/product.$id';
-import { productDetailViewResponse } from '@/features/ui-client/data/schema';
 
 interface ProductReviews {
   setOpen: (open: boolean) => void;
   open: boolean;
-  productDetail: productDetailViewResponse;
+  // productDetail: productDetailViewResponse;
   hasPurchased: boolean;
   getAllReviews: () => void;
+  currentProductDetail: any;
+  reviewData: any;
 }
 
-const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail, hasPurchased ,getAllReviews}) => {
-  const [generalRating, setGeneralRating] = useState<number>(0);
+const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, hasPurchased, getAllReviews, currentProductDetail }) => {
+  const [generalRating, setGeneralRating] = useState<number>(5);
   const [comment, setComment] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
-  const [idProduct, setIdProduct] = useState<number>(0);
-  const { id } = Route.useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    setIdProduct(Number(id));
-  }, [id]);
 
   const handleStarClick = (value: number): void => {
     setGeneralRating(value);
@@ -91,7 +86,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productId: idProduct,
+          productDetailId: currentProductDetail?.productDetailId,
           generalRating,
           comment,
           imageUrls: uploadedImageUrls,
@@ -106,8 +101,8 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail
 
       const result = await response.json();
       console.log('Gửi đánh giá thành công:', result);
-      getAllReviews(); 
-    
+      getAllReviews();
+
       setOpen(false);
       setGeneralRating(0);
       setComment('');
@@ -119,11 +114,14 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail
       setIsSubmitting(false); // Kết thúc quá trình gửi đánh giá
     }
   };
-
+  const handDanhGia = () => {
+    getAllReviews();
+    setOpen(true);
+  }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => setOpen(true)}>
+        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={handDanhGia}>
           Đánh giá
         </Button>
       </DialogTrigger>
@@ -131,8 +129,9 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail
         {hasPurchased ? (
           <div className="w-full bg-white rounded-lg p-4 space-y-6">
             <h2 className="text-lg font-bold">Đánh giá & nhận xét</h2>
-            <div className="text-base font-bold text-green-600">{productDetail?.productName}</div>
-
+            <div className="text-base font-bold text-green-600">
+             {reviewData?.product}
+            </div>
             <div>
               <div className="text-sm font-semibold mb-1">Đánh giá chung</div>
               <div className="flex gap-2">
@@ -199,10 +198,10 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, productDetail
             <button
               onClick={handleSubmit}
               className={`w-full py-2 rounded font-semibold ${isSubmitting
-                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-red-600 text-white hover:bg-red-700'
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-red-600 text-white hover:bg-red-700'
                 }`}
-              disabled={isSubmitting} 
+              disabled={isSubmitting}
             >
               {isSubmitting ? 'Đang đánh giá...' : 'Gửi Đánh Giá'}
             </button>

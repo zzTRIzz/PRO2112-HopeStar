@@ -6,6 +6,8 @@ import { IconEdit } from "@tabler/icons-react" // Remove IconEye
 import { Checkbox } from "@/components/ui/checkbox"
 import { toServerDateTime, fromServerDateTime, toInputDateTime } from '@/utils/datetime'
 import Cookies from "js-cookie"
+import { Button } from "@/components/ui/button"
+import { Pen } from "lucide-react"
 
 interface Sale {
     id: number;
@@ -48,7 +50,7 @@ interface ProductDetailSale {
     productName: string;
     discountValue: number | null;
     discountType: boolean | null;
-}
+} 
 
 // Thêm interface để lưu trữ sản phẩm đã chọn cho mỗi chương trình
 interface SaleProducts {
@@ -149,20 +151,31 @@ export default function SaleUI() {
         });
 
         try {
-            // 1. Load danh sách sản phẩm 
+            // 1. Load danh sách tất cả sản phẩm
             const productsResponse = await axios.get(
                 'http://localhost:8080/api/admin/products',
                 getAuthConfig()
             );
             setSelectedSaleProducts(productsResponse.data);
 
-            // 2. Load danh sách sản phẩm đã được chọn cho sale này
+            // 2. Load danh sách sản phẩm và chi tiết đã được chọn cho sale này
+            // Thay đổi endpoint này
             const saleProductsResponse = await axios.get(
                 `http://localhost:8080/api/admin/sale/${sale.id}/products`,
                 getAuthConfig()
             );
-            const selectedProductIds: Set<number> = new Set(saleProductsResponse.data.map((item: any) => item.productId));
+
+            // Thiết lập selectedProducts từ response
+            const selectedProductIds = new Set(
+                saleProductsResponse.data.map((item: any) => item.productId)
+            );
             setSelectedProducts(selectedProductIds);
+
+            // Thiết lập selectedDetails từ response - sử dụng cùng API response
+            const selectedDetailIds = new Set(
+                saleProductsResponse.data.map((item: any) => item.productDetailId)
+            );
+            setSelectedDetails(selectedDetailIds);
 
             // 3. Load chi tiết sản phẩm cho mỗi sản phẩm đã chọn
             const detailsPromises = Array.from(selectedProductIds).map((productId: number) =>
@@ -177,28 +190,86 @@ export default function SaleUI() {
             
             detailsResponses.forEach((response, index) => {
                 const productId = Array.from(selectedProductIds)[index];
-                productDetailsMap[productId] = response.data;
+                if (productId) {
+                    productDetailsMap[productId] = response.data;
+                }
             });
 
             setProductDetails(productDetailsMap);
 
-            // 4. Load danh sách sản phẩm chi tiết đã được chọn
-            const selectedDetailsResponse = await axios.get(
-                `http://localhost:8080/api/admin/sale/${sale.id}/product-details`,
-                getAuthConfig()
-            );
-            const selectedDetailIds: Set<number> = new Set(selectedDetailsResponse.data.map((detail: any) => detail.id));
-            setSelectedDetails(selectedDetailIds);
-
         } catch (error) {
             console.error('Error loading sale data:', error);
+            toast({
+                variant: "destructive",
+                title: "Lỗi",
+                description: "Không thể tải dữ liệu chương trình giảm giá"
+            });
         }
 
         setShowModal(true);
     };
 
+    // Thêm function để lấy giá lớn nhất từ các sản phẩm chi tiết đã chọn
+    const getMaxPriceFromSelectedDetails = () => {
+        let maxPrice = 0;
+        
+        // Lặp qua tất cả sản phẩm chi tiết đã chọn
+        Object.values(productDetails).forEach(details => {
+            details.forEach((detail: ProductDetailSale) => {
+                if (selectedDetails.has(detail.id)) {
+                    // Lấy giá gốc thay vì giá khuyến mãi
+                    maxPrice = Math.max(maxPrice, detail.price);
+                }
+            });
+        });
+
+        return maxPrice;
+    };
+
+    const handleDiscountValueChange = (value: number) => {
+        if (!formData.discountType) { // Nếu là giảm theo VND
+            // const maxPrice = getMaxPriceFromSelectedDetails();
+            // if (value > maxPrice) {
+            //     toast({
+            //         variant: "destructive",
+            //         title: "Thông báo",
+            //         description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+            //     });
+            //     return;
+            // }
+        }
+        setFormData(prev => ({
+            ...prev,
+            discountValue: value
+        }));
+    };
+
+    // Sửa lại phần validate form khi submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validate discount value
+        if (!formData.discountType) { // Nếu là giảm theo VND
+            const maxPrice = getMaxPriceFromSelectedDetails();
+            if (formData.discountValue > maxPrice) {
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo",
+                    description: `Giá trị giảm không được vượt quá ${maxPrice.toLocaleString('vi-VN')}đ`
+                });
+                return;
+            }
+        } else { // Nếu là giảm theo %
+            if (formData.discountValue > 100) {
+                toast({
+                    variant: "destructive",
+                    title: "Thông báo", 
+                    description: "Phần trăm giảm không được vượt quá 100%"
+                });
+                return;
+            }
+        }
+
         try {
             setLoading(true);
             
@@ -211,37 +282,52 @@ export default function SaleUI() {
             let saleId: number;
 
             if (isEditing && editId) {
-                // 1. Get current sale details
-                const currentDetailsResponse = await axios.get(
-                    `http://localhost:8080/api/admin/sale/${editId}/product-details`,
+                // 1. Lấy danh sách sản phẩm chi tiết hiện có trong sale
+                const saleProductsResponse = await axios.get(
+                    `http://localhost:8080/api/admin/sale/${editId}/products`,
                     getAuthConfig()
                 );
-                const currentDetailIds = currentDetailsResponse.data.map((detail: any) => detail.id);
+                
+                const currentDetails = saleProductsResponse.data;
+                const detailsToDelete = currentDetails.filter(
+                    (detail: any) => !selectedDetails.has(detail.productDetailId)
+                ).map((detail: any) => detail.id);
 
-                // 2. Find details to delete (those not in selectedDetails)
-                const detailsToDelete = currentDetailIds.filter((id: number) => !selectedDetails.has(id));
-
-                // 3. Delete unchecked details
+                // 2. Xóa các sản phẩm chi tiết đã bỏ chọn
                 if (detailsToDelete.length > 0) {
                     await axios.delete(
                         'http://localhost:8080/api/admin/sale/details',
                         {
-                            ...getAuthConfig(),
-                            data: { ids: detailsToDelete }
+                            data: { ids: detailsToDelete },
+                            ...getAuthConfig()
                         }
                     );
                 }
 
-                // 4. Update sale basic info
-                await updateSale(editId, formattedData);
-                saleId = editId;
-                
+                // 3. Cập nhật thông tin sale
+                await updateSale(editId, {
+                    ...formData,
+                    dateStart: toServerDateTime(formData.dateStart),
+                    dateEnd: toServerDateTime(formData.dateEnd)
+                });
+
+                // 4. Thêm các sản phẩm chi tiết mới (nếu có)
+                if (selectedDetails.size > 0) {
+                    await axios.post(
+                        'http://localhost:8080/api/admin/sale/assign-products',
+                        {
+                            saleId: editId,
+                            productDetailIds: Array.from(selectedDetails)
+                        },
+                        getAuthConfig()
+                    );
+                }
+
                 toast({
                     title: "Thành công",
-                    description: "Chương trình giảm giá đã được cập nhật"
+                    description: "Đã cập nhật chương trình giảm giá"
                 });
             } else {
-                // Bước 1: Tạo sale mới
                 const newSale = await createSale(formattedData);
                 saleId = newSale.id;
                 toast({
@@ -251,22 +337,15 @@ export default function SaleUI() {
             }
 
             // Bước 2: Thêm sản phẩm chi tiết vào sale
-            if (saleId) {
-                // Lấy tất cả product detail IDs đã chọn
-                const selectedDetailIds = Array.from(selectedDetails);
-                
-                if (selectedDetailIds.length > 0) {
-                    // Call API để gán sản phẩm chi tiết vào sale
-                    await axios.post(
-                        `http://localhost:8080/api/admin/sale/assign-products`,
-                        {
-                            saleId: saleId,
-                            productDetailIds: selectedDetailIds
-                        },
-                        getAuthConfig()
-                    );
-
-                }
+            if (saleId && selectedDetails.size > 0) {
+                await axios.post(
+                    `http://localhost:8080/api/admin/sale/assign-products`,
+                    {
+                        saleId: saleId,
+                        productDetailIds: Array.from(selectedDetails)
+                    },
+                    getAuthConfig()
+                );
             }
 
             // Refresh data và đóng modal
@@ -387,52 +466,40 @@ export default function SaleUI() {
 
     // Sửa lại handleProductSelect để làm việc với Set thay vì Array
     const handleProductSelect = async (productId: number, checked: boolean) => {
-        // Create a new Set from the existing selections
         const newSelectedProducts = new Set(selectedProducts);
         
         if (checked) {
-            // Khi chọn sản phẩm
+            // Khi chọn sản phẩm - giữ nguyên code cũ
             newSelectedProducts.add(productId);
-
-            // Tự động load chi tiết sản phẩm
             try {
-                const jwt = Cookies.get('jwt');
                 const response = await axios.get(
                     `http://localhost:8080/api/admin/product-details/by-product/${productId}`,
                     getAuthConfig()
                 );
-                const productDetailsList = response.data;
                 
-                // Lưu chi tiết sản phẩm vào state
                 setProductDetails(prev => ({
                     ...prev,
-                    [productId]: productDetailsList
+                    [productId]: response.data
                 }));
 
-                // Tự động chọn tất cả các chi tiết sản phẩm
                 const newSelectedDetails = new Set(selectedDetails);
-                productDetailsList.forEach((detail: ProductDetailSale) => {
+                response.data.forEach((detail: ProductDetailSale) => {
                     newSelectedDetails.add(detail.id);
                 });
                 setSelectedDetails(newSelectedDetails);
-
             } catch (error) {
                 console.error('Error loading product details:', error);
             }
         } else {
-            // Khi bỏ chọn sản phẩm
+            // Khi bỏ chọn - chỉ cập nhật UI, không gọi API xóa
             newSelectedProducts.delete(productId);
-            
-            // Bỏ chọn tất cả chi tiết sản phẩm của sản phẩm này
             const newSelectedDetails = new Set(selectedDetails);
-            if (productDetails[productId]) {
-                productDetails[productId].forEach((detail: ProductDetailSale) => {
-                    newSelectedDetails.delete(detail.id);
-                });
-            }
+            productDetails[productId]?.forEach(detail => {
+                newSelectedDetails.delete(detail.id);
+            });
             setSelectedDetails(newSelectedDetails);
 
-            // Xóa chi tiết sản phẩm khỏi state
+            // Cập nhật product details
             setProductDetails(prev => {
                 const newDetails = { ...prev };
                 delete newDetails[productId];
@@ -564,10 +631,36 @@ export default function SaleUI() {
                 });
             }
         } else {
-            // Reset tất cả selections mà không gọi API
-            setSelectedProducts(new Set());
-            setSelectedDetails(new Set());
-            setProductDetails({});
+            // Khi bỏ chọn tất cả
+            if (currentSaleId && selectedDetails.size > 0) {
+                try {
+                    // Gọi API để xóa tất cả sản phẩm chi tiết đã chọn
+                    await axios.delete(
+                        'http://localhost:8080/api/admin/sale/details',
+                        {
+                            data: { ids: Array.from(selectedDetails) },
+                            ...getAuthConfig()
+                        }
+                    );
+
+                    // Reset tất cả selections sau khi xóa thành công
+                    setSelectedProducts(new Set());
+                    setSelectedDetails(new Set());
+                    setProductDetails({});
+
+                    toast({
+                        title: "Thành công",
+                        description: "Đã xóa tất cả sản phẩm khỏi chương trình giảm giá"
+                    });
+                } catch (error) {
+                    console.error('Error removing all products:', error);
+                    toast({
+                        variant: "destructive",
+                        title: "Lỗi",
+                        description: "Không thể xóa sản phẩm khỏi chương trình giảm giá"
+                    });
+                }
+            }
         }
     };
 
@@ -806,13 +899,23 @@ export default function SaleUI() {
                                         </span>
                                     </td>
                                     <td className="p-3 space-x-2 whitespace-nowrap">
-                                        <button
+                                        {/* <button
                                             className="inline-flex items-center justify-center size-8 rounded-full hover:bg-gray-100"
                                             onClick={() => handleEdit(sale)}
                                             title="Sửa"
                                         >
                                             <IconEdit size={18} className="text-blue-600" />
-                                        </button>
+                                        </button> */}
+
+                                        <Button
+                                                variant="outline"
+                                                onClick={() => handleEdit(sale)}
+                                                className="flex items-center bg-yellow-500 rounded-lg hover:bg-yellow-600 text-white"
+                                                size="sm"
+                                              >
+                                                <Pen className="h-1 w-1" color='white' />
+                                                {/* Cập nhật */}
+                                              </Button>
                                         {/* Remove eye icon button */}
                                     </td>
                                 </tr>
@@ -937,31 +1040,10 @@ export default function SaleUI() {
                                                 type="number"
                                                 className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={formData.discountValue}
-                                                onChange={(e) => {
-                                                    const value = Number(e.target.value);
-                                                    if (formData.discountType) {
-                                                        // Nếu là %, giới hạn từ 0-100
-                                                        if (value >= 0 && value <= 100) {
-                                                            setFormData({ ...formData, discountValue: value });
-                                                        }
-                                                    } else {
-                                                        // Nếu là VND, chỉ cần >= 0
-                                                        if (value >= 0) {
-                                                            // Find minimum price from visible product details
-                                                            const minPrice = Math.min(
-                                                                ...Object.values(productDetails)
-                                                                    .flat()
-                                                                    .map(detail => detail.price)
-                                                            );
-                                                            // Limit discount to minPrice
-                                                            const validDiscount = Math.min(value, minPrice || Infinity);
-                                                            setFormData({ ...formData, discountValue: validDiscount });
-                                                        }
-                                                    }
-                                                }}
+                                                onChange={(e) => handleDiscountValueChange(Number(e.target.value))}
                                                 min="0"
                                                 max={formData.discountType ? "100" : undefined}
-                                                // required
+                                                placeholder="Nhập giá trị giảm "
                                             />
                                             <select
                                                 className="w-24 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

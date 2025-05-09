@@ -34,6 +34,7 @@ const TableKhachHang: React.FC<Props> =
     isKhachHang
   }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const trimmedKeyword = searchTerm.trim(); 
 
     const filteredAccounts = listAccount.filter((account) => {
       const phone = account?.phone || "";
@@ -41,9 +42,9 @@ const TableKhachHang: React.FC<Props> =
       const fullName = account?.fullName || "";
 
       return (
-        phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fullName.toLowerCase().includes(searchTerm.toLowerCase())
+        phone.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+        email.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+        fullName.toLowerCase().includes(trimmedKeyword.toLowerCase())
       );
     });
 

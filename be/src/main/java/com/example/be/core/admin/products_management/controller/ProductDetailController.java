@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class ProductDetailController {
     public ResponseData<?> updateStatus(@PathVariable Integer id) throws Exception {
 
             productDetailService.updateStatus(id);
-            return new ResponseData<>(HttpStatus.ACCEPTED,"Cập nhật trạng thái thành công");
+            return new ResponseData<>(HttpStatus.OK,"Cập nhật trạng thái thành công");
     }
     @PutMapping("/{id}")
     public ResponseData<?> updateProductDetail(@PathVariable Integer id,@RequestBody ProductDetailRequest productDetailRequest) throws Exception {
@@ -46,4 +47,13 @@ public class ProductDetailController {
             return new ResponseData<>(HttpStatus.ACCEPTED,"add quantity product-detail successfully");
 
     }
+
+    @PostMapping("/import-excel")
+    public ResponseData<?> importExcel(@RequestParam("idProduct") Integer idProduct, @RequestParam("file") MultipartFile file) throws Exception {
+
+        productDetailService.importFileExcelProductDetail(idProduct,file);
+        return new ResponseData<>(HttpStatus.ACCEPTED,"Tải sản phẩm thành công");
+
+    }
+
 }

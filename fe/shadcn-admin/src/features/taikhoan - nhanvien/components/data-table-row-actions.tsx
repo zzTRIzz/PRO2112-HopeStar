@@ -4,7 +4,8 @@ import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Row } from '@tanstack/react-table'
-import { MoreHorizontal, Pen } from 'lucide-react'
+//import { MoreHorizontal, Pen } from 'lucide-react'
+import { Pen } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,12 +15,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from '@/components/ui/dropdown-menu'
 import {
   Form,
   FormControl,
@@ -195,7 +196,7 @@ export function DataTableRowActions({
         `http://localhost:8080/api/account/get/${account.id}`,
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -336,7 +337,7 @@ export function DataTableRowActions({
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -424,7 +425,7 @@ export function DataTableRowActions({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant='ghost'
@@ -440,7 +441,13 @@ export function DataTableRowActions({
             Cập nhật thông tin
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
+      {/* Thay thế dropdown menu bằng nút bấm */}
+      <Button variant='outline' onClick={() => setIsDialogOpen(true)}className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white"
+        size="sm"
+      >
+        <Pen className="h-4 w-4" color='white'/>
+      </Button>
 
       <DialogContent className='max-h-[80vh] max-w-[60vw] overflow-y-auto'>
         <DialogHeader>

@@ -166,63 +166,68 @@ export const sidebarData: Omit<SidebarData, 'user'> = {
           ],
         },
         {
-          title: 'Voucher',
+          title: 'Quản lý liên hệ',
+          url: '/quan-ly-lien-he',
+          icon: IconMessages,
+        },
+        {
+          title: 'Quản lý Voucher',
           url: '/voucher',
           icon: IconDiscount,
         },
         {
-          title: 'Sale',
+          title: 'Quản lý Sale',
           url: '/sale',
           icon: IconPercentage,
         },
         {
-          title: 'Chats',
+          title: 'Nhắn tin',
           url: '/chats',
-          badge: '3',
+          // badge: '3',
           icon: IconMessages,
         },
       ],
     },
-    {
-      title: 'Khác',
-      items: [
-        {
-          title: 'Cài đặt',
-          icon: IconSettings,
-          items: [
-            {
-              title: 'Profile',
-              url: '/settings',
-              icon: IconUserCog,
-            },
-            {
-              title: 'Account',
-              url: '/settings/account',
-              icon: IconTool,
-            },
-            {
-              title: 'Appearance',
-              url: '/settings/appearance',
-              icon: IconPalette,
-            },
-            {
-              title: 'Notifications',
-              url: '/settings/notifications',
-              icon: IconNotification,
-            },
-            {
-              title: 'Display',
-              url: '/settings/display',
-              icon: IconBrowserCheck,
-            },
-          ],
-        },
-        {
-          title: 'Trợ giúp',
-          url: '/help-center',
-          icon: IconHelp,
-        },
-      ],
-    },
+    // {
+    //   title: 'Khác',
+    //   items: [
+    //     {
+    //       title: 'Cài đặt',
+    //       icon: IconSettings,
+    //       items: [
+    //         {
+    //           title: 'Profile',
+    //           url: '/settings',
+    //           icon: IconUserCog,
+    //         },
+    //         {
+    //           title: 'Account',
+    //           url: '/settings/account',
+    //           icon: IconTool,
+    //         },
+    //         {
+    //           title: 'Appearance',
+    //           url: '/settings/appearance',
+    //           icon: IconPalette,
+    //         },
+    //         {
+    //           title: 'Notifications',
+    //           url: '/settings/notifications',
+    //           icon: IconNotification,
+    //         },
+    //         {
+    //           title: 'Display',
+    //           url: '/settings/display',
+    //           icon: IconBrowserCheck,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       title: 'Trợ giúp',
+    //       url: '/help-center',
+    //       icon: IconHelp,
+    //     },
+    //   ],
+    // },
   ]
 }

@@ -2,11 +2,8 @@ import { z } from 'zod'
 
 // Define StatusImei enum to match backend
 export enum StatusImei {
-  IN_THE_CART = 'IN_THE_CART',
   SOLD = 'SOLD',
   NOT_SOLD = 'NOT_SOLD',
-  PENDING_DELIVERY = 'PENDING_DELIVERY',
-  CANCELLED = 'CANCELLED',
   IN_ACTIVE = 'IN_ACTIVE',
 }
 
@@ -26,8 +23,11 @@ export type ImeiResponse = z.infer<typeof imeiResponseSchema>
 
 // Request schema for creating/updating IMEI
 export const imeiRequestSchema = z.object({
-  id: z.number().optional(),
   imeiCode: z.string().min(15, 'IMEI phải có 15 kí tự').max(15, 'IMEI phải có 15 kí tự'),
+  status: z.nativeEnum(StatusImei, {
+    required_error: 'Trạng thái không được để trống',
+  })
 })
 
 export type ImeiRequest = z.infer<typeof imeiRequestSchema>
+

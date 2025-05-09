@@ -5,10 +5,7 @@ import com.example.be.core.client.cart.dto.response.DanhGiaResponse.ProductRevie
 import com.example.be.core.client.cart.dto.response.DanhGiaResponse.ProductReviewsResponse;
 import com.example.be.core.client.cart.dto.response.DanhGiaResponse.RatingSummaryResponse;
 import com.example.be.core.client.cart.service.ProductReviewsService;
-import com.example.be.entity.Account;
-import com.example.be.entity.Product;
-import com.example.be.entity.ProductReviews;
-import com.example.be.entity.ReviewImage;
+import com.example.be.entity.*;
 import com.example.be.entity.status.StatusBill;
 import com.example.be.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -24,42 +21,50 @@ public class ProductReviewsServiceImpl implements ProductReviewsService {
     private final ProductReviewsRepository productReviewRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final AccountRepository accountRepository;
-    private final ProductRepository productRepository;
+    private final ProductDetailRepository productDetailRepository;
     private final BillRepository billRepository;
 
 
     @Override
-    public ProductReviewsListResponse findByIdProduct(Integer idProduct, Account account) {
-        List<ProductReviews> productReviews = productReviewRepository.findByProduct(idProduct);
+    public ProductReviewsListResponse findByIdProduct(Integer idProductDetail, Account account) {
+        List<ProductReviews> productReviews = productReviewRepository.findByProduct(idProductDetail);
         List<ProductReviewsResponse> productReviewsResponseList = productReviews.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+        ProductDetail productDetail = productDetailRepository.findById(idProductDetail)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         ProductReviewsListResponse reviews = new ProductReviewsListResponse();
         reviews.setReviews(productReviewsResponseList);
         reviews.setRatingSummaryResponse(calculateSummary(productReviews));
+        reviews.setEvaluate(productReviews.size());
+
+        Integer quantity = billRepository.getTotalQuantityByCustomerIdAndProductId(
+                account != null ? account.getId() : null, idProductDetail, StatusBill.HOAN_THANH);
+        Integer totalQuantity = billRepository.getTotalQuantity( idProductDetail, StatusBill.HOAN_THANH);
 
         if (account != null) {
-            boolean hasPurchased = billRepository.existsByCustomerIdAndProductId(
-                    account.getId(), idProduct, StatusBill.HOAN_THANH);
-            reviews.setHasPurchased(hasPurchased);
+            boolean hasSold = quantity != null && quantity > 0;
+            reviews.setHasPurchased(hasSold);
         } else {
             reviews.setHasPurchased(false);
         }
+            reviews.setProduct(productDetail.getProduct().getName()+" "+productDetail.getRam().getCapacity()+"/"+productDetail.getRom().getCapacity()+"GB"+"-"+productDetail.getColor().getName());
+//        System.out.println(totalQuantity);
+        reviews.setNumberSold(totalQuantity != null ? totalQuantity : 0);
 
         return reviews;
     }
 
 
-
     @Override
     public ProductReviewsResponse submitReview(ProductReviewsRequest request, Account account) {
 
-        Product product = productRepository.findById(request.getProductId())
+        ProductDetail product = productDetailRepository.findById(request.getProductDetailId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         ProductReviews review = new ProductReviews();
-        review.setProduct(product);
+        review.setProductDetail(product);
         review.setGeneralRating(request.getGeneralRating());
         review.setComment(request.getComment());
         review.setDateAssessment(LocalDateTime.now());
@@ -85,8 +90,6 @@ public class ProductReviewsServiceImpl implements ProductReviewsService {
         if (entity == null) {
             return null;
         }
-        List<ProductReviews> productReviewsList = productReviewRepository.findByProduct(entity.getProduct().getId());
-
         ProductReviewsResponse dto = new ProductReviewsResponse();
         dto.setId(entity.getId());
         dto.setGeneralRating(entity.getGeneralRating());
@@ -101,11 +104,6 @@ public class ProductReviewsServiceImpl implements ProductReviewsService {
             dto.setImageUrls(imageUrls);
         }
 
-        if (entity.getProduct() != null) {
-            ProductReviewsResponse.Products productDto = new ProductReviewsResponse.Products();
-            productDto.setProductName(entity.getProduct().getName());
-            dto.setProduct(productDto);
-        }
 
         if (entity.getAccount() != null) {
             ProductReviewsResponse.Account accountDto = new ProductReviewsResponse.Account();

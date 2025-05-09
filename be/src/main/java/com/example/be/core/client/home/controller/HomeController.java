@@ -32,4 +32,9 @@ public class HomeController {
     public List<ProductViewResponse> filterPhone(@ModelAttribute PhoneFilterRequest filterRequest){
         return homeService.phoneFilter(filterRequest);
     }
+
+    @GetMapping("/related")
+    public List<ProductViewResponse> getProductRelated(@RequestParam("id") Integer id) throws Exception {
+        return homeService.getProductRelated(id);
+    }
 }

@@ -24,19 +24,7 @@ import { getOs } from '@/features/product-management/attribute/os/data/api-servi
 import { getScreen } from '@/features/product-management/attribute/screen/data/api-service'
 import { getProductDetail } from '../service/BanHangTaiQuayService'
 import { IconQuestionMark } from '@tabler/icons-react'
-
-interface ProductDetail {
-  id: number
-  code: string
-  priceSell: number
-  inventoryQuantity: number
-  idProduct: number
-  name: string
-  ram: number
-  rom: number
-  color: string
-  imageUrl: string
-}
+import { ProductDetail } from '../service/Schema'
 
 interface imei {
   id: number
@@ -51,7 +39,6 @@ interface SanPhamChiTiet {
   handleAddProduct: (product: ProductDetail) => void
   handleAddImei: () => void
   handleCheckboxChange: (id: number) => void
-  idBillDetail: number
   selectedImei: number[]
   dialogContent: 'product' | 'imei'
   setDialogContent: (content: 'product' | 'imei') => void
@@ -63,7 +50,6 @@ interface SanPhamChiTiet {
 const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   listProduct,
   listImei,
-  idBillDetail,
   selectedImei,
   handleAddImei,
   handleAddProduct,
@@ -355,7 +341,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                                   )}
                                 </div>
                                 <span className="whitespace-nowrap text-sm">
-                                  {product?.name + " " + product?.ram + "/" + product?.rom + "GB (" + product?.color + ")"}
+                                  {product?.name + " " + product?.ram + "/" + product?.rom + product.descriptionRom + " (" + product?.color + ")"}
                                 </span>
                               </div>
                             </TableCell>

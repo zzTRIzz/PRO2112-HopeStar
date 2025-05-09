@@ -4,21 +4,19 @@ import com.example.be.core.admin.banhang.dto.BillDetailDto;
 import com.example.be.core.admin.banhang.dto.ProductDetailDto;
 import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
 import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
-import com.example.be.entity.BillDetail;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface BillDetailService {
-    List<BillDetailDto> getAllBillDetail();
+//    List<BillDetailDto> getAllBillDetail();
+//
+//    List<BillDetail> getALlThuong();
 
-    List<BillDetail> getALlThuong();
+    SearchBillDetailDto createBillDetail(BillDetailDto billDetailDto);
 
-    BillDetailDto createBillDetail(BillDetailDto billDetailDto);
+    SearchBillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
 
-    BillDetailDto thayDoiSoLuongKhiCungSPVaHD(Integer idBill, Integer idProductDetail, Integer SoLuong);
-
-    BillDetailDto capNhatImeiCHoOnline(Integer idBill, Integer idProductDetail, Integer SoLuong);
+    SearchBillDetailDto capNhatImeiCHoOnline(Integer idBill, Integer idProductDetail, Integer SoLuong);
 
     List<SearchBillDetailDto> getByIdBill(Integer idBill);
 

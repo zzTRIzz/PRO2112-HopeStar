@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class CartDetailResponse {
 
     private Integer id;
+    private Integer idProduct;
     private String productName;
     private Integer quantity;
     private String ram;

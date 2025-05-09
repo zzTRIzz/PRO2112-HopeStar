@@ -32,8 +32,8 @@ public class ProductReviews {
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_product", nullable = false)
-    private Product product;
+    @JoinColumn(name = "id_product_detail", nullable = false)
+    private ProductDetail productDetail;
 
     @OneToMany(mappedBy = "productReviews", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> images;

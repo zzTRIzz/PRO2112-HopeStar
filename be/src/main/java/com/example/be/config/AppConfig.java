@@ -26,6 +26,7 @@ public class AppConfig {
                 SessionCreationPolicy.STATELESS
         )).authorizeHttpRequests(authorize->authorize
                 .requestMatchers("/api/admin/*/active").permitAll()
+                .requestMatchers("/api/sepay/**").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
         ).addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)

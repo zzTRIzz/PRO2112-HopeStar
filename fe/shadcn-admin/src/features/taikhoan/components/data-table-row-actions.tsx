@@ -107,8 +107,8 @@ const updateFormSchema = z.object({
     ) {
       age--
     }
-    return age >= 15 && age < 61
-  }, 'Người dùng phải từ 15 tuổi đến dưới 61 tuổi'),
+    return age >= 0 && age < 100
+  }, 'Người dùng phải từ 0 tuổi đến dưới 100 tuổi'),
   status: z.enum(['ACTIVE', 'IN_ACTIVE']),
 })
 
@@ -185,7 +185,7 @@ export function DataTableRowActions({
     },
   })
 
-  const jwt = Cookies.get('jwt')
+
   // Fetch account data when dialog opens
   const fetchAccountData = async () => {
     if (!isDialogOpen) return
@@ -195,7 +195,7 @@ export function DataTableRowActions({
         `http://localhost:8080/api/account/get/${account.id}`,
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -336,7 +336,7 @@ export function DataTableRowActions({
         },
         {
           headers: {
-            Authorization: `Bearer ${jwt}`,
+            Authorization: `Bearer ${Cookies.get('jwt')}`,
           },
         }
       )
@@ -418,7 +418,7 @@ export function DataTableRowActions({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant='ghost'
@@ -434,7 +434,12 @@ export function DataTableRowActions({
             Cập nhật thông tin
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
+      <Button variant='outline' onClick={() => setIsDialogOpen(true)}className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white"
+        size="sm"
+      >
+        <Pen className="h-4 w-4" color='white'/>
+      </Button>
 
       <DialogContent className='max-h-[80vh] max-w-[60vw] overflow-y-auto'>
         <DialogHeader>

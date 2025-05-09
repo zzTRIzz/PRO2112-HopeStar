@@ -1,13 +1,12 @@
 package com.example.be.core.admin.atribute_management.controller.product_detail;
 
 import com.example.be.core.admin.account.dto.response.ResponseData;
+import com.example.be.core.admin.atribute_management.dto.request.ImeiRequest;
 import com.example.be.core.admin.atribute_management.dto.response.ImeiResponse;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +25,14 @@ public class ImeiController {
         }catch (Exception e){
             return new ResponseData<>(HttpStatus.NOT_FOUND,e.getMessage());
         }
+    }
+
+    @PostMapping("")
+    public ResponseData<?> updateImei(@RequestParam("id") Integer id, @RequestBody ImeiRequest imeiRequest) throws Exception {
+
+            Object o = imeiService.updateImei(id,imeiRequest);
+            return new ResponseData<>(HttpStatus.OK,"ok",o);
+
     }
 
 }

@@ -39,6 +39,7 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
     resolver: zodResolver(brandSchema.omit({ id: true })),
     defaultValues: currentRow || {
       name: '',
+      imageUrl: '',
       status: 'ACTIVE',
     },
   })
@@ -47,6 +48,7 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
     if (currentRow) {
       form.reset({
         name: currentRow.name,
+        imageUrl: currentRow.imageUrl,
         status: currentRow.status || 'ACTIVE',
       })
     }
@@ -117,6 +119,19 @@ export function BrandMutateDialog({ open, onOpenChange, currentRow }: Props) {
                   <FormLabel>Tên thương hiệu</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder='Nhập tên thương hiệu' />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='imageUrl'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Đường dẫn thương hiệu</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder='Nhập đường dẫn' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

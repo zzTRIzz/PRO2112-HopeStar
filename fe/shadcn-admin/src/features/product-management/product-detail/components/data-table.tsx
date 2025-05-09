@@ -24,15 +24,18 @@ import {
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableToolbar } from './data-table-toolbar'
+import { DataTableRowImeiActions } from './data-table-row-imei-actions'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  hideActions?: boolean // Thêm prop để ẩn cột "Hành động"
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  hideActions = false, // Mặc định hiển thị cột "Hành động"
 }: DataTableProps<TData, TValue>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
@@ -40,10 +43,9 @@ export function DataTable<TData, TValue>({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
-  // Add pagination state
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
-    pageSize: 5, // Set initial page size to 5
+    pageSize: 5,
   })
 
   const table = useReactTable({
@@ -53,15 +55,15 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       columnFilters,
-      pagination, // Add pagination state
+      pagination,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination, // Add pagination change handler
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -87,7 +89,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
-                <TableHead>Hành động</TableHead>
+                 <TableHead>Thao tác</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -103,15 +105,19 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <DataTableRowActions row={row} />
-                  </TableCell>
+                  {!hideActions ? (
+                    <TableCell>
+                      <DataTableRowActions row={row} />
+                    </TableCell>
+                  ):(<TableCell>
+                    <DataTableRowImeiActions row={row} />
+                  </TableCell>)}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length + (hideActions ? 0 : 1)}
                   className='h-24 text-center'
                 >
                   Không có kết quả

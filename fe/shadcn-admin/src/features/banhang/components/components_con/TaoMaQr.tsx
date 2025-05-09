@@ -39,7 +39,7 @@ const TaoMaQr: React.FC<Props> = ({ searchBill, tongTien, dateTime, handleThanhT
         if (data.isPaid) {
           setIsPaid(true);
           clearInterval(interval);
-          fromThanhCong("Giao dịch đã được thanh toán thành công!");
+          // fromThanhCong("Giao dịch đã được thanh toán thành công!");
           if (isBanGiaoHang == true) {
             handleThanhToan("DA_XAC_NHAN", 1);
           } else {

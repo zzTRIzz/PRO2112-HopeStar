@@ -1,8 +1,7 @@
 package com.example.be.core.admin.banhang.service.impl;
 
-import com.example.be.core.admin.banhang.dto.BillDetailDto;
-import com.example.be.core.admin.banhang.dto.ImeiSoldDto;
-import com.example.be.core.admin.banhang.mapper.BillDetailMapper;
+import com.example.be.core.admin.banhang.dto.SearchBillDetailDto;
+import com.example.be.core.admin.banhang.mapper.SearchBillDetailMapper;
 import com.example.be.core.admin.banhang.service.BillDetailService;
 import com.example.be.core.admin.banhang.service.ImeiSoldService;
 import com.example.be.entity.BillDetail;
@@ -26,7 +25,7 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
     BillDetailRepository billDetailRepository;
 
     @Autowired
-    BillDetailMapper billDetailMapper;
+    SearchBillDetailMapper searchBillDetailMapper;
 
     @Autowired
     BillDetailService billDetailService;
@@ -42,11 +41,23 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
 
 
     @Override
-    public BillDetailDto creatImeiSold(Integer idBillDetail, List<Integer> idImei) {
+    public SearchBillDetailDto creatImeiSold(Integer idBillDetail, List<Integer> idImei) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         List<Imei> imeis = imeiRepository.findByIdIn(idImei);
+        List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
+
+        List<String> imeiBiBan = imeisDaBan.stream()
+                .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
+                .map(Imei::getImeiCode)
+                .toList();
+
+        if (!imeiBiBan.isEmpty()) {
+            String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
+            throw  new RuntimeException(message);
+        }
+
         List<ImeiSold> imeiSoldList = new ArrayList<>();
 
         for (Imei imei : imeis) {
@@ -62,15 +73,28 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         BillDetail saveBillDetail = billDetailRepository.save(savebillD);
-        return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        return searchBillDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
 
     //
     @Override
-    public BillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
+    public SearchBillDetailDto updateImeiSold(Integer idBillDetail, List<Integer> idImei) {
         BillDetail billDetail = billDetailRepository.findById(idBillDetail)
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
+        List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(idImei, idBillDetail);
+
+        List<String> imeiBiBan = imeisDaBan.stream()
+                .filter(imei -> imei.getStatus() != StatusImei.NOT_SOLD)
+                .map(Imei::getImeiCode)
+                .toList();
+
+        if (!imeiBiBan.isEmpty()) {
+            String message = "Imei đã bán: " + String.join(", ", imeiBiBan);
+            throw  new RuntimeException(message);
+        }
+
         List<Imei> listImeis = imeiSoldRepository.searchImeiSold(idBillDetail);
+
         List<ImeiSold> searchimeiSold = imeiSoldRepository.searchImeiSoldByIdImei(idImei);
         if (searchimeiSold != null) {
             for (Imei imei : listImeis) {
@@ -79,8 +103,9 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
             imeiRepository.saveAll(listImeis);
             imeiSoldRepository.deleteImeiSold(idBillDetail);
         }
-        List<Imei> imeis = imeiRepository.findByIdIn(idImei);
+
         List<ImeiSold> imeiSoldList = new ArrayList<>();
+        List<Imei> imeis = imeiRepository.findByIdIn(idImei);
 
         for (Imei imei : imeis) {
             ImeiSold imeiSold = new ImeiSold();
@@ -95,7 +120,7 @@ public class ImeiSoldServiceImpl implements ImeiSoldService {
                 .orElseThrow(() -> new RuntimeException("Bill Detail not found"));
 
         BillDetail saveBillDetail = billDetailRepository.save(savebillD);
-        return billDetailMapper.dtoBillDetailMapper(saveBillDetail);
+        return searchBillDetailMapper.dtoBillDetailMapper(saveBillDetail);
     }
 
 

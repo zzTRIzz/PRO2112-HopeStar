@@ -8,17 +8,16 @@ import java.util.List;
 @Data
 public class ProductReviewsResponse {
     private Integer id;
-    private Products product;
     private Account account;
     private Integer generalRating;
     private String comment;
     private LocalDateTime dateAssessment;
     private List<String> imageUrls;
 
-    @Data
-    public static class Products {
-        private String productName;
-    }
+//    @Data
+//    public static class Products {
+//        private String productName;
+//    }
 
     @Data
     public static class Account{

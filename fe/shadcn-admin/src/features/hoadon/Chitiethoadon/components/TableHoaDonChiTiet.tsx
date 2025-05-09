@@ -28,6 +28,7 @@ interface SearchBillDetail {
     nameProduct: string,
     ram: number,
     rom: number,
+    descriptionRom: string,
     mauSac: string,
     imageUrl: string,
     idBill: number
@@ -46,7 +47,7 @@ interface TableHoaDonChiTietProps {
     selectedImei: number[];
     openDialogId: number | null;
     setOpenDialogId: (open: number | null) => void;
-    handleUpdateProduct: (idProductDetail: number, idBillDetail: number) => void
+    handleUpdateProduct: (idProductDetail: number, idBillDetail: number, quantity: number) => void
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
     deleteBillDetail: (id: number) => void;
@@ -62,7 +63,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         handleUpdateProduct,
         handleCheckboxChange,
         updateHandleImeiSold,
-        searchBill
+        searchBill,
+        deleteBillDetail
     }) => {
         const CartEmpty = () => {
             return (
@@ -121,19 +123,12 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                         key={pr.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell component="th" scope="row" align="center">
-                                            {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom + 'GB'}({pr?.mauSac})
+                                            {pr?.nameProduct} {pr?.ram + '/'}{pr?.rom}{pr?.descriptionRom}({pr?.mauSac})
                                         </TableCell>
                                         <TableCell align="right" >{pr?.price?.toLocaleString('vi-VN')} VND
 
                                         </TableCell>
                                         <TableCell align="center" className='w-[95px]'>{pr?.quantity}
-                                            {/* {searchBill?.billDetailResponesList?.some(
-                                                (item) =>
-                                                    item.productDetail.id === pr.idProductDetail &&
-                                                    (!item.imeiSoldRespones || item.imeiSoldRespones.length === 0) && item?.quantity > 0
-                                            ) && (
-                                                    <div className="text-red-500 text-xs font-medium mt-1">Thiếu imei</div>
-                                                )} */}
                                             {isMissingImei(pr.idProductDetail) && (
                                                 <div className="text-red-500 text-xs font-medium mt-1">
                                                     Thiếu imei
@@ -149,18 +144,21 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                         <Button
                                                             className="bg-white-500 border border-blue-500 rounded-sm border-opacity-50 text-blue-600 hover:bg-gray-300"
                                                             onClick={() => {
-                                                                handleUpdateProduct(pr.idProductDetail, pr.id);
+                                                                handleUpdateProduct(pr.idProductDetail, pr.id, pr.quantity);
                                                                 setOpenDialogId(pr.id);
                                                             }}
+                                                            // disabled={!(
+                                                            //     isMissingImei(pr.idProductDetail) &&
+                                                            //     Number(searchBill?.billType) === 1
+                                                            // )}
                                                             disabled={!(
-                                                                isMissingImei(pr.idProductDetail) &&
-                                                                Number(searchBill?.billType) === 1
+                                                                // isMissingImei(pr.idProductDetail) &&
+                                                                Number(searchBill?.billType) === 1 &&
+                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN') // Kiểm tra trạng thái hóa đơn
                                                             )}
-
                                                         >
                                                             Cập nhật
                                                         </Button>
-
                                                     </DialogTrigger>
                                                     <DialogContent className="sm:max-w-[730px] z-[1000]  flex flex-col">
                                                         <Input
@@ -220,6 +218,19 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                     </DialogContent>
                                                 </Dialog>
                                             </div>
+                                            
+                                            <Button
+                                               className="bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600"
+                                                onClick={() => {
+                                                    deleteBillDetail(pr.id);
+                                                }}
+                                                disabled={!(
+                                                    Number(searchBill?.billType) === 1 &&
+                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN')  
+                                                )}
+                                            >
+                                                Xóa
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

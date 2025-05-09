@@ -14,30 +14,30 @@ interface TaiKhoanColumnsProps {
 }
 
 export const createColumns = (props: TaiKhoanColumnsProps): ColumnDef<TaiKhoan>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Chọn tất cả"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Chọn dòng"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Chọn tất cả"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Chọn dòng"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorFn: (_, index) => index + 1,
     header: "STT",
@@ -180,6 +180,9 @@ export const createColumns = (props: TaiKhoanColumnsProps): ColumnDef<TaiKhoan>[
   },
   {
     id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Thao tác" />
+    ),
     cell: ({ row }) => (
       <DataTableRowActions 
         row={row} 
@@ -188,4 +191,19 @@ export const createColumns = (props: TaiKhoanColumnsProps): ColumnDef<TaiKhoan>[
     ),
   },
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

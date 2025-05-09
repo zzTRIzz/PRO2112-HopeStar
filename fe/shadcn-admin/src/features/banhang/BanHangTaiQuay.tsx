@@ -16,10 +16,10 @@ import ThanhToan from './components/ThanhToan'
 import ThemSanPham from './components/ThemSanPham'
 import './css/print_hoaDon.css'
 import {
-  addHDCT,
+  addBillHistory,
   addHoaDon,
   addKhachHang,
-  createImeiSold,
+  addBillDetailAndCreateImeiSold,
   deleteProduct,
   findBill,
   findImeiById,
@@ -62,7 +62,7 @@ function BanHangTaiQuay() {
   const [idHoaDon, setIdBill] = useState<number>(0);
   const [idProductDetail, setIdProductDetail] = useState<number>(0);
   const [selectedImei, setSelectedImei] = useState<number[]>([]);
-  const [idBillDetail, setIdBillDetail] = useState<number>(0);
+  // const [idBillDetail, setIdBillDetail] = useState<number>(0);
   const [product, setProduct] = useState<SearchBillDetail[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<'product' | 'imei'>('product');
@@ -129,6 +129,7 @@ function BanHangTaiQuay() {
     try {
       const data = await getProductDetail();
       setListProductDetail(data)
+      // console.log('Danh sách sản phẩm chi tiết:', data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -158,7 +159,6 @@ function BanHangTaiQuay() {
   // Lấy danh sách imei
   const loadImei = async (idProductDetail: number) => {
     try {
-      // console.log("ID product detail tat ca:", idProductDetail);
       const data = await getImei(idProductDetail)
       setListImei(data)
     } catch (error) {
@@ -192,12 +192,23 @@ function BanHangTaiQuay() {
         return
       }
       await huyHoaDon(idBillHuy)
+      await addBillHistory({
+        actionType: "DA_HUY",
+        idBill: idBillHuy,
+        note: "Đơn hàng đã hủy",
+      })
       await loadBill()
       loadProductDet()
       setProduct([])
       loadBillChoThanhToan()
-      fromThanhCong('Hủy hóa đơn thành công');
+      setSearchBill(undefined);
+      hienThiKhachHang(undefined);
+      setCustomerPayment(0);
+      setPaymentMethod(null);
+      setIsBanGiaoHang(false);
       setIdBill(0);
+      fromThanhCong('Hủy hóa đơn thành công');
+
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -210,6 +221,7 @@ function BanHangTaiQuay() {
       setIdBill(id)
       const data = await getByIdBillDetail(id)
       setProduct(data)
+      console.log('Danh sách hóa đơn chi tiết:', data)
       const khachHang = await findKhachHang(id)
       hienThiKhachHang(khachHang)
       const voucher = await getVoucherDangSuDung(id)
@@ -284,23 +296,15 @@ function BanHangTaiQuay() {
   const handleAddProduct = async (product: ProductDetail) => {
     try {
       // console.log("ID bill san pham " + idBill);
-      if (idHoaDon == 0 || idBillDetail == null) {
+      if (idHoaDon == 0) {
         fromThatBai('Vui lòng chọn hóa đơn')
-        setIsDialogOpen(false)
         return
       }
-      const newProduct = await addHDCT({
-        idBill: idHoaDon,
-        idProductDetail: product.id,
-      })
-      setIdBillDetail(newProduct.id)
       setIdProductDetail(product.id)
-      setSelectedImei([])
+      setSelectedImei([]);
       loadImei(product.id)
-      getById(idHoaDon)
-      // console.log("id product detail: " + idProductDetail)
-      setDialogContent('imei') // Chuyển nội dung dialog sang IMEI
-      fromThanhCong('Thêm sản phẩm vào hóa đơn thành công')
+      setDialogContent('imei')
+      // fromThanhCong('Thêm sản phẩm chi tiết vào hóa đơn thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }
@@ -317,25 +321,25 @@ function BanHangTaiQuay() {
   // Them imei vao hoa don chi tiet
   const handleAddImei = async () => {
     try {
+      if (idHoaDon == 0) {
+        fromThatBai('Vui lòng chọn hóa đơn')
+        return
+      }
       if (selectedImei.length == 0) {
         fromThatBai("Vui lòng chọn imei");
         return;
       }
-      await createImeiSold(
-        {
-          id_Imei: selectedImei,
-          idBillDetail: idBillDetail,
-        },
-        idHoaDon,
-        idProductDetail
-      )
-      // console.log('Imei mới:', newImei)
+      await addBillDetailAndCreateImeiSold({
+        idBill: idHoaDon,
+        idProductDetail: idProductDetail,
+        id_Imei: selectedImei,
+      })
       setSelectedImei([])
-      setIsDialogOpen(false) // Đóng dialog
+      setIsDialogOpen(false) 
       await loadProductDet()
       await loadImei(idProductDetail)
       await getById(idHoaDon)
-      fromThanhCong('Thêm IMEI thành công')
+      fromThanhCong('Thêm sản phẩm chi tiết thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }
@@ -355,19 +359,17 @@ function BanHangTaiQuay() {
         idHoaDon,
         idProductDetail
       )
-      // console.log('Imei mới:', newImei)
       setSelectedImei([])
-      // setIsCapNhatImei(false)
       await loadProductDet()
       await loadImei(idProductDetail)
       await getById(idHoaDon)
-      fromThanhCong('Cập nhật IMEI thành công')
+      fromThanhCong('Cập nhật số lượng hóa đơn chi tiết thành công')
     } catch (error) {
       console.error('Lỗi API:', error)
     }
   }
 
-  // Ca
+  // Cập nhật danh sách IMEI đã bán
   const handleUpdateProduct = async (idPD: number, billDetaill: number) => {
     setSelectedImei([]);
     try {
@@ -378,12 +380,13 @@ function BanHangTaiQuay() {
       }
       const ids: number[] = data.map((imei) => imei.id)
       setSelectedImei(ids)
-      // setIsCapNhatImei(true)
     } catch (error) {
       console.error('Lỗi khi lấy danh sách IMEI đã bán:', error)
     }
     findImeiByIdProductDetail(idPD, billDetaill)
   }
+
+
   const updateVoucherKhiChon = async (idVoucher: number | null) => {
     try {
 
@@ -607,6 +610,7 @@ function BanHangTaiQuay() {
         setCustomerPayment(0);
         setPaymentMethod(null);
         setIsBanGiaoHang(false);
+        setIdBill(0);
         fromThanhCong("Thanh toán thành công");
       } catch (error) {
         console.error("Lỗi khi thanh toán:", error);
@@ -653,23 +657,23 @@ function BanHangTaiQuay() {
       }
 
       console.log('Thực hiện thêm vào hóa đơn: ' + currentBillId)
-      const newBillDetail = await addHDCT({
-        idBill: currentBillId,
-        idProductDetail: productDetail.id,
-      })
+      // const newBillDetail = await addHDCT({
+      //   idBill: currentBillId,
+      //   idProductDetail: productDetail.id,
+      // })
 
-      if (!newBillDetail?.id) {
-        fromThatBai('Tạo hóa đơn chi tiết thất bại')
-        return
-      }
-      await createImeiSold(
-        {
-          id_Imei: [productDetail.idImei],
-          idBillDetail: newBillDetail.id,
-        },
-        currentBillId,
-        productDetail.id
-      )
+      // if (!newBillDetail?.id) {
+      //   fromThatBai('Tạo hóa đơn chi tiết thất bại')
+      //   return
+      // }
+      // await createImeiSold(
+      //   {
+      //     id_Imei: [productDetail.idImei],
+      //     idBillDetail: newBillDetail.id,
+      //   },
+      //   currentBillId,
+      //   productDetail.id
+      // )
 
       setProduct((prev) =>
         prev.filter((p) => p.idProductDetail !== productDetail.id)
@@ -774,7 +778,6 @@ function BanHangTaiQuay() {
               <ThemSanPham
                 listProduct={listProduct}
                 listImei={listImei}
-                idBillDetail={idBillDetail}
                 selectedImei={selectedImei}
                 handleAddImei={handleAddImei}
                 handleAddProduct={handleAddProduct}

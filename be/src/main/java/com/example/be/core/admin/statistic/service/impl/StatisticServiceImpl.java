@@ -43,8 +43,6 @@ public class StatisticServiceImpl implements StatisticService {
                         .collect(Collectors.toList());
     }
 
-
-
     @Override
     public List<RevenueByYearResponse> getRevenueByYear() {
         List<Object[]> results = statisticRepository.getRevenueByYear();
@@ -203,15 +201,14 @@ public class StatisticServiceImpl implements StatisticService {
 
     private LowStockProductResponse mapToLowStockResponse(Object[] row) {
         return new LowStockProductResponse(
-                (String) row[0],   // product_detail_code
-                (String) row[1],   // product_name
-                (String) row[2],   // color_name
-                ((Number) row[3]).intValue(), // inventory_quantity
-                (String) row[4]    // status
+                (String) row[0],   // product_detail_code (maSP)
+                (String) row[1],   // product_name (tenSP)
+                (String) row[2],   // color_name (mauSac)
+                ((Number) row[3]).intValue(), // inventory_quantity (soLuong)
+                (String) row[4],   // status (trangThai)
+                (String) row[5]    // image_url (imageUrl) - Thêm dòng này
         );
     }
-
-    // Trong StatisticService.java
 
     public List<StatisticByDateResponse> getRevenueLast3Days() {
         List<Object[]> results = statisticRepository.getRevenueLast3Days();
@@ -284,5 +281,43 @@ public class StatisticServiceImpl implements StatisticService {
         }
 
         return new StatisticByDateRangeResponse(totalRevenue, totalOrders, dailyStatistics);
+    }
+
+    @Override
+    public List<ListCustomerCancelOrderResponse> getCustomersWithCanceledOrders() {
+        List<Object[]> results = statisticRepository.findCustomersWithCanceledOrders();
+        return results.stream()
+                .map(this::mapToCancelOrderResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ListCustomerCancelOrderResponse mapToCancelOrderResponse(Object[] row) {
+        return new ListCustomerCancelOrderResponse(
+                ((Number) row[0]).longValue(),    // customerId
+                (String) row[1],                  // customerName
+                (String) row[2],                  // email
+                (String) row[3],                  // phone
+                (String) row[4],                  // address
+                (String) row[5],                  // billCode
+                (String) row[6]                   // billStatus
+        );
+    }
+
+    @Override
+    public List<RevenueTop10CustomerResponse> getTop10RevenueCustomers() {
+        List<Object[]> results = statisticRepository.findTop10RevenueCustomers();
+        return results.stream()
+                .map(this::mapToRevenueResponse)
+                .collect(Collectors.toList());
+    }
+
+    private RevenueTop10CustomerResponse mapToRevenueResponse(Object[] row) {
+        return new RevenueTop10CustomerResponse(
+                ((Number) row[0]).longValue(),
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                new BigDecimal(row[4].toString())
+        );
     }
 }

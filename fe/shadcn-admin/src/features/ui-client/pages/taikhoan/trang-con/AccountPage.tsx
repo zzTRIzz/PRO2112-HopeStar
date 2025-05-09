@@ -20,7 +20,15 @@ import {
 // Zod Schema Validation (Updated)
 const formSchema = z.object({
   fullName: z.string().min(1, "Họ tên không được để trống"),
-  phone: z.string().regex(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  phone: z.string().refine(
+    (value) => {
+      // Accept standard Vietnamese phone format: 10 digits starting with 0
+      // Also allow some common formats with spaces or dashes
+      const cleanedValue = value.replace(/[\s-]/g, '');
+      return /^0\d{9}$/.test(cleanedValue);
+    }, 
+    { message: "Số điện thoại không hợp lệ (phải có 10 số và bắt đầu bằng số 0)" }
+  ),
   gender: z.union([z.boolean(), z.null()]).refine(val => val !== null, {
     message: "Vui lòng chọn giới tính"
   }),
@@ -40,9 +48,9 @@ const formSchema = z.object({
       const birthDate = new Date(val.year, val.month - 1, val.day);
       
       // Check if birthdate is after the minimum allowed date (less than 100 years old)
-      return birthDate >= minDate;
+      return birthDate >= minDate && birthDate <= today;
     }, {
-      message: "Tuổi không được vượt quá 100"
+      message: "Tuổi không được vượt quá 100 hoặc lớn hơn ngày hiện tại",
     })
 })
 
@@ -53,6 +61,9 @@ interface FormData {
   gender: boolean | null
   birthDate: CalendarDate | null
 }
+
+// Custom event for profile update notification
+const PROFILE_UPDATED_EVENT = 'profile-updated';
 
 // Helper function to safely parse dates from different formats
 const safeParseDateFromString = (dateString: string | null | undefined): CalendarDate | null => {
@@ -196,6 +207,13 @@ export const AccountPage = () => {
     validateForm();
   }
 
+  // Notify Navbar to refresh profile data
+  const notifyProfileUpdated = () => {
+    // Dispatch a custom event that Navbar can listen for
+    const event = new CustomEvent(PROFILE_UPDATED_EVENT);
+    window.dispatchEvent(event);
+  }
+
   const handleConfirmSubmit = async () => {
     try {
       setIsSubmitting(true)
@@ -234,6 +252,10 @@ export const AccountPage = () => {
         toast.success(response.data.message || 'Cập nhật thông tin thành công')
         // Refresh profile data
         if (refetch) await refetch()
+        
+        // Notify Navbar to refresh
+        notifyProfileUpdated();
+        
         setShowConfirmDialog(false)
       } else {
         toast.error(response.data.message || 'Cập nhật thất bại')
@@ -305,6 +327,7 @@ export const AccountPage = () => {
         />
 
         <Input
+          // readOnly
           label="Số điện thoại"
           value={formData.phone}
           onValueChange={handleStringChange('phone')}

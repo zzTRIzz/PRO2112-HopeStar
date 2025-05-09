@@ -156,17 +156,11 @@ public class BanHangTaiQuay {
 
     //    Chỉ cần có id nhân viên để gán vào bill là được
     @PostMapping("/addHoaDon")
-    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization", required = true) String jwt) throws Exception {
-        try {
-            Account account = authService.findAccountByJwt(jwt);
-            BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
-            return ResponseEntity.ok(billDto1);
-        } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo hóa đơn");
-        }
+    public ResponseEntity<?> addHoaDon(@RequestHeader(value = "Authorization") String jwt) throws Exception {
 
+        Account account = authService.findAccountByJwt(jwt);
+        BillDto billDto1 = billService.createHoaDonTaiQuay(account.getId());
+        return ResponseEntity.ok(billDto1);
     }
 
     //    Chỉ cần có id Khach hang để gán vào bill là được
@@ -203,55 +197,14 @@ public class BanHangTaiQuay {
         return ResponseEntity.ok(saveBillDto);
     }
 
-    @PostMapping("/addHDCT")
-    public ResponseEntity<?> addHDCT(@RequestBody BillDetailDto billDetailDto) {
-        ProductDetail productDetail = productDetailRepository.findById(billDetailDto.getIdProductDetail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm chi tiết"));
-        billDetailDto.setQuantity(0);
-        BigDecimal price = productDetail.getPriceSell();
-        billDetailDto.setPrice(price);
-        billDetailDto.setTotalPrice(price.multiply(BigDecimal.valueOf(billDetailDto.getQuantity())));
-
+    @PostMapping("/add-bill-detail-and-create-imei-sold")
+    public ResponseEntity<?> addBillDetailAndCreateImeiSold(@RequestBody BillDetailDto billDetailDto) {
         Bill bill = billRepository.findById(billDetailDto.getIdBill())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-        Optional<BillDetail> existingBillDetail = billDetailRepository.findFirstByIdBillAndIdProductDetail(
-                billDetailDto.getIdBill(), billDetailDto.getIdProductDetail());
-
-        BillDetailDto savebillDetailDto;
-//        cộng số lượng nếu có sp và hóa đon giống nhau
-        if (existingBillDetail.isPresent()) {
-            savebillDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
-                    billDetailDto.getIdBill(), billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
-        } else {
-            savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
-        }
-
-        BillDto billDto = billMapper.dtoBillMapper(bill);
-        billService.saveBillDto(billDto);
-        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(billDetailDto.getIdProductDetail(), billDetailDto.getQuantity());
-        billService.capNhatVoucherKhiChon(bill.getId(), bill.getIdVoucher());
-        billService.tongTienBill(bill.getId());
+        SearchBillDetailDto savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
+        billService.capNhatVoucherKhiChon(billDetailDto.getIdBill(), bill.getIdVoucher());
+        billService.tongTienBill(billDetailDto.getIdBill());
         return ResponseEntity.ok(savebillDetailDto);
-    }
-
-    @PostMapping("/create_imei_sold/{idBill}/{idProduct}")
-    public ResponseEntity<?> createImeiSold(@RequestBody ImeiSoldDto imeiSoldDto,
-                                            @PathVariable("idBill") Integer idBill,
-                                            @PathVariable("idProduct") Integer idProduct
-    ) {
-        imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(),
-                imeiSoldDto.getId_Imei());
-
-        BillDetailDto billDetailDto = billDetailService.thayDoiSoLuongKhiCungSPVaHD(
-                idBill, idProduct, imeiSoldDto.getId_Imei().size());
-        Bill bill = billRepository.findById(idBill)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
-
-        Integer quantyti = imeiSoldDto.getId_Imei().size();
-        productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProduct, quantyti);
-        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
-        billService.tongTienBill(idBill);
-        return ResponseEntity.ok(billDetailDto);
     }
 
     @PostMapping("/update_imei_sold/{idBill}/{idProduct}")
@@ -259,20 +212,16 @@ public class BanHangTaiQuay {
                                             @PathVariable("idBill") Integer idBill,
                                             @PathVariable("idProduct") Integer idProduct
     ) {
+
         BillDetail billDetail = billDetailRepository.findById(imeiSoldDto.getIdBillDetail())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay bill detail"));
-
-        Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
-
         imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
                 imeiSoldDto.getId_Imei());
+        Integer quantyti = imeiSoldDto.getId_Imei().size() - billDetail.getQuantity();
 
-        if (billDetail.getQuantity() - quantyti == 0) {
-            billDetailService.deleteBillDetail(imeiSoldDto.getIdBillDetail());
-        } else {
-            billDetailService.thayDoiSoLuongKhiCungSPVaHD(
-                    idBill, idProduct, quantyti);
-        }
+        billDetailService.thayDoiSoLuongKhiCungSPVaHD(
+                idBill, idProduct, quantyti);
+
         Bill bill = billRepository.findById(idBill)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
 

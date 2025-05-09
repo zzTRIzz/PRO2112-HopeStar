@@ -50,12 +50,12 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
   {
     accessorKey: 'ramCapacity',
     header: 'RAM',
-    cell: ({ row }) => <div>{row.original.ramCapacity}GB</div>,
+    cell: ({ row }) => <div>{row.original.ramCapacity}</div>,
   },
   {
     accessorKey: 'romCapacity',
     header: 'ROM',
-    cell: ({ row }) => <div>{row.original.romCapacity}GB</div>,
+    cell: ({ row }) => <div>{row.original.romCapacity}</div>,
   },
   {
     accessorKey: 'colorName',

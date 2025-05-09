@@ -63,6 +63,7 @@ export interface SearchBillDetail {
   nameProduct: string,
   ram: number,
   rom: number,
+  descriptionRom: string,
   mauSac: string,
   imageUrl: string,
   idBill: number
@@ -77,6 +78,7 @@ export interface ProductDetail {
   name: string,
   ram: number,
   rom: number,
+  descriptionRom: string
   color: string,
   imageUrl: string,
 }
@@ -90,6 +92,7 @@ export interface AccountKhachHang {
   address: string,
   googleId: string
 }
+
 export interface Imei {
   id: number,
   imeiCode: string,
@@ -99,7 +102,7 @@ export interface Imei {
 
 
 export const ImeiSold = z.object({
-  id_Imei: z.array(z.number()), // Danh sách số nguyên
+  id_Imei: z.array(z.number()),
   idBillDetail: z.number(),
 });
 
@@ -111,7 +114,8 @@ export type ImeiSoldSchema = z.infer<typeof ImeiSold>;
 
 export const billDetailSchema = z.object({
   idBill: z.number().int().positive(),
-  idProductDetail: z.number().int().positive()
+  idProductDetail: z.number().int().positive(),
+  id_Imei: z.array(z.number()),
 });
 
 export type BillDetailSchema = z.infer<typeof billDetailSchema>;

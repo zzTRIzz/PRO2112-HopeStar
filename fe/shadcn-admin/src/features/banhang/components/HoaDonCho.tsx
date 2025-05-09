@@ -61,7 +61,7 @@ const HoaDonCho: React.FC<pendingInvoiceList> =
                                         onClick={() => setValue("")} >
                                         {b.nameBill}
                                         <div className="relative">
-                                            <ImCart size={20}  className="text-blue-600"/>
+                                            <ImCart size={20} className="text-blue-600" />
                                             {b.itemCount >= 0 && (
                                                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1 text-xs">
                                                     {b.itemCount}
@@ -119,12 +119,25 @@ const HoaDonCho: React.FC<pendingInvoiceList> =
                                                     onSelect={(currentValue) => {
                                                         setValue(currentValue === valueID ? "" : currentValue)
                                                         setOpen(false),
-                                                            getById(b.id); 
+                                                            getById(b.id);
 
                                                     }}
                                                 >
                                                     {b.nameBill}
-                                                     {/* <button>++</button> */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            void huyHoaDonTheoId(b.id)
+                                                        }}
+                                                        style={{
+                                                            background: "none",
+                                                            border: "none",
+                                                            padding: 0,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        <FaTimes size={16} />
+                                                    </button>
                                                     <Check
                                                         className={cn(
                                                             "ml-auto",
