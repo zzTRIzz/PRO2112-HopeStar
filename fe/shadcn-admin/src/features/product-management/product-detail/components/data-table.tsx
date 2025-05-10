@@ -110,7 +110,7 @@ export function DataTable<TData, TValue>({
                       <DataTableRowActions row={row} />
                     </TableCell>
                   ):(<TableCell>
-                    <DataTableRowImeiActions row={row} />
+                    <DataTableRowImeiActions row={row} data={data}/>
                   </TableCell>)}
                 </TableRow>
               ))

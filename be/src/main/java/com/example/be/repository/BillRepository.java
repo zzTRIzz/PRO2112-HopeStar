@@ -71,4 +71,24 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
             "AND b.status = :status")
     Integer getTotalQuantity(@Param("productDetailId") Integer productDetailId,
                              @Param("status") StatusBill statusBill);
+
+    //    @Query("SELECT " +
+//            "CASE WHEN b.status = :status THEN TRUE ELSE FALSE END " +
+//            "FROM ImeiSold is " +
+//            "JOIN is.id_Imei i " +
+//            "JOIN is.idBillDetail bd " +
+//            "JOIN bd.idBill b " +
+//            "WHERE i.imeiCode = :imeiCode ")
+//    Boolean checkImeiWithBillStatus(@Param("imeiCode") String imeiCode,
+//                                    @Param("status") StatusBill status);
+    @Query(value = "SELECT COALESCE((" +
+            "SELECT CASE WHEN b.status = 'HOAN_THANH' THEN TRUE ELSE FALSE END " +
+            "FROM imei_sold isold " +
+            "JOIN imei i ON isold.id_imei = i.id " +
+            "JOIN bill_detail bd ON isold.id_bill_detail = bd.id " +
+            "JOIN bill b ON bd.id_bill = b.id " +
+            "WHERE i.imei_code = :imeiCode " +
+            "LIMIT 1), FALSE)", nativeQuery = true)
+    int checkImeiWithBillStatus(@Param("imeiCode") String imeiCode);
+
 }

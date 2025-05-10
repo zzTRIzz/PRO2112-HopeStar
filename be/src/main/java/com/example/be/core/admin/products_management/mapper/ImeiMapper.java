@@ -5,7 +5,10 @@ import com.example.be.core.admin.products_management.dto.model.ProductImeiDTO;
 import com.example.be.core.admin.products_management.dto.request.ProductImeiRequest;
 import com.example.be.core.admin.products_management.dto.response.ProductImeiResponse;
 import com.example.be.entity.Imei;
+import com.example.be.entity.status.StatusBill;
 import com.example.be.entity.status.StatusImei;
+import com.example.be.repository.BillRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,6 +16,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class ImeiMapper {
+
+    @Autowired
+    BillRepository billRepository;
 
     // Chuyển đổi từ ProductImeiRequest -> ProductImeiDTO
     public ProductImeiDTO requestToDTO(ProductImeiRequest request) {
@@ -80,13 +86,17 @@ public class ImeiMapper {
         if (dto == null) {
             return null;
         }
-
+        int statusBill = billRepository.checkImeiWithBillStatus(dto.getImeiCode());
+        boolean checkStatusBill = false;
+        if (statusBill != 0 ){
+            checkStatusBill = true;
+        }
         ProductImeiResponse response = new ProductImeiResponse();
         response.setId(dto.getId());
         response.setCode(dto.getImeiCode());
         response.setBarCode(dto.getBarCode());
         response.setStatusImei(dto.getStatusImei());
-
+        response.setCheckSatatusBill(checkStatusBill);
         return response;
     }
 

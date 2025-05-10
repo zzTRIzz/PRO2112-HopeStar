@@ -131,7 +131,7 @@ const { id } = Route.useParams()
                 <FormItem>
                   <FormLabel>IMEI</FormLabel>
                   <FormControl>
-                    <Input placeholder='Nhập mã IMEI...' {...field} />
+                    <Input placeholder='Nhập mã IMEI...' {...field}  disabled/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

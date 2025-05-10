@@ -106,6 +106,7 @@ export const productDetailById = async (id: number) => {
         },
       }
     )
+    console.log('response', response.data)
     return response.data
   } catch (error) {
     console.error('Error fetching product-details:', error)

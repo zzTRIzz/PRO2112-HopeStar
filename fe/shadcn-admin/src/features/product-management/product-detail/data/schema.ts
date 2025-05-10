@@ -13,6 +13,7 @@ export const ProductImeiResponseSchema = z.object({
   code: z.string(),
   barCode: z.string(),
   statusImei: StatusImeiEnum,
+  checkSatatusBill: z.boolean(),
 })
 
 // Define the main ProductDetailResponse schema

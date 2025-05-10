@@ -4,16 +4,24 @@ import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { useDialog } from '../context/dialog-context'
 import { ProductImeiResponseSchema } from '../data/schema'
-
+import { use, useEffect, useState } from 'react'
 interface DataTableRowImeiActionsProps<TData> {
-  row: Row<TData>
+  row: Row<TData>;
+  data: TData[]
 }
 
 export function DataTableRowImeiActions<TData>({
   row,
+  data
 }: DataTableRowImeiActionsProps<TData>) {
   const { setOpen, setCurrentRow } = useDialog()
+  const [statusBill, setStatusBill] = useState(false);
+  useEffect(() => {
 
+    const imei = ProductImeiResponseSchema.parse(row.original)
+    setStatusBill(imei.checkSatatusBill);
+    // console.log('Parsed data:', imei.checkSatatusBill)
+  }, []);
   const handleUpdateClick = () => {
     try {
       // Thêm logging để debug
@@ -25,9 +33,10 @@ export function DataTableRowImeiActions<TData>({
       }
 
       const imei = ProductImeiResponseSchema.parse(row.original)
-
+      // setStatusBill(imei.checkSatatusBill);
       // Log kết quả parse
-      console.log('Parsed data:', imei)
+      // console.log('Parsed data:', imei)
+      // console.log('Parsed data:', data.productImeiResponses.checkSatatusBill)
 
       setCurrentRow(imei)
       setOpen('update-imei')
@@ -48,8 +57,7 @@ export function DataTableRowImeiActions<TData>({
         className='h-10 w-10 bg-yellow-500 hover:bg-gray-500'
         onClick={handleUpdateClick}
         // Disable nút nếu không có dữ liệu hợp lệ
-        disabled={!row.original}
-      >
+        disabled={statusBill == false}>
         <IconPencil size={18} />
       </Button>
     </div>
