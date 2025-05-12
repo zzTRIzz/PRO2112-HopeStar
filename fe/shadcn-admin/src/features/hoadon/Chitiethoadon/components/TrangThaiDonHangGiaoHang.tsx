@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass } from "lucide-react";
+import { RefreshCw, WalletCards, XOctagon, BadgeCheck, PackageSearch, PackageOpen, ClipboardCheck, Hourglass, XCircle, AlertTriangle } from "lucide-react";
 import { BillRespones } from "@/features/banhang/service/Schema";
 import { huyHoaDon, updateStatus } from "../../service/HoaDonService";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ export type OrderStatus =
   | "DA_HUY"
   | "CAP_NHAT_DON_HANG"
   | "CHO_THANH_TOAN"
+  | "GIAO_THAT_BAI"
   ;
 
 interface OrderStepperProps {
@@ -112,6 +113,14 @@ const statusMap: Record<string, {
     color_text: "text-yellow-600",
     color_boder: "border-yellow-400",
   },
+  GIAO_THAT_BAI: {
+    title: "Giao hàng thất bại",
+    icon: <AlertTriangle className="w-6 h-6" />,
+    color_bg: "bg-red-100",
+    color_text: "text-red-600",
+    color_boder: "border-red-400",
+  },
+
 };
 interface OrderStepperProps {
   currentStatus: OrderStatus;
@@ -127,6 +136,7 @@ const statusHistoryToOrderStatus: Record<StatusBillHistory, OrderStatus> = {
   "Chờ thanh toán": "CHO_XAC_NHAN",
   "Chờ xác nhận": "CHO_XAC_NHAN",
   "Cập nhật đơn hàng ": "CAP_NHAT_DON_HANG",
+  "Giao hàng thất bại": "GIAO_THAT_BAI",
 };
 
 const OrderStepper: React.FC<OrderStepperProps> = ({
@@ -258,7 +268,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
         setCurrentStatus(trangThai as OrderStatus);
         // console.log("Trạng thái hiện tại:", trangThai);
       }
-    }, [searchBill]);   
+    }, [searchBill]);
     const statusOrder: OrderStatus[] = [
       "CHO_XAC_NHAN",
       "DA_XAC_NHAN",
@@ -437,6 +447,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                   currentStatus === "CHO_THANH_TOAN"
                   || currentStatus === "HOAN_THANH"
                   || currentStatus === "DA_HUY"
+                  || currentStatus === "GIAO_THAT_BAI"
                 }
                 className={cn(
                   "px-4 py-2 rounded-md text-white transition-all duration-300",
@@ -445,7 +456,17 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
               >
                 {getNextStatus() ? `${statusMap[getNextStatus()!]?.title}` : "Xác nhận"}
               </Button>
-
+              {currentStatus === "DANG_GIAO_HANG" && (
+                <Button
+                  onClick={() => handleOpenDialog("cancel")}
+                  className={cn(
+                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                    "flex items-center gap-2 bg-red-600 hover:bg-red-500"
+                  )}
+                >
+                  Giao hàng thất bại
+                </Button>
+              )}
               {/* Nút Hủy đơn */}
               <Button
                 onClick={() => handleOpenDialog("cancel")}
@@ -454,6 +475,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                   || currentStatus === "HOAN_THANH"
                   || currentStatus === "CHO_THANH_TOAN"
                   || currentStatus === "DA_HUY"
+                  || currentStatus === "GIAO_THAT_BAI"
                 }
                 className={cn(
                   "px-4 py-2 rounded-md text-white transition-all duration-300",

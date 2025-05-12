@@ -164,8 +164,8 @@ const TimKiemHoaDon: React.FC<Props> = ({ originalList, setFilteredList }) => {
                       <option value="DA_XAC_NHAN">Đã xác nhận</option>
                       <option value="DANG_CHUAN_BI_HANG">Đang chuẩn bị hàng</option>
                       <option value="DANG_GIAO_HANG">Đang giao hàng</option>
-                      {/* <option value="DA_GIAO_HANG">Đã giao hàng</option> */}
                       <option value="HOAN_THANH">Hoàn thành</option>
+                      <option value="GIAO_THAT_BAI">Giao hàng thất bại</option>
                       <option value="DA_HUY">Đã hủy</option>
                     </select>
                   </div>

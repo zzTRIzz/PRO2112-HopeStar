@@ -32,6 +32,7 @@ const ThongTinDonHang: React.FC<Posp> =
                 case "HOAN_THANH": return "Hoàn thành";
                 case "DANG_CHUAN_BI_HANG": return "Đang chuẩn bị hàng";
                 case "DANG_GIAO_HANG": return "Đang giao hàng";
+                case "GIAO_THAT_BAI": return "Giao hàng thất bại";
                 default: return "Không rõ trạng thái";
             }
         };
@@ -44,14 +45,13 @@ const ThongTinDonHang: React.FC<Posp> =
                         <h1 className="font-bold text-lg text-gray-600">Thông tin đơn hàng</h1>
                         {/* {searchBill?.billType == 1 && ( */}
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <Button onClick={() => setIsDialogOpen(true)}
-                                disabled={searchBill?.status === "DANG_GIAO_HANG" ||
-                                    searchBill?.status === "HOAN_THANH" ||
-                                    searchBill?.status === "CHO_THANH_TOAN" ||
-                                    searchBill?.status === "DA_HUY"
-                                }
-                            >Cập nhật
+                            <Button
+                                onClick={() => setIsDialogOpen(true)}
+                                disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY", "GIAO_THAT_BAI"].includes(searchBill?.status ?? "")}
+                            >
+                                Cập nhật
                             </Button>
+
 
                             <DialogContent className="max-w-2xl">
                                 <DialogHeader>
@@ -59,9 +59,9 @@ const ThongTinDonHang: React.FC<Posp> =
                                 </DialogHeader>
                                 <DiaChiGiaoHang
                                     idBill={searchBill?.id}
-                                    fullName={searchBill?.name??""}
-                                    phone={searchBill?.phone??""}
-                                    address={searchBill?.address??""}
+                                    fullName={searchBill?.name ?? ""}
+                                    phone={searchBill?.phone ?? ""}
+                                    address={searchBill?.address ?? ""}
                                     onClose={() => setIsDialogOpen(false)}
                                     loadTongBill={loadTongBill}
                                     themBillHistory={themBillHistory}

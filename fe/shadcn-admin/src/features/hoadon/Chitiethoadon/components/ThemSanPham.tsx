@@ -72,7 +72,7 @@ const ThemSanPham: React.FC<SanPhamChiTiet> =
                     variant='outline'
                     className='bg-blue-600 text-white hover:bg-gray-300 hover:text-blue-600'
                     onClick={() => setDialogContent('product')}
-                    disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY"].includes(searchBill?.status ?? "")}
+                    disabled={["DANG_GIAO_HANG", "HOAN_THANH", "CHO_THANH_TOAN", "DA_HUY", "GIAO_THAT_BAI"].includes(searchBill?.status ?? "")}
                   >
                     Thêm sản phẩm
                   </Button>

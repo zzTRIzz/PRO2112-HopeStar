@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
-public class ChatController {
+public class  ChatController {
 
     @Autowired
     private ChatService chatService;

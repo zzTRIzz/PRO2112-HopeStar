@@ -67,6 +67,7 @@ export enum StatusBillHistory {
   HOAN_THANH = 'Hoàn thành ',
   DA_HUY = 'Đã hủy',
   CAP_NHAT_DON_HANG = 'Cập nhật đơn hàng ',
+  GIAO_THAT_BAI = 'Giao hàng thất bại',
 }
 
 export interface BillHistoryRequest {

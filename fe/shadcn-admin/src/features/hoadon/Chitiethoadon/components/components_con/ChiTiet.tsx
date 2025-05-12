@@ -12,7 +12,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { BillRespones } from '@/features/banhang/service/Schema';
-import { CreditCard, CheckCircle, Truck, Clock, RefreshCw, XCircle, WalletCards, PackageSearch, PackageOpen, BadgeCheck, ClipboardCheck, Hourglass, XOctagon } from "lucide-react";
+import { RefreshCw, XCircle, WalletCards, PackageSearch, PackageOpen, BadgeCheck, ClipboardCheck, Hourglass, XOctagon, AlertTriangle } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 interface ChiTietPros {
@@ -86,6 +86,13 @@ const ChiTiet: React.FC<ChiTietPros> =
                 color_text: "text-yellow-600",
                 color_boder: "border-yellow-400",
             },
+            GIAO_THAT_BAI: {
+                title: "Giao hàng thất bại",
+                icon: <AlertTriangle className="w-6 h-6" />,
+                color_bg: "bg-red-100",
+                color_text: "text-red-600",
+                color_boder: "border-red-400",
+            }
         };
         const getOrderStatusText = (status: string) => {
             const data = statusMap[status];

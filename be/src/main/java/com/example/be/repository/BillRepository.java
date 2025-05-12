@@ -82,7 +82,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 //    Boolean checkImeiWithBillStatus(@Param("imeiCode") String imeiCode,
 //                                    @Param("status") StatusBill status);
     @Query(value = "SELECT COALESCE((" +
-            "SELECT CASE WHEN b.status = 'HOAN_THANH' THEN TRUE ELSE FALSE END " +
+            "SELECT CASE WHEN b.status = 'GIAO_THAT_BAI' THEN TRUE ELSE FALSE END " +
             "FROM imei_sold isold " +
             "JOIN imei i ON isold.id_imei = i.id " +
             "JOIN bill_detail bd ON isold.id_bill_detail = bd.id " +

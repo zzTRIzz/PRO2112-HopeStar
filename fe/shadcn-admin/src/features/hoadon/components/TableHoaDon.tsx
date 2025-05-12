@@ -20,6 +20,7 @@ const statusStyles: Record<string, string> = {
     "DANG_CHUAN_BI_HANG": "bg-pink-500 text-white",
     "DANG_GIAO_HANG": "bg-violet-500 text-white",
     "DA_HUY": "bg-red-500 text-white",
+    "GIAO_THAT_BAI": "bg-red-500 text-white",
 
 };
 interface Props {
@@ -71,6 +72,7 @@ const TableHoaDon: React.FC<Props> = ({ listHoaDon = [] }) => {
             case "DANG_GIAO_HANG": return "Đang giao hàng";
             case "HOAN_THANH": return "Hoàn thành";
             case "DA_HUY": return "Đã hủy";
+            case "GIAO_THAT_BAI": return "Giao hàng thất bại";
             default: return "Không rõ trạng thái";
 
         }

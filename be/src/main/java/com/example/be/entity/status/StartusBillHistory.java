@@ -8,5 +8,6 @@ public enum StartusBillHistory {
     DANG_GIAO_HANG,
     HOAN_THANH,
     DA_HUY,
-    CAP_NHAT_DON_HANG
+    CAP_NHAT_DON_HANG,
+    GIAO_THAT_BAI
 }
