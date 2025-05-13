@@ -39,12 +39,13 @@ const orderStatusSteps = [
 
 const statusConfig = {
   CHO_XAC_NHAN: { color: '#f5a524', text: 'Chờ xác nhận' },
-  CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
+  // CHO_THANH_TOAN: { color: '#f5a524', text: 'Chờ xác nhận' },
   DA_XAC_NHAN: { color: '#339999', text: 'Đã xác nhận' },
   DANG_CHUAN_BI_HANG: { color: '#FF0099', text: 'Đang chuẩn bị hàng' },
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
   DA_HUY: { color: '#dc3545', text: 'Đã hủy' },
+  GIAO_THAT_BAI: { color: '#dc3545', text: 'Đã hủy' },
 }
 
 const getPaymentMethod = (method: number | null) => {
@@ -79,7 +80,7 @@ const OrderTrackingPage = () => {
 
 
   const getCurrentStep = () => {
-    if (bill?.status === 'DA_HUY') return -1;
+    if (bill?.status === 'DA_HUY' || bill?.status === 'GIAO_THAT_BAI') return -1;
     return orderStatusSteps.findIndex(step =>
       step.statuses.includes(bill?.status || '')
     );
@@ -130,7 +131,7 @@ const OrderTrackingPage = () => {
         {/* Order Timeline - Đổi màu chính ở đây */}
         <Card className="border-none shadow-sm h-[110px]">
           <CardBody>
-            {bill?.status === 'DA_HUY' ? (
+            {(bill?.status === 'DA_HUY' || bill?.status === 'GIAO_THAT_BAI') ? (
               <div className="absolute inset-0 bg-red-100 flex items-center justify-center rounded-lg ">
                 <div className="flex items-center gap-2 text-red-600">
                   <Icon icon="lucide:alert-circle" width={24} />
@@ -226,7 +227,7 @@ const OrderTrackingPage = () => {
                         <p className='font-medium'>
                           {bd?.productDetail?.productName
                             + ' ' + bd?.productDetail?.ram
-                            + '/' + bd?.productDetail?.rom+bd?.productDetail?.descriptionRom
+                            + '/' + bd?.productDetail?.rom + bd?.productDetail?.descriptionRom
                             + ' - ' + bd?.productDetail?.color}
                         </p>
                         <p className='text-sm text-default-500'>Số lượng: {bd?.quantity}</p>

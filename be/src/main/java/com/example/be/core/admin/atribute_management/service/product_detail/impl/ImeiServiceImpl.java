@@ -10,6 +10,7 @@ import com.example.be.entity.Imei;
 import com.example.be.core.admin.atribute_management.service.product_detail.ImeiService;
 import com.example.be.entity.Product;
 import com.example.be.entity.ProductDetail;
+import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.ImeiRepository;
 import com.example.be.repository.ProductDetailRepository;
@@ -132,15 +133,27 @@ public class ImeiServiceImpl implements ImeiService {
     public Object updateImei(Integer id, ImeiRequest imeiRequest) throws Exception {
         Imei imei = imeiRepository.findById(id).orElseThrow(()->
                 new Exception("Imei không tồn tại"));
-        if (!imei.getImeiCode().equals(imeiRequest.getImeiCode())){
-           Imei imeiExit = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
-           if (imeiExit !=null){
-               throw new Exception("Imei đã tồn tại");
-           }
+//        if (!imei.getImeiCode().equals(imeiRequest.getImeiCode())){
+//           Imei imeiExit = imeiRepository.findImeiByImeiCode(imeiRequest.getImeiCode());
+//           if (imeiExit !=null){
+//               throw new Exception("Imei đã tồn tại");
+//           }
+//        }
+//        imei.setImeiCode(imeiRequest.getImeiCode());
+//        imei.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
+        ProductDetail productDetail = productDetailRepository.findById(
+                imei.getProductDetail().getId()
+        ).orElseThrow(() -> new Exception("Chi tiết sản phẩm không tồn tại"));
+
+        if (imei.getStatus() == StatusImei.SOLD && imeiRequest.getStatus() == StatusImei.NOT_SOLD) {
+            productDetail.setInventoryQuantity(productDetail.getInventoryQuantity() + 1);
+            if (productDetail.getStatus() == ProductDetailStatus.DESIST){
+                productDetail.setStatus(ProductDetailStatus.ACTIVE);
+            }
+            productDetailRepository.save(productDetail);
         }
-        imei.setImeiCode(imeiRequest.getImeiCode());
-        imei.setBarCode(barcodeGenerator.generateBarcodeImageBase64Url(imeiRequest.getImeiCode(), BarcodeFormat.CODE_128));
         imei.setStatus(imeiRequest.getStatus());
+
         imeiRepository.save(imei);
         return "Cập nhật thành công!";
     }

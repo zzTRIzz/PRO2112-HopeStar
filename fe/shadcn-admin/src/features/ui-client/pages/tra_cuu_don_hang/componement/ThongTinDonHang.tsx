@@ -46,6 +46,7 @@ const statusConfig = {
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn tất' },
   DA_HUY: { color: '#dc3545', text: 'Đã hủy' },
+  GIAO_THAT_BAI: { color: '#dc3545', text: 'Đã hủy' },
 }
 
 const getPaymentMethod = (method: number | null) => {
@@ -141,7 +142,7 @@ const ThongTinDonHang = () => {
         {/* Order Timeline - Đổi màu chính ở đây */}
         <Card className="border-none shadow-sm h-[110px]">
           <CardBody>
-            {bill?.status === 'DA_HUY' ? (
+            {(bill?.status === 'DA_HUY' || bill?.status === 'GIAO_THAT_BAI') ? (
               <div className="absolute inset-0 bg-red-100 flex items-center justify-center rounded-lg ">
                 <div className="flex items-center gap-2 text-red-600">
                   <Icon icon="lucide:alert-circle" width={24} />

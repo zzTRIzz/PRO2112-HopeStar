@@ -20,12 +20,12 @@ export function DataTableRowImeiActions<TData>({
 
     const imei = ProductImeiResponseSchema.parse(row.original)
     setStatusBill(imei.checkSatatusBill);
-    // console.log('Parsed data:', imei.checkSatatusBill)
+    console.log('Parsed data:', imei.checkSatatusBill)
   }, []);
   const handleUpdateClick = () => {
     try {
       // Thêm logging để debug
-      console.log('Row data:', row.original)
+      console.log('Row data:', row.original.statusImei)
 
       // Kiểm tra dữ liệu trước khi parse
       if (!row.original) {
@@ -54,12 +54,15 @@ export function DataTableRowImeiActions<TData>({
   return (
     <div className='flex items-center gap-2'>
       <Button
-        className='h-10 w-10 bg-yellow-500 hover:bg-gray-500'
+        className="h-10 w-10 bg-yellow-500 hover:bg-gray-500"
         onClick={handleUpdateClick}
-        // Disable nút nếu không có dữ liệu hợp lệ
-        disabled={statusBill == false}>
+        disabled={
+          statusBill === false
+        }
+      >
         <IconPencil size={18} />
       </Button>
+
     </div>
   )
 }

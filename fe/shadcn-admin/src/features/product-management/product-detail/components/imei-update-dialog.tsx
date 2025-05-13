@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { updateImei } from '@/features/product-management/attribute/imei/data/api-service'
-import { StatusImei } from '@/features/product-management/attribute/imei/data/schema'
+import { StatusImei, UpdateStatusImei } from '@/features/product-management/attribute/imei/data/schema'
 import { Route } from '@/routes/_authenticated/route'
 
 const formSchema = z.object({
@@ -74,7 +74,7 @@ const { id } = Route.useParams()
 
       toast({
         title: 'Thành công',
-        description: 'Cập nhật IMEI thành công',
+        description: 'Cập nhật trạng thái imei thành công',
         className: 'bg-white',
       })
 
@@ -98,7 +98,7 @@ const { id } = Route.useParams()
 
   const getStatusLabel = (status: string) => {
     const statusLabels: Record<string, string> = {
-      SOLD: 'Đã bán',
+      // SOLD: 'Đã bán',
       IN_ACTIVE: 'Không hoạt động',
       NOT_SOLD: 'Chưa bán'
     }
@@ -146,16 +146,16 @@ const { id } = Route.useParams()
                   <FormLabel>Trạng thái</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
+                    // value={field.value}
+                    // defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Chọn trạng thái' />
+                        <SelectValue placeholder='Chọn trạng thái'/>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(StatusImei).map(([key, value]) => (
+                      {Object.entries(UpdateStatusImei).map(([key, value]) => (
                         <SelectItem key={key} value={value}>
                           {/* đổi giá trị hiển thị  */}
                           {getStatusLabel(value)}

@@ -13,6 +13,7 @@ const statusConfig = {
   DANG_GIAO_HANG: { color: '#007bff', text: 'Đang giao hàng' },
   HOAN_THANH: { color: '#17c964', text: 'Hoàn thành' },
   DA_HUY: { color: 'red', text: 'Đã hủy' },
+  GIAO_THAT_BAI: { color: 'red', text: 'Đã hủy' },
 }
 
 export const OrdersPage = () => {
@@ -37,15 +38,25 @@ export const OrdersPage = () => {
   const filteredOrders = bills
     .filter((bill) => {
       // Lọc theo trạng thái
-      if (selected !== 'all') {
-        if (selected === 'CHO_XAC_NHAN') {
-          if (bill.status !== 'CHO_XAC_NHAN') {
-            return false;
-          }
-        } else if (bill.status !== selected) {
-          return false
+      // if (selected !== 'all') {
+      //   if (selected === 'CHO_XAC_NHAN') {
+      //     if (bill.status !== 'CHO_XAC_NHAN') {
+      //       return false;
+      //     }
+      //   } else if (bill.status !== selected) {
+      //     return false
+      //   }
+      // }
+        if (selected !== 'all') {
+      if (selected === 'DA_HUY') {
+        // Bao gồm cả trạng thái "Đã hủy" và "Giao thất bại"
+        if (bill.status !== 'DA_HUY' && bill.status !== 'GIAO_THAT_BAI') {
+          return false;
         }
+      } else if (bill.status !== selected) {
+        return false;
       }
+    }
 
       // Lọc theo từ khóa tìm kiếm
       if (searchKeyword.trim() !== '') {

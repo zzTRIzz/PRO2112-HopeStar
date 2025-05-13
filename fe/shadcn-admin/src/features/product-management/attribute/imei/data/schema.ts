@@ -6,7 +6,10 @@ export enum StatusImei {
   NOT_SOLD = 'NOT_SOLD',
   IN_ACTIVE = 'IN_ACTIVE',
 }
-
+export enum UpdateStatusImei {
+  NOT_SOLD = 'NOT_SOLD',
+  IN_ACTIVE = 'IN_ACTIVE',
+}
 export const imeiResponseSchema = z.object({
   id: z.number().optional(),
   productName: z.string().min(1, 'Tên sản phẩm không được để trống'),

@@ -350,7 +350,27 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       showSuccessToast("Đã hủy đơn hàng thành công.");
       loadTongBill();
     };
+    const handleFailDelivery = async () => {
+      if (!note?.trim()) {
+        showErrorToast("Vui lòng nhập ghi chú.");
+        return;
+      }
 
+      if (!searchBill) return;
+
+      try {
+        setCurrentStatus("GIAO_THAT_BAI");
+        await updateStatus(searchBill.id, "GIAO_THAT_BAI");
+        themBillHistory("GIAO_THAT_BAI", note);
+        setOpen(false);
+        setNote("");
+        showSuccessToast("Đã cập nhật trạng thái giao hàng thất bại.");
+        loadTongBill();
+      } catch (error) {
+        showErrorToast("Có lỗi xảy ra khi cập nhật trạng thái.");
+        console.error("Error updating status:", error);
+      }
+    };
     const getNextStatus = (): string | null => {
       const currentIndex = statusOrder.indexOf(currentStatus);
       if (currentIndex < statusOrder.length - 1) {
@@ -411,13 +431,12 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       change: searchBill?.amountChange || 0,
     };
     const [open, setOpen] = useState(false);
-    const [dialogType, setDialogType] = useState<"confirm" | "cancel" | null>(null);
+    const [dialogType, setDialogType] = useState<"confirm" | "cancel" | "fail" | null>(null);
     const [note, setNote] = useState("");
 
-    const handleOpenDialog = (type: "confirm" | "cancel") => {
+    const handleOpenDialog = (type: "confirm" | "cancel" | "fail") => {
       setDialogType(type);
       setOpen(true);
-      // console.log(currentStatus + "dsddz")
     };
 
     return (
@@ -458,7 +477,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
               </Button>
               {currentStatus === "DANG_GIAO_HANG" && (
                 <Button
-                  onClick={() => handleOpenDialog("cancel")}
+                  onClick={() => handleOpenDialog("fail")}
                   className={cn(
                     "px-4 py-2 rounded-md text-white transition-all duration-300",
                     "flex items-center gap-2 bg-red-600 hover:bg-red-500"
@@ -515,9 +534,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
               <DialogTitle>
                 {dialogType === "cancel"
                   ? "Hủy đơn hàng"
-                  : (getNextStatus()
-                    ? `${statusMap[getNextStatus()!]?.title} đơn hàng`
-                    : "Xác nhận")}
+                  : dialogType === "fail"
+                    ? "Giao hàng thất bại"
+                    : (getNextStatus()
+                      ? `${statusMap[getNextStatus()!]?.title} đơn hàng`
+                      : "Xác nhận")}
               </DialogTitle>
             </DialogHeader>
             <div className="py-2">
@@ -541,12 +562,21 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 Hủy bỏ
               </Button>
               <Button
-                onClick={dialogType === "confirm" ? handleNextStatus : handleCancel}
-                className={dialogType === "confirm"
+                onClick={
+                  dialogType === "confirm"
+                    ? handleNextStatus
+                    : dialogType === "fail"
+                      ? handleFailDelivery
+                      : handleCancel
+                } className={dialogType === "confirm"
                   ? "bg-blue-500 hover:bg-blue-600 text-white"
                   : "bg-blue-500 hover:bg-blue-600 text-white"}
               >
-                {dialogType === "confirm" ? "Xác nhận" : "Xác nhận"}
+                {dialogType === "confirm"
+                  ? "Xác nhận"
+                  : dialogType === "fail"
+                    ? "Xác nhận thất bại"
+                    : "Xác nhận"}
               </Button>
             </DialogFooter>
           </DialogContent>
