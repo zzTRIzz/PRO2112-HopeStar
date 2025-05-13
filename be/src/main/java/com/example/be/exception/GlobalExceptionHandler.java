@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         }
         errorResponse.setMessage(message);
 
-        System.out.println("=========================> handleException: " + e.getMessage());
+        System.out.println("=========================> handleException😅: " + e.getMessage());
         return errorResponse;
     }
 }

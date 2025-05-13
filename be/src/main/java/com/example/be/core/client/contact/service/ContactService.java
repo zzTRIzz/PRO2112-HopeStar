@@ -3,6 +3,7 @@ package com.example.be.core.client.contact.service;
 import com.example.be.core.client.contact.dto.request.ContactReplyRequest;
 import com.example.be.entity.Contact;
 import com.example.be.repository.ContactRepository;
+import com.example.be.utils.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class ContactService {
     private final ContactRepository contactRepository;
     private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final ExecutorService emailExecutorService = Executors.newFixedThreadPool(10); // Pool 10 luồng
 
     @Transactional
@@ -38,7 +40,7 @@ public class ContactService {
                 .map(contact -> CompletableFuture.runAsync(() -> {
                     try {
                         long start = System.currentTimeMillis();
-                        sendReplyEmail(contact.getEmail(), request.getReply());
+                        emailService.sendReplyEmail(contact.getEmail(), request.getReply());
                         System.out.println("Thời gian gửi email: " + (System.currentTimeMillis() - start) + "ms");
                     } catch (Exception e) {
                         System.err.println("Lỗi gửi email cho " + contact.getEmail() + ": " + e.getMessage());
@@ -50,15 +52,6 @@ public class ContactService {
         CompletableFuture.allOf(emailFutures.toArray(new CompletableFuture[0])).join();
     }
 
-    // Gửi email
-    private void sendReplyEmail(String toEmail, String replyContent) {
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("Phản hồi liên hệ từ cửa hàng HopeStar");
-        message.setText(replyContent);
-
-        mailSender.send(message);
-    }
 }
 
