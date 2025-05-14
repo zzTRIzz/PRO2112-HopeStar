@@ -41,3 +41,9 @@ PRO2112-HopeStar/
    ```bash
    git clone https://github.com/zzTRIzz/PRO2112-HopeStar
    ```
+
+# Hình ảnh
+![Trang chủ](https://raw.githubusercontent.com/zzTRIzz/PRO2112-HopeStar/refs/heads/main/img/Trang%20ch%E1%BB%A7.png)
+![Trang sản phẩm](https://github.com/zzTRIzz/PRO2112-HopeStar/blob/main/img/Trang%20s%E1%BA%A3n%20ph%E1%BA%A9m.png?raw=true)
+![Trang giỏ hàng](https://github.com/zzTRIzz/PRO2112-HopeStar/blob/main/img/Trang%20gi%E1%BB%8F%20h%C3%A0ng.png?raw=true)
+![Trang đặt hàng](https://raw.githubusercontent.com/zzTRIzz/PRO2112-HopeStar/refs/heads/main/img/Trang%20%C4%91%E1%BA%B7t%20h%C3%A0ng.png)
