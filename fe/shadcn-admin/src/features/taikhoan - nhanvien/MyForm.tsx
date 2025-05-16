@@ -866,9 +866,9 @@ export default function MyForm() {
       <div className='mx-auto my-8 w-full max-w-full space-y-4 p-5'>
         <div>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Danh sách khách hàng
+            Danh sách nhân viên
           </h2>
-          <p className='text-muted-foreground'>Quản lý danh sách khách hàng.</p>
+          <p className='text-muted-foreground'>Quản lý danh sách nhân viên.</p>
         </div>
         {isLoading ? (
           <div className='py-4 text-center'>Đang tải dữ liệu...</div>

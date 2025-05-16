@@ -188,4 +188,73 @@ public class EmailService {
 
     }
 
+    // Gửi email
+    public void sendReplyEmail(String toEmail, String replyContent) {
+        try {
+            MimeMessage msg = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
+
+            helper.setFrom("tringuyenquoc15102004@gmail.com");
+            helper.setTo(toEmail);
+            helper.setSubject("Phản hồi liên hệ từ cửa hàng HopeStar");
+
+            String htmlContent = "<!DOCTYPE html>\n" +
+                    "<html lang=\"vi\">\n" +
+                    "<head>\n" +
+                    "    <meta charset=\"UTF-8\">\n" +
+                    "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                    "    <title>Phản hồi - HopeStar</title>\n" +
+                    "</head>\n" +
+                    "<body style=\"margin: 0; padding: 0; background-color: #fff7ed; font-family: Arial, sans-serif; color: #1a1a1a;\">\n" +
+                    "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                    "        <tr>\n" +
+                    "            <td align=\"center\">\n" +
+                    "                <table width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background: #ffffff; border-radius: 16px;\">\n" +
+                    "                    <!-- Header -->\n" +
+                    "                    <tr>\n" +
+                    "                        <td style=\"background: #ff6200; padding: 24px; text-align: center; color: white;\">\n" +
+                    "                            <h1 style=\"font-size: 28px; font-weight: bold; margin: 0;\">HopeStar - Phản hồi liên hệ</h1>\n" +
+                    "                        </td>\n" +
+                    "                    </tr>\n" +
+                    "                    <!-- Content -->\n" +
+                    "                    <tr>\n" +
+                    "                        <td style=\"padding: 40px;\">\n" +
+                    "                            <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Xin chào,</p>\n" +
+                    "                            <p style=\"font-size: 16px; margin: 0 0 24px 0;\">Cảm ơn bạn đã liên hệ với chúng tôi. Dưới đây là phản hồi từ cửa hàng của HopeStar:</p>\n" +
+                    "                            <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
+                    "                                <tr>\n" +
+                    "                                    <td style=\"background: #fff7ed; border-radius: 12px; padding: 24px; font-size: 16px; color: #1a1a1a;\">\n" +
+                    "                                        " + replyContent + "\n" +
+                    "                                    </td>\n" +
+                    "                                </tr>\n" +
+                    "                            </table>\n" +
+                    "                            <p style=\"font-size: 14px; color: #4a4a4a; margin: 20px 0 0 0; line-height: 1.6;\">\n" +
+                    "                                Nếu bạn có thêm câu hỏi hoặc cần hỗ trợ, vui lòng liên hệ lại với chúng tôi.\n" +
+                    "                            </p>\n" +
+                    "                            <a href=\"http://localhost:5173/\" style=\"display: inline-block; padding: 12px 28px; background: #ff6200; color: white; text-decoration: none; border-radius: 8px; margin-top: 28px; font-weight: bold;\">Truy cập HopeStar</a>\n" +
+                    "                        </td>\n" +
+                    "                    </tr>\n" +
+                    "                    <!-- Footer -->\n" +
+                    "                    <tr>\n" +
+                    "                        <td style=\"background: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;\">\n" +
+                    "                            <p style=\"margin: 0;\">Cửa hàng bán điện thoại HopeStar<br>© 2025 HopeStar. All rights reserved.</p>\n" +
+                    "                        </td>\n" +
+                    "                    </tr>\n" +
+                    "                </table>\n" +
+                    "            </td>\n" +
+                    "        </tr>\n" +
+                    "    </table>\n" +
+                    "</body>\n" +
+                    "</html>";
+
+            helper.setText(htmlContent, true); // true indicates HTML content
+            javaMailSender.send(msg);
+            System.out.println(">>>>Send Reply email successfully to " + toEmail);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send Reply email", e);
+        }
+    }
+
 }
