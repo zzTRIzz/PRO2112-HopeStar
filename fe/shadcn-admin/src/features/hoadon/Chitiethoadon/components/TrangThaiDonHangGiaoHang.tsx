@@ -415,10 +415,11 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       staff: searchBill?.fullNameNV,
       customer: searchBill?.name,
       phone: searchBill?.phone,
+      address: searchBill?.address,
       items: searchBill?.billDetailResponesList.map(detail => ({
         product: detail.productDetail.productName + ' ' +
           detail.productDetail.ram + '/' +
-          detail.productDetail.rom + 'GB ( ' +
+          detail.productDetail.rom  +  detail.productDetail.descriptionRom + '( ' +
           detail.productDetail.color + ' )',
         imei: detail.imeiSoldRespones.map(imeiSold => imeiSold.id_Imei.imeiCode),
         price: detail.price,
@@ -427,6 +428,8 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
       totalPrice: searchBill?.totalPrice || 0,
       deliveryFee: searchBill?.deliveryFee || 0,
       discountedTotal: searchBill?.discountedTotal || 0,
+      payInsurance: searchBill?.payInsurance || 0,
+      totalDue: searchBill?.totalDue || 0,
       customerPayment: searchBill?.customerPayment || 0,
       change: searchBill?.amountChange || 0,
     };
@@ -458,7 +461,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
               />
             </div>
 
-            <div className="flex justify-center gap-4 mt-8">
+            <div className="flex justify-center gap-2 mt-8">
 
               <Button
                 onClick={() => handleOpenDialog("confirm")}
@@ -479,7 +482,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                 <Button
                   onClick={() => handleOpenDialog("fail")}
                   className={cn(
-                    "px-4 py-2 rounded-md text-white transition-all duration-300",
+                    "px-2 py-2 rounded-md text-white transition-all duration-300",
                     "flex items-center gap-2 bg-red-600 hover:bg-red-500"
                   )}
                 >
@@ -497,14 +500,14 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                   || currentStatus === "GIAO_THAT_BAI"
                 }
                 className={cn(
-                  "px-4 py-2 rounded-md text-white transition-all duration-300",
+                  "px-2 py-2 rounded-md text-white transition-all duration-300",
                   "flex items-center gap-2 bg-red-600 hover:bg-red-500"
                 )}
               >
                 Hủy đơn
               </Button>
 
-              <div className="ml-[480px]">
+              <div className="ml-auto">
                 <Button
                   disabled={
                     currentStatus === "CHO_THANH_TOAN"

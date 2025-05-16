@@ -207,6 +207,7 @@ export interface ProductDetailRespones {
   ram: number;
   rom: number;
   color: string;
+  descriptionRom: string,
   image: string;
   price: number;
   priceSell: number;

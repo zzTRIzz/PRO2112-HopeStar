@@ -109,7 +109,7 @@ const ThongTinDonHang: React.FC<Posp> =
                             </div>
                             <div className="flex  pb-2 mt-[13px]">
                                 <span className="text-base text-gray-700 font-bold w-[100px]">Địa chỉ:</span>
-                                <p className="ml-[14px]">{searchBill?.address}</p>
+                                <p>{searchBill?.address}</p>
                             </div>
                             <div className="flex  pb-2 mt-[13px] ">
                                 <span className="text-base text-gray-700 font-bold ">Trạng thái:</span>
