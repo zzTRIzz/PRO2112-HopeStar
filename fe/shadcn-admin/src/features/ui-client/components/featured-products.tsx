@@ -166,103 +166,101 @@ export default function FeaturedProducts() {
         {newestProducts.slice(0, displayLimit).map((product) => (
           <Card
             key={product.idProduct}
-            className='group flex flex-col overflow-hidden'
+            className='group flex h-full flex-col overflow-hidden bg-white transition-shadow hover:shadow-lg'
           >
             <Link to={`/product/${product.idProduct}`} className='flex-1'>
-              <CardHeader className='relative aspect-square flex-1 p-0'>
-                <div className='flex h-full w-full items-center justify-center'>
+              <CardHeader className='relative aspect-square p-0'>
+                {/* Product Image */}
+                <div className='flex h-full w-full items-center justify-center p-2 sm:p-4'>
                   <img
                     src={product.image}
                     alt={product.name}
-                    className='h-48 w-48 transform object-contain p-4 transition-transform duration-300 group-hover:scale-105'
+                    className='h-32 w-32 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-48 sm:w-48'
+                    loading='lazy'
                   />
                 </div>
 
-                {/* <div className='absolute right-2 top-2 flex gap-2'>
-                  <Button
-                    variant='secondary'
-                    size='icon'
-                    className='rounded-full opacity-70 shadow-sm transition-opacity hover:opacity-100'
-                  >
-                    <Heart className='h-4 w-4' />
-                  </Button>
-                </div> */}
-
+                {/* Discount Badge */}
                 {product.price !== product.priceSeller && (
                   <Badge
                     variant='destructive'
-                    className='absolute left-2 top-1 px-2 py-1 text-xs'
+                    className='absolute left-2 top-2 px-1.5 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-xs'
                   >
                     Giảm{' '}
-                    {(
+                    {Math.round(
                       ((product.price - product.priceSeller) / product.price) *
-                      100
-                    ).toFixed(0)}{' '}
+                        100
+                    )}
                     %
                   </Badge>
                 )}
               </CardHeader>
 
-              <CardContent className='flex flex-col gap-2 p-2'>
-                <div className='flex items-start justify-between'>
-                  <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
-                    {product.name}
-                  </h3>
-                  {/* <div className='flex shrink-0 items-center gap-1'>
-                    <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                    <span className='text-sm font-medium'>4.8</span>
-                  </div> */}
-                </div>
+              <CardContent className='flex flex-col gap-1.5 p-2 sm:gap-2 sm:p-3'>
+                {/* Product Name */}
+                <h3 className='line-clamp-2 text-sm font-semibold leading-tight sm:text-base'>
+                  {product.name}
+                </h3>
 
-                {/* Hiển thị RAM và ROM */}
-                <div className='flex flex-col gap-2'>
-                  <div className='flex flex-wrap items-center gap-2'>
+                {/* Specs */}
+                <div className='flex flex-col gap-1.5 text-xs sm:gap-2 sm:text-sm'>
+                  {/* RAM */}
+                  <div className='flex flex-wrap items-center gap-1 sm:gap-2'>
                     <span className='font-medium text-gray-500'>Ram:</span>
-                    {product.ram.map((ram, i) => (
-                      <div
-                        key={`ram-${i}`}
-                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
-                      >
-                        {ram}
-                      </div>
-                    ))}
+                    <div className='flex flex-wrap gap-1'>
+                      {product.ram.map((ram, i) => (
+                        <div
+                          key={`ram-${i}`}
+                          className='flex h-5 min-w-[32px] items-center justify-center rounded border bg-blue-50 px-1 text-xs font-medium text-blue-700 sm:h-6 sm:min-w-[40px] sm:px-2'
+                        >
+                          {ram}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className='flex flex-wrap items-center gap-2'>
-                    <span className='font-medium text-gray-500'>Rom:</span>
-                    {product.rom.map((rom, i) => (
-                      <div
-                        key={`rom-${i}`}
-                        className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
-                      >
-                        {rom}
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Hiển thị màu sắc */}
-                <div className='flex gap-1.5'>
-                  {product.hex.map((color, i) => (
-                    <div
-                      key={i}
-                      className='h-4 w-4 rounded-full border border-muted shadow-sm'
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
+                  {/* ROM */}
+                  <div className='flex flex-wrap items-center gap-1 sm:gap-2'>
+                    <span className='font-medium text-gray-500'>Rom:</span>
+                    <div className='flex flex-wrap gap-1'>
+                      {product.rom.map((rom, i) => (
+                        <div
+                          key={`rom-${i}`}
+                          className='flex h-5 min-w-[32px] items-center justify-center rounded border bg-green-50 px-1 text-xs font-medium text-green-700 sm:h-6 sm:min-w-[40px] sm:px-2'
+                        >
+                          {rom}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Colors */}
+                  <div className='flex gap-1 sm:gap-1.5'>
+                    {product.hex.map((color, i) => (
+                      <div
+                        key={`color-${i}`}
+                        className='h-3 w-3 rounded-full border border-muted shadow-sm sm:h-4 sm:w-4'
+                        style={{ backgroundColor: color }}
+                        aria-label={`Màu ${color}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Link>
 
-            <CardFooter className='flex flex-col gap-3 px-2 py-4 pt-0'>
-              <div className='flex items-center gap-2'>
-                <div className='text-lg font-bold text-red-600'>
+            {/* Price and Actions */}
+            <CardFooter className='flex flex-col gap-2 p-2 pt-0 sm:gap-3 sm:p-3'>
+              {/* Price */}
+              <div className='flex flex-wrap items-center gap-1.5 sm:gap-2'>
+                <div className='text-base font-bold text-red-600 sm:text-lg'>
                   {new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND',
                   }).format(product.priceSeller)}
                 </div>
                 {product.price !== product.priceSeller && (
-                  <div className='text-sm font-medium text-gray-500 line-through'>
+                  <div className='text-xs font-medium text-gray-500 line-through sm:text-sm'>
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND',
@@ -271,19 +269,22 @@ export default function FeaturedProducts() {
                 )}
               </div>
 
-              {/* Hai button trên cùng một hàng, riêng biệt */}
-              <div className='flex justify-end gap-2'>
+              {/* Action Buttons */}
+              <div className='flex justify-end gap-1.5 sm:gap-2'>
                 <Button
-                  size='lg'
+                  size='sm'
                   variant='outline'
-                  className='h-8 border-gray-300 px-4 text-xs text-gray-700 hover:bg-gray-100'
-                  onClick={() => addToCart(product.idProductDetail)}
+                  className='h-7 border-gray-300 px-2 text-xs text-gray-700 hover:bg-gray-50 sm:h-8 sm:px-3'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    addToCart(product.idProductDetail)
+                  }}
                 >
                   Thêm giỏ
                 </Button>
                 <Button
-                  size='lg'
-                  className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-4 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                  size='sm'
+                  className='h-7 bg-gradient-to-r from-blue-500 to-blue-700 px-2 text-xs text-white hover:from-blue-600 hover:to-blue-800 sm:h-8 sm:px-3'
                   onClick={(e) => {
                     e.preventDefault()
                     handleBuyNow(product.idProductDetail)
@@ -309,41 +310,25 @@ export default function FeaturedProducts() {
             {bestSellingProducts.slice(0, displayLimit).map((product) => (
               <Card
                 key={product.idProduct}
-                className='group flex flex-col overflow-hidden transition-shadow hover:shadow-lg'
+                className='group flex h-full flex-col overflow-hidden bg-white transition-shadow hover:shadow-lg'
               >
-                <Link
-                  to={`/product/${product.idProduct}`}
-                  className='flex-1'
-                  aria-label={`Xem chi tiết ${product.name}`}
-                >
-                  <CardHeader className='relative aspect-square flex-1 p-0'>
+                <Link to={`/product/${product.idProduct}`} className='flex-1'>
+                  <CardHeader className='relative aspect-square p-0'>
                     {/* Product Image */}
-                    <div className='flex h-full w-full items-center justify-center'>
+                    <div className='flex h-full w-full items-center justify-center p-2 sm:p-4'>
                       <img
                         src={product.image}
                         alt={product.name}
-                        className='h-48 w-48 object-contain p-4 transition-transform duration-300 group-hover:scale-105'
+                        className='h-32 w-32 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-48 sm:w-48'
                         loading='lazy'
                       />
                     </div>
-
-                    {/* Wishlist Button */}
-                    {/* <div className='absolute right-2 top-2'>
-                      <Button
-                        variant='secondary'
-                        size='icon'
-                        className='rounded-full opacity-70 shadow-sm transition-opacity hover:opacity-100'
-                        aria-label='Thêm vào yêu thích'
-                      >
-                        <Heart className='h-4 w-4' />
-                      </Button>
-                    </div> */}
 
                     {/* Discount Badge */}
                     {product.price !== product.priceSeller && (
                       <Badge
                         variant='destructive'
-                        className='absolute left-2 top-2 px-2 py-1 text-xs'
+                        className='absolute left-2 top-2 px-1.5 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-xs'
                       >
                         Giảm{' '}
                         {Math.round(
@@ -356,67 +341,71 @@ export default function FeaturedProducts() {
                     )}
                   </CardHeader>
 
-                  {/* Product Info */}
-                  <CardContent className='flex flex-col gap-2 p-2'>
-                    <div className='flex items-start justify-between'>
-                      <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
-                        {product.name}
-                      </h3>
-                      {/* <div className='flex shrink-0 items-center gap-1'>
-                        <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                        <span className='text-sm font-medium'>4.8</span>
-                      </div> */}
-                    </div>
+                  <CardContent className='flex flex-col gap-1.5 p-2 sm:gap-2 sm:p-3'>
+                    {/* Product Name */}
+                    <h3 className='line-clamp-2 text-sm font-semibold leading-tight sm:text-base'>
+                      {product.name}
+                    </h3>
 
-                    {/* RAM and ROM */}
-                    <div className='flex flex-wrap items-center gap-2'>
-                      <span className='font-medium text-gray-500'>Ram:</span>
-                      {product.ram.map((ram, i) => (
-                        <div
-                          key={`ram-${i}`}
-                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-blue-100 px-2 text-sm font-medium text-blue-700 shadow-sm'
-                        >
-                          {ram}
+                    {/* Specs */}
+                    <div className='flex flex-col gap-1.5 text-xs sm:gap-2 sm:text-sm'>
+                      {/* RAM */}
+                      <div className='flex flex-wrap items-center gap-1 sm:gap-2'>
+                        <span className='font-medium text-gray-500'>Ram:</span>
+                        <div className='flex flex-wrap gap-1'>
+                          {product.ram.map((ram, i) => (
+                            <div
+                              key={`ram-${i}`}
+                              className='flex h-5 min-w-[32px] items-center justify-center rounded border bg-blue-50 px-1 text-xs font-medium text-blue-700 sm:h-6 sm:min-w-[40px] sm:px-2'
+                            >
+                              {ram}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <div className='flex flex-wrap items-center gap-2'>
-                      <span className='font-medium text-gray-500'>Rom:</span>
-                      {product.rom.map((rom, i) => (
-                        <div
-                          key={`rom-${i}`}
-                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-green-100 px-2 text-sm font-medium text-green-700 shadow-sm'
-                        >
-                          {rom}
-                        </div>
-                      ))}
-                    </div>
+                      </div>
 
-                    {/* Color Options */}
-                    <div className='flex gap-1.5'>
-                      {product.hex.map((color, i) => (
-                        <div
-                          key={`color-${i}`}
-                          className='h-4 w-4 rounded-full border border-muted shadow-sm'
-                          style={{ backgroundColor: color }}
-                          aria-label={`Màu ${color}`}
-                        />
-                      ))}
+                      {/* ROM */}
+                      <div className='flex flex-wrap items-center gap-1 sm:gap-2'>
+                        <span className='font-medium text-gray-500'>Rom:</span>
+                        <div className='flex flex-wrap gap-1'>
+                          {product.rom.map((rom, i) => (
+                            <div
+                              key={`rom-${i}`}
+                              className='flex h-5 min-w-[32px] items-center justify-center rounded border bg-green-50 px-1 text-xs font-medium text-green-700 sm:h-6 sm:min-w-[40px] sm:px-2'
+                            >
+                              {rom}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Colors */}
+                      <div className='flex gap-1 sm:gap-1.5'>
+                        {product.hex.map((color, i) => (
+                          <div
+                            key={`color-${i}`}
+                            className='h-3 w-3 rounded-full border border-muted shadow-sm sm:h-4 sm:w-4'
+                            style={{ backgroundColor: color }}
+                            aria-label={`Màu ${color}`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </CardContent>
                 </Link>
 
                 {/* Price and Actions */}
-                <CardFooter className='flex flex-col gap-3 px-2 py-4 pt-0'>
-                  <div className='flex items-center gap-2'>
-                    <div className='text-lg font-bold text-red-600'>
+                <CardFooter className='flex flex-col gap-2 p-2 pt-0 sm:gap-3 sm:p-3'>
+                  {/* Price */}
+                  <div className='flex flex-wrap items-center gap-1.5 sm:gap-2'>
+                    <div className='text-base font-bold text-red-600 sm:text-lg'>
                       {new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
                       }).format(product.priceSeller)}
                     </div>
                     {product.price !== product.priceSeller && (
-                      <div className='text-sm font-medium text-gray-500 line-through'>
+                      <div className='text-xs font-medium text-gray-500 line-through sm:text-sm'>
                         {new Intl.NumberFormat('vi-VN', {
                           style: 'currency',
                           currency: 'VND',
@@ -425,11 +414,12 @@ export default function FeaturedProducts() {
                     )}
                   </div>
 
-                  <div className='flex justify-end gap-2'>
+                  {/* Action Buttons */}
+                  <div className='flex justify-end gap-1.5 sm:gap-2'>
                     <Button
                       size='sm'
                       variant='outline'
-                      className='h-8 border-gray-300 px-3 text-xs text-gray-700 hover:bg-gray-100'
+                      className='h-7 border-gray-300 px-2 text-xs text-gray-700 hover:bg-gray-50 sm:h-8 sm:px-3'
                       onClick={(e) => {
                         e.preventDefault()
                         addToCart(product.idProductDetail)
@@ -439,7 +429,7 @@ export default function FeaturedProducts() {
                     </Button>
                     <Button
                       size='sm'
-                      className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-3 text-xs text-white hover:from-blue-600 hover:to-blue-800'
+                      className='h-7 bg-gradient-to-r from-blue-500 to-blue-700 px-2 text-xs text-white hover:from-blue-600 hover:to-blue-800 sm:h-8 sm:px-3'
                       onClick={(e) => {
                         e.preventDefault()
                         handleBuyNow(product.idProductDetail)

@@ -168,105 +168,102 @@ export default function TatCaDienThoai() {
             products.slice(0, displayLimit).map((product) => (
               <Card
                 key={product.idProduct}
-                className='group flex flex-col overflow-hidden'
+                className="group flex h-full flex-col overflow-hidden bg-white transition-shadow hover:shadow-lg"
               >
-                <Link to={`/product/${product.idProduct}`} className='flex-1'>
-                  <CardHeader className='relative aspect-square flex-1 p-0'>
-                    <div className='flex h-full w-full items-center justify-center'>
+                <Link to={`/product/${product.idProduct}`} className="flex-1">
+                  <CardHeader className="relative aspect-square p-0">
+                    {/* Product Image */}
+                    <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
                       <img
                         src={product.image}
                         alt={product.name}
-                        className='h-48 w-48 transform object-contain p-4 transition-transform duration-300 group-hover:scale-105'
+                        className="h-32 w-32 sm:h-48 sm:w-48 object-contain transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
                       />
                     </div>
-
-
+              
+                    {/* Discount Badge */}
                     {product.price !== product.priceSeller && (
                       <Badge
-                        variant='destructive'
-                        className='absolute left-2 top-1 px-2 py-1 text-xs'
+                        variant="destructive"
+                        className="absolute left-2 top-2 px-1.5 py-0.5 text-[10px] sm:text-xs sm:px-2 sm:py-1"
                       >
-                        Giảm{' '}
-                        {(
-                          ((product.price - product.priceSeller) /
-                            product.price) *
-                          100
-                        ).toFixed(0)}{' '}
-                        %
+                        Giảm {Math.round(((product.price - product.priceSeller) / product.price) * 100)}%
                       </Badge>
                     )}
                   </CardHeader>
-
-                  <CardContent className='flex flex-col gap-2 p-2'>
-                    <div className='flex items-start justify-between'>
-                      <h3 className='line-clamp-2 text-base font-semibold leading-tight'>
-                        {product.name}
-                      </h3>
-                    </div>
-
-                    <div className='flex items-center gap-2'>
-                      {product.ram?.map((ram, i) => (
-                        <div
-                          key={`ram-${i}`}
-                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                        >
-                          {ram}
+              
+                  <CardContent className="flex flex-col gap-1.5 sm:gap-2 p-2 sm:p-3">
+                    {/* Product Name */}
+                    <h3 className="line-clamp-2 text-sm sm:text-base font-semibold leading-tight">
+                      {product.name}
+                    </h3>
+              
+                    {/* Specs */}
+                    <div className="flex flex-col gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                      {/* RAM */}
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                        <span className="font-medium text-gray-500">Ram:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {product.ram.map((ram, i) => (
+                            <div
+                              key={`ram-${i}`}
+                              className="flex h-5 sm:h-6 min-w-[32px] sm:min-w-[40px] items-center justify-center rounded border bg-blue-50 px-1 sm:px-2 text-xs font-medium text-blue-700"
+                            >
+                              {ram}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                      {product.rom?.map((rom, i) => (
-                        <div
-                          key={`rom-${i}`}
-                          className='flex h-6 w-auto min-w-[40px] items-center justify-center rounded-md border bg-gray-100 px-2 text-sm shadow-sm'
-                        >
-                          {rom}
+                      </div>
+              
+                      {/* ROM */}
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                        <span className="font-medium text-gray-500">Rom:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {product.rom.map((rom, i) => (
+                            <div
+                              key={`rom-${i}`}
+                              className="flex h-5 sm:h-6 min-w-[32px] sm:min-w-[40px] items-center justify-center rounded border bg-green-50 px-1 sm:px-2 text-xs font-medium text-green-700"
+                            >
+                              {rom}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-
-                    <div className='flex gap-1.5'>
-                      {product.hex?.map((color, i) => (
-                        <div
-                          key={i}
-                          className='h-4 w-4 rounded-full border border-muted shadow-sm'
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
+                      </div>
+              
+                      {/* Colors */}
+                      <div className="flex gap-1 sm:gap-1.5">
+                        {product.hex.map((color, i) => (
+                          <div
+                            key={`color-${i}`}
+                            className="h-3 w-3 sm:h-4 sm:w-4 rounded-full border border-muted shadow-sm"
+                            style={{ backgroundColor: color }}
+                            aria-label={`Màu ${color}`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </CardContent>
                 </Link>
-
-                <CardFooter className='flex flex-col gap-3 px-2 py-4 pt-0'>
-                  <div className='flex items-center gap-2'>
-                    <div className='text-lg font-bold text-red-600'>
+              
+                {/* Price and Actions */}
+                <CardFooter className="flex flex-col gap-2 sm:gap-3 p-2 sm:p-3 pt-0">
+                  {/* Price */}
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <div className="text-base sm:text-lg font-bold text-red-600">
                       {new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
                       }).format(product.priceSeller)}
                     </div>
                     {product.price !== product.priceSeller && (
-                      <div className='text-sm font-medium text-gray-500 line-through'>
+                      <div className="text-xs sm:text-sm font-medium text-gray-500 line-through">
                         {new Intl.NumberFormat('vi-VN', {
                           style: 'currency',
                           currency: 'VND',
                         }).format(product.price)}
                       </div>
                     )}
-                  </div>
-
-                  <div className='flex justify-end gap-2'>
-                    <Button
-                      size='lg'
-                      variant='outline'
-                      className='h-8 border-gray-300 px-4 text-xs text-gray-700 hover:bg-gray-100'
-                    >
-                      Thêm giỏ
-                    </Button>
-                    <Button
-                      size='lg'
-                      className='h-8 bg-gradient-to-r from-blue-500 to-blue-700 px-4 text-xs text-white hover:from-blue-600 hover:to-blue-800'
-                    >
-                      Mua ngay
-                    </Button>
                   </div>
                 </CardFooter>
               </Card>
