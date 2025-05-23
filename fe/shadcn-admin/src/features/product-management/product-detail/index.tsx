@@ -1,13 +1,16 @@
+import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { IconLoader2, IconQuestionMark } from '@tabler/icons-react'
 import { Route } from '@/routes/_authenticated/route'
+import { jwtDecode } from 'jwt-decode'
 import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import JwtPayload from '@/features/auth/type'
 import { Breadcrumb } from '../breadcrumb'
 import { productDetailById } from '../product/data/api-service'
 import { DataTable } from './components/data-table'
@@ -18,7 +21,7 @@ import { StatusSwitch } from './components/status-switch'
 import { DialogProvider, useDialog } from './context/dialog-context'
 import { ProductDetailResponse } from './data/schema'
 
-const columns: ColumnDef<ProductDetailResponse>[] = [
+const getColumns = (idRole: string): ColumnDef<ProductDetailResponse>[] => [
   {
     accessorKey: 'id',
     header: 'STT',
@@ -93,14 +96,33 @@ const columns: ColumnDef<ProductDetailResponse>[] = [
     header: 'Trạng thái',
     cell: ({ row }) => {
       const productDetail = row.original as ProductDetailResponse
-      return <StatusSwitch productDetail={productDetail} />
+      return (
+        <div className='flex items-center gap-2'>
+          {idRole === '2' && <StatusSwitch productDetail={productDetail} />}
+          {(() => {
+            switch (productDetail.status) {
+              case 'ACTIVE':
+                return <span className='text-green-500'>Hoạt động</span>
+              case 'DESIST':
+                return <span className='text-yellow-500'>Hết hàng</span>
+              case 'IN_ACTIVE':
+                return <span className='text-red-500'>Không hoạt động</span>
+              default:
+                return <span className='text-gray-500'>Không xác định</span>
+            }
+          })()}
+        </div>
+      )
     },
   },
 ]
 
 export default function ProductDetail() {
   const { id } = Route.useParams()
-
+  const token = Cookies.get('jwt')
+  const decoded = token ? jwtDecode<JwtPayload>(token) : null
+  const idRole = decoded?.role || ''
+  const columns = getColumns(idRole)
   // Sử dụng useQuery để fetch dữ liệu
   const {
     data: productDetails,
@@ -170,7 +192,11 @@ export default function ProductDetail() {
           <ProductDetailPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
-          <DataTable columns={columns} data={productDetails || []} />
+          <DataTable
+            columns={columns}
+            data={productDetails || []}
+            idRole={idRole}
+          />
         </div>
       </Main>
 

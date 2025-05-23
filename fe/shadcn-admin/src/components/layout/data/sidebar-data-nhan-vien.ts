@@ -1,25 +1,13 @@
 import {
-  IconBrowserCheck,
   IconDeviceMobile,
-  IconDiscount,
-  IconHelp,
-  IconLayoutDashboard,
+  IconFileDollar,
   IconMessages,
-  IconNotification,
-  IconPalette,
-  IconPercentage,
   IconPointFilled,
-  IconSettings,
   IconShoppingCart,
-  IconTool,
   IconUser,
-  IconUserCog,
-  IconFileDollar
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
-
-
 
 export const sidebarDataNhanVien: Omit<SidebarData, 'user'> = {
   teams: [
@@ -29,11 +17,15 @@ export const sidebarDataNhanVien: Omit<SidebarData, 'user'> = {
       plan: 'pro2112-nganct4',
     },
   ],
-  navGroups:  [
+  navGroups: [
     {
       title: 'Tổng quan',
       items: [
-  
+        {
+          title: 'Sản phẩm',
+          url: '/product',
+          icon: IconDeviceMobile,
+        },
         {
           title: 'Bán hàng tại quầy',
           url: '/banhang',
@@ -51,15 +43,15 @@ export const sidebarDataNhanVien: Omit<SidebarData, 'user'> = {
             {
               title: 'Khách hàng',
               url: '/taikhoan/khachhang',
-            }
+            },
           ],
         },
         {
           title: 'Quản lý liên hệ',
           url: '/quan-ly-lien-he',
           icon: IconMessages,
-        }
+        },
       ],
     },
-  ] 
+  ],
 }

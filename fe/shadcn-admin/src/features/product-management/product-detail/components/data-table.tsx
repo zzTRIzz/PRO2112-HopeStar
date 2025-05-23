@@ -23,19 +23,21 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableRowActions } from './data-table-row-actions'
-import { DataTableToolbar } from './data-table-toolbar'
 import { DataTableRowImeiActions } from './data-table-row-imei-actions'
+import { DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   hideActions?: boolean // Thêm prop để ẩn cột "Hành động"
+  idRole: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   hideActions = false, // Mặc định hiển thị cột "Hành động"
+  idRole
 }: DataTableProps<TData, TValue>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
@@ -89,7 +91,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
-                 <TableHead>Thao tác</TableHead>
+                {idRole === '2' && <TableHead>Thao tác</TableHead>}
               </TableRow>
             ))}
           </TableHeader>
@@ -105,13 +107,15 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  {!hideActions ? (
+                  {idRole === '2' && (
                     <TableCell>
-                      <DataTableRowActions row={row} />
+                      {!hideActions ? (
+                        <DataTableRowActions row={row} />
+                      ) : (
+                        <DataTableRowImeiActions row={row} data={data} />
+                      )}
                     </TableCell>
-                  ):(<TableCell>
-                    <DataTableRowImeiActions row={row} data={data}/>
-                  </TableCell>)}
+                  )}
                 </TableRow>
               ))
             ) : (

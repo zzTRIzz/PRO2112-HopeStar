@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { IconLoader2 } from '@tabler/icons-react'
+import { jwtDecode } from 'jwt-decode'
 import { toast } from '@/hooks/use-toast'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import JwtPayload from '@/features/auth/type'
 import { Breadcrumb } from '../breadcrumb'
 import { DataTable } from './components/data-table'
 import { ProductDialogs } from './components/product-dialogs'
@@ -22,7 +25,7 @@ import {
 } from './data/api-service'
 import type { ProductResponse, SearchProductRequest } from './data/schema'
 
-const columns: ColumnDef<ProductResponse>[] = [
+const getColumns = (idRole: string): ColumnDef<ProductResponse>[] => [
   {
     accessorKey: 'id',
     header: 'STT',
@@ -81,7 +84,16 @@ const columns: ColumnDef<ProductResponse>[] = [
     header: 'Trạng thái',
     cell: ({ row }) => {
       const product = row.original as ProductResponse
-      return <StatusSwitch product={product} />
+      return (
+        <div className='flex items-center gap-2'>
+          {idRole === '2' && <StatusSwitch product={product} />}
+          {product.status === 'ACTIVE' ? (
+            <span className='text-green-500'>Hoạt động</span>
+          ) : (
+            <span className='text-red-500'>Không hoạt động</span>
+          )}
+        </div>
+      )
     },
   },
 ]
@@ -104,11 +116,19 @@ export default function Product() {
   const [idCategory, setIdCategory] = useState<number | undefined>(undefined)
   const [status, setStatus] = useState<string | undefined>(undefined)
 
+  const token = Cookies.get('jwt')
+  const decoded = token ? jwtDecode<JwtPayload>(token) : null
+  const idRole = decoded?.role || ''
+  const columns = getColumns(idRole)
   // Sử dụng useQuery để fetch dữ liệu ban đầu
-  const { data: initialData, isError: isQueryError, error: queryError } = useQuery({
+  const {
+    data: initialData,
+    isError: isQueryError,
+    error: queryError,
+  } = useQuery({
     queryKey: ['products', 'initial'],
     queryFn: getProducts,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   })
 
   // Cập nhật state khi dữ liệu từ useQuery thay đổi
@@ -221,9 +241,7 @@ export default function Product() {
                 ]}
               />
             </div>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              Sản phẩm
-            </h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Sản phẩm</h2>
             <p className='text-muted-foreground'>
               Danh sách sản phẩm của bạn trong hệ thống
             </p>
@@ -234,6 +252,7 @@ export default function Product() {
           <DataTable
             data={products}
             columns={columns}
+            idRole={idRole}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             idChip={idChip}
