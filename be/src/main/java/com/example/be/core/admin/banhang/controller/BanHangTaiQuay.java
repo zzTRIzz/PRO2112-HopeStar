@@ -132,9 +132,8 @@ public class BanHangTaiQuay {
     }
 
     @PostMapping("/huyHoaDon/{idBill}")
-    public ResponseEntity<?> huyHoaDon(@PathVariable("idBill") Integer idBill,
-                                       @RequestBody(required = false) String note) {
-        billService.updateHuyHoaDon(idBill, note);
+    public ResponseEntity<?> huyHoaDon(@PathVariable("idBill") Integer idBill) {
+        billService.updateHuyHoaDon(idBill);
         return ResponseEntity.ok("Hủy hóa đơn thành công");
     }
 
@@ -178,20 +177,39 @@ public class BanHangTaiQuay {
         billDto.setReceiptDate(now);
         BillDto saveBillDto = billService.saveBillDto(billDto);
 
-        BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+
+
         if (billDto.getIdDelivery() == 1) {
-            billHistoryRequest.setNote("Đơn hàng đã thanh toán và hoàn tất");
-            billHistoryRequest.setActionType(StartusBillHistory.HOAN_THANH);
-        } else if (billDto.getIdDelivery() == 2 && billDto.getIdPayment() == 4) {
-            billHistoryRequest.setNote("Đơn hàng đã được đặt thành công ");
-            billHistoryRequest.setActionType(StartusBillHistory.CHO_XAC_NHAN);
+            // Lịch sử 1: Chờ thanh toán
+            BillHistoryRequest billHistory1 = new BillHistoryRequest();
+            billHistory1.setNote("Tạo hóa đơn thành công");
+            billHistory1.setActionType(StartusBillHistory.CHO_THANH_TOAN);
+            billHistory1.setIdBill(billDto.getId());
+            billHistory1.setIdNhanVien(billDto.getIdNhanVien());
+            billHistoryService.addBillHistory(billHistory1);
+
+            // Lịch sử 2: Hoàn thành
+            BillHistoryRequest billHistory2 = new BillHistoryRequest();
+            billHistory2.setNote("Đơn hàng đã thanh toán và hoàn tất");
+            billHistory2.setActionType(StartusBillHistory.HOAN_THANH);
+            billHistory2.setIdBill(billDto.getId());
+            billHistory2.setIdNhanVien(billDto.getIdNhanVien());
+            billHistoryService.addBillHistory(billHistory2);
         } else {
-            billHistoryRequest.setNote("Đơn hàng đã được đặt và thanh toán thành công");
-            billHistoryRequest.setActionType(StartusBillHistory.DA_XAC_NHAN);
+            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
+            billHistoryRequest.setIdBill(billDto.getId());
+            billHistoryRequest.setIdNhanVien(billDto.getIdNhanVien());
+
+            if (billDto.getIdDelivery() == 2 && billDto.getIdPayment() == 4) {
+                billHistoryRequest.setNote("Đơn hàng đã được đặt thành công ");
+                billHistoryRequest.setActionType(StartusBillHistory.CHO_XAC_NHAN);
+            } else {
+                billHistoryRequest.setNote("Đơn hàng đã được đặt và thanh toán thành công");
+                billHistoryRequest.setActionType(StartusBillHistory.DA_XAC_NHAN);
+            }
+
+            billHistoryService.addBillHistory(billHistoryRequest);
         }
-        billHistoryRequest.setIdBill(billDto.getId());
-        billHistoryRequest.setIdNhanVien(billDto.getIdNhanVien());
-        billHistoryService.addBillHistory(billHistoryRequest);
 
         return ResponseEntity.ok(saveBillDto);
     }

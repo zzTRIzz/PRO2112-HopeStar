@@ -190,11 +190,11 @@ function BanHangTaiQuay() {
         return
       }
       await huyHoaDon(idBillHuy)
-      await addBillHistory({
-        actionType: "DA_HUY",
-        idBill: idBillHuy,
-        note: "Đơn hàng đã hủy",
-      })
+      // await addBillHistory({
+      //   actionType: "DA_HUY",
+      //   idBill: idBillHuy,
+      //   note: "Đơn hàng đã hủy",
+      // })
       await loadBill()
       loadProductDet()
       setProduct([])

@@ -13,6 +13,7 @@ import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.ProductDetailStatus;
 import com.example.be.entity.status.StatusImei;
 import com.example.be.repository.ImeiRepository;
+import com.example.be.repository.ImeiSoldRepository;
 import com.example.be.repository.ProductDetailRepository;
 import com.example.be.repository.ProductRepository;
 import com.example.be.utils.BarcodeGenerator;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class ImeiServiceImpl implements ImeiService {
 
     private final ImeiRepository imeiRepository;
+    private final ImeiSoldRepository imeiSoldRepository;
     private final ImeiMapper imeiMapper;
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
@@ -153,8 +155,8 @@ public class ImeiServiceImpl implements ImeiService {
             productDetailRepository.save(productDetail);
         }
         imei.setStatus(imeiRequest.getStatus());
-
         imeiRepository.save(imei);
+        imeiSoldRepository.deleteImeiSoldByImei(id);
         return "Cập nhật thành công!";
     }
 

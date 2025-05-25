@@ -21,14 +21,14 @@ public interface ImeiSoldRepository extends JpaRepository<ImeiSold, Integer> {
             "where i.idBillDetail.id = :idBillDetail")
     void deleteImeiSold(@Param("idBillDetail") Integer idBillDetail);
 
-//    @Modifying
-//    @Transactional
-//    @Query("DELETE FROM ImeiSold i WHERE i.idBillDetail.id = :idBillDetail")
-//    void deleteAllByIdBillDetail(@Param("idBillDetail") Integer idBillDetail);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ImeiSold i WHERE i.id_Imei.id = :idImei")
+    void deleteImeiSoldByImei(@Param("idImei") Integer idImei);
 
     @Query("SELECT i FROM ImeiSold i WHERE i.id_Imei.id IN :idImei")
     List<ImeiSold> searchImeiSoldByIdImei(@Param("idImei") List<Integer> idImei);
-//
+
 //    @Query("select i from ImeiSold i " +
 //            "where i.id_Imei.id =:idImei")
 //    ImeiSold searchImeiSoldByIdImei(@Param("idImei") List<Integer> idImei);

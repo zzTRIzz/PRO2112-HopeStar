@@ -42,7 +42,9 @@ public interface BillService {
 
     BillDto getByIdHoaDon(Integer id);
 
-    void updateHuyHoaDon(Integer idBill, String note);
+//    void updateHuyHoaDon(Integer idBill, String note);
+
+    void updateHuyHoaDon(Integer idBill);
 
     BillDto updateCustomerRequest (UpdateCustomerRequest request);
 
