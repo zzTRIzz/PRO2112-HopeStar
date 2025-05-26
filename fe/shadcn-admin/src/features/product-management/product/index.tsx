@@ -246,7 +246,7 @@ export default function Product() {
               Danh sách sản phẩm của bạn trong hệ thống
             </p>
           </div>
-          <ProductPrimaryButtons />
+          {idRole ==="2"&&<ProductPrimaryButtons />}
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
           <DataTable

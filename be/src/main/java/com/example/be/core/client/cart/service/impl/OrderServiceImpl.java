@@ -60,10 +60,13 @@ public class OrderServiceImpl implements OrderService {
         }
         Voucher voucher = null;
         if (orderRequest.getIdVoucher() != null) {
-             voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
-            if (voucher == null) {
-                throw new Exception("Voucher hiện đã hết thời gian khuyến mãi");
-            }
+            voucher = voucherRepository.findById(orderRequest.getIdVoucher()).orElseThrow(()->
+                    new Exception("Voucher not found")
+            );
+//            voucher = voucherRepository.findByIdAndStatus(orderRequest.getIdVoucher(), StatusVoucher.ACTIVE);
+//            if (voucher == null) {
+//                throw new Exception("Voucher hiện đã hết thời gian khuyến mãi");
+//            }
             // xu ly voucher
             if (account != null) {
                 boolean checkVoucherAccount = voucherAccountRepository.existsByIdVoucherIdAndIdAccountId(voucher.getId(), account.getId());

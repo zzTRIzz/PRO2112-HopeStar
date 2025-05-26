@@ -270,35 +270,61 @@ export function OrderSummary({
                   (v) => v.id === parseInt(e.target.value)
                 )
                 setSelectedVoucher(selected || null)
-                setVoucherCode(selected?.code || '') // Đồng bộ voucherCode
+                setVoucherCode(selected?.code || '')
                 setVoucherError('')
               }}
             >
-              {MOCK_VOUCHERS.map((voucher) => (
-                <SelectItem
-                  key={voucher.id}
-                  value={voucher.id.toString()}
-                  textValue={`${voucher.code} - ${voucher.name}`}
-                >
-                  <div className='flex flex-col'>
-                    <span className='font-medium'>
-                      {voucher.type
-                        ? `Giảm ${voucher.value}% (Giảm tối đa ${formatCurrency(
-                            voucher.maxDiscountAmount
-                          )}đ)`
-                        : `Giảm ${formatCurrency(voucher.value)}đ`}
-                    </span>
-                    <span className='text-sm text-gray-500'>
-                      Voucher: {voucher.code} - {voucher.name}
-                      <br />
-                      {voucher.minOrderValue &&
-                        ` Điều kiện: ${formatCurrency(
-                          voucher.minOrderValue
-                        )} - ${formatCurrency(voucher.maxOrderValue)}đ`}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
+              {MOCK_VOUCHERS.map((voucher) => {
+                // Check if voucher meets conditions
+                const meetsMinValue =
+                  !voucher.minOrderValue || subtotal >= voucher.minOrderValue
+                const meetsMaxValue =
+                  !voucher.maxOrderValue || subtotal <= voucher.maxOrderValue
+                const isVoucherValid = meetsMinValue && meetsMaxValue
+
+                return (
+                  <SelectItem
+                    key={voucher.id}
+                    value={voucher.id.toString()}
+                    textValue={`${voucher.code} - ${voucher.name}`}
+                    isDisabled={!isVoucherValid}
+                    className={
+                      !isVoucherValid ? 'cursor-not-allowed opacity-50' : ''
+                    }
+                  >
+                    <div className='flex flex-col'>
+                      <span
+                        className={`font-medium ${!isVoucherValid ? 'text-gray-400' : ''}`}
+                      >
+                        {voucher.type
+                          ? `Giảm ${voucher.value}% (Giảm tối đa ${formatCurrency(
+                              voucher.maxDiscountAmount
+                            )}đ)`
+                          : `Giảm ${formatCurrency(voucher.value)}đ`}
+                      </span>
+                      <span
+                        className={`text-sm ${!isVoucherValid ? 'text-gray-400' : 'text-gray-500'}`}
+                      >
+                        Voucher: {voucher.code} - {voucher.name}
+                        <br />
+                        {voucher.minOrderValue && (
+                          <>
+                            Điều kiện: {formatCurrency(voucher.minOrderValue)} -{' '}
+                            {formatCurrency(voucher.maxOrderValue)}đ
+                            <br />
+                            {!isVoucherValid && (
+                              <span className='text-red-500'>
+                                {' '}
+                                (Không đủ điều kiện áp dụng)
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  </SelectItem>
+                )
+              })}
             </Select>
 
             <div className='flex gap-2'>
@@ -412,7 +438,7 @@ export function OrderSummary({
             )}
           </Button>
 
-          <Modal isOpen={isOpen} onClose={onClose} size='sm'>
+          <Modal isOpen={isOpen} onClose={onClose} size='md' className='max-w-lg'>
             <ModalContent>
               <ModalHeader className='flex flex-col gap-1'>
                 Xác nhận đặt hàng

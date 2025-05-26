@@ -107,7 +107,7 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  {idRole === '2' && (
+                  {idRole === "2" && (
                     <TableCell>
                       {!hideActions ? (
                         <DataTableRowActions row={row} />

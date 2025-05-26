@@ -12,6 +12,9 @@ import { useDialog } from '../context/dialog-context'
 import { ProductImeiResponse } from '../data/schema'
 import { DataTable } from './data-table'
 import { Badge } from '@/components/ui/badge'
+import Cookies from 'js-cookie'
+import { jwtDecode } from 'jwt-decode'
+import JwtPayload from '@/features/auth/type'
 
 const columns: ColumnDef<ProductImeiResponse>[] = [
   {
@@ -74,7 +77,9 @@ export function ImeiDialog() {
   if (!open || open.type !== 'imei' || !open.data) return null
 
   const productDetail = open.data
-
+const token = Cookies.get('jwt')
+  const decoded = token ? jwtDecode<JwtPayload>(token) : null
+  const idRole = decoded?.role || ''
   return (
     <Dialog open={true} onOpenChange={() => setOpen(null)}>
       <DialogContent className='max-w-4xl'>
@@ -91,6 +96,7 @@ export function ImeiDialog() {
         <ScrollArea className='h-[400px] pr-4'>
           <DataTable
             columns={columns}
+            idRole={idRole}
             data={productDetail.productImeiResponses}
             hideActions={true}
           />

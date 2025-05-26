@@ -160,13 +160,18 @@ export const order = async (orderData: OrderData) => {
     return response.data
   }
 }
-
-export const checkCartDetail = async (idCartDetailList: number[]) => {
+interface CheckCart{
+  idCartDetailList: number[];
+  price: number;
+  idVoucher: number | null;
+}
+export const checkCartDetail = async (checkCart:CheckCart) => {
   const jwt = Cookies.get('jwt')
   if (jwt) {
     const response = await axios.post(
       `${API_BASE_URL}/cart-detail/check-product`,
-      idCartDetailList,{
+       checkCart,
+      {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -176,7 +181,7 @@ export const checkCartDetail = async (idCartDetailList: number[]) => {
   }else{
   const response = await axios.post(
     `${API_BASE_URL_GUEST}/cart-detail/check-product`,
-    idCartDetailList,
+    checkCart,
   )
   return response.data
 }
