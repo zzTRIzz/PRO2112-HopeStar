@@ -585,27 +585,38 @@ export default function BoLocDienThoai({
       {renderSortControls()}
 
       {/* tim kiem  */}
-      <div className='mb-8 flex w-full justify-center'>
-        <div className='flex w-5/6 max-w-3xl items-center gap-4'>
-          <input
-            type='text'
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
-            placeholder='Tìm kiếm điện thoại...'
-            className='flex-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring focus:ring-blue-500'
-          />
-          <Button
-            variant='bordered'
-            color='primary'
-            isDisabled={!searchKey.trim()}
-            onPress={() => handleFilterChange('key', searchKey.trim())}
-            className='flex items-center gap-2'
-          >
-            <Search className='h-5 w-5' />
-            Tìm kiếm
-          </Button>
-        </div>
+      <div className="px-4 sm:px-6 mb-6 sm:mb-8">
+  <div className="mx-auto max-w-3xl">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={searchKey}
+          onChange={(e) => setSearchKey(e.target.value)}
+          placeholder="Tìm kiếm điện thoại..."
+          className="w-full h-10 sm:h-11 pl-10 pr-4 rounded-lg border border-gray-300 
+                   text-sm sm:text-base
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                   transition-all duration-200"
+        />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
       </div>
+      
+      <Button
+        variant="bordered"
+        color="primary"
+        isDisabled={!searchKey.trim()}
+        onPress={() => handleFilterChange('key', searchKey.trim())}
+        className="h-10 sm:h-11 px-4 sm:px-6 min-w-[120px] text-sm sm:text-base
+                 flex items-center justify-center gap-2 
+                 transition-all duration-200"
+      >
+        <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+        <span>Tìm kiếm</span>
+      </Button>
+    </div>
+  </div>
+</div>
     </div>
   )
 }

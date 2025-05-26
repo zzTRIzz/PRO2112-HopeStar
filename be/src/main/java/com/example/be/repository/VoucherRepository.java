@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     @Query("SELECT v FROM Voucher v JOIN Bill b ON b.idVoucher.id = v.id " +
@@ -80,6 +81,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     List<Voucher> findByIsPrivateAndQuantityGreaterThanAndStatus(Boolean isPrivate, Integer quantity, StatusVoucher statusVoucher);
 
-    Voucher findByIdAndStatus(Integer id, StatusVoucher statusVoucher);
+    Optional<Voucher> findByIdAndStatus(Integer id, StatusVoucher statusVoucher);
 
 }

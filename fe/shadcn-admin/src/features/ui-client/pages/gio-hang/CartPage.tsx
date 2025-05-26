@@ -35,10 +35,16 @@ export function CartPage() {
     try {
       // Get selected cart item IDs
       const selectedIds = selectedProducts.map(cartdetail => cartdetail.id)
-      console.log('Selected IDs:', selectedIds)
+      
       // Check cart items availability
-      await checkCartDetail(selectedIds)
-  
+      const checkCart ={
+        idCartDetailList: selectedIds,
+        price: totalAmount,
+        idVoucher: null,
+      }
+      console.log('Selected IDs:', checkCart)
+      await checkCartDetail(checkCart)
+
       // If all items are available, proceed to checkout
       navigate({
         to: '/dat-hang',

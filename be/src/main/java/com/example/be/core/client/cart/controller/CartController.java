@@ -6,6 +6,7 @@ import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.core.client.auth.service.AuthService;
 import com.example.be.core.client.cart.dto.request.AddToCartRequest;
 import com.example.be.core.client.cart.dto.request.CartDetailRequest;
+import com.example.be.core.client.cart.dto.request.CheckCartRequest;
 import com.example.be.core.client.cart.dto.request.OrderRequest;
 import com.example.be.core.client.cart.dto.response.CartResponse;
 import com.example.be.core.client.cart.service.CartDetailService;
@@ -73,11 +74,11 @@ public class CartController {
     }
 
     @PostMapping("/cart-detail/check-product")
-    public ResponseData<?> checkCartDetail(@RequestBody List<Integer> idCartDetailList,
+    public ResponseData<?> checkCartDetail(@RequestBody CheckCartRequest checkCartRequest,
                                            @RequestHeader(value = "Authorization") String jwt) throws Exception {
 
         authService.findAccountByJwt(jwt);
-        Object o = cartDetailService.checkCartDetail(idCartDetailList);
+        Object o = cartDetailService.checkCartDetail(checkCartRequest);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }

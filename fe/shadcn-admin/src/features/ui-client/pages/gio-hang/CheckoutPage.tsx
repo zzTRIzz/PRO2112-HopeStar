@@ -3,7 +3,20 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { Card, Input, Radio, RadioGroup, Switch } from '@heroui/react'
+import {
+  Button,
+  Card,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Radio,
+  RadioGroup,
+  Switch,
+  useDisclosure,
+} from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { toast } from '@/hooks/use-toast'
 import { LocationSelector } from '../../components/gio-hang/location-selector'
@@ -39,6 +52,11 @@ export function CheckoutPage() {
       return []
     }
   }, [productsJson])
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const handleConfirmOrder = () => {
+    onClose()
+    navigate({ to: '/gio-hang' })
+  }
 
   // Get profile data once on mount
   const [customerInfo, setCustomerInfo] = React.useState(() => {
@@ -248,7 +266,7 @@ export function CheckoutPage() {
 
   // Add loading state
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  
   const handleCheckout = async () => {
     if (!validateForm()) return
 
@@ -292,7 +310,12 @@ export function CheckoutPage() {
       const selectedIds = selectedProducts.map((cartdetail) => cartdetail.id)
       console.log('Selected IDs:', selectedIds)
       // Check cart items availability
-      await checkCartDetail(selectedIds)
+      const checkCart = {
+        idCartDetailList: selectedIds,
+        price: orderData.totalPrice,
+        idVoucher: orderData.idVoucher || null,
+      }
+      await checkCartDetail(checkCart)
       if (orderData.paymentMethod === 3) {
         try {
           localStorage.setItem(
@@ -335,6 +358,10 @@ export function CheckoutPage() {
         navigate({ to: '/gio-hang' })
       }
     } catch (error) {
+      if (error?.response?.data?.message === '1') {
+        onOpen() // Open modal 
+        return
+      } 
       console.error('Checkout error:', error)
       toast({
         title: 'Đặt hàng thất bại',
@@ -365,7 +392,10 @@ export function CheckoutPage() {
     }
   }, [])
 
+
+
   return (
+    <>
     <div className='min-h-screen bg-[#F7F7F7] p-4 md:p-6'>
       <div className='mx-auto max-w-7xl'>
         <Link
@@ -519,5 +549,31 @@ export function CheckoutPage() {
         </div>
       </div>
     </div>
+
+    <Modal isOpen={isOpen} onClose={onClose} size='md' className='max-w-lg'>
+      <ModalContent>
+        <ModalHeader className='flex flex-col gap-1'>Thông báo</ModalHeader>
+        <ModalBody>
+          <p>
+            Đã có sự thay đổi đổi từ phía của hàng. Vui lòng quay lại giỏ
+            hàng để cập nhật.
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color='danger'
+            variant='light'
+            className='border'
+            onPress={onClose}
+          >
+            Hủy
+          </Button>
+          <Button color='primary' onPress={handleConfirmOrder}>
+            Xác nhận
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+    </>
   )
 }
