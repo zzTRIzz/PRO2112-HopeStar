@@ -13,6 +13,7 @@ import com.example.be.core.admin.products_management.dto.response.ProductRespons
 import com.example.be.core.admin.products_management.service.ProductConfigService;
 import com.example.be.core.admin.products_management.service.ProductDetailService;
 import com.example.be.core.admin.products_management.service.ProductService;
+import com.example.be.core.client.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -30,9 +31,11 @@ public class ProductController {
     private final ProductConfigService productConfigService;
     private final ProductDetailService productDetailService;
     private final ProductMapper productMapper;
+    private final AuthService authService;
 
     @GetMapping("")
-    public ResponseEntity<List<ProductResponse>> getAll(){
+    public ResponseEntity<List<ProductResponse>> getAll(@RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
         List<ProductResponse> responses = productService.getAll();
         return ResponseEntity.ok(responses);
 
@@ -56,20 +59,28 @@ public class ProductController {
     }
     // product vs product-detail
     @PostMapping("/create-product")
-    public ResponseData<ProductConfigResponse> add(@RequestBody ProductConfigRequest productConfigRequest) throws Exception {
+    public ResponseData<ProductConfigResponse> add(@RequestBody ProductConfigRequest productConfigRequest,
+                                                   @RequestHeader(value = "Authorization") String jwt) throws Exception {
+        authService.findAccountByJwt(jwt);
         ProductConfigResponse productConfigResponse = productConfigService.create(productConfigRequest);
         return new ResponseData<>(HttpStatus.CREATED,"create product successfully",productConfigResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseData<?> update(@PathVariable Integer id,
-                                              @RequestBody ProductRequest productRequest) throws Exception {
+                                  @RequestBody ProductRequest productRequest,
+                                  @RequestHeader(value = "Authorization") String jwt) throws Exception {
+
+        authService.findAccountByJwt(jwt);
         productService.update(productRequest,id);
         return new ResponseData<>(HttpStatus.ACCEPTED,"update product successfully");
     }
 
     @PatchMapping("/{id}")
-    public ResponseData<?> updateStatus(@PathVariable Integer id) {
+    public ResponseData<?> updateStatus(@PathVariable Integer id,
+                                        @RequestHeader(value = "Authorization") String jwt) throws Exception {
+
+        authService.findAccountByJwt(jwt);
         try {
             productService.updateStatus(id);
             return new ResponseData<>(HttpStatus.ACCEPTED,"update status product successfully");

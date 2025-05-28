@@ -1,12 +1,15 @@
 package com.example.be.core.client.cart.service.impl;
 
 import com.example.be.core.client.cart.dto.request.CartDetailRequest;
+import com.example.be.core.client.cart.dto.request.CheckCartRequest;
 import com.example.be.core.client.cart.service.CartDetailService;
 import com.example.be.entity.CartDetail;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.ProductDetailStatus;
+import com.example.be.entity.status.StatusVoucher;
 import com.example.be.repository.CartDetailRepository;
 import com.example.be.repository.ProductDetailRepository;
+import com.example.be.repository.VoucherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,7 @@ public class CartDetailService2Impl implements CartDetailService {
 
     private final CartDetailRepository cartDetailRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final VoucherRepository voucherRepository;
 
     @Override
     public Object deleteCartDetail(Integer idCartDetail) throws Exception {
@@ -50,10 +54,10 @@ public class CartDetailService2Impl implements CartDetailService {
     }
 
     @Override
-    public Object checkCartDetail(List<Integer> idCartDetailList) throws Exception {
+    public Object checkCartDetail(CheckCartRequest checkCartRequest) throws Exception {
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal MAX_LONG = new BigDecimal("50000000000");
-        for (Integer idCartDetail: idCartDetailList) {
+        for (Integer idCartDetail: checkCartRequest.getIdCartDetailList()) {
             CartDetail cartDetail = cartDetailRepository.findById(idCartDetail).orElseThrow(()->
                     new Exception("cart detail not found"));
             ProductDetail productDetail = productDetailRepository.findByIdAndStatus(cartDetail.getIdProductDetail().getId(), ProductDetailStatus.ACTIVE);
@@ -72,6 +76,15 @@ public class CartDetailService2Impl implements CartDetailService {
             BigDecimal price = productDetail.getPriceSell();
             BigDecimal itemTotal = quantity.multiply(price);
             total = total.add(itemTotal);
+        }
+
+
+        if (total.compareTo(checkCartRequest.getPrice())!=0){
+            throw new IllegalArgumentException("1");
+        }
+        if (checkCartRequest.getIdVoucher()!=null){
+            voucherRepository.findByIdAndStatus(checkCartRequest.getIdVoucher(), StatusVoucher.ACTIVE).orElseThrow(
+                    ()-> new IllegalArgumentException("1"));
         }
         BigDecimal vnpAmount = total.multiply(BigDecimal.valueOf(100));
 

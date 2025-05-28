@@ -5,6 +5,7 @@ import com.example.be.core.admin.voucher.dto.response.VoucherApplyResponse;
 import com.example.be.core.admin.voucher.service.VoucherService;
 import com.example.be.core.client.cart.dto.request.AddToCartRequest;
 import com.example.be.core.client.cart.dto.request.CartDetailRequest;
+import com.example.be.core.client.cart.dto.request.CheckCartRequest;
 import com.example.be.core.client.cart.dto.request.OrderRequest;
 import com.example.be.core.client.cart.dto.response.CartResponse;
 import com.example.be.core.client.cart.service.CartDetailService;
@@ -79,9 +80,9 @@ public class CartGuestController {
     }
 
     @PostMapping("/cart-detail/check-product")
-    public ResponseData<?> checkCartDetail(@RequestBody List<Integer> idCartDetailList) throws Exception {
+    public ResponseData<?> checkCartDetail(@RequestBody CheckCartRequest checkCartRequest) throws Exception {
 
-        Object o = cartDetailService.checkCartDetail(idCartDetailList);
+        Object o = cartDetailService.checkCartDetail(checkCartRequest);
         return new ResponseData<>(HttpStatus.OK,"ok",o);
 
     }

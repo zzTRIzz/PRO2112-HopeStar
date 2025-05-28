@@ -24,10 +24,14 @@ import {
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableToolbar } from './data-table-toolbar'
+import { jwtDecode } from 'jwt-decode'
+import JwtPayload from '@/features/auth/type'
+import Cookies from 'js-cookie'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  idRole: string
   searchValue: string
   setSearchValue: (value: string) => void
   idChip: number | undefined
@@ -55,6 +59,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  idRole,
   searchValue,
   setSearchValue,
   idChip,
@@ -148,7 +153,7 @@ export function DataTable<TData, TValue>({
                     )}
                   </TableHead>
                 ))}
-                <TableHead>Thao tác</TableHead>
+                {idRole === "2" && <TableHead>Thao tác</TableHead>}
               </TableRow>
             ))}
           </TableHeader>
@@ -167,9 +172,9 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
+                  {idRole === "2" &&<TableCell>
                     <DataTableRowActions row={row} />
-                  </TableCell>
+                  </TableCell>}
                 </TableRow>
               ))
             ) : (
