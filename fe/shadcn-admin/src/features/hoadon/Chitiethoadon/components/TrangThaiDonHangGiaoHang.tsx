@@ -512,6 +512,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> =
                   disabled={
                     currentStatus === "CHO_THANH_TOAN"
                     || currentStatus === "DA_HUY"
+                    || currentStatus === "GIAO_THAT_BAI"
                   }
                   onClick={() => handlePrint(invoiceData)}>
                   In hóa đơn

@@ -126,8 +126,8 @@ export default function BoLocDienThoai({
             : value === 'null'
               ? null
               : typeof value === 'string' &&
-                  key !== 'typeScreen' &&
-                  key !== 'key'
+                key !== 'typeScreen' &&
+                key !== 'key'
                 ? Number(value)
                 : value
 
@@ -256,9 +256,9 @@ export default function BoLocDienThoai({
           <div className='p-4'>
             <div className='mb-3 text-small font-bold'>Chọn khoảng giá</div>
             <Slider
-              step={500000}
+              step={1000000}
               minValue={0}
-              maxValue={50000000}
+              maxValue={100000000}
               value={tempPriceRange}
               onChange={(value) => setTempPriceRange(value as number[])}
               className='min-w-[300px] max-w-full'
@@ -319,13 +319,19 @@ export default function BoLocDienThoai({
 
       {/* Generic dropdown filter component */}
       {[
+
+        {
+          label: 'Chip',
+          key: 'chip',
+          dataKey: 'chips',
+          nameKey: 'name'
+        },
         {
           label: 'Thương hiệu',
           key: 'brand',
           dataKey: 'brands',
           nameKey: 'name',
         },
-        { label: 'Chip', key: 'chip', dataKey: 'chips', nameKey: 'name' },
         {
           label: 'Danh mục',
           key: 'category',
@@ -361,11 +367,11 @@ export default function BoLocDienThoai({
           key === 'typeScreen'
             ? (value as string)
             : getSelectedItemName(
-                items,
-                value as number,
-                filter.nameKey,
-                filter.suffix
-              )
+              items,
+              value as number,
+              filter.nameKey,
+              filter.suffix
+            )
 
         return (
           <Dropdown key={filter.key}>
@@ -572,40 +578,76 @@ export default function BoLocDienThoai({
   )
 
   return (
+    // <div className='mx-auto max-w-7xl'>
+    //   <div className='mb-8'>
+    //     <h1 className='mb-4 text-xl font-bold text-gray-900'>
+    //       Chọn theo tiêu chí
+    //     </h1>
+    //     {renderFilterControls()}
+    //   </div>
+
+    //   {isAnyFilterActive && renderActiveFilters()}
+
+    //   {renderSortControls()}
+
+    //   {/* tim kiem  */}
+    //   <div className='mb-8 flex w-full justify-center'>
+    //     <div className='flex w-5/6 max-w-3xl items-center gap-4'>
+    //       <input
+    //         type='text'
+    //         value={searchKey}
+    //         onChange={(e) => setSearchKey(e.target.value)}
+    //         placeholder='Tìm kiếm điện thoại...'
+    //         className='flex-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring focus:ring-blue-500'
+    //       />
+    //       <Button
+    //         variant='bordered'
+    //         color='primary'
+    //         isDisabled={!searchKey.trim()}
+    //         onPress={() => handleFilterChange('key', searchKey.trim())}
+    //         className='flex items-center gap-2'
+    //       >
+    //         <Search className='h-5 w-5' />
+    //         Tìm kiếm
+    //       </Button>
+    //     </div>
+    //   </div>
+    // </div>
     <div className='mx-auto max-w-7xl'>
       <div className='mb-8'>
-        <h1 className='mb-4 text-xl font-bold text-gray-900'>
-          Chọn theo tiêu chí
-        </h1>
+        <div className='mb-4 flex items-center gap-16'>
+          <h1 className='text-xl font-bold text-gray-900 whitespace-nowrap'>
+            Chọn theo tiêu chí
+          </h1>
+          <div className='ml-12 flex items-center gap-2'>
+            <input
+              type='text'
+              value={searchKey}
+              onChange={(e) => setSearchKey(e.target.value)}
+              placeholder='Tìm kiếm tên điện thoại...'
+              className='w-90 h-9 rounded-md border border-gray-300 px-3 py-2 hover:ring-blue-500'
+            />
+            <Button
+              variant='bordered'
+              color='primary'
+              isDisabled={!searchKey.trim()}
+              onPress={() => handleFilterChange('key', searchKey.trim())}
+              className='flex items-center gap-2 h-9'
+            >
+              <Search className='h-5 w-5' />
+              Tìm kiếm
+            </Button>
+          </div>
+        </div>
+
         {renderFilterControls()}
       </div>
 
       {isAnyFilterActive && renderActiveFilters()}
 
       {renderSortControls()}
-
-      {/* tim kiem  */}
-      <div className='mb-8 flex w-full justify-center'>
-        <div className='flex w-5/6 max-w-3xl items-center gap-4'>
-          <input
-            type='text'
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
-            placeholder='Tìm kiếm điện thoại...'
-            className='flex-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring focus:ring-blue-500'
-          />
-          <Button
-            variant='bordered'
-            color='primary'
-            isDisabled={!searchKey.trim()}
-            onPress={() => handleFilterChange('key', searchKey.trim())}
-            className='flex items-center gap-2'
-          >
-            <Search className='h-5 w-5' />
-            Tìm kiếm
-          </Button>
-        </div>
-      </div>
     </div>
+
+
   )
 }

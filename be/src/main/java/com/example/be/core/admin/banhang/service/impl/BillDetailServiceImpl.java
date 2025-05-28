@@ -226,10 +226,8 @@ public class BillDetailServiceImpl implements BillDetailService {
 
     @Override
     public List<ProductDetailDto> getAllProductDetailDto(SearchProductRequest searchRequest) {
-        List<Product> allMatchingProducts = productRepository.findAllMatching(searchRequest);
-        List<ProductDetail> productDetailTong = productDetailRepository.findByProductInAndStatus(allMatchingProducts, ProductDetailStatus.ACTIVE);
-
-
+//        List<Product> allMatchingProducts = productRepository.findAllMatching(searchRequest);
+        List<ProductDetail> productDetailTong = productDetailRepository.searchProductDetailByDetail(searchRequest,ProductDetailStatus.ACTIVE);
 //        List<ProductDetail> productDetails = productDetailRepository.getAllProductDetail(ProductDetailStatus.ACTIVE);
         List<ProductDetailDto> result = productDetailTong.stream()
                 .map(this::productDetailDto)

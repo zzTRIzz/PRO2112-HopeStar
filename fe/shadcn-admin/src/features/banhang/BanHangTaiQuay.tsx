@@ -71,7 +71,7 @@ function BanHangTaiQuay() {
   const [ListVoucherTheoAccount, setListVoucherTheoAccount] = useState<Voucher[]>([]);
   const [isBanGiaoHang, setIsBanGiaoHang] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number | null>(null); // 1 = Tiền mặt, 2 = Chuyển khoản
-  const [customerPayment, setCustomerPayment] = useState<number|null>(null);
+  const [customerPayment, setCustomerPayment] = useState<number | null>(null);
   const [shippingFee, setShippingFee] = useState(0);
   const [insuranceFee, setInsuranceFee] = useState(0);
   const [isProcessingBillChange, setIsProcessingBillChange] = useState(false);
@@ -492,7 +492,7 @@ function BanHangTaiQuay() {
         cancelText: 'Hủy bỏ'
       });
     }
-  
+
     if (searchBill == null || searchBill?.id === undefined) {
       fromThatBai("Vui lòng chọn hóa đơn trước khi thanh toán");
       return;
@@ -654,11 +654,15 @@ function BanHangTaiQuay() {
       //   idBill: currentBillId,
       //   idProductDetail: productDetail.id,
       // })
-
-      // if (!newBillDetail?.id) {
-      //   fromThatBai('Tạo hóa đơn chi tiết thất bại')
-      //   return
-      // }
+      const newBillDetail = await addBillDetailAndCreateImeiSold({
+        idBill: currentBillId,
+        idProductDetail: productDetail.id,
+        id_Imei: [productDetail.idImei],
+      })
+      if (!newBillDetail?.id) {
+        fromThatBai('Tạo hóa đơn chi tiết thất bại')
+        return
+      }
       // await createImeiSold(
       //   {
       //     id_Imei: [productDetail.idImei],

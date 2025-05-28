@@ -203,6 +203,11 @@ interface SearchProductRequest {
     idScreen?: number
     idOs?: number
     idCategory?: number
+    idCard?: number
+    idBluetooth?: number
+    ram?: number
+    color?: number
+    rom?: number
 
 }
 

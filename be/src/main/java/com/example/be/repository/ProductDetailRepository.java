@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.core.admin.products_management.dto.request.SearchProductDetailRequest;
+import com.example.be.core.admin.products_management.dto.request.SearchProductRequest;
 import com.example.be.entity.Product;
 import com.example.be.entity.ProductDetail;
 import com.example.be.entity.status.ProductDetailStatus;
@@ -68,4 +69,38 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
           @Param("colorId") Integer colorId
   );
 
-  }
+  @Query("SELECT pd FROM ProductDetail pd " +
+          "LEFT JOIN pd.product p " +
+          "LEFT JOIN p.brand b " +
+          "LEFT JOIN p.screen s " +
+          "LEFT JOIN p.card c " +
+          "LEFT JOIN p.os o " +
+          "LEFT JOIN p.wifi w " +
+          "LEFT JOIN p.bluetooth bt " +
+          "LEFT JOIN p.battery ba " +
+          "LEFT JOIN ProductCategory pc ON p.id = pc.product.id " +
+          "LEFT JOIN pc.category cat " +
+          "LEFT JOIN pd.ram r " +
+          "LEFT JOIN pd.rom rom " +
+          "LEFT JOIN pd.color color " +
+          "WHERE (:#{#searchRequest.key} IS NULL OR " +
+          "REPLACE(LOWER(TRIM(p.code)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:#{#searchRequest.key}), '%')), ' ', '') OR " +
+          "REPLACE(LOWER(TRIM(p.name)), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', TRIM(:#{#searchRequest.key}), '%')), ' ', '')) " +
+          "AND (:#{#searchRequest.idChip} IS NULL OR p.chip.id = :#{#searchRequest.idChip}) " +
+          "AND (:#{#searchRequest.idBrand} IS NULL OR b.id = :#{#searchRequest.idBrand}) " +
+          "AND (:#{#searchRequest.idScreen} IS NULL OR s.id = :#{#searchRequest.idScreen}) " +
+          "AND (:#{#searchRequest.idCard} IS NULL OR c.id = :#{#searchRequest.idCard}) " +
+          "AND (:#{#searchRequest.idOs} IS NULL OR o.id = :#{#searchRequest.idOs}) " +
+          "AND (:#{#searchRequest.idWifi} IS NULL OR w.id = :#{#searchRequest.idWifi}) " +
+          "AND (:#{#searchRequest.idBluetooth} IS NULL OR bt.id = :#{#searchRequest.idBluetooth}) " +
+          "AND (:#{#searchRequest.idBattery} IS NULL OR ba.id = :#{#searchRequest.idBattery}) " +
+          "AND (:#{#searchRequest.idCategory} IS NULL OR cat.id = :#{#searchRequest.idCategory}) " +
+          "AND (:#{#searchRequest.ram} IS NULL OR r.id = :#{#searchRequest.ram}) " +
+          "AND (:#{#searchRequest.rom} IS NULL OR rom.id = :#{#searchRequest.rom}) " +
+          "AND (:#{#searchRequest.color} IS NULL OR color.id = :#{#searchRequest.color}) " +
+//          "AND (:#{#searchRequest.status} IS NULL OR p.status = :#{#searchRequest.getStatusCommon()}) " +
+          "AND pd.status = :status")
+  List<ProductDetail> searchProductDetailByDetail(@Param("searchRequest") SearchProductRequest searchRequest,
+                                                  @Param("status") ProductDetailStatus status);
+
+}

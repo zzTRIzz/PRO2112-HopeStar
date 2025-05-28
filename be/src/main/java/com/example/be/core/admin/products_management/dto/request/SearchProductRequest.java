@@ -16,6 +16,9 @@ public class SearchProductRequest {
     private Integer idBluetooth;
     private Integer idBattery;
     private Integer idCategory;
+    private Integer rom;
+    private Integer ram;
+    private Integer color;
     private String status;
 
     public StatusCommon getStatusCommon() {

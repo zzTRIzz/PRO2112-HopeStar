@@ -16,13 +16,6 @@ import { Input } from '@/components/ui/input';
 import { IconQuestionMark } from '@tabler/icons-react';
 import { imei, ProductDetail } from '../ChiTietHoaDon';
 import { BillRespones } from '@/features/banhang/service/Schema';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 
