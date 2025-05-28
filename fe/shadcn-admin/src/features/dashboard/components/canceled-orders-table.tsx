@@ -1,6 +1,14 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import {
   Table,
   TableBody,
@@ -8,58 +16,48 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import { getCanceledOrders } from '../api/statisticsApi';
+} from '@/components/ui/table'
+import { getCanceledOrders } from '../api/statisticsApi'
 
 export function CanceledOrdersTable() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
 
   const { data: orders = [] } = useQuery({
     queryKey: ['canceled-orders'],
-    queryFn: getCanceledOrders
-  });
+    queryFn: getCanceledOrders,
+  })
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedOrders = orders.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(orders.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedOrders = orders.slice(startIndex, startIndex + itemsPerPage)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Đơn hàng khách đã hủy</CardTitle>
+        <CardTitle>Danh sách khách hủy đơn hàng</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="rounded-md border">
+        <div className='space-y-4'>
+          <div className='rounded-md border'>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>STT</TableHead>
-                  <TableHead>Mã đơn</TableHead>
                   <TableHead>Khách hàng</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Số điện thoại</TableHead>
-                  {/* <TableHead>Địa chỉ</TableHead> */}
+                  <TableHead>Số lần hủy</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedOrders.map((order, index) => (
-                  <TableRow key={order.billCode}>
+                  <TableRow key={order.customerId}>
                     <TableCell>{startIndex + index + 1}</TableCell>
-                    <TableCell>{order.billCode}</TableCell>
                     <TableCell>{order.customerName}</TableCell>
                     <TableCell>{order.email}</TableCell>
                     <TableCell>{order.phone}</TableCell>
-                    {/* <TableCell>{order.address}</TableCell> */}
+                    <TableCell>{order.canceledOrderCount}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -71,11 +69,15 @@ export function CanceledOrdersTable() {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => currentPage > 1 && setCurrentPage(p => p - 1)}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    onClick={() =>
+                      currentPage > 1 && setCurrentPage((p) => p - 1)
+                    }
+                    className={
+                      currentPage === 1 ? 'pointer-events-none opacity-50' : ''
+                    }
                   />
                 </PaginationItem>
-                
+
                 {[...Array(totalPages)].map((_, index) => (
                   <PaginationItem key={index + 1}>
                     <PaginationLink
@@ -89,8 +91,14 @@ export function CanceledOrdersTable() {
 
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => currentPage < totalPages && setCurrentPage(p => p + 1)}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    onClick={() =>
+                      currentPage < totalPages && setCurrentPage((p) => p + 1)
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : ''
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -99,5 +107,5 @@ export function CanceledOrdersTable() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

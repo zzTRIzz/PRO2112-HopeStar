@@ -1134,7 +1134,7 @@ export default function VoucherUI() {
                                                     </div>
 
                                                     <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                                                        <h3 className="font-medium text-lg mb-2">Điều kiện áp dụng</h3>
+                                                        <h3 className="font-medium text-lg mb-2">Điều kiện áp dụng với đơn hàng</h3>
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div>
                                                                 <label className="block mb-1 font-medium">Giá tối thiểu</label>

@@ -239,18 +239,18 @@ public interface StatisticRepository extends JpaRepository<Bill, Integer> {
                                                 @Param("endDate") LocalDate endDate);
 
     @Query(nativeQuery = true, value = """
-    SELECT DISTINCT 
+    SELECT 
         a.id AS customer_id,
         a.full_name AS customer_name,
         a.email,
         a.phone,
-        a.address,
-        b.code AS bill_code,
-        b.status AS bill_status
+        COUNT(b.id) AS canceled_order_count
     FROM account a
     JOIN bill b ON a.id = b.id_account
     WHERE b.status = 'DA_HUY' AND a.id != 1
-    ORDER BY a.id
+    GROUP BY a.id
+    HAVING COUNT(b.id) > 3
+    ORDER BY canceled_order_count DESC
     """)
     List<Object[]> findCustomersWithCanceledOrders();
 

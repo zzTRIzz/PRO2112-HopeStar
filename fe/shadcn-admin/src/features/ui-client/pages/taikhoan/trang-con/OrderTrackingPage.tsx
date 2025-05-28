@@ -1,8 +1,8 @@
-import { Card, CardBody, Progress, Chip } from '@heroui/react'
+import { Card, CardBody, Chip, Link, Progress } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { Bill } from '../service/schema'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getBillAllClientByAccount } from '../service/api-bill-client-service'
+import { Bill } from '../service/schema'
 
 const orderStatusSteps = [
   {
@@ -217,23 +217,32 @@ const OrderTrackingPage = () => {
                 <h2 className='mb-4 font-semibold'>Danh sách sản phẩm</h2>
                 <div className='space-y-4'>
                   {bill?.billDetailResponesList?.map((bd) => (
-                    <div className='flex items-center gap-4'>
-                      <img
-                        src={bd.productDetail.image}
-                        alt={bd.productDetail.image}
-                        className='h-[120px] w-[100px] rounded-md object-cover'
-                      />
-                      <div className='flex-1'>
+                    
+                      <div className='flex items-center gap-4'>
+                        <img
+                          src={bd.productDetail.image}
+                          alt={bd.productDetail.image}
+                          className='h-[120px] w-[100px] rounded-md object-cover'
+                        />
+                        
+                        <div className='flex-1'>
+                          <Link
+                      href={`/product/${bd.productDetail.idProduct}`}
+                      className='text-sm font-medium hover:text-[#4c7eea]'
+                    >
                         <p className='font-medium'>
                           {bd?.productDetail?.productName
                             + ' ' + bd?.productDetail?.ram
                             + '/' + bd?.productDetail?.rom + bd?.productDetail?.descriptionRom
                             + ' - ' + bd?.productDetail?.color}
                         </p>
+                        </Link>
                         <p className='text-sm text-default-500'>Số lượng: {bd?.quantity}</p>
+                      
                       </div>
                       <p className='font-semibold'>{bd.totalPrice.toLocaleString("vi-VN")} VNĐ</p>
                     </div>
+                    
                   ))}
                 </div>
               </CardBody>

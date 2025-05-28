@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Data
 public class ProductDetailRespones {
     private Integer id;
+    private Integer idProduct;
     private String productName;
     private Integer ram;
     private Integer rom;
