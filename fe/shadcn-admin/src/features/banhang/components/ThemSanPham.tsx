@@ -72,22 +72,22 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
   const [selectedCategory, setSelectedCategory] = useState<number>()
   const [selectedOs, setSelectedOs] = useState<number>()
   const [selectedScreen, setSelectedScreen] = useState<number>()
-  const [brands, setBrands] = useState([])
-  const [chips, setChips] = useState([])
-  const [categories, setCategories] = useState([])
-  const [os, setOs] = useState([])
-  const [screens, setScreens] = useState([])
-  const [searchImeiKey, setSearchImeiKey] = useState('');
   const [selectedRam, setSelectedRam] = useState<number>()
   const [selectedRom, setSelectedRom] = useState<number>()
   const [selectedColor, setSelectedColor] = useState<number>()
   const [selectedCard, setSelectedCard] = useState<number>()
   const [selectedBluetooth, setSelectedBluetooth] = useState<number>()
+  const [brands, setBrands] = useState([])
+  const [chips, setChips] = useState([])
+  const [categories, setCategories] = useState([])
+  const [os, setOs] = useState([])
+  const [screens, setScreens] = useState([])
   const [rams, setRams] = useState([])
   const [roms, setRoms] = useState([])
   const [colors, setColors] = useState([])
   const [cards, setCards] = useState([])
   const [bluetooths, setBluetooths] = useState([])
+  const [searchImeiKey, setSearchImeiKey] = useState('');
 
   useEffect(() => {
     loadCategory()
@@ -289,240 +289,122 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
                 >
                   Làm mới
                 </Button>
-                <div className='grid grid-cols-5 space-x-2 gap-2'>
-                  {/* <Select
-                    value={selectedBrand?.toString()}
-                    onValueChange={(value) => setSelectedBrand(Number(value))}
-                  >
-                    <SelectTrigger className='w-[180px]'>
-                      <SelectValue placeholder='Chọn thương hiệu' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <ScrollArea className='h-40'>
-
-                        {brands.map((brand) => (
-                          <SelectItem key={brand.id} value={brand.id.toString()}>
-                            {brand.name}
-                          </SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select> */}
+                <div className='grid grid-cols-5 gap-x-4 gap-y-2 w-full'>
+                  {/* Thương hiệu */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='brand-select' className='mb-1 text-xs text-muted-foreground'>
-                      Thương hiệu
-                    </Label>
+                    <Label htmlFor='brand-select' className='mb-1 text-xs text-muted-foreground'>Thương hiệu</Label>
                     <Select
+                      key={selectedBrand === undefined ? 'reset' : selectedBrand}
                       value={selectedBrand?.toString()}
-                      onValueChange={(value) =>
-                        setSelectedBrand(value === '0' ? undefined : Number(value))
-                      }
+                      onValueChange={value => setSelectedBrand(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger className='w-[180px]'>
+                      <SelectTrigger id='brand-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {brands.map((brand) => (
-                          <SelectItem key={brand.id} value={brand.id.toString()}>
-                            {brand.name}
-                          </SelectItem>
+                        {brands.map(brand => (
+                          <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* <Select
-                    value={selectedChip?.toString()}
-                    onValueChange={(value) => setSelectedChip(Number(value))}
-                  >
-                    <SelectTrigger className='w-[180px]'>
-                      <SelectValue placeholder='Chọn chip' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <ScrollArea className='h-40'>
-                        {chips.map((chip) => (
-                          <SelectItem key={chip.id} value={chip.id.toString()}>
-                            {chip.name}
-                          </SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select> */}
+                  {/* Chip */}
                   <div className='flex flex-col justify-center'>
-                    <Label
-                      htmlFor='chip-select'
-                      className='mb-1 text-xs text-muted-foreground'
-                    >
-                      Chip
-                    </Label>
+                    <Label htmlFor='chip-select' className='mb-1 text-xs text-muted-foreground'>Chip</Label>
                     <Select
+                      key={selectedChip === undefined ? 'reset' : selectedChip}
                       value={selectedChip?.toString()}
-                      onValueChange={(value) =>
-                        setSelectedChip(value === '0' ? undefined : Number(value))
-                      }
+                      onValueChange={value => setSelectedChip(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='chip-select'>
+                      <SelectTrigger id='chip-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {chips.map((chip) => (
-                          <SelectItem key={chip.id} value={chip.id.toString()}>
-                            {chip.name}
-                          </SelectItem>
+                        {chips.map(chip => (
+                          <SelectItem key={chip.id} value={chip.id.toString()}>{chip.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* <Select
-                    value={selectedCategory?.toString()}
-                    onValueChange={(value) => setSelectedCategory(Number(value))}
-                  >
-                    <SelectTrigger className='w-[180px]'>
-                      <SelectValue placeholder='Chọn danh mục' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <ScrollArea className='h-40'>
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id.toString()}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select> */}
+                  {/* Danh mục */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='category-select' className='mb-1 text-xs text-muted-foreground'>
-                      Danh mục
-                    </Label>
+                    <Label htmlFor='category-select' className='mb-1 text-xs text-muted-foreground'>Danh mục</Label>
                     <Select
+                      key={selectedCategory === undefined ? 'reset' : selectedCategory}
                       value={selectedCategory?.toString()}
-                      onValueChange={(value) =>
-                        setSelectedCategory(value === '0' ? undefined : Number(value))
-                      }
+                      onValueChange={value => setSelectedCategory(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='category-select'>
+                      <SelectTrigger id='category-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
+                        {categories.map(category => (
+                          <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* <Select
-                    value={selectedOs?.toString()}
-                    onValueChange={(value) => setSelectedOs(Number(value))}
-                  >
-                    <SelectTrigger className='w-[180px]'>
-                      <SelectValue placeholder='Chọn hệ điều hành' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <ScrollArea className='h-40'>
-                        {os.map((item) => (
-                          <SelectItem key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select> */}
+                  {/* Hệ điều hành */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='os-select' className='mb-1 text-xs text-muted-foreground'>
-                      Hệ điều hành
-                    </Label>
+                    <Label htmlFor='os-select' className='mb-1 text-xs text-muted-foreground'>Hệ điều hành</Label>
                     <Select
+                      key={selectedOs === undefined ? 'reset' : selectedOs}
                       value={selectedOs?.toString()}
-                      onValueChange={(value) =>
-                        setSelectedOs(value === '0' ? undefined : Number(value))
-                      }
+                      onValueChange={value => setSelectedOs(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='os-select'>
+                      <SelectTrigger id='os-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {os.map((item) => (
-                          <SelectItem key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </SelectItem>
+                        {os.map(item => (
+                          <SelectItem key={item.id} value={item.id.toString()}>{item.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* <Select
-                    value={selectedScreen?.toString()}
-                    onValueChange={(value) => setSelectedScreen(Number(value))}
-                  >
-                    <SelectTrigger className='w-[180px]'>
-                      <SelectValue placeholder='Chọn màn hình' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <ScrollArea className='h-40'>
-                        {screens.map((screen) => (
-                          <SelectItem
-                            key={screen.id}
-                            value={screen.id.toString()}
-                          >
-                            {screen.type}
-                          </SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select> */}
-
+                  {/* Màn hình */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='screen-select' className='mb-1 text-xs text-muted-foreground'>
-                      Màn hình
-                    </Label>
+                    <Label htmlFor='screen-select' className='mb-1 text-xs text-muted-foreground'>Màn hình</Label>
                     <Select
+                      key={selectedScreen === undefined ? 'reset' : selectedScreen}
                       value={selectedScreen?.toString()}
-                      onValueChange={(value) =>
-                        setSelectedScreen(value === '0' ? undefined : Number(value))
-                      }
+                      onValueChange={value => setSelectedScreen(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='screen-select'>
+                      <SelectTrigger id='screen-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {screens.map((screen) => (
-                          <SelectItem key={screen.id} value={screen.id.toString()}>
-                            {screen.type}
-                          </SelectItem>
+                        {screens.map(screen => (
+                          <SelectItem key={screen.id} value={screen.id.toString()}>{screen.type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  {/* Card đồ họa */}
+
+                  {/* Thẻ nhớ */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='card-select' className='mb-1 text-xs text-muted-foreground'>
-                      Thẻ nhớ
-                    </Label>
+                    <Label htmlFor='card-select' className='mb-1 text-xs text-muted-foreground'>Thẻ nhớ</Label>
                     <Select
+                      key={selectedCard === undefined ? 'reset' : selectedCard}
                       value={selectedCard?.toString()}
-                      onValueChange={(value) => setSelectedCard(value === '0' ? undefined : Number(value))}
+                      onValueChange={value => setSelectedCard(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='card-select'>
+                      <SelectTrigger id='card-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {cards.map((card) => (
-                          <SelectItem key={card.id} value={card.id.toString()}>
-                            {card.type}
-                          </SelectItem>
+                        {cards.map(card => (
+                          <SelectItem key={card.id} value={card.id.toString()}>{card.type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -530,22 +412,19 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
 
                   {/* Bluetooth */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='bluetooth-select' className='mb-1 text-xs text-muted-foreground'>
-                      Bluetooth
-                    </Label>
+                    <Label htmlFor='bluetooth-select' className='mb-1 text-xs text-muted-foreground'>Bluetooth</Label>
                     <Select
+                      key={selectedBluetooth === undefined ? 'reset' : selectedBluetooth}
                       value={selectedBluetooth?.toString()}
-                      onValueChange={(value) => setSelectedBluetooth(value === '0' ? undefined : Number(value))}
+                      onValueChange={value => setSelectedBluetooth(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='bluetooth-select'>
+                      <SelectTrigger id='bluetooth-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {bluetooths.map((item) => (
-                          <SelectItem key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </SelectItem>
+                        {bluetooths.map(item => (
+                          <SelectItem key={item.id} value={item.id.toString()}>{item.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -553,42 +432,39 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
 
                   {/* Ram */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='ram-select' className='mb-1 text-xs text-muted-foreground'>
-                      Ram
-                    </Label>
-                    <Select   
+                    <Label htmlFor='ram-select' className='mb-1 text-xs text-muted-foreground'>Ram</Label>
+                    <Select
+                      key={selectedRam === undefined ? 'reset' : selectedRam}
                       value={selectedRam?.toString()}
-                      onValueChange={(value) => setSelectedRam(value === '0' ? undefined : Number(value))}
+                      onValueChange={value => setSelectedRam(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='ram-select'>
+                      <SelectTrigger id='ram-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {rams.map((ram) => (
+                        {rams.map(ram => (
                           <SelectItem key={ram.id} value={ram.id.toString()}>{ram.capacity} {ram.description}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  {/* ROM */}
+
+                  {/* Rom */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='rom-select' className='mb-1 text-xs text-muted-foreground'>
-                      Rom
-                    </Label>
+                    <Label htmlFor='rom-select' className='mb-1 text-xs text-muted-foreground'>Rom</Label>
                     <Select
+                      key={selectedRom === undefined ? 'reset' : selectedRom}
                       value={selectedRom?.toString()}
-                      onValueChange={(value) => setSelectedRom(value === '0' ? undefined : Number(value))}
+                      onValueChange={value => setSelectedRom(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='rom-select'>
+                      <SelectTrigger id='rom-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {roms.map((rom) => (
-                          <SelectItem key={rom.id} value={rom.id.toString()}>
-                            {rom.capacity} {rom.description}
-                          </SelectItem>
+                        {roms.map(rom => (
+                          <SelectItem key={rom.id} value={rom.id.toString()}>{rom.capacity} {rom.description}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -596,33 +472,28 @@ const ThemSanPham: React.FC<SanPhamChiTiet> = ({
 
                   {/* Màu sắc */}
                   <div className='flex flex-col justify-center'>
-                    <Label htmlFor='color-select' className='mb-1 text-xs text-muted-foreground'>
-                      Màu sắc
-                    </Label>
+                    <Label htmlFor='color-select' className='mb-1 text-xs text-muted-foreground'>Màu sắc</Label>
                     <Select
+                      key={selectedColor === undefined ? 'reset' : selectedColor}
                       value={selectedColor?.toString()}
-                      onValueChange={(value) => setSelectedColor(value === '0' ? undefined : Number(value))}
+                      onValueChange={value => setSelectedColor(value === '0' ? undefined : Number(value))}
                     >
-                      <SelectTrigger id='color-select'>
+                      <SelectTrigger id='color-select' className='w-[180px]'>
                         <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='0'>Tất cả</SelectItem>
-                        {colors.map((color) => (
-                          <SelectItem key={color.id} value={color.id.toString()}>
-                            {color.name}
-                          </SelectItem>
+                        {colors.map(color => (
+                          <SelectItem key={color.id} value={color.id.toString()}>{color.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-
-
                 </div>
               </div>
 
               <TableContainer>
-                <ScrollArea className='h-[500px] pr-2'>
+                <ScrollArea className='h-[485px] pr-2'>
                   {listProduct.length > 0 ? (
                     <Table>
                       <TableHead>

@@ -408,6 +408,7 @@ const ChiTietHoaDon: React.FC = () => {
                                 isDialogOpen={isDialogOpen}
                                 setIsDialogOpen={setIsDialogOpen}
                                 searchBill={searchBill}
+                                setListProduct={setListProductDetail}
                             />
                             {/* )} */}
                         </div>
