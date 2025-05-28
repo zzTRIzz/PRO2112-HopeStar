@@ -171,12 +171,12 @@ export const sidebarData: Omit<SidebarData, 'user'> = {
           icon: IconMessages,
         },
         {
-          title: 'Quản lý Voucher',
+          title: 'Quản lý voucher',
           url: '/voucher',
           icon: IconDiscount,
         },
         {
-          title: 'Quản lý Sale',
+          title: 'Quản lý sale',
           url: '/sale',
           icon: IconPercentage,
         },

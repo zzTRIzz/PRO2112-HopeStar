@@ -157,6 +157,7 @@ public class BillServiceClientImpl implements BillServiceClient {
                 if (billDetail.getIdProductDetail() != null) {
                     ProductDetailRespones productDetailRespones = new ProductDetailRespones();
                     productDetailRespones.setId(billDetail.getIdProductDetail().getId());
+                    productDetailRespones.setIdProduct(billDetail.getIdProductDetail().getProduct().getId());
                     productDetailRespones.setProductName(billDetail.getIdProductDetail().getProduct().getName());
                     productDetailRespones.setRam(billDetail.getIdProductDetail().getRam().getCapacity());
                     productDetailRespones.setRom(billDetail.getIdProductDetail().getRom().getCapacity());

@@ -840,17 +840,17 @@ export default function SaleUI() {
                         <div className="flex items-end gap-2">
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                className=" ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 disabled={loading}
                             >
-                                {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+                                Tìm kiếm
                             </button>
                             <button
                                 type="button"
                                 className="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 onClick={handleCreate}
                             >
-                                + Tạo chương trình
+                                + Tạo sale 
                             </button>
                         </div>
                     </div>

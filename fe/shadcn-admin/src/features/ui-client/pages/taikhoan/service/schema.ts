@@ -1,6 +1,7 @@
 
 interface ProductDetail {
     id: number;
+    idProduct: number;
     productName: string;
     ram: string;
     rom: string;

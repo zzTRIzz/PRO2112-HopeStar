@@ -293,13 +293,12 @@ public class StatisticServiceImpl implements StatisticService {
 
     private ListCustomerCancelOrderResponse mapToCancelOrderResponse(Object[] row) {
         return new ListCustomerCancelOrderResponse(
-                ((Number) row[0]).longValue(),    // customerId
+                ((Number) row[0]).longValue(),
                 (String) row[1],                  // customerName
                 (String) row[2],                  // email
                 (String) row[3],                  // phone
-                (String) row[4],                  // address
-                (String) row[5],                  // billCode
-                (String) row[6]                   // billStatus
+                ((Number) row[0]).longValue()             // number
+
         );
     }
 

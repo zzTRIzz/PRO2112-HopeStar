@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/client")
-public class CartController {
+public class CartController { // có thể gộp chung controller
 
     private final CartService cartService;
     private final AuthService authService;

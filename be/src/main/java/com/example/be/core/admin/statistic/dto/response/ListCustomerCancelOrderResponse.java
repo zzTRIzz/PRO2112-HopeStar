@@ -10,7 +10,5 @@ public class ListCustomerCancelOrderResponse {
     private String customerName;
     private String email;
     private String phone;
-    private String address;
-    private String billCode;
-    private String billStatus;
+    private Long canceledOrderCount;
 }
