@@ -13,5 +13,6 @@ public class ProductReviewsListResponse {
     private Integer numberSold;
     private Integer evaluate;
     private String product;
-
+    private Integer purchaseQuantity;
+    private Integer numberReviews;
 }

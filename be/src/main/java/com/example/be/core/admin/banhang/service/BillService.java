@@ -32,7 +32,7 @@ public interface BillService {
 
     BigDecimal tongTienBill(Integer idBill);
 
-    BillDto updateTotalDue(Integer idBill, BigDecimal totalDue);
+    BillDto updateTotalDue(Integer idBill, BigDecimal totalDue) throws Exception;
 
     BillDto addAccount(Integer idBill, Integer idAccount);
 

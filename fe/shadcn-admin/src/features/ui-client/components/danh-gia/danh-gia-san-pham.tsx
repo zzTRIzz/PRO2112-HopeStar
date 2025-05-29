@@ -14,7 +14,7 @@ interface ProductReviews {
   reviewData: any;
 }
 
-const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, hasPurchased, getAllReviews, currentProductDetail }) => {
+const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open, reviewData, hasPurchased, getAllReviews, currentProductDetail }) => {
   const [generalRating, setGeneralRating] = useState<number>(5);
   const [comment, setComment] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
@@ -119,19 +119,127 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
     setOpen(true);
   }
   return (
+    // <Dialog open={open} onOpenChange={setOpen}>
+    //   <DialogTrigger asChild>
+    //     <Button className="bg-blue-600 text-white hover:bg-blue-700"
+    //      onClick={handDanhGia}>
+    //       Đánh giá
+    //     </Button>
+    //   </DialogTrigger>
+    //   <DialogContent className="max-w-xl w-full">
+    //     {hasPurchased ? (
+    //       <div className="w-full bg-white rounded-lg p-4 space-y-6">
+    //         <h2 className="text-lg font-bold">Đánh giá & nhận xét </h2>
+    //         <div className="text-base font-bold text-green-600">
+    //          {reviewData?.product}
+    //         </div>
+    //         <div>
+    //           <div className="text-sm font-semibold mb-1">Đánh giá chung</div>
+    //           <div className="flex gap-2">
+    //             {[1, 2, 3, 4, 5].map((val) => (
+    //               <div
+    //                 key={val}
+    //                 className="flex flex-col items-center cursor-pointer"
+    //                 onClick={() => handleStarClick(val)}
+    //               >
+    //                 <Icon
+    //                   icon="lucide:star"
+    //                   className={`text-2xl ${val <= generalRating ? 'text-yellow-400' : 'text-gray-300'}`}
+    //                 />
+    //                 <span className="text-xs mt-1">
+    //                   {val === 1 ? 'Rất Tệ' : val === 2 ? 'Tệ' : val === 3 ? 'Bình thường' : val === 4 ? 'Tốt' : 'Tuyệt vời'}
+    //                 </span>
+    //               </div>
+    //             ))}
+    //           </div>
+    //         </div>
+
+    //         <textarea
+    //           className="w-full border border-gray-300 rounded p-2 text-sm"
+    //           rows={4}
+    //           placeholder="Xin mời chia sẻ một số cảm nhận về sản phẩm (nhập tối thiểu 15 ký tự)"
+    //           value={comment}
+    //           onChange={(e) => setComment(e.target.value)}
+    //         />
+
+    //         <div>
+    //           <label className="inline-flex items-center gap-2 cursor-pointer text-sm">
+    //             <Icon icon="lucide:image-plus" className="text-lg" />
+    //             Thêm hình ảnh
+    //             <input
+    //               type="file"
+    //               multiple
+    //               accept="image/*"
+    //               className="hidden"
+    //               onChange={handleImageChange}
+    //             />
+    //           </label>
+    //         </div>
+
+    //         <div className="flex flex-wrap gap-2 mt-2">
+    //           {images.map((file, index) => (
+    //             <div key={index} className="relative w-24 h-24">
+    //               <img
+    //                 src={URL.createObjectURL(file)}
+    //                 alt={`preview-${index}`}
+    //                 className="w-full h-full object-cover rounded"
+    //               />
+    //               <button
+    //                 className="absolute top-1 right-1 text-white rounded-full p-1 text-xs text-red-500"
+    //                 onClick={() =>
+    //                   setImages((prev) => prev.filter((_, i) => i !== index))
+    //                 }
+    //               >
+    //                 ✕
+    //               </button>
+    //             </div>
+    //           ))}
+    //         </div>
+
+    //         <button
+    //           onClick={handleSubmit}
+    //           className={`w-full py-2 rounded font-semibold ${isSubmitting
+    //             ? 'bg-gray-400 text-white cursor-not-allowed'
+    //             : 'bg-red-600 text-white hover:bg-red-700'
+    //             }`}
+    //           disabled={isSubmitting}
+    //         >
+    //           {isSubmitting ? 'Đang đánh giá...' : 'Gửi Đánh Giá'}
+    //         </button>
+    //       </div>
+    //     ) : (
+    //       <div className="flex flex-col items-center justify-center space-y-4 p-6">
+    //         <img
+    //           src="https://fptshop.com.vn/img/reject-rating.png?w=640&q=75"
+    //           alt="Chưa mua sản phẩm"
+    //           className="w-65 h-50 object-contain"
+    //         />
+    //         <div className="text-red-500 font-bold text-center">
+    //           Gửi đánh giá không thành công! {reviewData.numberReviews} + {reviewData.purchaseQuantity}
+    //         </div>
+    //         <p> Quý khách vui lòng mua hàng để tham gia đánh giá sản phẩm.</p>
+    //       </div>
+    //     )}
+    //   </DialogContent>
+    // </Dialog>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={handDanhGia}>
+        <Button
+          className="bg-blue-600 text-white hover:bg-blue-700"
+          onClick={handDanhGia}
+        >
           Đánh giá
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl w-full">
-        {hasPurchased ? (
+        {reviewData.hasPurchased && reviewData.purchaseQuantity > reviewData.numberReviews ? (
           <div className="w-full bg-white rounded-lg p-4 space-y-6">
             <h2 className="text-lg font-bold">Đánh giá & nhận xét</h2>
             <div className="text-base font-bold text-green-600">
-             {reviewData?.product}
+              {reviewData?.product}
             </div>
+
+            {/* Đánh giá sao */}
             <div>
               <div className="text-sm font-semibold mb-1">Đánh giá chung</div>
               <div className="flex gap-2">
@@ -149,10 +257,11 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
                       {val === 1 ? 'Rất Tệ' : val === 2 ? 'Tệ' : val === 3 ? 'Bình thường' : val === 4 ? 'Tốt' : 'Tuyệt vời'}
                     </span>
                   </div>
-                ))}
+                ))} 
               </div>
             </div>
 
+            {/* Comment */}
             <textarea
               className="w-full border border-gray-300 rounded p-2 text-sm"
               rows={4}
@@ -161,6 +270,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
               onChange={(e) => setComment(e.target.value)}
             />
 
+            {/* Upload hình */}
             <div>
               <label className="inline-flex items-center gap-2 cursor-pointer text-sm">
                 <Icon icon="lucide:image-plus" className="text-lg" />
@@ -185,9 +295,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
                   />
                   <button
                     className="absolute top-1 right-1 text-white rounded-full p-1 text-xs text-red-500"
-                    onClick={() =>
-                      setImages((prev) => prev.filter((_, i) => i !== index))
-                    }
+                    onClick={() => setImages((prev) => prev.filter((_, i) => i !== index))}
                   >
                     ✕
                   </button>
@@ -195,11 +303,10 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
               ))}
             </div>
 
+            {/* Nút submit */}
             <button
               onClick={handleSubmit}
-              className={`w-full py-2 rounded font-semibold ${isSubmitting
-                ? 'bg-gray-400 text-white cursor-not-allowed'
-                : 'bg-red-600 text-white hover:bg-red-700'
+              className={`w-full py-2 rounded font-semibold ${isSubmitting ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-red-600 text-white hover:bg-red-700'
                 }`}
               disabled={isSubmitting}
             >
@@ -216,7 +323,7 @@ const DanhGiaSanPham: React.FC<ProductReviews> = ({ setOpen, open,reviewData, ha
             <div className="text-red-500 font-bold text-center">
               Gửi đánh giá không thành công!
             </div>
-            <p> Quý khách vui lòng mua hàng để tham gia đánh giá sản phẩm.</p>
+            <p>Quý khách vui lòng mua thêm sản phẩm để tiếp tục đánh giá.</p>
           </div>
         )}
       </DialogContent>

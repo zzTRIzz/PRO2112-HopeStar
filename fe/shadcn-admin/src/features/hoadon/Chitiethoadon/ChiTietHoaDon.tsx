@@ -311,7 +311,7 @@ const ChiTietHoaDon: React.FC = () => {
                 idBill,
                 idProductDetail
             );
-            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật ${selectedImei.length} IMEI`);
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật số lượng sản phẩm chi tiết`);
             setSelectedImei([]);
             await loadProductDet();
             await loadImei(idProductDetail);

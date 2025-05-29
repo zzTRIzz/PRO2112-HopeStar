@@ -16,5 +16,11 @@ public interface ProductReviewsRepository extends JpaRepository<ProductReviews, 
             "where pr.productDetail.id = :idProductDetail")
     List<ProductReviews> findByProduct(@Param("idProductDetail") Integer idProductDetail);
 
+    @Query("SELECT COUNT(pr) " +
+            "FROM ProductReviews pr " +
+            "WHERE pr.account.id = :accountId " +
+            "AND pr.productDetail.id = :productDetailId")
+    Integer countReviewsByAccountAndProduct(@Param("accountId") Integer accountId,
+                                            @Param("productDetailId") Integer productDetailId);
 
 }

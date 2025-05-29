@@ -219,8 +219,8 @@ public class BanHangTaiQuay {
         Bill bill = billRepository.findById(billDetailDto.getIdBill())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
         SearchBillDetailDto savebillDetailDto = billDetailService.createBillDetail(billDetailDto);
-        billService.capNhatVoucherKhiChon(billDetailDto.getIdBill(), bill.getIdVoucher());
         billService.tongTienBill(billDetailDto.getIdBill());
+        billService.capNhatVoucherKhiChon(billDetailDto.getIdBill(), bill.getIdVoucher());
         return ResponseEntity.ok(savebillDetailDto);
     }
 
@@ -243,8 +243,8 @@ public class BanHangTaiQuay {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy hóa đơn"));
 
         productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProduct, quantyti);
-        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         billService.tongTienBill(idBill);
+        billService.capNhatVoucherKhiChon(idBill, bill.getIdVoucher());
         return ResponseEntity.ok("");
     }
 
@@ -271,7 +271,7 @@ public class BanHangTaiQuay {
     @PutMapping("/update-totalDue/{id}/{totalDue}")
     public ResponseEntity<BillDto> updateTotalDue(
             @PathVariable("id") Integer id,
-            @PathVariable("totalDue") BigDecimal totalDue) {
+            @PathVariable("totalDue") BigDecimal totalDue) throws Exception {
         BillDto updatedBill = billService.updateTotalDue(id, totalDue);
         return ResponseEntity.ok(updatedBill);
     }

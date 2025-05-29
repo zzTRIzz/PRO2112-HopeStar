@@ -41,15 +41,20 @@ public class ProductReviewsServiceImpl implements ProductReviewsService {
 
         Integer quantity = billRepository.getTotalQuantityByCustomerIdAndProductId(
                 account != null ? account.getId() : null, idProductDetail, StatusBill.HOAN_THANH);
-        Integer totalQuantity = billRepository.getTotalQuantity( idProductDetail, StatusBill.HOAN_THANH);
+        Integer totalQuantity = billRepository.getTotalQuantity(idProductDetail, StatusBill.HOAN_THANH);
 
         if (account != null) {
+            Integer numberReviews = productReviewRepository.countReviewsByAccountAndProduct(account.getId(), productDetail.getId());
             boolean hasSold = quantity != null && quantity > 0;
             reviews.setHasPurchased(hasSold);
+            reviews.setPurchaseQuantity(quantity);
+            reviews.setNumberReviews(numberReviews);
         } else {
             reviews.setHasPurchased(false);
+            reviews.setPurchaseQuantity(0);
+            reviews.setNumberReviews(0);
         }
-            reviews.setProduct(productDetail.getProduct().getName()+" "+productDetail.getRam().getCapacity()+"/"+productDetail.getRom().getCapacity()+"GB"+"-"+productDetail.getColor().getName());
+        reviews.setProduct(productDetail.getProduct().getName() + " " + productDetail.getRam().getCapacity() + "/" + productDetail.getRom().getCapacity() + "GB" + "-" + productDetail.getColor().getName());
 //        System.out.println(totalQuantity);
         reviews.setNumberSold(totalQuantity != null ? totalQuantity : 0);
 

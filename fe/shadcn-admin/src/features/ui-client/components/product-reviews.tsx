@@ -36,7 +36,8 @@ export interface RatingData {
   numberSold: number;
   evaluate: number;
   product: String,
-
+  purchaseQuantity:number
+  numberReviews:number
 }
 
 export interface ReviewsProps {

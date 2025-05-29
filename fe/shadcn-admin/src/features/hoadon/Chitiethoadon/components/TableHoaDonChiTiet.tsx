@@ -182,8 +182,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             // )}
                                                             disabled={!(
                                                                 // isMissingImei(pr.idProductDetail) &&
-                                                                Number(searchBill?.billType) === 1 &&
-                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN') // Kiểm tra trạng thái hóa đơn
+                                                                // Number(searchBill?.billType) === 1 &&
+                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN'  || searchBill?.status === 'DANG_CHUAN_BI_HANG')
                                                             )}
                                                         >
                                                             Cập nhật
@@ -254,8 +254,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                     deleteBillDetail(pr.id);
                                                 }}
                                                 disabled={!(
-                                                    Number(searchBill?.billType) === 1 &&
-                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN')
+                                                    // Number(searchBill?.billType) === 1 &&
+                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN'|| searchBill?.status === 'DANG_CHUAN_BI_HANG')
                                                 )}
                                             >
                                                 Xóa
