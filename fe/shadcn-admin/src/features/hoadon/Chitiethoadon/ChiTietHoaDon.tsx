@@ -8,7 +8,7 @@ import {
     findImeiByIdProductDaBan, findBill,
     findImeiById,
     addBillDetailAndCreateImeiSold, deleteProduct, getImei,
-    getProductDetail, getByIdBillDetail, getVoucherDangSuDung,
+    getProductDetail, getByIdBillDetail, capNhatImeiDaBan,
     updateImeiSold,
     addBillHistory,
 
@@ -84,7 +84,7 @@ const ChiTietHoaDon: React.FC = () => {
     const [listImei, setListImei] = useState<imei[]>([]);
     const [idBill, setIdBill] = useState<number>(0);
     const [idProductDetail, setIdProductDetail] = useState<number>(0);
-    const [roductDetail, setProductDetail] = useState<number>(0);
+    const [productDetail, setProductDetail] = useState<ProductDetail>();
     const [selectedImei, setSelectedImei] = useState<number[]>([]);
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -234,6 +234,7 @@ const ChiTietHoaDon: React.FC = () => {
         try {
             setIdProductDetail(product.id)
             setSelectedImei([]);
+            setProductDetail(product)
             loadImei(product.id)
             setDialogContent('imei')
         } catch (error) {
@@ -271,7 +272,7 @@ const ChiTietHoaDon: React.FC = () => {
                 idProductDetail: idProductDetail,
                 id_Imei: selectedImei,
             })
-            themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm `);
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm sản phẩm chi tiết ${productDetail?.name} ${productDetail?.ram}/${productDetail?.rom} ${productDetail?.descriptionRom} (${productDetail?.color}) số lượng ${selectedImei.length} vào hóa đơn`);
 
             setSelectedImei([])
             setIsDialogOpen(false)
@@ -322,10 +323,55 @@ const ChiTietHoaDon: React.FC = () => {
             showSuccessToast("Cập nhật số lượng sản phẩm thành công");
         } catch (error) {
             console.error("Lỗi API:", error);
-            // showErrorToast("Lỗi cập nhật số lượng sản phẩm");
         }
     };
+
+
+    const capNhatImeiSold = async (idBillDetail: number) => {
+        try {
+            if (selectedImei.length <= 0) {
+                showErrorToast("Vui lòng chọn imei");
+                return;
+            }
+            let result = true;
+            if (quantity !== selectedImei.length) {
+                result = await showDialog({
+                    type: 'confirm',
+                    title: 'Xác nhận hủy hóa đơn',
+                    message: `Bạn chắc chắn muốn cập nhật số lượng từ <strong style="color: #007BFF;">${quantity}</strong> sang <strong style="color: #007BFF;">${selectedImei.length}</strong> sản phẩm chi tiết không?`,
+                    confirmText: 'Xác nhận',
+                    cancelText: 'Hủy bỏ',
+                })
+            }
+            if (!result) {
+                showErrorToast('Cập nhật sản phẩm chi tiết không thành công');
+                return;
+            }
+
+
+            await capNhatImeiDaBan({
+                id_Imei: selectedImei,
+                idBillDetail: idBillDetail
+            },
+                idBill,
+                idProductDetail
+            );
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã cập nhật số lượng sản phẩm chi tiết`);
+            setSelectedImei([]);
+            await loadProductDet();
+            await loadImei(idProductDetail);
+            loadTongBill();
+            showSuccessToast("Cập nhật số lượng sản phẩm thành công");
+        } catch (error) {
+            console.error("Lỗi API:", error);
+        }
+    };
+
+
+    
     const [quantity, setQuantity] = useState<number>(0);
+
+
     // Cập nhật product 
     const handleUpdateProduct = async (idPD: number, billDetaill: number, quantity: number) => {
         setSelectedImei([]);  // Reset trước khi cập nhật
@@ -432,6 +478,7 @@ const ChiTietHoaDon: React.FC = () => {
                                 updateHandleImeiSold={updateHandleImeiSold}
                                 deleteBillDetail={deleteBillDetail}
                                 searchBill={searchBill}
+                                capNhatImeiSold={capNhatImeiSold}
                             />
                         </div>
 
