@@ -31,6 +31,7 @@ interface TableHoaDonChiTietProps {
     handleUpdateProduct: (idProductDetail: number, idBillDetail: number, quantity: number) => void
     handleCheckboxChange: (id: number) => void;
     updateHandleImeiSold: (id: number) => void;
+    capNhatImeiSold: (id: number) => void;
     deleteBillDetail: (id: number) => void;
 }
 
@@ -45,7 +46,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
         handleCheckboxChange,
         updateHandleImeiSold,
         searchBill,
-        deleteBillDetail
+        deleteBillDetail,
+        capNhatImeiSold
     }) => {
         const CartEmpty = () => {
             return (
@@ -176,14 +178,8 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 handleUpdateProduct(pr.idProductDetail, pr.id, pr.quantity);
                                                                 setOpenDialogId(pr.id);
                                                             }}
-                                                            // disabled={!(
-                                                            //     isMissingImei(pr.idProductDetail) &&
-                                                            //     Number(searchBill?.billType) === 1
-                                                            // )}
                                                             disabled={!(
-                                                                // isMissingImei(pr.idProductDetail) &&
-                                                                // Number(searchBill?.billType) === 1 &&
-                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN'  || searchBill?.status === 'DANG_CHUAN_BI_HANG')
+                                                                (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN' || searchBill?.status === 'DANG_CHUAN_BI_HANG')
                                                             )}
                                                         >
                                                             Cập nhật
@@ -234,7 +230,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                                 </Table>
                                                             </ScrollArea>
                                                         </TableContainer>
-                                                        <Button
+                                                        {/* <Button
                                                             className='bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]'
                                                             onClick={() => {
                                                                 updateHandleImeiSold(pr.id);
@@ -242,7 +238,21 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                             }}
                                                         >
                                                             Chọn
+                                                        </Button> */}
+                                                        <Button
+                                                            className="bg-blue-600 pt-2 text-white hover:bg-gray-300 hover:text-blue-600 ml-[580px] mt-[18px]"
+                                                            onClick={() => {
+                                                                if (isMissingImei(pr.idProductDetail)) {
+                                                                    updateHandleImeiSold(pr.id);
+                                                                } else {
+                                                                    capNhatImeiSold(pr.id);
+                                                                }
+                                                                setOpenDialogId(null);
+                                                            }}
+                                                        >
+                                                            Cập nhật
                                                         </Button>
+
 
                                                     </DialogContent>
                                                 </Dialog>
@@ -255,7 +265,7 @@ const TableHoaDonChiTiet: React.FC<TableHoaDonChiTietProps> =
                                                 }}
                                                 disabled={!(
                                                     // Number(searchBill?.billType) === 1 &&
-                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN'|| searchBill?.status === 'DANG_CHUAN_BI_HANG')
+                                                    (searchBill?.status === 'CHO_XAC_NHAN' || searchBill?.status === 'DA_XAC_NHAN' || searchBill?.status === 'DANG_CHUAN_BI_HANG')
                                                 )}
                                             >
                                                 Xóa

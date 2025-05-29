@@ -256,8 +256,9 @@ public class BanHangTaiQuay {
     ) {
         int quantity = imeiSoldDto.getId_Imei().size();
 
-        imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(), imeiSoldDto.getId_Imei());
-
+//        imeiSoldService.creatImeiSold(imeiSoldDto.getIdBillDetail(), imeiSoldDto.getId_Imei());
+        imeiSoldService.updateImeiSold(imeiSoldDto.getIdBillDetail(),
+                imeiSoldDto.getId_Imei());
         billDetailService.capNhatImeiCHoOnline(idBill, idProductDetail, quantity);
 
         productDetailService.capNhatSoLuongVaTrangThaiProductDetail(idProductDetail, quantity);

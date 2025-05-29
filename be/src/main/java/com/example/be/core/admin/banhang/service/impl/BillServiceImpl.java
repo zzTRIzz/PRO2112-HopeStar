@@ -184,14 +184,6 @@ public class BillServiceImpl implements BillService {
 
             Bill savedBill = billRepository.save(bill);
 
-//            BillHistoryRequest billHistoryRequest = new BillHistoryRequest();
-//            billHistoryRequest.setIdBill(savedBill.getId());
-//            billHistoryRequest.setNote("Tạo hóa đơn thành công");
-//            billHistoryRequest.setActionType(StartusBillHistory.CHO_THANH_TOAN);
-//            billHistoryRequest.setIdNhanVien(idNhanVien);
-//            billHistoryService.addBillHistory(billHistoryRequest);
-
-
             return billMapper.dtoBillMapper(savedBill);
 
         } catch (Exception e) {
@@ -592,39 +584,39 @@ public class BillServiceImpl implements BillService {
                     () -> new RuntimeException("Bill not found with id:" + idBill)
             );
 //            System.out.println(bill);
-//            List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
-//            for (BillDetail bd : billDetail) {
-//                imeiSoldService.deleteImeiSold(bd.getId());
-//                productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
-//                capNhatVoucherKhiChon(idBill, null);
-//            }
-//            bill.setStatus(StatusBill.DA_HUY);
-//            billRepository.save(bill);
+            if (bill.getStatus() == StatusBill.CHO_THANH_TOAN) {
+                List<BillHistory> histories = billHistoryRepository.findBillHistoryByIdBill(bill.getId());
+                if (!histories.isEmpty()) {
+                    billHistoryRepository.deleteAll(histories);
+                }
 
-
-            List<BillHistory> histories = billHistoryRepository.findBillHistoryByIdBill(bill.getId());
-            if (!histories.isEmpty()) {
-                billHistoryRepository.deleteAll(histories);
-            }
-
-            List<BillDetail> billDetailList = billDetailRepository.findByIdBill(bill.getId());
+                List<BillDetail> billDetailList = billDetailRepository.findByIdBill(bill.getId());
 //            System.out.println(billDetailList);
-            for (BillDetail billDetail : billDetailList) {
-                List<Imei> imeis = imeiSoldRepository.searchImeiSold(billDetail.getId());
+                for (BillDetail billDetail : billDetailList) {
+                    List<Imei> imeis = imeiSoldRepository.searchImeiSold(billDetail.getId());
 
-                for (Imei imei : imeis) {
-                    imei.setStatus(StatusImei.NOT_SOLD);
+                    for (Imei imei : imeis) {
+                        imei.setStatus(StatusImei.NOT_SOLD);
+                    }
+                    if (!imeis.isEmpty()) {
+                        imeiRepository.saveAll(imeis);
+                    }
+                    imeiSoldRepository.deleteImeiSold(billDetail.getId());
+                    productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
+                    capNhatVoucherKhiChon(bill.getId(), null);
                 }
-                if (!imeis.isEmpty()) {
-                    imeiRepository.saveAll(imeis);
+                billDetailRepository.deleteAll(billDetailList);
+                billRepository.deleteById(idBill);
+            } else {
+                List<BillDetail> billDetail = billDetailRepository.findByIdBill(idBill);
+                for (BillDetail bd : billDetail) {
+                    imeiSoldService.deleteImeiSold(bd.getId());
+                    productDetailService.updateSoLuongSanPham(bd.getIdProductDetail().getId(), bd.getQuantity());
+                    capNhatVoucherKhiChon(idBill, null);
                 }
-                imeiSoldRepository.deleteImeiSold(billDetail.getId());
-                productDetailService.updateSoLuongSanPham(billDetail.getIdProductDetail().getId(), billDetail.getQuantity());
-                capNhatVoucherKhiChon(bill.getId(), null);
-
+                bill.setStatus(StatusBill.DA_HUY);
+                billRepository.save(bill);
             }
-            billDetailRepository.deleteAll(billDetailList);
-            billRepository.deleteById(idBill);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi cập nhật hủy hóa đơn cho hóa đơn: " + e.getMessage());

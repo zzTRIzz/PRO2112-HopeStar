@@ -114,7 +114,10 @@ public class BillDetailServiceImpl implements BillDetailService {
                 }
 
                 billDetail.setQuantity(billDetail.getQuantity() + quantity);
+//                billDetail.setPrice(productDetail.getPriceSell());
+//                billDetail.setTotalPrice(productDetail.getPriceSell().multiply(BigDecimal.valueOf(billDetail.getQuantity())));
                 billDetail.setTotalPrice(billDetail.getPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())));
+
             } else {
                 List<Imei> imeisDaBan = imeiRepository.findImeiSoldInOtherBillDetails(
                         billDetailDto.getId_Imei(), null);

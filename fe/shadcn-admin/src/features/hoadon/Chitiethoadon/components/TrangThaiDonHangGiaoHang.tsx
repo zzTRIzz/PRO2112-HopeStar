@@ -441,7 +441,7 @@ const TrangThaiDonHangGiaoHang: React.FC<TrangThaiDonHangProps> = ({
     phone: searchBill?.phone,
     address: searchBill?.address,
     items:
-      searchBill?.billDetailResponesList.map((detail) => ({
+      searchBill?.billDetailResponesList?.map((detail) => ({
         product:
           detail.productDetail.productName +
           ' ' +

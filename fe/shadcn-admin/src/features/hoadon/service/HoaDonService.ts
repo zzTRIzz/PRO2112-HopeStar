@@ -204,6 +204,39 @@ export const addBillDetailAndCreateImeiSold = async (billDetail: BillDetailSchem
     }
 };
 
+
+
+//  Cap nhat imei vào hóa đơn
+export const capNhatImeiDaBan = async (imeiSold: ImeiSoldSchema,
+    idBill: number,
+    idProduct: number
+) => {
+    const jwt = Cookies.get('jwt')
+    if (!imeiSold || !idBill || !idProduct) {
+        console.error('Dữ liệu không hợp lệ:', { imeiSold, idBill, idProduct });
+        throw new Error('Dữ liệu không hợp lệ');
+    }
+    try {
+        const response = await axios.post(`${API_BASE_URL}/update_imei_sold/${idBill}/${idProduct}`, imeiSold, {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error('Lỗi khi thêm IMEI đã bán:', error);
+
+        if (error.response && error.response.data) {
+            const message = error.response.data.message|| 'Imei đã bán. Vui lòng chọn imei khác !';
+            showErrorToast(message);
+        } else {
+            showErrorToast('Không thể kết nối đến server');
+        }
+        throw error;
+    }
+};
+
+
 export const updateImeiSold = async (imeiSold: ImeiSoldSchema,
     idBill: number,
     idProduct: number
