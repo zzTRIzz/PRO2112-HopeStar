@@ -84,6 +84,7 @@ const ChiTietHoaDon: React.FC = () => {
     const [listImei, setListImei] = useState<imei[]>([]);
     const [idBill, setIdBill] = useState<number>(0);
     const [idProductDetail, setIdProductDetail] = useState<number>(0);
+    const [roductDetail, setProductDetail] = useState<number>(0);
     const [selectedImei, setSelectedImei] = useState<number[]>([]);
     const [product, setProduct] = useState<SearchBillDetail[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -270,6 +271,8 @@ const ChiTietHoaDon: React.FC = () => {
                 idProductDetail: idProductDetail,
                 id_Imei: selectedImei,
             })
+            themBillHistory("CAP_NHAT_DON_HANG", `Đã thêm `);
+
             setSelectedImei([])
             setIsDialogOpen(false)
             await loadProductDet()
